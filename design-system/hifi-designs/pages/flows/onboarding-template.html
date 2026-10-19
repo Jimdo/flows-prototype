@@ -54,7 +54,6 @@
     display: flex;
     gap: var(--jui-layout-gap-l);
     overflow-x: auto;
-    scroll-snap-type: none;
     scrollbar-width: none;
     padding: var(--jui-layout-padding-l) 0 var(--jui-layout-padding-l);
     margin-bottom: -12px;
@@ -346,28 +345,42 @@
 
       carousel.addEventListener('pointerdown', function(e){
         if (e.pointerType !== 'mouse' || e.button !== 0) return;
-        drag = { x: e.clientX, left: carousel.scrollLeft, id: e.pointerId, moved: false };
+        drag = { x: e.clientX, lastX: e.clientX, id: e.pointerId, moved: false };
         dragged = false;
+        // Nothing gets chosen while a hand is on the row.
+        if (scrollTimer) { clearTimeout(scrollTimer); scrollTimer = null; }
       });
 
       carousel.addEventListener('pointermove', function(e){
         if (!drag || e.pointerId !== drag.id) return;
-        var dx = e.clientX - drag.x;
         if (!drag.moved) {
-          if (Math.abs(dx) < MOVE_THRESHOLD) return;
+          if (Math.abs(e.clientX - drag.x) < MOVE_THRESHOLD) return;
           drag.moved = true;
           carousel.classList.add('is-dragging');
           // Captured once it is a drag, not before: capturing on pointerdown
           // would steal the click from the card under the pointer.
           try { carousel.setPointerCapture(drag.id); } catch (err) {}
         }
-        carousel.scrollLeft = drag.left - dx;
+        // Step by step, from wherever the row is now, rather than from where
+        // it was when the hand landed. Measuring from the start means that
+        // anything else moving the scroller mid-drag — a snap, a scrollTo —
+        // leaves the arithmetic pointing at a position the row has already
+        // left, and the next move yanks it back there.
+        carousel.scrollLeft -= (e.clientX - drag.lastX);
+        drag.lastX = e.clientX;
         e.preventDefault();
       });
 
+      var draggedExpiry = null;
       function endDrag(e){
         if (!drag || (e && e.pointerId !== drag.id)) return;
         dragged = drag.moved;
+        /* The click this drag produces arrives within a frame or two, and
+           consumes the flag. If it never arrives — a drag released off the
+           row, a browser that skips it — the flag must not sit there waiting
+           to eat somebody's next real click. */
+        if (draggedExpiry) clearTimeout(draggedExpiry);
+        if (dragged) draggedExpiry = setTimeout(function(){ dragged = false; }, 300);
         if (drag.moved) {
           try { carousel.releasePointerCapture(drag.id); } catch (err) {}
         }
@@ -400,6 +413,10 @@
 
       /* Whatever came to rest in the first place is the choice. */
       function chooseAtAnchor(){
+        // A hand on the row is still deciding. Choosing mid-drag scrolled
+        // the row to a stop under the pointer and rescaled a card while it
+        // was being moved, which is most of what made the drag feel broken.
+        if (drag) return;
         var c = closestToAnchor();
         if (!c || c.getAttribute('aria-checked') === 'true') return;
         // Choosing it also seats it, for the scrolls that stop between two
