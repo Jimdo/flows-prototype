@@ -34,7 +34,7 @@
 
     <div class="setup-split-header">
       <div class="header-spacer"></div>
-      <button class="setup-back-btn" aria-label="Close" data-no-phrase
+      <button class="setup-back-btn" aria-label="Close" data-no-phrase id="paywallClose"
         data-nav-to="flows/home-dashboard-v2.html" data-nav-screen-id="scr-131">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
       </button>
@@ -176,6 +176,34 @@
 
   <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js"></script>
   <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js"></script>
+  <script>
+    /* ── Closing goes back, not home ──
+       The paywall is reached from several places: the legal trigger in the
+       add list, an upgrade card, a limit. Closing it should return the
+       seller to the screen they were reading, so whoever sends them here
+       says where from. Arriving with no origin — which includes leaving a
+       finished page by Done — closes to the bio page home, which is the one
+       place everything else leads to anyway.
+
+       Only names are accepted, never a path from the query string: a URL
+       that decides where a button goes is a URL that can send it anywhere. */
+    (function () {
+      var ORIGINS = {
+        'bio-page-links-edit': 'flows/bio-page-links-edit.html',
+        'bio-page-links-edit-limit': 'flows/bio-page-links-edit-limit.html',
+        'design-editor': 'flows/design-editor.html',
+        'home': 'flows/home-dashboard-v2.html'
+      };
+      var close = document.getElementById('paywallClose');
+      if (!close) return;
+      var from = new URLSearchParams(location.search).get('from');
+      var target = ORIGINS[from];
+      if (!target) return;                 // no origin: the markup's home stays
+      close.setAttribute('data-nav-to', target);
+      close.removeAttribute('data-nav-screen-id');
+    })();
+  </script>
+
   <script>
     (function () {
       var shell = document.getElementById('shell');

@@ -360,7 +360,10 @@
                   <p class="upgrade-banner-subtitle" data-inspect-phrase="">Written for your business, so warning notices never reach you.</p>
                 </div>
                 <div class="upgrade-banner-cta">
-                  <button type="button" class="btn btn-primary btn-upgrade" data-inspect-phrase="">Get legal texts</button>
+                  <button type="button" class="btn btn-primary btn-upgrade"
+                    data-inspect-phrase=""
+                    data-nav-to="flows/paywall-domain.html?from=bio-page-links-edit-limit"
+                    data-nav-screen-id="scr-054">Get legal texts</button>
                 </div>
               </div>
             </div>
@@ -787,7 +790,7 @@
            and close, which told the seller the limit had been lifted. */
         card.querySelector('button').addEventListener('click', () => {
           closeAdd();
-          window.location.href = '/flows-prototype/design-system/hifi-designs/pages/flows/paywall-domain.html';
+          window.location.href = PAYWALL;
         });
         ideaGrid.appendChild(card);
       });
@@ -869,6 +872,10 @@
       },
     };
 
+    /* Every upgrade path says where it came from, so closing the
+       pricing page puts the seller back in the screen they left. */
+    const PAYWALL = '/flows-prototype/design-system/hifi-designs/pages/flows/paywall-domain.html?from=bio-page-links-edit-limit';
+
     const PICKER_KIND = { booking: 'book', form: 'form', pages: 'page' };
     const PICKER_EDITOR = { booking: 'offer', form: 'form', pages: 'mainlink' };
 
@@ -902,7 +909,7 @@
           // Making a new one is what the plan does not allow; picking one
           // that already exists is not, so only the first leads away.
           if (isMake) {
-            window.location.href = '/flows-prototype/design-system/hifi-designs/pages/flows/paywall-domain.html';
+            window.location.href = PAYWALL;
             return;
           }
           addBlock({

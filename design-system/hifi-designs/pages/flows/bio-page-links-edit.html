@@ -396,7 +396,10 @@
                   <p class="upgrade-banner-subtitle" data-inspect-phrase="">Written for your business, so warning notices never reach you.</p>
                 </div>
                 <div class="upgrade-banner-cta">
-                  <button type="button" class="btn btn-primary btn-upgrade" data-inspect-phrase="">Get legal texts</button>
+                  <button type="button" class="btn btn-primary btn-upgrade"
+                    data-inspect-phrase=""
+                    data-nav-to="flows/paywall-domain.html?from=bio-page-links-edit"
+                    data-nav-screen-id="scr-054">Get legal texts</button>
                 </div>
               </div>
             </div>
@@ -848,6 +851,10 @@
        — the other suggestion, the idea cards, Create new — turns into the
        upgrade instead of quietly making it. Per-kind instead of per-page is
        one word here: `b.kind === kind` rather than a test for either. */
+    /* Every upgrade path says where it came from, so closing the
+       pricing page puts the seller back in the screen they left. */
+    const PAYWALL = '/flows-prototype/design-system/hifi-designs/pages/flows/paywall-domain.html?from=bio-page-links-edit';
+
     const PAGE_KINDS = ['book', 'form'];
     const limitReached = () =>
       [...BLOCKS.values()].some((b) => PAGE_KINDS.indexOf(b.kind) !== -1);
@@ -880,7 +887,7 @@
       btn.addEventListener('click', () => {
         const kind = btn.getAttribute('data-setup');
         if (limitReached()) {
-          window.location.href = '/flows-prototype/design-system/hifi-designs/pages/flows/paywall-domain.html';
+          window.location.href = PAYWALL;
           return;
         }
         if (kind !== 'form') return showEditor(kind);
@@ -999,7 +1006,7 @@
         card.querySelector('button').addEventListener('click', () => {
           closeAdd();
           if (capped) {
-            window.location.href = '/flows-prototype/design-system/hifi-designs/pages/flows/paywall-domain.html';
+            window.location.href = PAYWALL;
             return;
           }
           addBlock({
@@ -1137,7 +1144,7 @@
           // Making a second one is what the plan stops. Putting one you
           // already have on the page is not.
           if (capped) {
-            window.location.href = '/flows-prototype/design-system/hifi-designs/pages/flows/paywall-domain.html';
+            window.location.href = PAYWALL;
             return;
           }
           addBlock({

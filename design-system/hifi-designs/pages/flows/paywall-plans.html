@@ -32,7 +32,7 @@
     <div class="setup-split-header">
       <div class="paywall-header">
         <span class="paywall-logo" aria-label="Jimdo"><svg aria-hidden="true" viewBox="0 0 650 241" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M536 64.9905C505.071 64.9905 480 89.8375 480 120.49C480 151.143 505.071 175.99 536 175.99C566.929 175.99 592 151.143 592 120.49C592.01 89.8474 566.929 64.9905 536 64.9905ZM536 151.621C518.656 151.621 504.589 137.689 504.589 120.49C504.589 103.302 518.646 89.3595 536 89.3595C553.344 89.3595 567.411 103.292 567.411 120.49C567.411 137.689 553.354 151.621 536 151.621Z" fill="#010334"/> <path d="M228 67.9905H251.456L287.001 134.519L322.385 67.9905H346.002V174.99H319.633V117.819L289.613 174.99H284.399L254.378 117.969V174.99H228.01V67.9905H228Z" fill="#010334"/> <path d="M149 67.9905H122.515V132.046C122.515 142.257 114.224 150.538 104 150.538C93.7764 150.538 85.4853 142.257 85.4853 132.046H59C59 156.869 79.1469 176.99 104 176.99C128.853 176.99 149 156.869 149 132.046V67.9905Z" fill="#010334"/> <path d="M412.514 67.9905H373V174.99H412.514C442.054 174.99 466 151.039 466 121.49C466 91.9423 442.054 67.9905 412.514 67.9905ZM409.302 152.665H399.289V90.2963H409.302C426.516 90.2963 440.479 104.252 440.479 121.48C440.479 138.709 426.526 152.665 409.302 152.665Z" fill="#010334"/> <path d="M202 67.9905H175V173.99H202V67.9905Z" fill="#010334"/> <path d="M633.989 16.9798V225.001H16.0111V16.9798H633.989ZM650 0.990479H0V240.99H650V0.990479Z" fill="#010334"/> </svg></span>
-        <button class="icon-btn-sm muted" type="button" aria-label="Close" data-no-phrase
+        <button class="icon-btn-sm muted" type="button" aria-label="Close" data-no-phrase id="paywallClose"
           data-inspect-label="Close — Subtle Icon Only, Small"
           data-inspect-tokens='[{"prop":"size","figma":"measurements/size/32","css":"--jui-layout-dimension-s","value":"32px"},{"prop":"icon","figma":"measurements/size/16","css":"--jui-layout-padding-m","value":"16px"}]'
           data-nav-to="flows/home-dashboard-v2.html" data-nav-screen-id="scr-131">
@@ -137,6 +137,34 @@
 
   <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js"></script>
   <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js"></script>
+  <script>
+    /* ── Closing goes back, not home ──
+       The paywall is reached from several places: the legal trigger in the
+       add list, an upgrade card, a limit. Closing it should return the
+       seller to the screen they were reading, so whoever sends them here
+       says where from. Arriving with no origin — which includes leaving a
+       finished page by Done — closes to the bio page home, which is the one
+       place everything else leads to anyway.
+
+       Only names are accepted, never a path from the query string: a URL
+       that decides where a button goes is a URL that can send it anywhere. */
+    (function () {
+      var ORIGINS = {
+        'bio-page-links-edit': 'flows/bio-page-links-edit.html',
+        'bio-page-links-edit-limit': 'flows/bio-page-links-edit-limit.html',
+        'design-editor': 'flows/design-editor.html',
+        'home': 'flows/home-dashboard-v2.html'
+      };
+      var close = document.getElementById('paywallClose');
+      if (!close) return;
+      var from = new URLSearchParams(location.search).get('from');
+      var target = ORIGINS[from];
+      if (!target) return;                 // no origin: the markup's home stays
+      close.setAttribute('data-nav-to', target);
+      close.removeAttribute('data-nav-screen-id');
+    })();
+  </script>
+
 
 </body>
 </html>
