@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jimdo — Business Profile</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/management-shell.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+  button, input, select, textarea { font-family: inherit; }
+  body { background: var(--jui-color-background-gray-medium); }
+  .shell-working-area { background: var(--jui-color-background-gray-light); }
+
+  /* .placeholder-content lives in components.css */
+</style>
+</head>
+<body class="app-shell management-shell">
+
+  <!-- ─── Jimdo Topbar ─── -->
+  <div class="topbar" data-no-phrase>
+    <button class="topbar-left" aria-label="Menu">
+      <div class="jimdo-logo jimdo-logo--compact" aria-label="Jimdo">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M12 22.8c5.965 0 10.8-4.835 10.8-10.8 0-5.965-4.835-10.8-10.8-10.8C6.035 1.2 1.2 6.035 1.2 12c0 5.965 4.835 10.8 10.8 10.8Zm1.334-16.82h3.02v7.31a5.13 5.13 0 0 1-10.26 0h3.02a2.11 2.11 0 0 0 4.221 0V5.98Z"/></svg>
+      </div>
+      <div class="jimdo-logo jimdo-logo--wordmark" aria-label="Jimdo">
+        <svg viewBox="0 0 650 241" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M536 64.9905C505.071 64.9905 480 89.8375 480 120.49C480 151.143 505.071 175.99 536 175.99C566.929 175.99 592 151.143 592 120.49C592.01 89.8474 566.929 64.9905 536 64.9905ZM536 151.621C518.656 151.621 504.589 137.689 504.589 120.49C504.589 103.302 518.646 89.3595 536 89.3595C553.344 89.3595 567.411 103.292 567.411 120.49C567.411 137.689 553.354 151.621 536 151.621Z" fill="currentColor"/><path d="M228 67.9905H251.456L287.001 134.519L322.385 67.9905H346.002V174.99H319.633V117.819L289.613 174.99H284.399L254.378 117.969V174.99H228.01V67.9905H228Z" fill="currentColor"/><path d="M149 67.9905H122.515V132.046C122.515 142.257 114.224 150.538 104 150.538C93.7764 150.538 85.4853 142.257 85.4853 132.046H59C59 156.869 79.1469 176.99 104 176.99C128.853 176.99 149 156.869 149 132.046V67.9905Z" fill="currentColor"/><path d="M412.514 67.9905H373V174.99H412.514C442.054 174.99 466 151.039 466 121.49C466 91.9423 442.054 67.9905 412.514 67.9905ZM409.302 152.665H399.289V90.2963H409.302C426.516 90.2963 440.479 104.252 440.479 121.48C440.479 138.709 426.526 152.665 409.302 152.665Z" fill="currentColor"/><path d="M202 67.9905H175V173.99H202V67.9905Z" fill="currentColor"/><path d="M633.989 16.9798V225.001H16.0111V16.9798H633.989ZM650 0.990479H0V240.99H650V0.990479Z" fill="currentColor"/></svg>
+      </div>
+      <span class="topbar-menu-label">Menu</span>
+    </button>
+    <div class="topbar-right">
+      <nav class="topbar-nav-links" aria-label="Global">
+        <button class="btn-subtle topbar-nav-btn upgrade">Upgrade</button>
+        <button class="btn-subtle topbar-nav-btn">Help</button>
+        <button class="btn-subtle topbar-nav-btn">Projects</button>
+      </nav>
+      <button class="icon-btn topbar-account" aria-label="Account">
+        <div class="topbar-account-circle">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M19 19C19 16.2386 16.7614 14 14 14H10C7.23858 14 5 16.2386 5 19V21H19V19Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <div class="shell-middle">
+
+    <!-- ─── Sidebar — Jimdo journey ─── -->
+    <aside class="shell-side-menu" data-no-phrase>
+      <nav class="sidebar-nav" aria-label="Jimdo">
+        <button class="sidebar-nav-item">
+          <svg viewBox="0 0 24 24"><path d="M9 21V12h6v9M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/></svg>
+          Dashboard
+        </button>
+        <button class="sidebar-nav-item">
+          <svg viewBox="0 0 24 24"><path d="M20 20V9L13 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20Z"/><path d="M13 2V7C13 8.10457 13.8954 9 15 9H20"/></svg>
+          Website
+        </button>
+        <button class="sidebar-nav-item">
+          <svg viewBox="0 0 24 24"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>
+          Analytics
+        </button>
+        <button class="sidebar-nav-item">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          Settings
+        </button>
+        <button class="sidebar-nav-item active" aria-current="page">
+          <svg viewBox="0 0 24 24"><path d="M10 14L15 9"/><path d="M12.5 15.5C13.0523 16.0523 13.0523 16.9477 12.5 17.5L8.91422 21.0858C8.13317 21.8668 6.86684 21.8668 6.08579 21.0858L2.91422 17.9142C2.13317 17.1332 2.13317 15.8668 2.91422 15.0858L6.5 11.5C7.05229 10.9477 7.94772 10.9477 8.5 11.5"/><path d="M11.5 8.5C10.9477 7.94771 10.9477 7.05228 11.5 6.5L15.0858 2.91421C15.8668 2.13316 17.1331 2.13316 17.9142 2.91421L21.0858 6.08579C21.8668 6.86683 21.8668 8.13316 21.0858 8.91421L17.5 12.5C16.9477 13.0523 16.0523 13.0523 15.5 12.5"/></svg>
+          Business Profile
+        </button>
+      </nav>
+    </aside>
+
+    <!-- ─── Working Area ─── -->
+    <main class="shell-working-area">
+      <div class="management-content">
+        <div class="placeholder-content">
+          <div class="placeholder-content-title">Business Profile</div>
+          <div class="placeholder-content-sub">Jimdo · Management</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+</body>
+</html>

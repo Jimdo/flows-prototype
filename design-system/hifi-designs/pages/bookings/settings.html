@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bookings — Settings</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/management-shell.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<script type="module" src="/flows-prototype/design-system/hifi-designs/shared/shell-components.js"></script>
+<style>
+/* lint-disable */
+  body { background: var(--jui-color-background-gray-canvas); }
+
+  .settings-page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-l, 24px);
+    padding: var(--jui-layout-padding-xl, 40px);
+    max-width: 808px;
+  }
+
+  .settings-title {
+    font-size: var(--jui-typography-headline-medium-size, 40px);
+    font-weight: var(--jui-typography-headline-medium-weight, 400);
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+    color: var(--jui-color-typography-gray-on-light-default);
+    margin: 0;
+  }
+
+  .settings-sections {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-m, 16px);
+  }
+
+  /* Section card — mirrors @jimdo/ui Card with headline + description + cta header. */
+  .section-card {
+    background: var(--jui-color-background-gray-light, #fff);
+    border: 1px solid var(--jui-color-stroke-gray-default, #e6e6e6);
+    border-radius: var(--jui-style-radius-l, 12px);
+    overflow: hidden;
+  }
+
+  .section-card-header {
+    padding: var(--jui-layout-padding-m, 16px) var(--jui-layout-padding-l, 24px);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--jui-layout-gap-m, 16px);
+    border-bottom: 1px solid var(--jui-color-stroke-gray-default);
+  }
+
+  .section-card-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .section-card-headline {
+    font-size: var(--jui-typography-subheadline-medium-size, 20px);
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--jui-color-typography-gray-on-light-default);
+    margin: 0 0 var(--jui-layout-gap-xxs, 4px) 0;
+  }
+
+  .section-card-desc {
+    font-size: var(--jui-typography-body-small-size, 14px);
+    line-height: 1.5;
+    color: var(--jui-color-typography-gray-on-light-subdued);
+    margin: 0;
+  }
+
+  .section-card-body {
+    padding: var(--jui-layout-padding-s, 12px) 0;
+  }
+
+  /* Body when there's nothing in there (e.g. a description-only card) */
+  .section-card-body--padded {
+    padding: var(--jui-layout-padding-m, 16px) var(--jui-layout-padding-l, 24px);
+  }
+
+  /* Row inside a list-style section. Mirrors DataTable row shape. */
+  .section-row {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-m, 16px);
+    padding: var(--jui-layout-padding-s, 12px) var(--jui-layout-padding-l, 24px);
+  }
+
+  .section-row + .section-row {
+    border-top: 1px solid var(--jui-color-stroke-gray-default);
+  }
+
+  .section-row-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .section-row-title {
+    font-size: var(--jui-typography-body-medium-size, 16px);
+    font-weight: var(--jui-typography-body-medium-medium-weight, 500);
+    line-height: 1.5;
+    color: var(--jui-color-typography-gray-on-light-default);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-xs, 8px);
+  }
+
+  .section-row-sub {
+    font-size: var(--jui-typography-body-small-size, 14px);
+    line-height: 1.5;
+    color: var(--jui-color-typography-gray-on-light-subdued);
+    margin: 0;
+  }
+
+  /* Light Tag variant — used for the "Default" resource marker */
+  .row-tag-light {
+    display: inline-flex;
+    align-items: center;
+    height: 20px;
+    padding: 0 var(--jui-layout-padding-xs, 8px);
+    background: var(--jui-color-background-primary-light, #e6f0ff);
+    color: var(--jui-color-typography-primary-on-light-default, #0046d2);
+    border-radius: var(--jui-style-radius-s, 6px);
+    font-size: var(--jui-typography-body-small-size, 14px);
+    font-weight: 500;
+  }
+
+  .section-row-action {
+    flex-shrink: 0;
+  }
+
+  .icon-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    border-radius: var(--jui-style-radius-s, 6px);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+
+  .icon-btn:hover {
+    background: var(--jui-color-background-gray-canvas);
+  }
+
+  /* Toggle row (Reminders section) */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--jui-layout-gap-m, 16px);
+    padding: var(--jui-layout-padding-s, 12px) var(--jui-layout-padding-l, 24px);
+  }
+
+  .toggle-row + .toggle-row {
+    border-top: 1px solid var(--jui-color-stroke-gray-default);
+  }
+
+  .toggle-label {
+    font-size: var(--jui-typography-body-medium-size, 16px);
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+
+  .toggle-sub {
+    font-size: var(--jui-typography-body-small-size, 14px);
+    color: var(--jui-color-typography-gray-on-light-subdued);
+    margin: 2px 0 0;
+  }
+
+  /* Toggle switch — uses tokens for on/off states */
+  .toggle-switch {
+    position: relative;
+    width: 40px;
+    height: 24px;
+    border-radius: 12px;
+    background: var(--jui-color-stroke-gray-default);
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.15s;
+    flex-shrink: 0;
+  }
+
+  .toggle-switch[aria-checked="true"] {
+    background: var(--jui-color-actions-primary-rest);
+  }
+
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--jui-color-background-gray-light);
+    transition: transform 0.15s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+
+  .toggle-switch[aria-checked="true"]::after {
+    transform: translateX(16px);
+  }
+
+  /* Select row (Timezone section) */
+  .select-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 360px;
+  }
+
+  .select-wrap select {
+    width: 100%;
+    height: 40px;
+    padding: 0 32px 0 var(--jui-layout-padding-s, 12px);
+    border: 1px solid var(--jui-color-stroke-gray-default);
+    border-radius: var(--jui-style-radius-s, 6px);
+    background: var(--jui-color-background-gray-light);
+    font-size: var(--jui-typography-body-medium-size, 16px);
+    color: var(--jui-color-typography-gray-on-light-default);
+    appearance: none;
+    cursor: pointer;
+  }
+
+  .select-wrap::after {
+    content: '';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    border-right: 1.5px solid var(--jui-color-typography-gray-on-light-default);
+    border-bottom: 1.5px solid var(--jui-color-typography-gray-on-light-default);
+    transform: translateY(-75%) rotate(45deg);
+    pointer-events: none;
+  }
+</style>
+</head>
+<body class="app-shell management-shell">
+
+  <jimdo-topbar></jimdo-topbar>
+
+  <div class="shell-middle">
+    <jimdo-sidebar
+      product="bookings"
+      active="settings"
+      variant="contextual"
+      back-label="Back to Dashboard"
+      back-product="core"
+      back-screen="main-navigation.html"
+      title="Bookings">
+    </jimdo-sidebar>
+
+    <main class="shell-working-area">
+      <div class="settings-page">
+
+        <h1 class="settings-title" data-inspect-phrase="settings.pageTitle">Settings</h1>
+
+        <div class="settings-sections">
+
+          <!-- ClosingTimesSection — absences with two example items -->
+          <section class="section-card" aria-labelledby="closing-times-headline">
+            <div class="section-card-header">
+              <div class="section-card-text">
+                <h2 id="closing-times-headline" class="section-card-headline" data-inspect-phrase="settings.closingTimes.headline">Time off</h2>
+                <p class="section-card-desc" data-inspect-phrase="settings.closingTimes.text">Block out dates when you're not available — holidays, vacations, or one-off closures.</p>
+              </div>
+              <button class="btn-primary btn-sm" data-inspect-phrase="settings.closingTimes.addCta">Add absence</button>
+            </div>
+            <div class="section-card-body">
+              <div class="section-row">
+                <div class="section-row-main">
+                  <p class="section-row-title" data-no-phrase>23 – 27 December 2026</p>
+                  <p class="section-row-sub" data-no-phrase>All day</p>
+                </div>
+                <div class="section-row-action">
+                  <button class="icon-btn" aria-label="Options" data-inspect-phrase="settings.closingTimes.optionsMenuAriaLabel">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <circle cx="12" cy="5" r="1.5" fill="currentColor"/>
+                      <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+                      <circle cx="12" cy="19" r="1.5" fill="currentColor"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div class="section-row">
+                <div class="section-row-main">
+                  <p class="section-row-title" data-no-phrase>Every Friday</p>
+                  <p class="section-row-sub" data-no-phrase>14:00 – 18:00</p>
+                </div>
+                <div class="section-row-action">
+                  <button class="icon-btn" aria-label="Options" data-inspect-phrase="settings.closingTimes.optionsMenuAriaLabel">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <circle cx="12" cy="5" r="1.5" fill="currentColor"/>
+                      <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+                      <circle cx="12" cy="19" r="1.5" fill="currentColor"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ResourcesSection — bookable resources (rooms, people) -->
+          <section class="section-card" aria-labelledby="resources-headline">
+            <div class="section-card-header">
+              <div class="section-card-text">
+                <h2 id="resources-headline" class="section-card-headline" data-inspect-phrase="settings.resources.headline">Resources</h2>
+                <p class="section-card-desc" data-inspect-phrase="settings.resources.description">Rooms, people, or equipment customers can book. Used to prevent double-booking.</p>
+              </div>
+              <button class="btn-primary btn-sm" data-inspect-phrase="settings.resources.addCta">Add resource</button>
+            </div>
+            <div class="section-card-body">
+              <div class="section-row">
+                <div class="section-row-main">
+                  <p class="section-row-title" data-no-phrase>
+                    Studio room A
+                    <span class="row-tag-light" data-inspect-phrase="settings.resources.defaultTag">Default</span>
+                  </p>
+                  <p class="section-row-sub" data-no-phrase>studio-a@studio-mitte.com</p>
+                </div>
+                <div class="section-row-action">
+                  <button class="icon-btn" aria-label="Options" data-inspect-phrase="settings.resources.optionsMenuAriaLabel">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <circle cx="12" cy="5" r="1.5" fill="currentColor"/>
+                      <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+                      <circle cx="12" cy="19" r="1.5" fill="currentColor"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div class="section-row">
+                <div class="section-row-main">
+                  <p class="section-row-title" data-no-phrase>Studio room B</p>
+                  <p class="section-row-sub" data-no-phrase>–</p>
+                </div>
+                <div class="section-row-action">
+                  <button class="icon-btn" aria-label="Options" data-inspect-phrase="settings.resources.optionsMenuAriaLabel">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <circle cx="12" cy="5" r="1.5" fill="currentColor"/>
+                      <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+                      <circle cx="12" cy="19" r="1.5" fill="currentColor"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div class="section-row">
+                <div class="section-row-main">
+                  <p class="section-row-title" data-no-phrase>Lena (photographer)</p>
+                  <p class="section-row-sub" data-no-phrase>lena@lena-photo.com</p>
+                </div>
+                <div class="section-row-action">
+                  <button class="icon-btn" aria-label="Options" data-inspect-phrase="settings.resources.optionsMenuAriaLabel">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <circle cx="12" cy="5" r="1.5" fill="currentColor"/>
+                      <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+                      <circle cx="12" cy="19" r="1.5" fill="currentColor"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- RemindersSection — single toggle (matches real source) -->
+          <section class="section-card" aria-labelledby="reminders-headline">
+            <div class="section-card-header">
+              <div class="section-card-text">
+                <h2 id="reminders-headline" class="section-card-headline" data-inspect-phrase="settings.reminders.headline">Reminders</h2>
+                <p class="section-card-desc" data-inspect-phrase="settings.reminders.description">Send automatic reminders so fewer customers forget their booking.</p>
+              </div>
+            </div>
+            <div class="section-card-body">
+              <div class="toggle-row">
+                <div class="toggle-label" data-inspect-phrase="settings.reminders.toggleLabel">Send booking reminders</div>
+                <button type="button" class="toggle-switch" role="switch" aria-checked="true" aria-label="Send booking reminders"></button>
+              </div>
+            </div>
+          </section>
+
+          <!-- TimezoneSection — region select -->
+          <section class="section-card" aria-labelledby="timezone-headline">
+            <div class="section-card-header">
+              <div class="section-card-text">
+                <h2 id="timezone-headline" class="section-card-headline" data-inspect-phrase="settings.timezone.headline">Timezone</h2>
+                <p class="section-card-desc" data-inspect-phrase="settings.timezone.description">All bookings and reminders use this timezone.</p>
+              </div>
+            </div>
+            <div class="section-card-body section-card-body--padded">
+              <div class="select-wrap">
+                <select aria-label="Timezone" data-no-phrase>
+                  <option data-no-phrase>(GMT+01:00) Europe — Berlin</option>
+                  <option data-no-phrase>(GMT+00:00) Europe — London</option>
+                  <option data-no-phrase>(GMT+01:00) Europe — Paris</option>
+                  <option data-no-phrase>(GMT−05:00) America — New York</option>
+                  <option data-no-phrase>(GMT+09:00) Asia — Tokyo</option>
+                </select>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </main>
+  </div>
+
+</body>
+</html>

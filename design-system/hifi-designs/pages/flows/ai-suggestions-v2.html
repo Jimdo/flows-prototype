@@ -1,0 +1,1472 @@
+<!-- Cloned from design-system/hifi-designs/pages/flows/ai-suggestions.html — adapt as needed -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ai-suggestions-v2</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/management-shell.css">
+<style>
+  /* Shell components (topbar, sidebar) rendered by shell-components.js.
+     Extended topbar CSS (bell, account dropdown) and contextual sidebar CSS
+     (back-link, section-title) live in management-shell.css. */
+  [hidden] { display: none !important; }
+
+  /* Custom element wrappers — transparent to flex/grid layout */
+  flows-button-card,
+  flows-checkin-item,
+  flows-checkin-card,
+  flows-companion-input { display: contents; }
+
+  /* ═══════════════════════════════════════
+     SHELL CANVAS — near-white work area
+     ═══════════════════════════════════════ */
+  .management-shell .shell-middle,
+  .management-shell .shell-working-area {
+    background: var(--jui-color-background-gray-medium);
+  }
+
+  /* ═══════════════════════════════════════
+     MAIN COLUMN — 768px responsive container
+     Matches every other management screen.
+     ═══════════════════════════════════════ */
+  .home-container {
+    width: 100%;
+    max-width: 768px;
+    padding: var(--jui-layout-padding-l) var(--jui-layout-padding-m);
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-padding-l);
+  }
+
+  /* ═══════════════════════════════════════
+     COMPANION SECTION — logo row + AI input bar
+     ═══════════════════════════════════════ */
+  .companion-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-m);
+  }
+  .companion-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .companion-logo-group {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-xxs);
+  }
+  /* CompanionColor logo: 119×18px natural dimensions */
+  .companion-logo-img {
+    height: 18px;
+    width: auto;
+    flex-shrink: 0;
+  }
+  /* "Learn how to use Companion" — inline link */
+  .companion-help-link {
+    padding: 0 var(--jui-layout-padding-s);
+    font-size: var(--jui-typography-body-small-medium-size, 14px);
+    font-weight: 500;
+    line-height: 1.57;
+    color: var(--jui-color-actions-primary-rest);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .companion-help-link:hover { text-decoration: underline; }
+  /* AI input bar: pill shape, blue border — 48px natural height (8+32+8) */
+  .companion-input-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-m);
+    width: 100%;
+    background: var(--jui-color-gray-white);
+    border: 1px solid var(--jui-color-actions-primary-rest);
+    border-radius: 9999px;
+    padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-xs) var(--jui-layout-padding-xs) 20px; /* 20px left-indent is Figma-specific */
+    cursor: text;
+    transition: border-color 120ms ease, background-color 120ms ease;
+  }
+  .companion-input-bar:hover {
+    background: var(--jui-color-gray-50);
+  }
+  .companion-input-bar:focus-visible,
+  .companion-input-bar.focused {
+    outline: none;
+    border-color: var(--jui-color-stroke-primary-actionable);
+    box-shadow: 0 4px 24px 0 var(--jui-color-blue-focus), 0 0 0 2px var(--jui-color-gray-white), 0 0 0 3px var(--jui-color-actions-primary-rest);
+  }
+  .companion-input-bar:active {
+    background: var(--jui-color-gray-100);
+  }
+  .companion-input-placeholder {
+    flex: 1 0 0;
+    min-width: 0;
+    font-size: var(--jui-typography-body-medium-regular-size, 16px);
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--jui-color-gray-400);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    user-select: none;
+  }
+  /* Send button */
+  .companion-send-btn {
+    flex-shrink: 0;
+    width: var(--jui-layout-dimension-s);
+    height: var(--jui-layout-dimension-s);
+    border-radius: var(--jui-style-radius-20);
+    background: var(--jui-color-gray-300);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--jui-color-gray-white);
+    transition: background-color 120ms ease;
+  }
+  .companion-send-btn:hover { background: var(--jui-color-gray-400); }
+
+  /* ═══════════════════════════════════════
+     FLOW DETAIL CARD — Figma 13975:13840
+     Purple-10 outer. Gray-100 inner border card.
+     ═══════════════════════════════════════ */
+  .flow-detail {
+    display: flex;
+    flex-direction: column;
+    background: var(--jui-color-background-upgrade-light);
+    border-radius: var(--jui-style-radius-20);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.02);
+    overflow: hidden;
+  }
+  .flow-detail-inner {
+    border: 1px solid var(--jui-color-gray-100);
+    border-radius: var(--jui-style-radius-20);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background: var(--jui-color-gray-white);
+  }
+  /* White header: 64px image + name + edit button */
+  .flow-detail-header {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-s);
+    padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-s) var(--jui-layout-padding-xs) var(--jui-layout-padding-xs);
+    background: var(--jui-color-gray-white);
+    border-bottom: 1px solid var(--jui-color-gray-50);
+    cursor: pointer;
+  }
+  .flow-detail-image {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--jui-style-radius-l);
+    object-fit: cover;
+    flex-shrink: 0;
+    background: var(--jui-color-gray-100);
+  }
+  .flow-detail-title-col {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--jui-layout-gap-s);
+    align-self: stretch;
+  }
+  .flow-detail-title-block {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-padding-xxs);
+    justify-content: center;
+  }
+  .flow-detail-name {
+    font-size: var(--jui-typography-sub-headline-medium-size);
+    font-weight: var(--jui-typography-sub-headline-medium-weight);
+    line-height: var(--jui-typography-sub-headline-medium-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .flow-detail-views {
+    font-size: var(--jui-typography-body-small-regular-size);
+    font-weight: var(--jui-typography-body-small-regular-weight);
+    line-height: var(--jui-typography-body-small-regular-lh);
+    color: var(--jui-color-gray-500);
+    white-space: nowrap;
+  }
+  .flow-detail-edit-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--jui-layout-dimension-s);
+    height: var(--jui-layout-dimension-s);
+    flex-shrink: 0;
+    border-radius: var(--jui-style-radius-xs);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--jui-color-typography-gray-on-light-subdued);
+    transition: background-color 120ms ease, border-radius 120ms ease;
+  }
+  .flow-detail-edit-btn:hover {
+    background: var(--jui-color-blue-10);
+    border-radius: var(--jui-style-radius-m);
+  }
+  /* Edit button focus — single 2px blue outline at 2px offset.
+     Replaces the previous double-ring box-shadow which read as bloated at 32px. */
+  .flow-detail-edit-btn:focus-visible {
+    outline: 2px solid var(--jui-color-actions-primary-rest);
+    outline-offset: 2px;
+    border-radius: var(--jui-style-radius-m);
+  }
+  /* Inner card — primary tab stop (role=link, tabindex=0).
+     Hover: blue outline at -2px so it sits exactly over the existing 1px gray border. */
+  .flow-detail-inner {
+    cursor: pointer;
+    outline: 2px solid transparent;
+    outline-offset: -2px;
+    transition: outline-color 120ms ease;
+  }
+  .flow-detail-inner:has(.flow-detail-header:hover),
+  .flow-detail-inner:focus-visible {
+    outline-color: var(--jui-color-actions-primary-rest);
+  }
+  /* Edit button shows blue-10 bg on full-card hover or focus (not just direct hover) */
+  .flow-detail-inner:has(.flow-detail-header:hover) .flow-detail-edit-btn,
+  .flow-detail-inner:focus-visible .flow-detail-edit-btn {
+    background: var(--jui-color-blue-10);
+    border-radius: var(--jui-style-radius-m);
+  }
+  /* URL row: anchor that opens live bio site in a new tab */
+  .flow-detail-link-row {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-xs);
+    padding: var(--jui-layout-padding-s) var(--jui-layout-padding-m);
+    background: var(--jui-color-gray-white);
+    cursor: pointer;
+    color: inherit;
+    text-decoration: none;
+    transition: background-color 120ms ease, border-radius 120ms ease;
+  }
+  /* Link bar hover/focus — same visual treatment (floating-pill look) */
+  .flow-detail-link-row:hover,
+  .flow-detail-link-row:focus-visible {
+    background: var(--jui-color-blue-10);
+    box-shadow: inset 0 0 0 2px var(--jui-color-gray-white);
+    border-radius: var(--jui-style-radius-20);
+  }
+  .flow-detail-link-row:focus-visible {
+    outline: 2px solid var(--jui-color-actions-primary-rest);
+    outline-offset: -2px;
+  }
+  .flow-detail-link-row:hover .flow-detail-link-icon,
+  .flow-detail-link-row:hover .flow-detail-link-url,
+  .flow-detail-link-row:focus-visible .flow-detail-link-icon,
+  .flow-detail-link-row:focus-visible .flow-detail-link-url {
+    color: var(--jui-color-actions-primary-rest);
+  }
+  .flow-detail-link-icon {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+  .flow-detail-link-url {
+    flex: 1;
+    min-width: 0;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.57;
+    letter-spacing: var(--jui-typography-link-small-ls);
+    color: var(--jui-color-typography-gray-on-light-default);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  /* Upgrade footer */
+  .flow-detail-upgrade {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-s);
+    padding: var(--jui-layout-padding-s) var(--jui-layout-padding-m);
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    width: 100%;
+    font-family: inherit;
+    text-align: left;
+    transition: background-color 120ms ease;
+  }
+  .flow-detail-upgrade:hover { background: transparent; }
+  /* Upgrade hover/focus — parent purple-10 wrap shifts to purple-medium with a
+     purple-dark hairline, mirroring the existing hover-only treatment. Scoped via
+     :has() so it only fires for the upgrade button — not for the inner card's
+     focus, which has its own outline. */
+  .flow-detail:has(.flow-detail-upgrade:hover),
+  .flow-detail:has(.flow-detail-upgrade:focus-visible) {
+    background: var(--jui-color-background-upgrade-medium);
+    box-shadow: 0 0 0 2px var(--jui-color-background-upgrade-dark);
+  }
+  .flow-detail-upgrade:focus-visible { outline: none; }
+  .flow-detail-upgrade-label {
+    flex: 1;
+    font-size: var(--jui-typography-label-small-size);
+    font-weight: var(--jui-typography-label-small-weight);
+    line-height: var(--jui-typography-label-small-lh);
+    letter-spacing: var(--jui-typography-label-small-ls);
+    text-transform: uppercase;
+    color: var(--jui-color-actions-upgrade-pressed);
+    white-space: nowrap;
+  }
+  .flow-detail-upgrade-arrow {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    color: var(--jui-color-actions-upgrade-pressed);
+  }
+
+
+  /* Entire row is clickable for items with toggle state */
+  .checkin-item[data-expanded] { cursor: pointer; transition: background-color 120ms ease; }
+
+  /* Pending item row — hover/pressed on canvas (same pattern as companion-input-bar) */
+  .checkin-item--pending[data-expanded]:hover  { background: var(--jui-color-gray-50); }
+  .checkin-item--pending[data-expanded]:active { background: var(--jui-color-gray-100); }
+  /* Active item row — blue-10 rest → blue-50 hover → blue-100 pressed */
+  .checkin-item--active[data-expanded]:hover  { background: var(--jui-color-background-primary-medium); }
+  .checkin-item--active[data-expanded]:active { background: var(--jui-color-background-primary-dark); }
+  /* Done item row — same hover treatment as pending (signals expandability) */
+  .checkin-item--done[data-expanded]:hover  { background: var(--jui-color-gray-50); }
+  .checkin-item--done[data-expanded]:active { background: var(--jui-color-gray-100); }
+
+  /* Chevron button hover/active/focus — matches icon-btn pattern */
+  .checkin-chevron { border-radius: 9999px; transition: background-color 120ms ease; }
+  .checkin-chevron:hover  { background: var(--jui-color-background-gray-canvas); }
+  .checkin-chevron:active { background: var(--jui-color-gray-100); }
+  .checkin-chevron:focus-visible { outline: 2px solid var(--jui-color-actions-primary-rest); outline-offset: 2px; }
+
+  /* Collapse: hide body content when item is collapsed */
+  .checkin-item--active[data-expanded="false"] .checkin-desc,
+  .checkin-item--active[data-expanded="false"] .checkin-actions,
+  .checkin-item--pending[data-expanded="false"] .checkin-desc,
+  .checkin-item--pending[data-expanded="false"] .checkin-actions,
+  .checkin-item--done[data-expanded="false"] .checkin-actions { display: none; }
+
+  /* Only the immediate next pending item gets a blue ring — subsequent ones are muted */
+  .checkin-item--pending ~ .checkin-item--pending .checkin-ring {
+    border-color: var(--jui-color-gray-200);
+  }
+
+
+  /* buttons-card removed — replaced by flows-section */
+
+  /* ═══════════════════════════════════════
+     FLOWS SECTION — outer white panel (Figma 14103:33340)
+     Wraps tabs row, flow card, limit alert, upgrade banner
+     ═══════════════════════════════════════ */
+  .flows-section {
+    background: var(--jui-color-gray-white);
+    border: 1px solid var(--jui-color-gray-50);
+    border-radius: var(--jui-style-radius-20);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+    padding: var(--jui-layout-padding-l);
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-m);
+  }
+  .flows-filter-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* ═══════════════════════════════════════
+     FLOW CARD — exact copy from home-dashboard.html
+     ═══════════════════════════════════════ */
+  .flow-card {
+    display: flex;
+    gap: var(--jui-layout-gap-s);
+    padding: var(--jui-layout-padding-xxs);
+    border-radius: var(--jui-style-radius-l);
+    background: var(--jui-color-background-gray-light);
+    border: 1px solid var(--jui-color-stroke-gray-default);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 120ms ease, box-shadow 120ms ease;
+    cursor: pointer;
+  }
+  .flow-card:hover { border-color: var(--jui-color-decorative-primary); }
+  .flow-card:focus-visible {
+    outline: none;
+    border-color: var(--jui-color-decorative-primary);
+    box-shadow: 0 0 0 1px var(--jui-color-decorative-primary);
+  }
+  .flow-card.selected {
+    border-width: 2px;
+    padding: calc(var(--jui-layout-padding-xxs) - 1px);
+    border-color: var(--jui-color-decorative-primary);
+  }
+  .flow-card-image {
+    width: var(--jui-layout-dimension-xl);
+    flex-shrink: 0;
+    border-radius: var(--jui-style-radius-m);
+    background: var(--jui-color-gray-100);
+    background-size: cover;
+    background-position: center;
+    align-self: stretch;
+    position: relative;
+    overflow: hidden;
+  }
+  .flow-card-image.muted::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: rgba(0, 0, 0, 0.15);
+    mix-blend-mode: color;
+  }
+  .flow-card-body {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--jui-layout-gap-s);
+    padding: var(--jui-layout-padding-m) var(--jui-layout-padding-xxs) var(--jui-layout-padding-xs) 0;
+  }
+  .flow-card-title {
+    font-size: var(--jui-typography-sub-headline-small-size);
+    font-weight: var(--jui-typography-sub-headline-small-weight);
+    line-height: var(--jui-typography-sub-headline-small-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .flow-card-counter {
+    display: flex; align-items: center;
+    gap: var(--jui-layout-gap-xs);
+    min-height: var(--jui-layout-dimension-s);
+  }
+  .flow-card-counter-text {
+    font-size: var(--jui-typography-body-small-regular-size);
+    font-weight: var(--jui-typography-body-small-regular-weight);
+    line-height: var(--jui-typography-body-small-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+  .flow-card-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--jui-color-typography-gray-on-light-default);
+  }
+  .flow-card-wrapper { position: relative; }
+  .flow-card-actions {
+    position: absolute;
+    bottom: calc(var(--jui-layout-padding-xs) + var(--jui-layout-padding-xxs));
+    right: calc(var(--jui-layout-padding-xxs) + var(--jui-layout-padding-xxs));
+    display: flex; align-items: center;
+    min-height: var(--jui-layout-dimension-s);
+    gap: var(--jui-layout-gap-xs);
+    z-index: 2;
+  }
+  .flow-card-status-row {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  /* ═══════════════════════════════════════
+     FLOW CARDS — review + live variants (Figma 14103:33374)
+     Single bordered card: gray-100 border, radius-l (12px), padding-xxs (4px)
+     ═══════════════════════════════════════ */
+  .flow-card {
+    display: flex;
+    gap: var(--jui-layout-gap-s);
+    align-items: flex-start;
+    padding: var(--jui-layout-padding-xxs);
+    border-radius: var(--jui-style-radius-l);
+    border: 1px solid var(--jui-color-gray-100);
+    background: var(--jui-color-gray-white);
+    text-decoration: none;
+    color: inherit;
+    overflow: hidden;
+    cursor: pointer;
+    outline: 2px solid transparent;
+    outline-offset: -2px;
+    transition: outline-color 120ms ease;
+  }
+  .flow-card:hover {
+    outline-color: var(--jui-color-actions-primary-rest);
+  }
+  .flow-card:focus-within {
+    box-shadow: 0 4px 24px 0 var(--jui-color-blue-focus), 0 0 0 2px var(--jui-color-gray-white), 0 0 0 3px var(--jui-color-actions-primary-rest);
+  }
+  /* Image container: 64px wide, stretches full height, clips to 4px radius */
+  .flow-card-image-wrap {
+    flex-shrink: 0;
+    width: var(--jui-layout-dimension-xl);
+    align-self: stretch;
+    border-radius: var(--jui-style-radius-s);
+    overflow: hidden;
+    position: relative;
+    min-height: 60px;
+  }
+  .flow-card-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    pointer-events: none;
+    border-radius: var(--jui-style-radius-m);
+  }
+  .flow-card--review .flow-card-img { opacity: 0.5; }
+  /* Card body */
+  .flow-card-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-s);
+    padding: var(--jui-layout-padding-s) var(--jui-layout-padding-xxs) var(--jui-layout-padding-xxs) 0;
+  }
+  .flow-card-title {
+    font-size: var(--jui-typography-sub-headline-medium-size);
+    font-weight: var(--jui-typography-sub-headline-medium-weight);
+    line-height: var(--jui-typography-sub-headline-medium-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-right: var(--jui-layout-padding-xs);
+  }
+  .flow-card-activity {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  /* "Hidden" status — icon + text */
+  .flow-card-status {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-xs);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.57;
+    color: var(--jui-color-gray-500);
+  }
+  /* Live card stats */
+  .flow-card-live-stats {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-l);
+  }
+  /* Edit + more-vertical action buttons */
+  .flow-card-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-s);
+  }
+  .flow-card-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--jui-layout-dimension-s);
+    height: var(--jui-layout-dimension-s);
+    border-radius: var(--jui-style-radius-xs);
+    background: transparent;
+    border: none;
+    color: var(--jui-color-typography-gray-on-light-subdued);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background-color 120ms ease, border-radius 120ms ease;
+  }
+  .flow-card-action-btn:hover {
+    background: var(--jui-color-blue-10);
+    border-radius: var(--jui-style-radius-m);
+  }
+  .flow-card-action-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--jui-color-gray-white), 0 0 0 4px var(--jui-color-actions-primary-rest);
+  }
+  /* Context row (review only): yellow dot + NEEDS REVIEW + action hint */
+  .flow-card-context {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-s);
+    padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-s);
+  }
+  .flow-card-context-dot {
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+    background: var(--jui-color-yellow-500);
+  }
+  .flow-card-context-label {
+    font-size: var(--jui-typography-label-small-size);
+    font-weight: var(--jui-typography-label-small-weight);
+    line-height: var(--jui-typography-label-small-lh);
+    letter-spacing: var(--jui-typography-label-small-ls);
+    text-transform: uppercase;
+    color: var(--jui-color-gray-600);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .flow-card-context-text {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.57;
+    color: var(--jui-color-gray-500);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ═══════════════════════════════════════
+     CHECK-IN CARD — Figma 14007:8690
+     ═══════════════════════════════════════ */
+  .checkin-card {
+    background: var(--jui-color-gray-white);
+    border: 1px solid var(--jui-color-gray-50);
+    border-radius: var(--jui-style-radius-20);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-m);
+    padding: var(--jui-layout-padding-l);
+  }
+  /* Progress header: ring + label + counter */
+  .checkin-progress-header {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-m);
+    padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-xs);
+    border-radius: var(--jui-style-radius-l);
+    overflow: clip;
+  }
+  .checkin-progress-labels {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--jui-layout-dimension-xs);
+    font-size: var(--jui-typography-label-small-size);
+    font-weight: var(--jui-typography-label-small-weight);
+    line-height: var(--jui-typography-label-small-lh);
+    letter-spacing: var(--jui-typography-label-small-ls);
+    text-transform: uppercase;
+    color: var(--jui-color-typography-gray-on-light-default);
+    white-space: nowrap;
+  }
+  .checkin-progress-title {
+    font-size: 14px;
+    font-weight: var(--jui-typography-label-small-weight);
+    letter-spacing: var(--jui-typography-label-small-ls);
+  }
+  /* Items list */
+  .checkin-items {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-xxs);
+  }
+  /* Base item */
+  .checkin-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--jui-layout-gap-m);
+    padding: var(--jui-layout-padding-s) var(--jui-layout-padding-m);
+    border-radius: var(--jui-style-radius-l);
+  }
+  .checkin-item--done {
+    background: var(--jui-color-background-gray-canvas);
+    align-items: flex-start;
+  }
+  /* Done state, collapsed — back to single-row vertical centering for tight look */
+  .checkin-item--done[data-expanded="false"] { align-items: center; }
+  .checkin-item--active { background: var(--jui-color-blue-10); }
+  .checkin-item--pending { background: var(--jui-color-background-gray-canvas); }
+  /* Green check pill — sits inside .checkin-mark-btn on done rows */
+  .checkin-check {
+    display: flex;
+    align-items: center;
+    background: var(--jui-color-green-400);
+    border-radius: 9999px;
+    padding: 2px;
+    color: var(--jui-color-gray-white);
+  }
+  .checkin-check svg { width: 16px; height: 16px; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  /* Done text: strikethrough */
+  .checkin-done-text {
+    font-size: var(--jui-typography-sub-headline-small-size);
+    font-weight: var(--jui-typography-sub-headline-small-weight);
+    line-height: var(--jui-typography-sub-headline-small-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+    text-decoration: line-through;
+  }
+  /* Mark-complete button — circle affordance. Clicking flips the row to "done".
+     Focusable, keyboard-accessible. Hover/focus/pressed states all read against
+     both the gray-50 (pending row hover) and blue-10 (active row) backgrounds. */
+  .checkin-mark-btn {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    padding: 2px;
+    background: none;
+    border: none;
+    border-radius: 9999px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 120ms ease;
+  }
+  .checkin-mark-btn:hover  { background: var(--jui-color-background-primary-medium); }
+  .checkin-mark-btn:active { background: var(--jui-color-background-primary-dark); }
+  .checkin-mark-btn:focus-visible {
+    outline: 2px solid var(--jui-color-actions-primary-rest);
+    outline-offset: 2px;
+  }
+  /* Done-state variant — clicking the green check reverts to incomplete.
+     Hover halo is gray (not blue) so it reads as a revert affordance. */
+  .checkin-mark-btn--done:hover  { background: var(--jui-color-gray-100); }
+  .checkin-mark-btn--done:active { background: var(--jui-color-gray-200); }
+  /* Ring inside the button — 20×20, 2px blue border. Fill shifts on hover/pressed
+     so the circle previews its done-state intent without becoming green. */
+  .checkin-ring {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--jui-color-actions-primary-rest);
+    border-radius: 9999px;
+    background: transparent;
+    transition: background-color 120ms ease;
+  }
+  .checkin-mark-btn:hover  .checkin-ring { background: var(--jui-color-background-gray-light); }
+  .checkin-mark-btn:active .checkin-ring { background: var(--jui-color-actions-primary-rest); }
+  /* Item body */
+  .checkin-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-m);
+  }
+  .checkin-title-block { display: flex; flex-direction: column; gap: var(--jui-layout-gap-xxs); }
+  .checkin-title-row { display: flex; align-items: center; gap: var(--jui-layout-gap-s); }
+  .checkin-title {
+    font-size: var(--jui-typography-sub-headline-small-size);
+    font-weight: var(--jui-typography-sub-headline-small-weight);
+    line-height: var(--jui-typography-sub-headline-small-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+    flex-shrink: 0;
+  }
+  /* NEXT badge */
+  .checkin-next-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 var(--jui-layout-padding-xs);
+    border-radius: var(--jui-style-radius-s);
+    background: var(--jui-color-background-primary-dark);
+    font-size: var(--jui-typography-label-small-size);
+    font-weight: var(--jui-typography-label-small-weight);
+    line-height: var(--jui-typography-label-small-lh);
+    letter-spacing: var(--jui-typography-label-small-ls);
+    text-transform: uppercase;
+    color: var(--jui-color-actions-primary-rest);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .checkin-desc {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.57;
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+  .checkin-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-l);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.57;
+    letter-spacing: var(--jui-typography-link-small-ls);
+    white-space: nowrap;
+  }
+  .checkin-action-primary {
+    color: var(--jui-color-actions-primary-rest);
+    background: none; border: none; padding: 0;
+    font-family: inherit; font-size: inherit; font-weight: inherit;
+    line-height: inherit; letter-spacing: inherit;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .checkin-action-primary:hover { text-decoration: underline; }
+  .checkin-action-primary:focus-visible {
+    outline: 2px solid var(--jui-color-actions-primary-rest);
+    outline-offset: 2px;
+    border-radius: var(--jui-style-radius-xs);
+  }
+  /* "Done" — gray text button, mirrors clicking the circle (mark complete) */
+  .checkin-action-done {
+    color: var(--jui-color-gray-400);
+    background: none; border: none; padding: 0;
+    font-family: inherit; font-size: inherit; font-weight: inherit;
+    line-height: inherit; letter-spacing: inherit;
+    cursor: pointer;
+  }
+  .checkin-action-done:hover { color: var(--jui-color-typography-gray-on-light-default); }
+  .checkin-action-done:focus-visible {
+    outline: 2px solid var(--jui-color-actions-primary-rest);
+    outline-offset: 2px;
+    border-radius: var(--jui-style-radius-xs);
+  }
+  /* Chevron */
+  .checkin-chevron {
+    flex-shrink: 0;
+    width: var(--jui-layout-dimension-xs);
+    height: var(--jui-layout-dimension-xs);
+    background: none; border: none; padding: 0;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    align-self: flex-start;
+    color: var(--jui-color-typography-gray-on-light-subdued);
+  }
+  .checkin-chevron svg { width: var(--jui-layout-dimension-xs); height: var(--jui-layout-dimension-xs); stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ═══════════════════════════════════════
+     BENEFIT JOURNEY CARD — Figma 13979:14625
+     ═══════════════════════════════════════ */
+  .benefit-journey {
+    background: var(--jui-color-gray-white);
+    border: 1px solid var(--jui-color-gray-50);
+    border-radius: var(--jui-style-radius-20);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.02);
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-padding-l);
+    padding: var(--jui-layout-padding-l);
+    overflow: hidden;
+  }
+  .bj-header { display: flex; align-items: flex-start; gap: var(--jui-layout-gap-s); }
+  .bj-header-text { flex: 1; min-width: 0; }
+  .bj-headline {
+    font-size: var(--jui-typography-sub-headline-small-size);
+    font-weight: var(--jui-typography-sub-headline-small-weight);
+    line-height: var(--jui-typography-sub-headline-small-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+  .bj-subtext {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.57;
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+  .bj-upgrade-group {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-xxs);
+    flex-shrink: 0;
+    background: none; border: none; padding: 0;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .bj-upgrade-label {
+    font-size: var(--jui-typography-label-small-size);
+    font-weight: var(--jui-typography-label-small-weight);
+    line-height: var(--jui-typography-label-small-lh);
+    letter-spacing: var(--jui-typography-label-small-ls);
+    text-transform: uppercase;
+    color: var(--jui-color-actions-upgrade-pressed);
+    white-space: nowrap;
+  }
+  .bj-upgrade-arrow { width: 16px; height: 16px; color: var(--jui-color-actions-upgrade-pressed); flex-shrink: 0; }
+  .bj-cards { display: flex; gap: var(--jui-layout-gap-m); }
+  .bj-card {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--jui-style-radius-16);
+    overflow: hidden;
+  }
+  .bj-card--best { background: var(--jui-color-background-positive-medium); }
+  .bj-card--alt  { background: var(--jui-color-gray-50); }
+  .bj-card-header { display: flex; align-items: center; gap: var(--jui-layout-gap-s); padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-m); }
+  .bj-card-header-label {
+    font-size: var(--jui-typography-label-small-size);
+    font-weight: var(--jui-typography-label-small-weight);
+    line-height: var(--jui-typography-label-small-lh);
+    letter-spacing: var(--jui-typography-label-small-ls);
+    text-transform: uppercase;
+  }
+  .bj-card--best .bj-card-header-label { color: var(--jui-color-typography-positive-on-light); }
+  .bj-card--alt  .bj-card-header-label { color: var(--jui-color-typography-gray-on-light-default); }
+  .bj-card-inner {
+    background: var(--jui-color-gray-white);
+    border: 1px solid var(--jui-color-gray-100);
+    border-radius: var(--jui-style-radius-16);
+    padding: var(--jui-layout-gap-m);
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-padding-l);
+  }
+  .bj-card-title {
+    font-size: var(--jui-typography-sub-headline-medium-size);
+    font-weight: var(--jui-typography-sub-headline-medium-weight);
+    line-height: var(--jui-typography-sub-headline-medium-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .bj-card-body { display: flex; flex-direction: column; gap: var(--jui-layout-gap-xxs); }
+  .bj-card-desc {
+    font-size: 14px; font-weight: 400; line-height: 1.57;
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+  .bj-card-desc strong { font-weight: 700; }
+  .bj-card-link {
+    font-size: 14px; font-weight: 500; line-height: 1.57;
+    letter-spacing: var(--jui-typography-link-small-ls);
+    color: var(--jui-color-actions-primary-rest);
+    background: none; border: none; padding: 0;
+    font-family: inherit; cursor: pointer; white-space: nowrap; text-align: left;
+  }
+  .bj-card-link:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════
+     ESSENTIALS BANNER — Bookings cross-sell
+     Mirrors the .flow-detail / .flow-detail-upgrade pattern: a
+     primary-light outer wrapper exposes a header strip above the
+     white inner card. The whole card is an <a>; the small CTA
+     inside is a visual affordance, not a separate target.
+     Inner card stacks vertically below 600px container width.
+     ═══════════════════════════════════════ */
+  .essentials-banner {
+    display: flex;
+    flex-direction: column;
+    background: var(--jui-color-background-primary-light);
+    border-radius: var(--jui-style-radius-20);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.02);
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition: background-color 120ms ease, box-shadow 120ms ease;
+  }
+  .essentials-banner:hover {
+    background: var(--jui-color-background-primary-medium);
+    box-shadow: 0 0 0 2px var(--jui-color-background-primary-dark);
+  }
+  .essentials-banner:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--jui-color-gray-white), 0 0 0 4px var(--jui-color-actions-primary-pressed);
+  }
+  .essentials-header-strip {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-s);
+    padding: var(--jui-layout-padding-s) var(--jui-layout-padding-m);
+  }
+  .essentials-header-strip-label {
+    flex: 1;
+    font-size: var(--jui-typography-label-small-size);
+    font-weight: var(--jui-typography-label-small-weight);
+    line-height: var(--jui-typography-label-small-lh);
+    letter-spacing: var(--jui-typography-label-small-ls);
+    text-transform: uppercase;
+    color: var(--jui-color-actions-primary-pressed);
+    white-space: nowrap;
+  }
+  .essentials-header-strip-arrow {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    color: var(--jui-color-actions-primary-pressed);
+  }
+  .essentials-inner {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--jui-layout-gap-xxs);
+    padding: var(--jui-layout-padding-xxs);
+    background: var(--jui-color-gray-white);
+    border: 1px solid var(--jui-color-gray-100);
+    border-radius: var(--jui-style-radius-20);
+    overflow: hidden;
+  }
+  @media (min-width: 600px) {
+    .essentials-inner {
+      grid-template-columns: 2fr 3fr;
+    }
+  }
+
+  /* LEFT — illustration panel: neutral gray-canvas wash that hosts the
+     calendar-checkmark animated SVG. Radius stays concentric with
+     .essentials-inner (outer-20 minus inner-padding-4 = 16). */
+  .essentials-illustration {
+    position: relative;
+    background: var(--jui-color-background-gray-canvas);
+    border-radius: var(--jui-style-radius-l);
+    padding: 0;
+    min-height: 220px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .essentials-illustration > svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* === Animation: calendar-checkmark-light ===
+     Calendar bloom-in → 14 day-dots pop in staggered → checkmark hops
+     onto day 15. Runs once on first render. Lifted from the artifact
+     at /Users/rhintze/Downloads/animate-images/. */
+  #calendar-checkmark-light .cal-card-outer {
+    opacity: 0;
+    transform: scale(0.95);
+    transform-origin: 268px 120px;
+    animation: ccBloomIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.1s forwards;
+  }
+  #calendar-checkmark-light .cal-card-inner {
+    opacity: 0;
+    animation: ccFadeIn 0.4s ease 0.3s forwards;
+  }
+  #calendar-checkmark-light .cal-dot {
+    transform-origin: center;
+    transform: scale(0);
+    animation: ccPopIn 0.3s cubic-bezier(0.22, 1.4, 0.36, 1) forwards;
+  }
+  #calendar-checkmark-light .cal-dot-1  { animation-delay: 0.40s; }
+  #calendar-checkmark-light .cal-dot-2  { animation-delay: 0.45s; }
+  #calendar-checkmark-light .cal-dot-3  { animation-delay: 0.50s; }
+  #calendar-checkmark-light .cal-dot-4  { animation-delay: 0.55s; }
+  #calendar-checkmark-light .cal-dot-5  { animation-delay: 0.60s; }
+  #calendar-checkmark-light .cal-dot-6  { animation-delay: 0.55s; }
+  #calendar-checkmark-light .cal-dot-7  { animation-delay: 0.60s; }
+  #calendar-checkmark-light .cal-dot-8  { animation-delay: 0.65s; }
+  #calendar-checkmark-light .cal-dot-9  { animation-delay: 0.70s; }
+  #calendar-checkmark-light .cal-dot-10 { animation-delay: 0.75s; }
+  #calendar-checkmark-light .cal-dot-11 { animation-delay: 0.70s; }
+  #calendar-checkmark-light .cal-dot-12 { animation-delay: 0.75s; }
+  #calendar-checkmark-light .cal-dot-13 { animation-delay: 0.80s; }
+  #calendar-checkmark-light .cal-dot-14 { animation-delay: 0.85s; }
+  #calendar-checkmark-light .checkmark-hop {
+    opacity: 0;
+    transform: scale(0.6);
+    transform-origin: 348px 160px;
+    animation: ccSoftReveal 0.4s cubic-bezier(0.22, 1.4, 0.36, 1) 1.1s forwards;
+  }
+  @keyframes ccBloomIn   { to { opacity: 1; transform: scale(1); } }
+  @keyframes ccFadeIn    { to { opacity: 1; } }
+  @keyframes ccPopIn     { to { transform: scale(1); } }
+  @keyframes ccSoftReveal { to { opacity: 1; transform: scale(1); } }
+  @media (prefers-reduced-motion: reduce) {
+    #calendar-checkmark-light .cal-card-outer,
+    #calendar-checkmark-light .cal-card-inner,
+    #calendar-checkmark-light .cal-dot,
+    #calendar-checkmark-light .checkmark-hop {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* RIGHT — content column. The stack is vertically centered within
+     the grid cell so it visually balances the illustration panel.
+     Title and benefit list sit as a tight info-group (gap-s); the CTA
+     gets a wider gap (gap-m) so it reads as a separate action.
+     Content padding is padding-s; combined with the outer
+     .essentials-inner padding-xxs the content sits 16px from the
+     white card edge. */
+  .essentials-content {
+    padding: var(--jui-layout-padding-s);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--jui-layout-gap-s);
+  }
+  .essentials-content > .btn-upgrade-subtle {
+    margin-top: var(--jui-layout-gap-xs);
+    align-self: flex-start;
+  }
+  .essentials-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-xxs);
+  }
+  .essentials-title {
+    font-size: var(--jui-typography-sub-headline-medium-size);
+    font-weight: var(--jui-typography-sub-headline-medium-weight);
+    line-height: var(--jui-typography-sub-headline-medium-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+    margin: 0;
+  }
+  .essentials-subtitle {
+    font-size: var(--jui-typography-body-medium-regular-size);
+    font-weight: var(--jui-typography-body-medium-regular-weight);
+    line-height: var(--jui-typography-body-medium-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-subdued);
+    margin: 0;
+  }
+  .essentials-feature-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-xs);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .essentials-feature {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-xs);
+    font-size: var(--jui-typography-body-medium-regular-size);
+    font-weight: var(--jui-typography-body-medium-regular-weight);
+    line-height: var(--jui-typography-body-medium-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+  .essentials-feature-icon {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    color: var(--jui-color-actions-primary-rest);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* Scope-override the upgrade-subtle CTA to primary blue inside this banner.
+     Keeps the link-style affordance; swaps purple → blue. */
+  .essentials-content .btn-upgrade-subtle {
+    color: var(--jui-color-actions-primary-rest);
+  }
+  .essentials-content .btn-upgrade-subtle:hover,
+  .essentials-content .btn-upgrade-subtle:focus,
+  .essentials-content .btn-upgrade-subtle:active {
+    color: var(--jui-color-actions-primary-hover);
+  }
+  .essentials-feature-icon svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* ═══════════════════════════════════════
+     SHARED 16px icon SVG rule
+     Consolidates repeated svg sizing across all 16px icon containers.
+     ═══════════════════════════════════════ */
+  .companion-send-btn svg,
+  .flow-detail-edit-btn svg,
+  .flow-detail-link-icon svg,
+  .flow-detail-upgrade-arrow svg,
+  .essentials-header-strip-arrow svg,
+  .flow-card-status svg,
+  .flow-card-action-btn svg,
+  .flow-card-status svg,
+  .flow-card-action-btn svg,
+  .bj-upgrade-arrow svg {
+    width: 16px; height: 16px;
+    stroke: currentColor; fill: none;
+    stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+  }
+</style>
+<style>
+  /* lint-disable */
+  /* Companion brand-specific overrides — colors/shadows not in JUI palette */
+  /* Companion input blue glow — local Figma style "Local/Companion Input Blue" */
+  .companion-input-bar {
+    box-shadow: 0 8px 8px rgba(0, 76, 237, 0.08);
+  }
+  /* Semi-transparent white overlay on review card images — desaturation aid */
+  .flow-card--review .flow-card-image-wrap {
+    background: rgba(255, 255, 255, 0.7);
+  }
+</style>
+<script type="module" src="/flows-prototype/design-system/hifi-designs/shared/shell-components.js"></script>
+</head>
+
+<body class="app-shell management-shell">
+  <jimdo-topbar variant="extended"></jimdo-topbar>
+  <div class="shell-middle">
+    <jimdo-sidebar product="flows" active="flows" variant="contextual" back-label="More from Jimdo" back-product="core" back-screen="main-navigation.html" title="Flows" show-items="flows,buttons,solo-pages,legal-privacy"></jimdo-sidebar>
+
+    <!-- ─── Working Area ─── -->
+    <main class="shell-working-area">
+      <div class="home-container">
+
+        <!-- ─── Companion section (Figma 14023:10912) ─── -->
+        <flows-companion-input hidden></flows-companion-input>
+
+        <!-- ─── FlowDetail card (Figma 13975:13840) ───
+             Tab order (4 stops):
+               1. .flow-detail-inner — white area, opens bio preview (internal nav)
+               2. .flow-detail-edit-btn — edit the bio page
+               3. .flow-detail-link-row — opens live bio site in new tab
+               4. .flow-detail-upgrade — domain upgrade CTA
+             The outer .flow-detail is purely a visual container (purple wrap + upgrade slot).
+        -->
+        <div class="flow-detail">
+          <div class="flow-detail-inner"
+               data-nav-to="flows/bio-page-preview.html"
+               data-nav-screen-id="scr-119"
+               role="link"
+               tabindex="0"
+               aria-label="Open Clara and Stone bio page preview">
+            <!-- White header: 64px image + name + views + edit button -->
+            <div class="flow-detail-header">
+              <img class="flow-detail-image" src="../images/clara-stone.jpg" alt="">
+              <div class="flow-detail-title-col">
+                <div class="flow-detail-title-block">
+                  <span class="flow-detail-name" data-inspect-phrase="bioCard.name">Clara and Stone</span>
+                  <span class="flow-detail-views" data-inspect-phrase="bioCard.views">15 views</span>
+                </div>
+                <button class="flow-detail-edit-btn" type="button" aria-label="Edit bio page" data-inspect-phrase="bioCard.edit">
+                  <!-- PencilEdit02 -->
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M15.7071 5.29289L17.5 3.5C17.8905 3.10948 18.5237 3.10948 18.9142 3.5L20.5 5.08579C20.8905 5.47631 20.8905 6.10947 20.5 6.5L18.7071 8.29289M15.7071 5.29289L9.59886 11.4012C9.34255 11.6575 9.16071 11.9787 9.07279 12.3303L8.20715 15.7929L11.6697 14.9272C12.0214 14.8393 12.3425 14.6575 12.5989 14.4012L18.7071 8.29289M15.7071 5.29289L18.7071 8.29289" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/>
+                    <path d="M10.7071 4.79289H5.20715C4.10258 4.79289 3.20715 5.68832 3.20715 6.79289V18.7929C3.20715 19.8975 4.10258 20.7929 5.20715 20.7929H17.2071C18.3117 20.7929 19.2071 19.8975 19.2071 18.7929V13.2929" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <!-- URL row: anchor opens the live bio site in a new tab -->
+            <a class="flow-detail-link-row"
+               href="https://claranstone.jimdosite.com/bio"
+               target="_blank"
+               rel="noopener"
+               aria-label="Open live bio site in new tab"
+               data-inspect-phrase="bioCard.liveLink">
+              <span class="flow-detail-link-icon" aria-hidden="true">
+                <!-- Share05 -->
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M5.5 7H5C3.89543 7 3 7.89543 3 9V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V9C21 7.89543 20.1046 7 19 7H18.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                  <path d="M12 13.5L12 2.85991M9.5 4.5L12 2L14.5 4.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                </svg>
+              </span>
+              <span class="flow-detail-link-url">claranstone.jimdosite.com/bio</span>
+            </a>
+          </div>
+          <!-- Upgrade footer -->
+          <button class="flow-detail-upgrade" type="button" aria-label="Get a custom domain" data-inspect-phrase="upgrade.customDomain">
+            <span class="flow-detail-upgrade-label">Get a custom domain</span>
+            <span class="flow-detail-upgrade-arrow" aria-hidden="true">
+              <!-- ArrowRight02 -->
+              <svg viewBox="0 0 24 24" fill="none"><path d="M15 17L20 12L15 7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+            </span>
+          </button>
+        </div>
+
+        <script>
+          // FlowDetail keyboard + nested-interactive plumbing.
+          // The inner card is a role=link; browsers don't natively activate role=link
+          // divs on Enter/Space, so we synthesize a click. Nested anchors and buttons
+          // stop click propagation so the outer prototype-nav handler doesn't hijack
+          // their browser-native navigation/activation.
+          (function () {
+            const inner = document.querySelector('.flow-detail-inner[data-nav-to]');
+            if (inner) {
+              inner.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  inner.click();
+                }
+              });
+            }
+            document.querySelectorAll('.flow-detail-inner .flow-detail-edit-btn, .flow-detail-inner .flow-detail-link-row')
+              .forEach(el => el.addEventListener('click', e => e.stopPropagation()));
+          })();
+        </script>
+
+        <!-- Bookings cross-sell — moved up to sit directly below the bio page card. -->
+          <!-- Bookings cross-sell. Primary-light outer wrapper carries the V1 free-bookings action ("Take your first bookings, free") as the header strip trigger; the white inner card holds the supporting angle (benefit list + small CTA). Mirrors the .flow-detail / .flow-detail-upgrade pattern with the trigger moved to the top. -->
+          <a class="essentials-banner" href="#" aria-label="Take your first bookings, free, or upgrade for more" data-inspect-phrase="">
+            <div class="essentials-header-strip" aria-hidden="true">
+              <span class="essentials-header-strip-label" data-inspect-phrase="">Take your first bookings, free</span>
+              <span class="essentials-header-strip-arrow" aria-hidden="true">
+                <!-- ArrowRight02 -->
+                <svg viewBox="0 0 24 24" fill="none"><path d="M15 17L20 12L15 7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+              </span>
+            </div>
+            <div class="essentials-inner">
+              <div class="essentials-illustration" aria-hidden="true">
+                <!-- Animated calendar-checkmark: card blooms in, day dots pop in
+                     staggered, checkmark hops onto day 15. Asset from the
+                     animate-images artifact; bg rect dropped so the panel
+                     token shows through. -->
+                <svg viewBox="132 32 272 176" fill="none" xmlns="http://www.w3.org/2000/svg" id="calendar-checkmark-light" aria-hidden="true">
+                  <g>
+                    <!-- Card outer -->
+                    <g class="cal-card-outer">
+                      <rect x="150" y="45" width="236" height="150" rx="20" fill="white" fill-opacity="0.5"/>
+                    </g>
+                    <!-- Card inner -->
+                    <g class="cal-card-inner">
+                      <path d="M158 65C158 58.3726 163.373 53 170 53H366C372.627 53 378 58.3726 378 65V175C378 181.627 372.627 187 366 187H170C163.373 187 158 181.627 158 175V65Z" fill="#DBE1FF"/>
+                    </g>
+                    <!-- Row 1 day dots -->
+                    <rect class="cal-dot cal-dot-1" x="174" y="66"  width="28" height="28" rx="14" fill="white"/>
+                    <rect class="cal-dot cal-dot-2" x="214" y="66"  width="28" height="28" rx="14" fill="white"/>
+                    <rect class="cal-dot cal-dot-3" x="254" y="66"  width="28" height="28" rx="14" fill="white"/>
+                    <rect class="cal-dot cal-dot-4" x="294" y="66"  width="28" height="28" rx="14" fill="white"/>
+                    <rect class="cal-dot cal-dot-5" x="334" y="66"  width="28" height="28" rx="14" fill="white"/>
+                    <!-- Row 2 day dots -->
+                    <rect class="cal-dot cal-dot-6"  x="174" y="106" width="28" height="28" rx="14" fill="white"/>
+                    <rect class="cal-dot cal-dot-7"  x="214" y="106" width="28" height="28" rx="14" fill="white"/>
+                    <rect class="cal-dot cal-dot-8"  x="254" y="106" width="28" height="28" rx="14" fill="white"/>
+                    <rect class="cal-dot cal-dot-9"  x="294" y="106" width="28" height="28" rx="14" fill="white"/>
+                    <rect class="cal-dot cal-dot-10" x="334" y="106" width="28" height="28" rx="14" fill="white"/>
+                    <!-- Row 3 day dots -->
+                    <rect class="cal-dot cal-dot-11" x="174" y="146" width="28" height="28" rx="14" fill="white"/>
+                    <rect class="cal-dot cal-dot-12" x="214" y="146" width="28" height="28" rx="14" fill="white"/>
+                    <rect class="cal-dot cal-dot-13" x="254" y="146" width="28" height="28" rx="14" fill="white"/>
+                    <rect class="cal-dot cal-dot-14" x="294" y="146" width="28" height="28" rx="14" fill="white"/>
+                    <!-- Day 15 checkmark hop -->
+                    <g class="checkmark-hop">
+                      <path d="M348 147.458C354.927 147.458 360.542 153.073 360.542 160C360.542 166.927 354.927 172.542 348 172.542C341.073 172.542 335.458 166.927 335.458 160C335.458 153.073 341.073 147.458 348 147.458ZM353.455 155.64C352.98 155.204 352.242 155.237 351.807 155.712L346.213 161.813L344.158 159.759C343.703 159.303 342.964 159.303 342.509 159.759C342.053 160.214 342.053 160.953 342.509 161.408L345.425 164.325C345.65 164.55 345.957 164.673 346.275 164.666C346.594 164.659 346.895 164.523 347.11 164.288L353.526 157.288C353.962 156.813 353.93 156.075 353.455 155.64Z" fill="#004CED"/>
+                    </g>
+                  </g>
+                </svg>
+              </div>
+              <div class="essentials-content">
+                <h2 class="essentials-title" data-inspect-phrase="">And if you need more&hellip;</h2>
+                <ul class="essentials-feature-list">
+                <li class="essentials-feature">
+                  <span class="essentials-feature-icon" aria-hidden="true">
+                    <!-- Hugeicons Calendar02 -->
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                      <path d="M8 3v4M16 3v4M3 10h18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                    </svg>
+                  </span>
+                  <span data-inspect-phrase="">Run as many events as you need</span>
+                </li>
+                <li class="essentials-feature">
+                  <span class="essentials-feature-icon" aria-hidden="true">
+                    <!-- Hugeicons Clock02 -->
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                      <path d="M12 8v4l2.5 2.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                    </svg>
+                  </span>
+                  <span data-inspect-phrase="">Protect your time between appointments</span>
+                </li>
+                <li class="essentials-feature">
+                  <span class="essentials-feature-icon" aria-hidden="true">
+                    <!-- Hugeicons Notification01 -->
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M15 19C15 20.6569 13.6373 22 11.9759 22C10.3145 22 9 20.6569 9 19" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/>
+                      <path d="M5 12V14L3 16.5V18C3 18.5523 3.44772 19 4 19H20C20.5523 19 21 18.5523 21 18V16.5L19 14V12C19 8.13401 15.866 5 12 5C8.13401 5 5 8.13401 5 12Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                      <path d="M10.4387 3.31623L11 5H13L13.5613 3.31623C13.7771 2.6687 13.2951 2 12.6126 2H11.3874C10.7049 2 10.2229 2.6687 10.4387 3.31623Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                    </svg>
+                  </span>
+                  <span data-inspect-phrase="">Reduce no-shows with automatic reminders</span>
+                </li>
+              </ul>
+                <span class="btn-upgrade-subtle btn-sm" data-inspect-phrase="">Create booking</span>
+              </div>
+            </div>
+          </a>
+
+
+
+          <!-- Check-in card (Figma 14007:8690).
+               The card decides which row is "active" (top-most incomplete) and
+               auto-assigns the NEXT badge. Marking any row done/undone via the
+               circle re-runs that classification. -->
+        <flows-checkin-card hidden title="Make it sell" title-phrase="checkin.title" total="4" counter-phrase="checkin.counter">
+            <flows-checkin-item state="done"
+              title="Page published"
+              title-phrase="checkin.step.publish"
+              primary-phrase="checkin.action.viewPage" primary-text="View page"
+              primary-href="https://claranstone.jimdosite.com/bio"></flows-checkin-item>
+
+            <flows-checkin-item state="active"
+              title="Review your buttons"
+              title-phrase="checkin.step.review"
+              desc="3 buttons are waiting for your review, let's run through them quickly."
+              next-badge-phrase="checkin.nextBadge"
+              primary-phrase="checkin.action.review" primary-text="Review"
+              complete-phrase="checkin.action.markDone"></flows-checkin-item>
+
+            <flows-checkin-item state="pending"
+              title="Update your bio"
+              title-phrase="checkin.step.updateBio"
+              desc="Go to Edit Profile and paste it as your first link so it is visible."
+              primary-phrase="checkin.action.openInstagram" primary-text="Open Instagram"
+              primary-href="https://www.instagram.com/"
+              complete-phrase="checkin.action.markDone"></flows-checkin-item>
+
+            <flows-checkin-item state="pending"
+              title="Make sure your legal pages are up to date"
+              title-phrase="legalReminder.legalReminderHeading"
+              desc="We recommend editing your legal pages to keep your flows compliant."
+              primary-phrase="legalReminder.legalReminderNavigate" primary-text="Go to legal pages"
+              complete-phrase="legalReminder.legalReminderCta"></flows-checkin-item>
+        </flows-checkin-card>
+
+
+          <!-- Flows section — matches home-dashboard.html (Figma 14103:33340) -->
+        <section class="flows-section">
+
+          <!-- Filter row: Active/Archived + Create Flow -->
+          <div class="flows-filter-row">
+            <div class="seg-control" role="group" aria-label="Flow filter">
+              <button class="seg-control-item active" aria-pressed="true" data-inspect-phrase="archive.state.active">Active</button>
+              <button class="seg-control-item" aria-pressed="false" data-inspect-phrase="archive.state.archived">Archived</button>
+            </div>
+            <button class="btn-primary btn-sm" data-inspect-phrase="button.createFlow">Create Flow</button>
+          </div>
+
+          <!-- Flow card — review state (Figma 14103:33374) -->
+          <a class="flow-card flow-card--review" href="#" data-nav-to="flows/flow-preview.html" data-nav-screen-id="scr-128" aria-label="Flow Page — needs review">
+            <div class="flow-card-image-wrap">
+              <img class="flow-card-img" src="../images/clara-stone.jpg" alt="">
+            </div>
+            <div class="flow-card-body">
+              <div class="flow-card-title" data-inspect-phrase="flowCard.title">Free Trial Session</div>
+              <div class="flow-card-activity">
+                <span class="badge badge--notice" data-inspect-phrase="flowCard.needsReview">Needs review</span>
+                <div class="flow-card-actions">
+                  <button class="flow-card-action-btn" aria-label="Edit flow">
+                    <!-- Hugeicons PencilEdit02 -->
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M15.7071 5.29289L17.5 3.5C17.8905 3.10948 18.5237 3.10948 18.9142 3.5L20.5 5.08579C20.8905 5.47631 20.8905 6.10947 20.5 6.5L18.7071 8.29289M15.7071 5.29289L9.59886 11.4012C9.34255 11.6575 9.16071 11.9787 9.07279 12.3303L8.20715 15.7929L11.6697 14.9272C12.0214 14.8393 12.3425 14.6575 12.5989 14.4012L18.7071 8.29289M15.7071 5.29289L18.7071 8.29289" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/>
+                      <path d="M10.7071 4.79289H5.20715C4.10258 4.79289 3.20715 5.68832 3.20715 6.79289V18.7929C3.20715 19.8975 4.10258 20.7929 5.20715 20.7929H17.2071C18.3117 20.7929 19.2071 19.8975 19.2071 18.7929V13.2929" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </a>
+
+          <!-- Flow limit alert — inline styles match home-dashboard.html -->
+          <div class="flow-limit-alert" role="status" style="display:flex; align-items:center; gap:var(--jui-layout-gap-xs);">
+            <!-- Hugeicons InformationCircle -->
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" style="width:16px; height:16px; flex-shrink:0; stroke:currentColor; stroke-width:1.5; fill:none;">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/>
+              <path d="M12 8.5V12.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+              <path d="M12 15.5H12.009" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+            </svg>
+            <span style="font-size:var(--jui-typography-body-small-regular-size); font-weight:var(--jui-typography-body-small-regular-weight); line-height:var(--jui-typography-body-small-regular-lh);" data-inspect-phrase="flows.limitReached">You&rsquo;ve run out of free flows.</span>
+          </div>
+
+
+        </section><!-- /.flows-section -->
+
+
+
+      </div>
+    </main>
+
+  </div>
+
+<script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js"></script>
+</body>
+</html>

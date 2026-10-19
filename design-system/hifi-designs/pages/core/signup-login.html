@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Core — Sign up / Log in</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+  button, input, select, textarea { font-family: inherit; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--jui-color-background-gray-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .auth-frame {
+    width: 100%;
+    max-width: 360px;
+    padding: 32px;
+  }
+</style>
+</head>
+<body class="app-shell">
+  <div class="auth-frame">
+    <div class="placeholder-content">
+      <div class="placeholder-content-title" data-inspect-phrase="core.signup-login.title">Sign up / Log in</div>
+      <div class="placeholder-content-sub">Core · Authentication</div>
+    </div>
+  </div>
+
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/shell-components.js"></script>
+</body>
+</html>

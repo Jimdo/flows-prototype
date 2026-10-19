@@ -1,0 +1,715 @@
+/* ═══════════════════════════════════════════════════
+   LAYOUT FRAMEWORK
+
+   Padding rules:
+   - Shell regions (header, footer) handle VERTICAL padding only
+   - content-container handles HORIZONTAL padding + max-width
+   - Every region uses content-container for horizontal constraint
+   ═══════════════════════════════════════════════════ */
+
+:root {
+  /* Spacing scale */
+  --layout-spacing-xs: 4px;
+  --layout-spacing-sm: 8px;
+  --layout-spacing-md: 16px;
+  --layout-spacing-lg: 24px;
+  --layout-spacing-xl: 40px;
+  --layout-base: 8px;
+
+  /* Container */
+  --layout-container-max: 992px; /* $jui-layout-breakpoints-lg */
+  --layout-container-padding: 16px;
+
+  /* Shell regions — vertical padding only */
+  --layout-region-padding-y: 12px;
+
+  /* Panels */
+  --layout-side-menu-width: 240px;
+  --layout-companion-width: 320px;
+
+  /* Buttons */
+  --layout-btn-height: 48px;
+  --layout-btn-radius: 8px;
+  --layout-btn-min-width: 160px;
+  --layout-btn-max-width: 240px;
+
+  /* Radii */
+  --layout-radius-sm: 4px;
+  --layout-radius-md: 8px;
+  --layout-radius-lg: 12px;
+
+  /* Gutters */
+  --layout-gutter-sm: 12px;
+  --layout-gutter-md: 16px;
+  --layout-gutter-lg: 24px;
+}
+
+/* ─── App Shell ─── */
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* ─── Shell Regions ───
+   Regions only set vertical padding.
+   Horizontal constraint comes from content-container inside. */
+
+.shell-header {
+  flex-shrink: 0;
+  padding: var(--layout-region-padding-y) 0;
+  position: relative;
+  z-index: 10;
+}
+
+/* When header/footer height comes from content (e.g. 48px icon button),
+   remove vertical padding so it doesn't add extra space. */
+.shell-header.no-pad-y,
+.shell-footer.no-pad-y {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.shell-footer {
+  flex-shrink: 0;
+  padding: var(--layout-region-padding-y) 0;
+  position: relative;
+  z-index: 10;
+}
+
+.shell-middle {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ─── Panels ─── */
+
+.shell-side-menu {
+  flex-shrink: 0;
+  width: var(--layout-side-menu-width);
+  overflow-y: auto;
+}
+
+@media (max-width: 767px) {
+  .shell-side-menu {
+    display: none;
+  }
+}
+
+.shell-working-area {
+  flex: 1;
+  overflow-y: auto;
+  min-width: 0;
+}
+
+.shell-companion {
+  flex-shrink: 0;
+  width: var(--layout-companion-width);
+  overflow-y: auto;
+}
+
+@media (max-width: 767px) {
+  .shell-companion {
+    display: none;
+  }
+}
+
+/* ─── Region centering ───
+   On desktop, all shell regions become flex columns that center
+   their children at --layout-container-max.  This replaces the
+   per-element max-width approach — every child of a shell region
+   is automatically constrained, so screens don't need to add
+   inner wrapper elements for the horizontal cap. */
+
+@media (min-width: 768px) {
+  .shell-header,
+  .shell-footer,
+  .shell-working-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  :where(.shell-header, .shell-footer, .shell-working-area) > * {
+    max-width: var(--layout-container-max);
+    width: 100%;
+  }
+}
+
+/* ─── Content Container ───
+   Horizontal padding primitive.  Max-width is now handled by the
+   region-level rules above; content-container adds gutters. */
+
+.content-container {
+  width: 100%;
+  max-width: var(--layout-container-max);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--layout-container-padding);
+  padding-right: var(--layout-container-padding);
+}
+
+/* ─── Footer Actions ───
+   Extends content-container for action button layout. */
+
+.footer-actions {
+  width: 100%;
+  max-width: var(--layout-container-max);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--layout-container-padding);
+  padding-right: var(--layout-container-padding);
+  display: flex;
+  flex-direction: column;
+  gap: var(--layout-spacing-sm);
+}
+
+.footer-actions .btn {
+  height: var(--layout-btn-height);
+  border-radius: var(--layout-btn-radius);
+  width: 100%;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+}
+
+@media (min-width: 768px) {
+  .footer-actions {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+  .footer-actions .btn {
+    width: auto;
+    min-width: var(--layout-btn-min-width);
+    max-width: var(--layout-btn-max-width);
+    padding-left: var(--layout-spacing-lg);
+    padding-right: var(--layout-spacing-lg);
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   SETUP ANATOMY — Desktop adaptations
+   Used on setup/onboarding screens with centered content.
+
+   Apply .setup-centered to .shell-working-area:
+   - Vertical title anchoring (consistent top position)
+   - Narrower form content (360px max)
+   - Centered footer buttons (360px max)
+   ═══════════════════════════════════════════════════ */
+
+/* Desktop vertical positioning:
+   Anchor content with a fixed top offset so titles stay at a
+   consistent vertical position across screens with varying heights.
+   Content grows downward from the anchor point. */
+@media (min-width: 768px) {
+  .shell-working-area.setup-centered {
+    display: flex;
+    flex-direction: column;
+  }
+  .shell-working-area.setup-centered > .content-container {
+    margin-top: 10vh;
+    margin-bottom: auto;
+  }
+}
+
+/* Vertical centering variant (onboarding flows):
+   Centers the content-container vertically in the working area with a
+   slight upward offset (padding-bottom: 15%) to feel optically balanced
+   against the footer. Uses auto margins on the content-container so
+   centering is "safe" — when content exceeds available space, margins
+   collapse to 0 and content anchors below the header instead of
+   clipping upward behind it. Applies at all viewports. */
+.shell-working-area.setup-centered-v {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 15%;
+}
+.shell-working-area.setup-centered-v > .content-container {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+/* ═══════════════════════════════════════════════════
+   ONBOARDING ANATOMY — Gray canvas with white card wrapper
+
+   Apply .app-shell-onboarding to .app-shell on onboarding screens.
+   Produces a gray page canvas with a white "card":
+   - Transparent header sits on the gray canvas
+   - Body wrapper (shell-working-area): white, 20px top corners
+   - Footer wrapper (footer-actions): white, 16px padding,
+     20px bottom corners on desktop
+   - Desktop: both wrappers constrained to --layout-container-max
+     so the gray canvas is visible on the sides.
+   ═══════════════════════════════════════════════════ */
+
+.app-shell-onboarding {
+  background: var(--jui-color-background-gray-medium);
+}
+
+.app-shell-onboarding .shell-header {
+  background: transparent;
+}
+
+.app-shell-onboarding .shell-working-area {
+  background: var(--jui-color-background-gray-light);
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  box-shadow: 0 4px 32px 0 rgba(0, 0, 0, 0.04);
+}
+
+/* In onboarding mode, body + footer form a single joined card with
+   shadow, so the optical-offset padding-bottom from setup-centered-v
+   is no longer needed. Because percentage padding is width-based, it
+   stole up to 180px of vertical space on desktop (15% of 768px),
+   forcing unnecessary scroll. Auto margins on content-container still
+   center the content. */
+.app-shell-onboarding .shell-working-area.setup-centered-v {
+  padding-bottom: 0;
+}
+
+/* shell-middle overflow: visible lets the card's box-shadow paint
+   outside the middle region (through the transparent header above
+   and into the footer gutter below).  The working area's own
+   overflow-y: auto still contains scrollable content. */
+.app-shell-onboarding .shell-middle {
+  overflow: visible;
+}
+
+.app-shell-onboarding .shell-footer {
+  background: transparent;
+  padding: 0;
+  overflow: hidden;
+}
+.app-shell-onboarding .shell-footer .footer-actions {
+  background: var(--jui-color-background-gray-light);
+  padding: 16px;
+  box-shadow: 0 4px 32px 0 rgba(0, 0, 0, 0.04);
+}
+
+/* No-header onboarding: gray canvas visible above the card.
+   Activates automatically when shell-middle is the first child
+   (i.e. no shell-header precedes it). Desktop-only because the
+   working area is edge-to-edge on mobile (no horizontal gutters),
+   so a top-only gutter reads as broken rather than inset. */
+@media (min-width: 768px) {
+  .app-shell-onboarding > .shell-middle:first-child {
+    padding-top: var(--layout-spacing-md);
+  }
+}
+
+/* No-footer onboarding: gray canvas visible below the card.
+   Activates when shell-middle is the last child
+   (i.e. no shell-footer follows it). */
+.app-shell-onboarding > .shell-middle:last-child {
+  padding-bottom: var(--layout-spacing-md);
+}
+
+@media (min-width: 768px) {
+  .app-shell-onboarding {
+    --onboarding-footer-overlap: 80px;
+  }
+
+  /* Working area IS the complete card on desktop: all four rounded
+     corners, full border. */
+  .app-shell-onboarding .shell-working-area {
+    max-width: var(--layout-container-max);
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid var(--jui-color-stroke-gray-decorative);
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+  }
+  /* Scroll clearance for the gradient overlay — only when a footer
+     is present.  :has(.shell-footer) prevents no-footer screens
+     (e.g. suggestions) from getting unnecessary bottom padding. */
+  .app-shell-onboarding:has(.shell-footer) .shell-working-area,
+  .app-shell-onboarding:has(.shell-footer) .shell-working-area.setup-centered-v {
+    padding-bottom: var(--onboarding-footer-overlap);
+  }
+
+  /* Footer overlaps the working area: transparent, structural only.
+     The negative margin reclaims the footer-actions height for the
+     working area; the remaining 12px keeps the bottom gutter between
+     the card and the viewport edge.  pointer-events: none lets clicks
+     pass through to scrollable content beneath the footer. */
+  .app-shell-onboarding .shell-footer {
+    margin-top: calc(-1 * var(--onboarding-footer-overlap));
+    padding-bottom: 12px;
+    pointer-events: none;
+  }
+  .app-shell-onboarding .shell-footer .footer-actions {
+    position: relative;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    max-width: calc(var(--layout-container-max) - 2px);
+    border-bottom-left-radius: 19px;
+    border-bottom-right-radius: 19px;
+    overflow: hidden;
+    pointer-events: auto;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  .app-shell-onboarding .shell-footer .footer-actions::before {
+    content: '';
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    bottom: 1px;
+    z-index: -1;
+    background: linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 1) 100%
+    );
+    border-bottom-left-radius: inherit;
+    border-bottom-right-radius: inherit;
+    pointer-events: none;
+  }
+  .app-shell-onboarding .shell-footer .footer-actions .btn {
+    width: auto;
+    min-width: 0;
+    max-width: none;
+  }
+
+  /* Template picker: let the full-viewport carousel bleed past the
+     white card edges on desktop. Scoped via :has() so it only applies
+     to working areas that contain a template-carousel. */
+  .app-shell-onboarding .shell-working-area:has(.template-carousel) {
+    overflow: visible;
+  }
+}
+
+/* Centered content layout — flex-column with centered items.
+   Used by celebration screens and intro screens that stack
+   content (headline + stage + caption) as a vertically-centered group. */
+.page-content-centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--layout-spacing-lg);
+}
+
+/* Desktop form content width:
+   Inputs, radio lists, and form stacks constrained to 360px
+   (matches mobile width) to prevent them from stretching to 768px. */
+@media (min-width: 768px) {
+  .setup-form-narrow {
+    max-width: 360px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+  }
+}
+
+/* Desktop footer centering:
+   For setup anatomy, buttons center at 360px max instead of
+   right-aligning. Two buttons stack vertically (like mobile). */
+@media (min-width: 768px) {
+  .footer-actions.setup-centered {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .footer-actions.setup-centered .btn {
+    width: 100%;
+    max-width: 360px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   SETUP ANATOMY — split-preview variant
+
+   A setup step with two columns: a live artifact preview on the
+   left and the edit column on the right. Editing a field highlights
+   the part of the preview it changes.
+
+   Onboarding has no exit, so the header carries back + progress
+   only — the close control and its header slot are both removed.
+
+   Mobile folds the two columns into preview + bottom drawer. The
+   drawer has three heights, selected with data-drawer on .app-shell:
+     expanded   fills everything but a 56px strip of the preview
+     default    283px — the whole question is visible
+     collapsed  72px peek — the preview scales up to near full width
+
+   Figma: 2LVaYKcyyN2F2MUwSssFrL  12290:21630                (desktop)
+          6nhXk3oOEpH7TbMAr430tN  17451:52936 / 53156 / 53266 (mobile)
+   ═══════════════════════════════════════════════════ */
+
+.app-shell-setup-split {
+  background: var(--jui-color-gray-10);
+
+  /* Resting drawer height. 283px fits a title, a line of help text and one
+     48px field — the Figma default. Steps whose control is taller (a photo
+     upload, a list) raise it so nothing is clipped at rest. */
+  --setup-drawer-rest-h: 283px;
+
+  /* The drawer and the preview are one movement, so they share one duration
+     and one curve — before this they ran on different clocks, the drawer
+     easing while the preview jumped, which is what read as wrong.
+     The curve is the bottom-sheet one: leaves quickly, lands softly. It
+     needs the room to do that, hence 400ms rather than the 260ms the drawer
+     alone used to run at. The grip is a 44px shape and would drag at that
+     length, so it keeps its own shorter time. */
+  --setup-motion-duration: 400ms;
+  --setup-motion-duration-fast: 200ms;
+  --setup-motion-ease: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* Animating the scale animates the stage and the frame with it — see the
+     @property declaration in components.css. */
+  transition: --bp-scale var(--setup-motion-duration) var(--setup-motion-ease);
+}
+
+/* ── Header — back + progress, nothing on the right ── */
+.setup-split-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  /* Holds its height whether or not it carries a back button, so the first
+     step's content sits where every other step's does. */
+  min-height: var(--jui-layout-dimension-m);
+  padding: 0;
+  position: relative;
+  z-index: 10;
+}
+
+@media (min-width: 768px) {
+  .setup-split-header { min-height: var(--jui-layout-dimension-s); }
+}
+
+/* ── Main — preview + edit column ──
+   Mobile is one stacking context: the edit column is positioned over
+   the preview as a drawer. overflow:hidden clips the scaled preview
+   where it runs past the viewport, which is what the peek state wants. */
+.setup-split-main {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.setup-split-preview {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-left: var(--jui-layout-padding-xs);
+  padding-right: var(--jui-layout-padding-xs);
+  overflow: hidden;
+}
+
+/* ── Single column ──
+   No artifact beside it, so nothing for a drawer to sit over: the column is
+   the page at every width. Declared before the drawer rules it undoes so the
+   mobile block below can still reach it, and scoped so the two-column
+   version is untouched. */
+.app-shell-setup-single .setup-split-main { overflow: visible; }
+
+.app-shell-setup-single .setup-split-form {
+  position: static;
+  flex: 1;
+  min-height: 0;
+  height: auto;
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+}
+
+.app-shell-setup-single .setup-drawer-grip { display: none; }
+
+/* With no back button to balance, the step counter centres on mobile the way
+   it does on every other step. */
+/* Centred because the only thing this variant's header usually carries is a
+   progress bar. A screen that carries a close instead needs the edges back —
+   centring left the dismiss floating in the middle of the bar. */
+.app-shell-setup-single .setup-split-header { justify-content: center; }
+/* The spacer that balanced the bar is dropped on desktop, which left the
+   lone close button sitting at the start of a space-between row — on the
+   left, where a dismiss never belongs. */
+.app-shell-setup-single[data-explore] .setup-split-header { justify-content: flex-end; }
+
+/* ── Edit column — a drawer on mobile ── */
+.setup-split-form {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--jui-color-background-gray-light);
+  border-top-left-radius: var(--jui-style-radius-12);
+  border-top-right-radius: var(--jui-style-radius-12);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+  padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-xxs) 0;
+  overflow: hidden;
+  transition: height var(--setup-motion-duration) var(--setup-motion-ease);
+}
+
+.setup-split-fields {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  --setup-fields-gap: var(--jui-layout-gap-m);
+  gap: var(--setup-fields-gap);
+  padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-s) 0;
+  overflow: hidden;
+}
+
+.setup-split-actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--jui-layout-gap-s);
+  /* 12 at the sides lands on 16 once the drawer's own 4 is added, which is
+     where the list above sits. The bottom has no 4 under it, so it carries
+     the 16 itself — at 12 the footer sat closer to the edge of the screen
+     than the list did to the sides of it. */
+  padding: var(--jui-layout-padding-s) var(--jui-layout-padding-s) var(--jui-layout-padding-m);
+}
+
+/* ── Drawer heights, and the preview scale that goes with them ──
+   Mobile only: on desktop the edit column is a column, not a drawer,
+   and these attribute selectors would out-specify the desktop block.
+   --bp-scale drives the artifact frame (see .bp-stage in components.css);
+   as the drawer comes down the page scales up to fill the space. */
+@media (max-width: 767px) {
+  .app-shell-setup-split:not(.app-shell-setup-single)[data-drawer="expanded"]  .setup-split-form { height: calc(100% - 56px); }
+  .app-shell-setup-split:not(.app-shell-setup-single)[data-drawer="default"]   .setup-split-form { height: var(--setup-drawer-rest-h); }
+  .app-shell-setup-split:not(.app-shell-setup-single)[data-drawer="collapsed"] .setup-split-form { height: 72px; }
+
+  /* The peek shows the question and nothing else — no action is
+     reachable until the drawer is pulled back up. */
+  .app-shell-setup-split[data-drawer="collapsed"] .setup-split-actions { display: none; }
+
+  .app-shell-setup-split[data-drawer="expanded"],
+  .app-shell-setup-split[data-drawer="default"] { --bp-scale: 0.4111; }
+  .app-shell-setup-split[data-drawer="collapsed"] { --bp-scale: 0.95; }
+
+  /* Tapping the preview sends the drawer down and gives the page the
+     screen; tapping the peek bar brings it back up. */
+  .setup-split-preview { cursor: pointer; }
+  .app-shell-setup-split[data-drawer="collapsed"] .setup-split-form { cursor: pointer; }
+
+  /* While a drag is in flight the height and the scale follow the finger, so
+     neither may ease. The grip is not following anything — it reports the
+     stop the drawer would land on — so it keeps its transition and morphs
+     as the aim changes. */
+  .app-shell-setup-split.is-dragging,
+  .app-shell-setup-split.is-dragging .setup-split-form { transition: none; }
+}
+
+/* ═══ Desktop ═══ */
+@media (min-width: 768px) {
+  .app-shell-setup-split {
+    background: var(--jui-color-gray-white);
+    padding-top: var(--layout-gutter-sm);
+    /* Matches the 24 the header and the columns use at the sides. At 16 the
+       frame was tighter underneath than beside, which reads as the content
+       sitting low in its box rather than centred in it. The top stays at 12:
+       that one insets the header bar, not the content. */
+    padding-bottom: var(--layout-spacing-lg);
+    --bp-scale: 0.7778;
+    --bp-natural-h: 686px;
+  }
+
+  .setup-split-header {
+    gap: var(--jui-layout-gap-m);
+    padding: 0 var(--layout-spacing-lg);
+    justify-content: flex-start;
+  }
+
+  /* Mobile centres the progress bar between back and close. With no
+     close control the group simply reads left-to-right, so the spacer
+     that balanced it is dropped. */
+  .setup-split-header .header-spacer { display: none; }
+
+  .setup-split-main {
+    flex-direction: row;
+    align-items: stretch;
+    gap: var(--layout-base);
+    overflow: visible;
+  }
+
+  .setup-split-preview {
+    min-width: 0;
+    align-items: stretch;
+    padding: var(--layout-gutter-sm) 0 0 var(--layout-spacing-md);
+  }
+
+  .setup-split-form {
+    position: static;
+    width: 360px;
+    flex-shrink: 0;
+    height: auto;
+    padding: 0;
+    background: none;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: visible;
+  }
+
+  .setup-split-fields {
+    --setup-fields-gap: var(--layout-spacing-lg);
+    gap: var(--setup-fields-gap);
+    padding: var(--layout-spacing-lg) var(--layout-spacing-lg) var(--layout-spacing-lg) var(--layout-spacing-md);
+    overflow-y: auto;
+  }
+
+  .setup-split-actions {
+    gap: var(--layout-gutter-sm);
+    padding: 0 var(--layout-spacing-lg) 0 var(--layout-spacing-md);
+  }
+
+  /* ── Single column ──
+     A setup step whose subject is the choice itself rather than its effect
+     on the artifact, so there is no preview beside it. The column holds the
+     same 768px the two-column version gives its two halves together, centred
+     in the viewport, with everything inside it reading from one left edge:
+     the back button, the question and the choices. Figma 12290:21613. */
+  .app-shell-setup-single {
+    /* Named so a child that needs to break out of the column can work out
+       how far it has to travel without restating the number. */
+    --setup-single-max: 768px;
+  }
+
+  .app-shell-setup-single .setup-split-header,
+  .app-shell-setup-single .setup-split-main {
+    max-width: var(--setup-single-max);
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .app-shell-setup-single .setup-split-header {
+    padding: 0 var(--layout-spacing-md);
+    justify-content: flex-start;
+  }
+  .app-shell-setup-single .setup-split-form { width: 100%; }
+
+  .app-shell-setup-single .setup-split-fields {
+    padding: var(--layout-spacing-lg) var(--layout-spacing-md) 0;
+    /* A scrolling parent would clip a child that bleeds past it, and the
+       carousel inside this one is meant to run off the right edge. */
+    overflow: visible;
+  }
+
+  .app-shell-setup-single .setup-split-actions {
+    padding: var(--layout-spacing-lg) var(--layout-spacing-md) 0;
+  }
+}
+

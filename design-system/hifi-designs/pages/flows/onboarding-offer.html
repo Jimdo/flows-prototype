@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Onboarding — Tagline</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+  /* ─── Screen overrides ───
+     Everything here comes from the design system. Only the resting drawer
+     height is local: a question, a two-line field and the note under it. */
+  .app-shell-setup-split { --setup-drawer-rest-h: 320px; }
+</style>
+</head>
+<body>
+
+  <div class="app-shell app-shell-setup-split" id="shell" data-drawer="default">
+
+    <div class="setup-split-header">
+      <button class="setup-back-btn" aria-label="Back" data-no-phrase
+        data-nav-to="flows/onboarding-name.html" data-nav-screen-id="scr-011">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+      </button>
+
+      <div class="progress-pill" role="progressbar" aria-valuemin="1" aria-valuemax="5" aria-valuenow="3" aria-label="Step 3 of 5">
+        <span class="progress-pill-step is-done"></span>
+        <span class="progress-pill-step is-done"></span>
+        <span class="progress-pill-step is-current"></span>
+        <span class="progress-pill-step"></span>
+        <span class="progress-pill-step"></span>
+      </div>
+
+      <div class="header-spacer"></div>
+    </div>
+
+    <div class="setup-split-main">
+
+      <div class="setup-split-preview">
+        <div class="setup-preview-panel">
+          <span class="setup-preview-tag" data-no-phrase>Preview</span>
+          <div class="bp-stage">
+            <div class="bp-frame">
+              <iframe id="bioPreview" title="Bio page preview" tabindex="-1"
+                src="/flows-prototype/design-system/hifi-designs/pages/artifacts/bio-page-v2.html"></iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-split-form">
+
+        <button class="setup-drawer-grip" id="grip" aria-label="Resize the question panel" data-no-phrase>
+          <span class="setup-drawer-grip-shape"></span>
+        </button>
+
+        <div class="setup-split-fields">
+          <div class="setup-split-intro">
+            <h1 class="setup-split-title" data-inspect-phrase="businessInfo.offerDescription.title">Your tagline</h1>
+            <p class="setup-split-subtitle" data-inspect-phrase="businessInfo.offerDescription.description">Tell people what you offer</p>
+          </div>
+
+          <textarea class="form-textarea" id="taglineInput" rows="2"
+            data-edits="subtitle"
+            placeholder="Yoga and mindfulness workshops for women"
+            data-inspect-label="Textarea — Resting"
+            data-inspect-tokens='[{"prop":"border","figma":"component/input/color/field/stroke/rest","css":"--jui-component-input-color-field-stroke-rest","value":"#b1b1b1"},{"prop":"border-radius","figma":"input/style/radius","css":"--jui-style-radius-m","value":"8px"},{"prop":"padding","figma":"$jui-layout-padding-s","css":"--jui-layout-padding-s","value":"12px"},{"prop":"min-height","figma":"2 lines + padding","css":"—","value":"72px"}]'
+            data-inspect-phrase="businessInfo.offerDescription.placeholder"></textarea>
+
+          <!-- Shows a beat after typing stops, and takes the note's place
+               while it is up so the field above does not move. -->
+          <div class="ai-suggest" id="suggest" data-state="loading" hidden
+            data-inspect-label="Copy suggestion"
+            data-inspect-tokens='[{"prop":"background","figma":"$jui-color-background-primary-light","css":"--jui-color-background-primary-light","value":"#eff0ff"},{"prop":"border-radius","figma":"$jui-style-radius-l","css":"--jui-style-radius-16","value":"16px"}]'>
+            <span class="ai-suggest-loading">
+              <span class="ai-suggest-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span data-inspect-phrase="businessInfo.offerDescription.suggestLoading">Reading your tagline…</span>
+            </span>
+            <div class="ai-suggest-body">
+              <p class="ai-suggest-text" data-inspect-phrase="businessInfo.offerDescription.suggestBody">Add what people can book — a workshop, a class — so they know what they get from you.</p>
+              <button type="button" class="ai-suggest-apply" id="applySuggestion"
+                data-inspect-phrase="businessInfo.offerDescription.suggestApplyCta">Apply</button>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="setup-split-actions">
+          <button class="btn btn-primary"
+            data-inspect-label="Primary Button — Continue"
+            data-inspect-tokens='[{"prop":"background","figma":"color/actions/primary/rest","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"height","figma":"$jui-layout-dimension-m","css":"--jui-layout-dimension-m","value":"48px"}]'
+            data-inspect-phrase="questionaire.cta"
+            data-trigger="primary-cta"
+            data-nav-to="flows/bio-page-links-edit.html"
+            data-nav-screen-id="scr-120">Continue</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js"></script>
+  <script type="module">
+    import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
+
+    const input = document.getElementById('taglineInput');
+
+    const split = initSetupSplit({
+      state: () => ({
+        title: 'Clara and Stone',
+        subtitle: input.value || input.placeholder,
+        image: 'photo',
+        // The page is still only a name, a photo and a tagline at this point;
+        // everything below stands in as a shape until a later step fills it.
+        contact: [],
+        ghost: ['contact', 'mainlink', 'map', 'socials'],
+      }),
+    });
+
+    const suggest = document.getElementById('suggest');
+    const applyBtn = document.getElementById('applySuggestion');
+
+    // Hardcoded for now: one suggestion, one addition. The timing is the part
+    // worth feeling — it has to arrive after a pause rather than interrupt.
+    // The loader turns up on the first few characters rather than after a
+    // pause, so the person can see something is reading along while they
+    // write. The pause then does the other half of the job: the suggestion
+    // lands when they stop, which is the only moment it is not an
+    // interruption. Nothing is timed to look busy — the wait IS the typing.
+    const SETTLE_MS = 1000;
+    const MIN_CHARS = 3;
+    const ADDITION = ' — weekly classes and beginner workshops';
+
+    let settleTimer = null;
+    let applied = false;
+
+    function hideSuggestion() {
+      window.clearTimeout(settleTimer);
+      suggest.hidden = true;
+    }
+
+    function scheduleSuggestion() {
+      window.clearTimeout(settleTimer);
+      const text = input.value.trim();
+      if (applied || text.length < MIN_CHARS || text.includes(ADDITION.trim())) {
+        hideSuggestion();
+        return;
+      }
+      // Back to reading on every keystroke: a suggestion that stayed up while
+      // the sentence kept changing would be about a sentence that no longer
+      // exists.
+      suggest.setAttribute('data-state', 'loading');
+      suggest.hidden = false;
+      settleTimer = window.setTimeout(() => suggest.setAttribute('data-state', 'ready'), SETTLE_MS);
+    }
+
+    input.addEventListener('input', () => {
+      split.sync();
+      scheduleSuggestion();
+    });
+
+    applyBtn.addEventListener('click', () => {
+      applied = true;
+      input.value = (input.value.trim() || input.placeholder) + ADDITION;
+      hideSuggestion();
+      split.sync();
+      input.focus();
+    });
+
+    const TAGLINE = 'Yoga and mindfulness workshops for women';
+    const VARIANTS = {
+      'empty':             { drawer: 'default',   value: '',        focus: false, suggest: null },
+      'writing':           { drawer: 'default',   value: TAGLINE,   focus: true,  suggest: 'loading' },
+      'reading-it':        { drawer: 'default',   value: TAGLINE,   focus: false, suggest: 'loading' },
+      'suggestion':        { drawer: 'default',   value: TAGLINE,   focus: false, suggest: 'ready' },
+      'applied':           { drawer: 'default',   value: TAGLINE + ADDITION, focus: false, suggest: null },
+      'preview-peek':      { drawer: 'collapsed', value: TAGLINE,   focus: false, suggest: null },
+    };
+
+    window.addEventListener('message', (e) => {
+      if (!e.data || e.data.type !== 'set-variant') return;
+      const v = VARIANTS[e.data.variant];
+      if (!v) return;
+      applied = false;
+      input.value = v.value;
+      split.setState(v.drawer);
+      hideSuggestion();
+      if (v.suggest) {
+        suggest.setAttribute('data-state', v.suggest);
+        suggest.hidden = false;
+      }
+      if (v.focus) input.focus(); else if (document.activeElement) document.activeElement.blur();
+      split.sync();
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bio Page — Ready, share-plan proposal</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+
+  /* ═══════════════════════════════════════════════════════════════
+     BIO PAGE — READY, SHARE-PLAN PROPOSAL  (scr-476, vision)
+     Figma: 2LVaYKcyyN2F2MUwSssFrL 11540:39873 (Menu 11540:39968,
+     IGBioBlock 11540:39408). The bio frame as drawn, kept apart from
+     scr-030 because prod diverges on four points: headline copy, the
+     missing subheading, the social card's chrome, and a CTA that leads
+     to a share plan instead of back to the dashboard.
+     ═══════════════════════════════════════════════════════════════ */
+
+  [hidden] { display: none !important; }
+
+  html, body { height: 100%; }
+  body, .app-shell { background: var(--jui-color-background-gray-light); }
+
+  /* ═══════════════════════════════════════════════
+     SHELL — loops-frontend pages/Success/SuccessScreen.tsx
+     .container  → FlexBox bg gray-light, margin-inline auto,
+                   paddingBlock l (24), paddingInline m (16)
+     .content    → flex 1, clears the fixed mobile CTA bar
+     .twoColumn  → column → row from sm (576); card chrome from md (768)
+     ═══════════════════════════════════════════════ */
+  .success-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    margin-inline: auto;
+    padding-block: var(--jui-layout-padding-l);     /* 24 */
+    padding-inline: var(--jui-layout-padding-m);    /* 16 */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  @media (min-width: 768px) {
+    .success-container { max-width: min(1200px, 90vw); overflow: hidden; }
+  }
+
+  .success-content {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    /* gap-xxl (80) + gap-l (24) — clears the fixed CTA bar on mobile */
+    padding-bottom: calc(var(--jui-layout-gap-xxl) + var(--jui-layout-gap-l) + env(safe-area-inset-bottom));
+  }
+  @media (min-width: 768px) {
+    .success-content {
+      justify-content: center;
+      padding-bottom: var(--jui-layout-padding-zero);
+    }
+  }
+
+  .success-layout {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--jui-layout-gap-l);                   /* 24 — mobile stack */
+  }
+  @media (min-width: 576px) {
+    .success-layout {
+      flex-direction: row;
+      align-items: stretch;
+      gap: var(--jui-layout-gap-zero);
+    }
+  }
+  @media (min-width: 768px) {
+    .success-layout { flex: 1; }
+  }
+
+  /* ═══════════════════════════════════════════════
+     TITLE BLOCK — rendered twice (SuccessScreen.tsx TitleBlock):
+     above the stack on mobile, inside the card from md up.
+     headlineSmall = 400 / lh 125% / ls -0.02em, 32 → 28 ≤1200 → 24 ≤576.
+     ═══════════════════════════════════════════════ */
+  .success-title {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-xs);                  /* 8 */
+  }
+  .success-title--card { display: none; }
+  @media (min-width: 768px) {
+    .success-title--mobile { display: none; }
+    .success-title--card { display: flex; }
+  }
+  .success-headline {
+    margin: 0;
+    font-family: inherit;
+    font-size: 32px;
+    font-weight: 400;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    color: var(--jui-color-typography-gray-on-light-default);
+    text-align: center;
+  }
+  @media (max-width: 1200px) { .success-headline { font-size: 28px; } }
+  @media (max-width: 576px)  { .success-headline { font-size: 24px; } }
+  .success-subtitle {
+    margin: 0;
+    font-size: var(--jui-typography-body-medium-regular-size);
+    font-weight: var(--jui-typography-body-medium-regular-weight);
+    line-height: var(--jui-typography-body-medium-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+    text-align: center;
+  }
+
+  /* ═══════════════════════════════════════════════
+     PREVIEW COLUMN — PreviewBlob + Confetti + PhoneFrame.
+     Phone is a chrome-less clipped frame (radius-xl, shadow lvl-3);
+     the 360×713 artifact is scaled to fit by .phone-scaler.
+     ═══════════════════════════════════════════════ */
+  .preview-column {
+    position: relative;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  @media (min-width: 768px) { .preview-column { flex: 1 1 0; } }
+
+  .preview-blob {
+    position: absolute;
+    z-index: 0;
+    top: 50%;
+    left: 50%;
+    width: 288px;                                   /* 180 × 1.6 */
+    aspect-ratio: 334.632 / 331.763;
+    transform: translate(-50%, -50%) rotate(15deg);
+    pointer-events: none;
+  }
+  .preview-blob svg { display: block; width: 100%; height: 100%; }
+  @media (min-width: 576px) { .preview-blob { width: 432px; } }        /* 270 × 1.6 */
+  @media (min-width: 768px) { .preview-blob { width: 480px; max-width: 100%; } }
+
+  .phone-stage {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .phone-frame {
+    position: relative;
+    z-index: 2;
+    box-sizing: border-box;
+    width: 180px;
+    aspect-ratio: 360 / 713;
+    flex-shrink: 0;
+    overflow: hidden;
+    border-radius: var(--jui-style-radius-xl);      /* 20 */
+    box-shadow: var(--jui-effects-on-light-shadow-lvl-3);
+    background: var(--jui-color-background-gray-light);
+  }
+  @media (min-width: 576px) { .phone-frame { width: 270px; } }
+  @media (min-width: 768px) {
+    .phone-frame {
+      width: auto;
+      height: min(600px, calc(100dvh - 120px));
+      min-height: 480px;
+      max-width: 100%;
+    }
+  }
+
+  /* PhoneScaler — the artifact renders at its native 360×713 and is
+     scaled to the frame (loops-frontend PagePreviewFrame.module.scss). */
+  .phone-scaler {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 360px;
+    height: 713px;
+    transform-origin: center center;
+    transform: translate(-50%, -50%) scale(var(--phone-scale, 0.5));
+  }
+  .phone-scaler iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+  /* ═══════════════════════════════════════════════
+     CONFETTI — loops-frontend components/Confetti/Confetti.tsx.
+     45 seeded-random dots; burst plays once; reduced-motion shows
+     a static scatter.
+     ═══════════════════════════════════════════════ */
+  .confetti {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    height: 0;
+    overflow: visible;
+    pointer-events: none;
+    z-index: 10;
+  }
+  .confetti-x {
+    position: absolute;
+    left: var(--dot-left);
+    top: 0;
+    animation: confetti-x var(--dot-duration) var(--dot-delay) cubic-bezier(0, 0.9, 0.4, 1) forwards;
+  }
+  .confetti-y {
+    animation: confetti-y var(--dot-duration) var(--dot-delay) ease-in-out forwards;
+  }
+  .confetti-dot {
+    width: var(--dot-size);
+    height: var(--dot-size);
+    border-radius: 50%;
+    background-color: var(--dot-color);
+    opacity: 0;
+    animation: confetti-fade var(--dot-duration) var(--dot-delay) linear forwards;
+  }
+  @keyframes confetti-x {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(var(--dot-x-drift)); }
+  }
+  @keyframes confetti-y {
+    0%   { transform: translateY(0); }
+    20%  { transform: translateY(var(--dot-y-peak)); }
+    100% { transform: translateY(var(--dot-y-end)); }
+  }
+  @keyframes confetti-fade {
+    0%   { opacity: 0;    transform: rotate(0deg) scaleX(1); }
+    6%   { opacity: 0.9; }
+    25%  { transform: rotate(calc(var(--dot-rotate) * 0.3)) scaleX(-1); }
+    50%  { opacity: 0.85; transform: rotate(calc(var(--dot-rotate) * 0.6)) scaleX(1); }
+    75%  { opacity: 0.7;  transform: rotate(calc(var(--dot-rotate) * 0.8)) scaleX(-1); }
+    90%  { opacity: 0.3; }
+    100% { opacity: 0;    transform: rotate(var(--dot-rotate)) scaleX(1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .confetti-x, .confetti-y { animation: none; }
+    .confetti-dot { animation: none; opacity: 0.6; }
+  }
+
+  /* ═══════════════════════════════════════════════
+     MENU CARD — full-bleed on mobile, card chrome from md up.
+     ═══════════════════════════════════════════════ */
+  .menu-card {
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--jui-color-background-gray-light);
+  }
+  @media (min-width: 768px) {
+    .menu-card {
+      flex: 1 1 0;
+      border: 1px solid var(--jui-color-stroke-gray-decorative);  /* #f8f8f8 */
+      border-radius: var(--jui-style-radius-16);
+      padding-block: var(--jui-layout-padding-l);                 /* 24 */
+      padding-inline: var(--jui-layout-padding-m);                /* 16 */
+    }
+  }
+  .card-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-l);                   /* 24 */
+    margin-block: auto;
+  }
+
+  /* CTA bar — fixed footer on mobile, static in-card from md up. */
+  .cta-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: flex-end;
+    padding: var(--jui-layout-padding-m);
+    padding-bottom: calc(var(--jui-layout-padding-m) + env(safe-area-inset-bottom));
+    background: var(--jui-color-background-gray-light);
+  }
+  @media (min-width: 768px) {
+    .cta-bar {
+      position: static;
+      margin-top: var(--jui-layout-gap-l);          /* 24 */
+      padding: var(--jui-layout-padding-zero);
+      background: transparent;
+    }
+  }
+  @media (min-width: 768px) {
+    /* .btn-primary is full-width by default; from md the CTA hugs its
+       label with the @jimdo/ui medium gutter (24px inline). */
+    /* primitive-override */
+    .cta-bar .btn-primary { width: auto; padding-inline: var(--jui-layout-padding-l); }
+  }
+
+  /* ═══════════════════════════════════════════════
+     QR BLOCK — SuccessShareBlock.module.scss
+     White, gray-default border, radius-l (16), padding 8, gap 12.
+     ═══════════════════════════════════════════════ */
+  .qr-block {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-s);                   /* 12 */
+    background: var(--jui-color-background-gray-light);
+    border: 1px solid var(--jui-color-stroke-gray-default);   /* #e6e6e6 */
+    border-radius: var(--jui-style-radius-l);                 /* 16 */
+    padding: var(--jui-layout-padding-xs);                    /* 8 */
+  }
+  .qr-code-wrapper { position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; }
+  .qr-canvas { display: block; width: 110px; height: 110px; margin: 0 auto; }
+  .qr-download-btn {
+    position: absolute;
+    top: var(--jui-layout-padding-xxs);             /* 4 */
+    right: var(--jui-layout-padding-xxs);
+    width: var(--jui-layout-dimension-s);           /* 32 */
+    height: var(--jui-layout-dimension-s);
+    border-radius: var(--jui-style-radius-s);       /* 8 */
+    border: none;
+    background: transparent;
+    color: var(--jui-color-actions-primary-rest);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 150ms ease;
+  }
+  .qr-download-btn:hover { background: var(--jui-color-actions-static-hover); }
+  .qr-download-btn:focus-visible { outline: 2px solid var(--jui-color-actions-primary-rest); outline-offset: 2px; }
+  .qr-download-btn svg { width: 24px; height: 24px; }
+
+  .url-row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-s);                   /* 12 */
+    background: var(--jui-color-background-gray-dark);        /* gray-50 */
+    border-radius: var(--jui-style-radius-l);                 /* 16 */
+    padding: var(--jui-layout-padding-xxs)
+             var(--jui-layout-padding-xs)
+             var(--jui-layout-padding-xxs)
+             var(--jui-layout-padding-s);                     /* 4 8 4 12 */
+  }
+  .url-icon {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    color: var(--jui-color-typography-gray-on-light-default);
+    display: flex;
+  }
+  .url-icon svg { width: 100%; height: 100%; }
+  .url-text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-decoration: none;
+    color: var(--jui-color-typography-gray-on-light-default);
+    font-size: var(--jui-typography-body-small-medium-size);  /* Link/Small 14 */
+    font-weight: var(--jui-typography-body-small-medium-weight);
+    line-height: var(--jui-typography-body-small-medium-lh);
+    letter-spacing: var(--jui-typography-link-small-ls);
+    cursor: pointer;
+    background: none;
+    border: none;
+    text-align: left;
+    font-family: inherit;
+  }
+  .url-text:hover { text-decoration: underline; }
+  .url-text:focus-visible { outline: 2px solid var(--jui-color-actions-primary-rest); outline-offset: 2px; border-radius: var(--jui-style-radius-s); }
+
+  /* ═══════════════════════════════════════════════
+     SOCIAL ROW — SuccessShareBlock.module.scss .socialRow
+     288px wide, centred; 4 outlined circular buttons spread evenly.
+     ═══════════════════════════════════════════════ */
+  .social-row {
+    width: 288px;
+    max-width: 100%;
+    margin-inline: auto;
+  }
+  .social-share-row {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
+  .social-share-cell { flex: 1; display: flex; justify-content: center; }
+  .social-share-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* 16 padding + 16 icon + 1px border = 50 on each axis. Figma states
+       48 (11540:39999) because its stroke sits inside the frame; prod
+       (FlowCard styles.module.scss .socialShareBtn) renders 50 for the
+       same reason this does. Prod wins — the 2px is a Figma/code delta,
+       not a transcription slip. */
+    padding: var(--jui-layout-padding-m);           /* 16 */
+    border-radius: 50%;
+    border: 1px solid var(--jui-color-stroke-primary-on-light);  /* blue-100 */
+    background: var(--jui-color-background-gray-light);
+    color: var(--jui-color-actions-primary-rest);
+    cursor: pointer;
+    transition: background-color 150ms ease, transform 100ms ease;
+  }
+  .social-share-btn:hover  { background: var(--jui-color-background-primary-light); }
+  .social-share-btn:active { background: var(--jui-color-background-primary-light); transform: scale(0.95); }
+  .social-share-btn:focus-visible { outline: 2px solid var(--jui-color-actions-primary-rest); outline-offset: 2px; }
+  .social-share-btn svg { width: 16px; height: 16px; display: block; }
+
+  /* ═══════════════════════════════════════════════
+     TOAST
+     ═══════════════════════════════════════════════ */
+  .toast-container {
+    position: fixed;
+    top: var(--jui-layout-dimension-l);
+    left: var(--jui-layout-padding-m);
+    right: var(--jui-layout-padding-m);
+    z-index: 2000;
+    pointer-events: none;
+  }
+  @media (min-width: 768px) {
+    .toast-container { left: auto; right: var(--jui-layout-padding-l); width: 280px; }
+  }
+
+  /* ═══════════════════════════════════════════════
+     SOCIAL FRAME — loops-frontend components/SocialFrame.
+     White card, blue-tinted elevation, radius 16, padding 16, gap 8.
+     Skeleton Instagram profile row + the "put your link in bio" pill.
+     ═══════════════════════════════════════════════ */
+  .social-frame {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-xs);                  /* 8 */
+    background: var(--jui-color-background-gray-light);
+    padding: var(--jui-layout-padding-m);           /* 16 */
+    border-radius: var(--jui-style-radius-16);      /* 16 */
+    box-shadow: var(--jui-effects-elevation-blue-sm);
+  }
+  .bio-preview-row {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-m);                   /* 16 */
+    padding: var(--jui-layout-padding-xs);          /* 8 */
+  }
+  /* primitive-override: the shared .story-avatar inner is blue-50; prod
+     (SocialFrame/styles.module.scss) fills it background-primary-light. */
+  .bio-preview-row .story-avatar-inner { background: var(--jui-color-background-primary-light); }
+  .bio-tabs {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    gap: var(--jui-layout-gap-l);                   /* 24 */
+    padding: 0 var(--jui-layout-padding-s);         /* 0 12 */
+  }
+  .bio-tab {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--jui-layout-gap-xxs);                 /* 4 */
+  }
+  .bio-tab-label   { width: 20px; height: 12px; border-radius: 9999px; background: var(--jui-color-stroke-gray-decorative); }
+  .bio-tab-content { width: 100%; height: 8px;  border-radius: 9999px; background: var(--jui-color-stroke-gray-decorative); }
+
+  .share-link-pill {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-s);                   /* 12 */
+    background: var(--jui-color-background-gray-light);
+    border-radius: 9999px;
+    padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-s);  /* 4 12 */
+    color: var(--jui-color-actions-primary-rest);
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+    transition: background-color 150ms ease;
+  }
+  .share-link-pill:visited { color: var(--jui-color-actions-primary-rest); }
+  .share-link-pill:hover,
+  .share-link-pill:focus-visible { background: var(--jui-color-background-primary-light); }
+  .share-link-pill-label {
+    flex: 1;
+    min-width: 0;
+    text-align: start;
+    font-size: var(--jui-typography-body-small-medium-size);
+    font-weight: var(--jui-typography-body-small-medium-weight);
+    line-height: var(--jui-typography-body-small-medium-lh);
+  }
+  .share-link-pill svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+  /* ═══════════════════════════════════════════════
+     FIGMA QRBlock (11540:39994) — the proposal packs the QR card
+     tighter than prod: 8px between the QR and the link row (layout/base,
+     not gap-s) and an 8px vertical inset on the link row so the inline
+     Share button clears its 32px height.
+     ═══════════════════════════════════════════════ */
+  .qr-block--figma { gap: var(--jui-layout-gap-xs); }          /* 8 — layout/base */
+  .qr-block--figma .url-row {
+    padding: var(--jui-layout-padding-xs)
+             var(--jui-layout-padding-xs)
+             var(--jui-layout-padding-xs)
+             var(--jui-layout-padding-s);                      /* 8 8 8 12 */
+    gap: var(--jui-layout-gap-xs);                             /* 8 */
+  }
+
+  /* ═══════════════════════════════════════════════
+     FIGMA IGBioBlock (11540:39408) — the proposal's variant of the
+     social frame: bordered instead of elevated, 8px padding, 16px gap,
+     and a blue-10 prompt row at radius-l instead of a white pill.
+     Overrides sit on .social-frame--figma so the prod rules above stay
+     the single definition of the shipped card.
+     ═══════════════════════════════════════════════ */
+  .social-frame--figma {
+    box-shadow: none;
+    border: 1px solid var(--jui-color-stroke-gray-default);   /* #e6e6e6 */
+    border-radius: var(--jui-style-radius-l);                 /* 16 */
+    padding: var(--jui-layout-padding-xs);                    /* 8 */
+    gap: var(--jui-layout-gap-m);                             /* 16 */
+    align-items: center;
+  }
+  .social-frame--figma .bio-tabs {
+    gap: var(--jui-layout-gap-xl);                  /* 40 — Figma 48 is off our gap scale */
+  }
+  .social-frame--figma .bio-tab-label   { width: 32px; height: 12px; border-radius: var(--jui-style-radius-24); }
+  .social-frame--figma .bio-tab-content { width: 80px; max-width: 100%; height: 8px; border-radius: var(--jui-style-radius-24); }
+  .social-frame--figma .share-link-pill {
+    background: var(--jui-color-background-primary-light);    /* blue-10 */
+    border-radius: var(--jui-style-radius-l);                 /* 16 */
+    padding: var(--jui-layout-padding-xs)
+             var(--jui-layout-padding-xs)
+             var(--jui-layout-padding-xs)
+             var(--jui-layout-padding-s);                     /* 8 8 8 12 */
+    justify-content: space-between;
+  }
+  .social-frame--figma .share-link-pill:hover,
+  .social-frame--figma .share-link-pill:focus-visible { background: var(--jui-color-blue-50); }
+
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="success-container">
+    <div class="success-content">
+      <div class="success-layout">
+
+        <div class="success-title success-title--mobile">
+          <h1 class="success-headline" data-inspect-phrase="explainerStatic.bio.title">Your bio page is ready!</h1>
+        </div>
+
+        <!-- ─── Preview column: blob + confetti + chrome-less phone ─── -->
+        <div class="preview-column">
+          <div class="preview-blob" aria-hidden="true"
+            data-inspect-label="PreviewBlob — decorative splash, color/purple/10, rotated 15°">
+            <svg viewBox="0 0 334.632 331.763" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" focusable="false">
+              <path d="M143.508 16.1195C152.104 -5.37318 182.528 -5.37318 191.124 16.1195V16.1195C197.294 31.5464 216.282 37.1216 229.813 27.4796V27.4796C248.665 14.0462 274.259 30.4947 269.871 53.223V53.223C266.721 69.5367 279.68 84.4924 296.276 83.6964V83.6964C319.397 82.5874 332.036 110.262 316.057 127.01V127.01C304.587 139.031 307.403 158.619 321.795 166.921V166.921C341.846 178.489 337.516 208.603 315.018 214.053V214.053C298.871 217.965 290.65 235.966 298.268 250.731V250.731C308.882 271.303 288.958 294.296 267.086 286.718V286.718C251.387 281.278 234.739 291.977 233.165 308.517V308.517C230.972 331.561 201.78 340.133 187.477 321.932V321.932C177.211 308.869 157.421 308.869 147.155 321.932V321.932C132.852 340.133 103.66 331.561 101.467 308.517V308.517C99.8935 291.977 83.2457 281.278 67.5463 286.718V286.718C45.6739 294.296 25.7505 271.303 36.3642 250.732V250.732C43.9825 235.966 35.7617 217.965 19.6138 214.053V214.053C-2.8835 208.603 -7.21329 178.489 12.8373 166.921V166.921C27.229 158.619 30.0453 139.031 18.5757 127.01V127.01C2.59627 110.262 15.2348 82.5874 38.3563 83.6964V83.6964C54.9522 84.4924 67.9114 69.5367 64.7617 53.223V53.223C60.3734 30.4947 85.9677 14.0462 104.819 27.4796V27.4796C118.35 37.1216 137.338 31.5464 143.508 16.1195V16.1195Z" fill="var(--jui-color-purple-10)"/>
+            </svg>
+          </div>
+          <div class="phone-stage">
+            <div class="confetti" id="confetti" aria-hidden="true"></div>
+            <div class="phone-frame" id="phone-frame"
+              data-inspect-label="PhoneFrame — chrome-less, radius-xl, shadow lvl-3, aspect 360/713"
+              data-inspect-tokens='[{"prop":"border-radius","figma":"$jui-style-radius-xl","css":"--jui-style-radius-xl","value":"20px"},{"prop":"box-shadow","css":"--jui-effects-on-light-shadow-lvl-3","value":"0 12px 24px rgba(0,0,0,0.24)"},{"prop":"aspect-ratio","value":"360 / 713"}]'>
+              <div class="phone-scaler">
+                <iframe src="../artifacts/bio-page-v2.html" title="Bio page preview" loading="eager"></iframe>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── Menu card: title (desktop) + share stack + CTA ─── -->
+        <div class="menu-card">
+          <div class="card-content">
+        <div class="success-title success-title--card">
+          <h1 class="success-headline" data-inspect-phrase="explainerStatic.bio.title">Your bio page is ready!</h1>
+        </div>
+
+          <!-- QR block — SuccessShareBlock.tsx -->
+          <div class="qr-block qr-block--figma"
+            data-inspect-label="QR block — white, gray-default border, radius-l"
+            data-inspect-tokens='[{"prop":"background","figma":"color/gray/white","css":"--jui-color-background-gray-light","value":"#ffffff"},{"prop":"border","figma":"color/stroke/gray/default","css":"--jui-color-stroke-gray-default","value":"1px solid #e6e6e6"},{"prop":"border-radius","figma":"$jui-style-radius-l (resolves 16)","css":"--jui-style-radius-l","value":"16px"},{"prop":"padding","css":"--jui-layout-padding-xs","value":"8px"},{"prop":"gap","css":"--jui-layout-gap-s","value":"12px"}]'>
+            <div class="qr-code-wrapper">
+              <canvas class="qr-canvas" id="qr-canvas" role="img" aria-label="QR code for your bio page"></canvas>
+              <button class="qr-download-btn" id="download-btn"
+                title="Download QR code" aria-label="Download QR code as PNG"
+                data-inspect-label="Download QR — download-04, 32×32 subtle"
+                data-inspect-phrase="flowCard.ariaDownloadQRCode"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 17v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            </div>
+            <div class="url-row"
+              data-inspect-label="URL row — gray-50, radius-l, pl12 pr8 py4"
+              data-inspect-tokens='[{"prop":"background","figma":"color/gray/50","css":"--jui-color-background-gray-dark","value":"#f8f8f8"},{"prop":"border-radius","figma":"$jui-style-radius-l (resolves 16)","css":"--jui-style-radius-l","value":"16px"},{"prop":"padding","value":"4px 8px 4px 12px"},{"prop":"gap","css":"--jui-layout-gap-s","value":"12px"}]'>
+              <span class="url-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M10.5 3H4.99995C3.89538 3 2.99995 3.89543 2.99995 5V19C2.99995 20.1046 3.89538 21 4.99995 21H19C20.1045 21 21 20.1046 21 19V13.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M11 13L20.3499 3.64944M21 9V3L15 3" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></span>
+              <button class="url-text" id="link-btn" aria-label="Open your bio page in a new tab"
+                data-inspect-phrase="success.openBioPageAriaLabel">claranstone.jimdosite.com/bio</button>
+            <button class="btn btn-secondary btn-sm" id="share-btn"
+              data-inspect-label="Share — @jimdo/ui Button secondary / small"
+              data-inspect-phrase="flowCard.ctaShare">Share</button>
+            </div>
+          </div>
+
+          <!-- Social frame — SocialFrame.tsx + SocialSkeletonCard.tsx -->
+          <div class="social-frame social-frame--figma"
+            data-inspect-label="IGBioBlock (Figma 11540:39408) — white, gray-default border, radius-l, padding 8, gap 16"
+            data-inspect-tokens='[{"prop":"background","figma":"color/gray/white","css":"--jui-color-background-gray-light","value":"#ffffff"},{"prop":"border","figma":"color/stroke/gray/default","css":"--jui-color-stroke-gray-default","value":"1px solid #e6e6e6"},{"prop":"border-radius","figma":"style/radius/16","css":"--jui-style-radius-16","value":"16px"},{"prop":"padding","css":"--jui-layout-padding-xs","value":"8px"},{"prop":"gap","css":"--jui-layout-gap-m","value":"16px"}]'>
+            <div class="bio-preview-row" aria-hidden="true">
+              <div class="story-avatar"
+                data-inspect-label="Story avatar — conic brand ring + 2px white inner, blue-10 fill">
+                <div class="story-avatar-inner">
+                  <div class="story-avatar-head"></div>
+                  <div class="story-avatar-body"></div>
+                </div>
+              </div>
+              <div class="bio-tabs" data-inspect-label="Profile skeleton — 3 columns, stroke-gray-decorative bars">
+                <div class="bio-tab"><span class="bio-tab-label"></span><span class="bio-tab-content"></span></div>
+                <div class="bio-tab"><span class="bio-tab-label"></span><span class="bio-tab-content"></span></div>
+                <div class="bio-tab"><span class="bio-tab-label"></span><span class="bio-tab-content"></span></div>
+              </div>
+            </div>
+            <a class="share-link-pill" id="put-link-in-bio"
+              href="https://www.instagram.com/accounts/edit/" target="_blank" rel="noopener noreferrer"
+              data-inspect-label="Prompt row — blue-10, radius-l, Link/Small blue-500 + arrow-right-02"
+              data-inspect-tokens='[{"prop":"background","css":"--jui-color-background-gray-light","value":"#ffffff"},{"prop":"background (hover)","css":"--jui-color-background-primary-light","value":"#eff0ff"},{"prop":"border-radius","value":"9999px (prod 999px)"},{"prop":"padding","value":"4px 12px"},{"prop":"color","css":"--jui-color-actions-primary-rest","value":"#004ced"}]'>
+              <span class="share-link-pill-label" data-inspect-phrase="success.putLinkInBio">Put your link in your Instagram bio</span>
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15.0001 17L20 12L15 7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+            </a>
+          </div>
+
+          <!-- Social share row — SuccessSocialRow + FlowCardSocialShare -->
+          <div class="social-row"
+            data-inspect-label="Social row — 288px, centred; 4 outlined 48×48 buttons spread evenly">
+            <div class="social-share-row" role="toolbar" aria-label="Share via social channels">
+              <div class="social-share-cell">
+                <button class="social-share-btn" id="social-instagram"
+                  aria-label="Copy link for Instagram" data-inspect-phrase="share.socialButtons.instagram"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+              </div>
+              <div class="social-share-cell">
+                <button class="social-share-btn" id="social-whatsapp"
+                  aria-label="Share via WhatsApp" data-inspect-phrase="share.socialButtons.whatsapp"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20.52 3.449C18.24 1.245 15.24 0 12.045 0 5.463 0 .104 5.334.101 11.893c0 2.096.549 4.14 1.595 5.945L0 24l6.335-1.652a11.882 11.882 0 0 0 5.71 1.447h.006c6.585 0 11.946-5.335 11.949-11.896 0-3.176-1.24-6.165-3.495-8.411l.015-.039zm-8.47 18.297h-.004a9.86 9.86 0 0 1-5.031-1.378l-.36-.214-3.744.977 1-3.645-.235-.375a9.861 9.861 0 0 1-1.516-5.26c.003-5.45 4.437-9.884 9.893-9.884a9.81 9.81 0 0 1 6.993 2.899 9.824 9.824 0 0 1 2.891 6.993c-.002 5.45-4.437 9.884-9.893 9.884zm5.438-7.41c-.3-.15-1.767-.866-2.04-.963-.273-.1-.47-.15-.672.15-.2.3-.767.963-.94 1.16-.173.2-.347.223-.644.074-.297-.15-1.26-.463-2.4-1.48-.89-.79-1.49-1.76-1.66-2.06-.173-.3-.02-.46.13-.606.136-.135.3-.347.45-.52.149-.175.2-.3.3-.495.1-.2.05-.374-.025-.524-.075-.15-.675-1.623-.924-2.22-.242-.584-.487-.504-.672-.513l-.574-.008c-.2 0-.524.074-.8.374-.273.3-1.045 1.02-1.045 2.486 0 1.465 1.07 2.882 1.22 3.082.15.197 2.105 3.212 5.098 4.506.714.308 1.27.492 1.705.628.715.228 1.366.196 1.88.118.574-.086 1.767-.723 2.017-1.418.248-.697.248-1.29.174-1.42-.075-.127-.27-.202-.57-.35z" fill="currentColor"/></svg></button>
+              </div>
+              <div class="social-share-cell">
+                <button class="social-share-btn" id="social-facebook"
+                  aria-label="Share via Facebook" data-inspect-phrase="share.socialButtons.facebook"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+              </div>
+              <div class="social-share-cell">
+                <button class="social-share-btn" id="social-email"
+                  aria-label="Share via email" data-inspect-phrase="share.socialButtons.email"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="m22 7-10 5L2 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+              </div>
+            </div>
+          </div>
+          </div>
+
+        <div class="cta-bar">
+          <button class="btn btn-primary"
+            data-inspect-label="Primary CTA — @jimdo/ui Button primary, noGutter"
+            data-inspect-phrase="share.cta.continueToSharePlan">Continue to share plan</button>
+        </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<!-- Confetti — loops-frontend components/Confetti/Confetti.tsx: 45 seeded
+     dots, identical formulas, built as inline DOM so the static page
+     reproduces the burst without React. -->
+<script>
+  (function () {
+    var COLORS = ['#8DA7FF', '#B5F2CE', '#A350D9', '#FFC77B', '#336BFF', '#7DEAAF', '#E4B5FF'];
+    var DOT_COUNT = 45;
+    function seededRandom(seed) {
+      var x = Math.sin(seed * 9301 + 49297) * 233280;
+      return x - Math.floor(x);
+    }
+    var root = document.getElementById('confetti');
+    if (!root) return;
+    for (var i = 0; i < DOT_COUNT; i++) {
+      var rand = (function (idx) {
+        return function (offset) { return seededRandom(idx * 7 + offset); };
+      })(i);
+      var x = document.createElement('div');
+      x.className = 'confetti-x';
+      x.style.setProperty('--dot-left', (-5 + rand(0) * 10) + '%');
+      x.style.setProperty('--dot-delay', (rand(1) * 0.06) + 's');
+      x.style.setProperty('--dot-duration', (2.5 + rand(2) * 1.5) + 's');
+      x.style.setProperty('--dot-x-drift', ((rand(3) - 0.5) * 500) + 'px');
+      var y = document.createElement('div');
+      y.className = 'confetti-y';
+      y.style.setProperty('--dot-delay', (rand(1) * 0.06) + 's');
+      y.style.setProperty('--dot-duration', (2.5 + rand(2) * 1.5) + 's');
+      y.style.setProperty('--dot-y-peak', (-(120 + rand(4) * 160)) + 'px');
+      y.style.setProperty('--dot-y-end', (80 + rand(5) * 120) + 'px');
+      var dot = document.createElement('div');
+      dot.className = 'confetti-dot';
+      dot.style.setProperty('--dot-color', COLORS[i % COLORS.length]);
+      dot.style.setProperty('--dot-delay', (rand(1) * 0.06) + 's');
+      dot.style.setProperty('--dot-duration', (2.5 + rand(2) * 1.5) + 's');
+      dot.style.setProperty('--dot-size', (3 + rand(6) * 2) + 'px');
+      dot.style.setProperty('--dot-rotate', (rand(7) * 360) + 'deg');
+      y.appendChild(dot);
+      x.appendChild(y);
+      root.appendChild(x);
+    }
+  })();
+</script>
+
+<!-- PhoneScaler — mirrors loops-frontend PhoneScaler.tsx: the artifact
+     renders at its native 360×713 and is scaled to whatever size the
+     frame resolves to at the current breakpoint. -->
+<script>
+  (function () {
+    var frame = document.getElementById('phone-frame');
+    if (!frame) return;
+    function fit() {
+      var w = frame.clientWidth;
+      if (!w) return;
+      frame.style.setProperty('--phone-scale', (w / 360).toFixed(4));
+    }
+    if (window.ResizeObserver) new ResizeObserver(fit).observe(frame);
+    window.addEventListener('resize', fit);
+    fit();
+    window.addEventListener('load', fit);
+  })();
+</script>
+
+<!-- QR visual + share / download actions. The canvas is a non-scannable
+     prototype visual; production renders qrcode.js at the same 110px
+     (loops-frontend FlowCardQRCode.tsx, SuccessShareBlock QR_CODE_SIZE). -->
+<script>
+  (function initQR() {
+    var canvas = document.getElementById('qr-canvas');
+    if (!canvas) return;
+    function render() {
+      var size = 110;
+      var dpr = window.devicePixelRatio || 1;
+      var px = Math.round(size * dpr);
+      canvas.width = px;
+      canvas.height = px;
+      drawQR(canvas.getContext('2d'), px);
+    }
+    if (document.readyState === 'complete') render();
+    else window.addEventListener('load', render);
+  })();
+
+  function drawQR(ctx, px) {
+    var M = 29;
+    var pad = Math.round(px * 0.055);
+    var inner = px - pad * 2;
+    var cell = inner / M;
+    ctx.clearRect(0, 0, px, px);
+    ctx.fillStyle = '#000';
+    var s = 0xA5A5A5A5;
+    function rand() {
+      s = Math.imul(s ^ (s >>> 15), s | 1);
+      s ^= s + Math.imul(s ^ (s >>> 7), s | 61);
+      return ((s ^ (s >>> 14)) >>> 0) / 0xFFFFFFFF;
+    }
+    function isReserved(x, y) {
+      var inTL = (x < 9 && y < 9);
+      var inTR = (x >= M - 9 && y < 9);
+      var inBL = (x < 9 && y >= M - 9);
+      var timing = (x === 6 || y === 6);
+      return inTL || inTR || inBL || timing;
+    }
+    for (var y = 0; y < M; y++) {
+      for (var x = 0; x < M; x++) {
+        if (isReserved(x, y)) continue;
+        if (rand() > 0.48) {
+          ctx.fillRect(pad + x * cell, pad + y * cell, cell - 0.4, cell - 0.4);
+        }
+      }
+    }
+    for (var i = 8; i < M - 8; i++) {
+      if (i % 2 === 0) {
+        ctx.fillRect(pad + 6 * cell, pad + i * cell, cell, cell);
+        ctx.fillRect(pad + i * cell, pad + 6 * cell, cell, cell);
+      }
+    }
+    function finder(ox, oy) {
+      for (var dy = 0; dy < 7; dy++) {
+        for (var dx = 0; dx < 7; dx++) {
+          var onRing = (dx === 0 || dx === 6 || dy === 0 || dy === 6);
+          var onCenter = (dx >= 2 && dx <= 4 && dy >= 2 && dy <= 4);
+          if (onRing || onCenter) {
+            ctx.fillRect(pad + (ox + dx) * cell, pad + (oy + dy) * cell, cell, cell);
+          }
+        }
+      }
+    }
+    finder(0, 0);
+    finder(M - 7, 0);
+    finder(0, M - 7);
+    [[7, 8], [8, 7], [8, 8]].forEach(function (p) {
+      ctx.fillRect(pad + p[0] * cell, pad + p[1] * cell, cell, cell);
+    });
+  }
+
+  var PAGE_URL = 'https://claranstone.jimdosite.com/bio';
+  var SHARE_TEXT = 'Check out my bio page';
+
+  function on(id, fn) { var el = document.getElementById(id); if (el) el.addEventListener('click', fn); }
+
+  on('link-btn', function () { window.open(PAGE_URL, '_blank', 'noopener,noreferrer'); });
+  on('share-btn', function () {
+    if (navigator.share) { navigator.share({ title: SHARE_TEXT, url: PAGE_URL }).catch(function () {}); }
+    else if (navigator.clipboard) { navigator.clipboard.writeText(PAGE_URL).catch(function () {}); showToast('Link copied'); }
+  });
+  on('download-btn', function () {
+    var canvas = document.getElementById('qr-canvas');
+    if (!canvas) return;
+    try {
+      var link = document.createElement('a');
+      link.download = 'qr-code.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (e) { showToast('Download started'); }
+  });
+  on('social-whatsapp', function () {
+    window.open('https://wa.me/?text=' + encodeURIComponent(SHARE_TEXT + ' ' + PAGE_URL), '_blank', 'noopener,noreferrer');
+  });
+  on('social-facebook', function () {
+    window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(PAGE_URL), '_blank', 'noopener,noreferrer');
+  });
+  on('social-email', function () {
+    window.location.href = 'mailto:?subject=' + encodeURIComponent('Check this out') + '&body=' + encodeURIComponent(SHARE_TEXT + ' ' + PAGE_URL);
+  });
+  on('social-instagram', function () {
+    if (navigator.clipboard) { navigator.clipboard.writeText(PAGE_URL).catch(function () {}); }
+    showToast('Link copied for Instagram');
+  });
+
+  function showToast(message) {
+    var container = document.getElementById('toast-container');
+    if (!container) return;
+    var toast = document.createElement('div');
+    toast.className = 'toast toast-success';
+    toast.innerHTML =
+      '<span class="toast-icon">' +
+        '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true" width="20" height="20">' +
+          '<path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>' +
+        '</svg>' +
+      '</span>' +
+      '<span class="toast-message">' + message + '</span>';
+    container.appendChild(toast);
+    setTimeout(function () {
+      toast.classList.add('toast-hiding');
+      setTimeout(function () { toast.remove(); }, 300);
+    }, 2500);
+  }
+</script>
+
+<script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js"></script>
+
+<!-- Design annotations — surfaced in the workbench inspect panel -->
+<script type="application/json" id="design-annotations">
+[
+  "The Figma bio frame as drawn (11540:39873). Four differences from the shipped scr-030, each a live design decision:",
+  "1. Headline 'Your bio page is ready!' with no subheading. Prod ships 'Your link and QR are ready!' plus 'You can continue editing your page' \u2014 which names the artefact less and the next step more.",
+  "2. A Share button sits inside the URL row (@jimdo/ui Button secondary / small, radius-s). Prod renders one there only when navigator.share exists, so most desktop users never see it.",
+  "3. The Instagram card is bordered with 8px padding and a permanently blue-10 prompt row at radius-l. Prod uses an elevated white card with 16px padding and a white pill that only tints on hover.",
+  "4. The CTA reads 'Continue to share plan', implying a step after this screen that does not exist in loops-frontend \u2014 Continue goes to the bio dashboard, or to the domain upgrade for free users.",
+  "The frame's QR link reads claranstone.jimdosite.com/action-page \u2014 a copy-paste artefact from the action-page frame. Corrected to /bio here.",
+  "Figma's IGStats gap is 48 (measurements/size/48), off our gap scale; --jui-layout-gap-xl (40) is the nearest on-scale value. The stat bars bind color/gray/50 in Figma but render visibly darker in the exported frame; kept on stroke-gray-decorative so the skeleton reads.",
+  "share.cta.continueToSharePlan is a proposed key \u2014 it does not exist in loops-frontend translations.ts.",
+  "Shell, spacing and tokens are transcribed from loops-frontend `origin/main` \u2014 pages/Success/SuccessScreen.tsx + .module.scss, SuccessShareBlock, FlowCardQRCode, FlowCardSocialShare. This screen is a reading of production, not an interpretation of it.",
+  "Layout: single column on mobile; two columns (preview | menu card) from sm (576px) \u2014 that is where @jimdo/ui resolves flexDirection={['column','row']}. The card chrome, the title swap and the static CTA all switch at md (768px), so 576\u2013768px is a two-column layout with a full-bleed card. That band is prod's behaviour, not a transcription slip.",
+  "Title block renders twice (SuccessScreen.tsx TitleBlock) \u2014 above the stack on mobile, inside the card from md up. Both are <h1> in production; only one is ever displayed. Flagged as an a11y observation, kept faithful here.",
+  "Headline is @jimdo/ui Typography headlineSmall \u2014 400 weight, 125% line-height, -0.02em, 32px \u2192 28px \u22641200 \u2192 24px \u2264576. Figma draws the frame at 1200 with Subheadline/Large (24/500). Prod is the source of truth for the live versions; the divergence is real and worth a design decision.",
+  "Phone is chrome-less in production: a clipped frame at radius-xl with shadow lvl-3 and a locked 360/713 ratio, scaled by PhoneScaler. The Figma frames draw a black device bezel \u2014 that is review dressing, not shipped UI, so every version here uses the prod frame to stay comparable in the version switcher.",
+  "QR canvas is a non-scannable prototype visual at 110px \u2014 production renders qrcode.js at the same size (SuccessShareBlock QR_CODE_SIZE = 110).",
+  "Social row is 288px wide and centred (SuccessShareBlock.module.scss .socialRow); the four buttons are 48\u00d748 with a blue-100 border and a blue-500 icon, spread by flex:1 cells rather than a fixed gap.",
+  "Phrase keys are read from loops-frontend pages/Success/translations.ts and components/Flow/FlowCard/translations.ts, not looked up in Phrase."
+]
+</script>
+
+</body>
+</html>

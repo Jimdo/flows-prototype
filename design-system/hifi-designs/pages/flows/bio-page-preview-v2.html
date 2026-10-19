@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bio Page — Preview (Vision)</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+
+  /* ═══════════════════════════════════════════════
+     VISION ITERATION of scr-119 — post-publish celebration.
+     Figma: LOA_001_SuccessActivation (15841:65332).
+     Uses .app-shell-onboarding (gray canvas + white card, transparent
+     header gutter, gradient-fade footer). The celebration moment:
+       - centered headline above the phone
+       - soft purple blob + animated confetti burst behind the phone
+       - footer with Share (secondary) + Continue (primary)
+     Confetti effect ported verbatim from loops-frontend
+       frontend/src/pages/Success/{Confetti.tsx, styles.module.scss}.
+     ═══════════════════════════════════════════════ */
+
+  /* ─── Celebration stage — headline + phone stacked, centered ───
+     Figma "009": pt 32, gap 24 (layout-gap-l) between headline and phone. */
+  .celebration-stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--jui-layout-gap-l);            /* 24px */
+  }
+
+  /* ─── Headline — Subheadline/Large, centered, black ───
+     Figma 15841:65336 (24px / 500 / lh 1.33). */
+  .ready-headline {
+    margin: 0;
+    font-family: inherit;
+    font-size: var(--jui-typography-sub-headline-large-size);
+    font-weight: var(--jui-typography-sub-headline-large-weight);
+    line-height: var(--jui-typography-sub-headline-large-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+    text-align: center;
+  }
+
+  /* ═══════════════════════════════════════════════
+     PHONE STAGE — positioning context for blob + confetti + phone.
+     The 230×455.6px phone sits at native size; the blob and confetti
+     layer behind it (lower z-index), so dots that drift over the phone
+     pass behind its opaque black surface — matching the Figma.
+     ═══════════════════════════════════════════════ */
+  .phone-stage {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--jui-layout-padding-l) 0;  /* 24px */
+  }
+
+  /* ─── Decorative blob (Figma "Star 2", color/purple/10 #FCECFF) ───
+     Soft halo behind the phone, rotated 15°. Purely decorative. */
+  .celebration-blob {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 420px;
+    height: 416px;
+    transform: translate(-52%, -48%) rotate(15deg);
+    z-index: 0;
+    pointer-events: none;
+  }
+  .celebration-blob svg { display: block; width: 100%; height: 100%; }
+
+  .phone-frame {
+    position: relative;
+    z-index: 2;
+    width: 230px;
+    height: 455.6px;
+    background: var(--jui-color-gray-black);
+    border: 1.1px solid var(--jui-color-gray-100);
+    border-radius: 16px;
+    box-shadow: 0 4.4px 26.5px rgba(0, 0, 0, 0.10);
+    padding: 4px;
+    flex-shrink: 0;
+  }
+
+  .phone-inner {
+    width: 221.2px;
+    height: 446.8px;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    background: var(--jui-color-gray-black);
+  }
+
+  /* ═══════════════════════════════════════════════
+     ARTIFACT IFRAME — Bio page loaded as standalone doc
+     ═══════════════════════════════════════════════ */
+  .artifact-iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 360px;
+    height: 727px;
+    border: 0;
+    background: var(--jui-color-gray-black);
+    transform: scale(0.6144);
+    transform-origin: top left;
+  }
+
+  /* ═══════════════════════════════════════════════
+     CONFETTI — ported from loops-frontend pages/Success.
+     Origin: top-centre of the phone stage. Three nested wrappers per
+     dot: X drift (explosive ease-out), Y arc (launch up → gravity
+     fall), and the visual dot (fade + rotation wobble). Burst plays
+     once on load (`forwards`). Sits in front of the phone (z-index 3) so the
+     burst flies over the device — matching loops' own z-index:10 layering.
+     ═══════════════════════════════════════════════ */
+  .confetti {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    height: 0;
+    overflow: visible;
+    pointer-events: none;
+    z-index: 3;
+  }
+
+  /* Burst plays once on load (`forwards`), exactly as loops-frontend does —
+     the success page fires a single celebration, not an ambient loop. Each
+     dot launches, arcs over gravity, and fades to nothing by the end of its
+     2.5–4s cycle, leaving the resting screen clean. */
+  .confetti-x {
+    position: absolute;
+    left: var(--dot-left);
+    top: 0;
+    animation: confetti-x var(--dot-duration) var(--dot-delay) cubic-bezier(0, 0.9, 0.4, 1) forwards;
+  }
+
+  .confetti-y {
+    animation: confetti-y var(--dot-duration) var(--dot-delay) ease-in-out forwards;
+  }
+
+  .confetti-dot {
+    width: var(--dot-size);
+    height: var(--dot-size);
+    border-radius: 50%;
+    background-color: var(--dot-color);
+    opacity: 0;
+    animation: confetti-fade var(--dot-duration) var(--dot-delay) linear forwards;
+  }
+
+  @keyframes confetti-x {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(var(--dot-x-drift)); }
+  }
+
+  @keyframes confetti-y {
+    0%   { transform: translateY(0); }
+    20%  { transform: translateY(var(--dot-y-peak)); }
+    100% { transform: translateY(var(--dot-y-end)); }
+  }
+
+  @keyframes confetti-fade {
+    0%   { opacity: 0;    transform: rotate(0deg) scaleX(1); }
+    6%   { opacity: 0.9; }
+    25%  { transform: rotate(calc(var(--dot-rotate) * 0.3)) scaleX(-1); }
+    50%  { opacity: 0.85; transform: rotate(calc(var(--dot-rotate) * 0.6)) scaleX(1); }
+    75%  { opacity: 0.7;  transform: rotate(calc(var(--dot-rotate) * 0.8)) scaleX(-1); }
+    90%  { opacity: 0.3; }
+    100% { opacity: 0;    transform: rotate(var(--dot-rotate)) scaleX(1); }
+  }
+
+  /* Reduced motion: no burst — show dots at their start positions,
+     statically visible (loops' own fallback). */
+  @media (prefers-reduced-motion: reduce) {
+    .confetti-x, .confetti-y { animation: none; }
+    .confetti-dot { animation: none; opacity: 0.6; }
+  }
+
+  /* ═══════════════════════════════════════════════
+     FOOTER — Share (secondary, left) + Continue (primary, right).
+     Figma "Actions Container": space-between, 16px padding, buttons
+     content-sized with 24px horizontal padding. Overrides the
+     onboarding footer's default flex-end alignment.
+     ═══════════════════════════════════════════════ */
+  .app-shell-onboarding .shell-footer .footer-actions-split {
+    justify-content: space-between;
+  }
+  .footer-actions-split .btn {
+    padding-left: var(--jui-layout-padding-l);   /* 24px */
+    padding-right: var(--jui-layout-padding-l);
+  }
+  /* layout.css `.footer-actions .btn { border: none }` outranks
+     `.btn-secondary` and strips the Share button's outline. Restore it —
+     blue-100 (#b4c4ff) is the Figma stroke ($jui-color-stroke-primary-on-light). */
+  /* primitive-override */
+  .footer-actions-split .btn-secondary {
+    border: 1px solid var(--jui-color-blue-100);
+  }
+
+</style>
+</head>
+<body>
+
+<div class="app-shell app-shell-onboarding">
+
+  <div class="shell-middle">
+    <div class="shell-working-area setup-centered-v">
+      <div class="content-container">
+        <div class="celebration-stage">
+          <h1 class="ready-headline" data-inspect-phrase="preview.bioSite.readyHeadline">Your page is ready to review!</h1>
+          <div class="phone-stage">
+            <div class="celebration-blob" aria-hidden="true">
+              <svg viewBox="0 0 334.632 331.763" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+                <path d="M143.508 16.1195C152.104 -5.37318 182.528 -5.37318 191.124 16.1195V16.1195C197.294 31.5464 216.282 37.1216 229.813 27.4796V27.4796C248.665 14.0462 274.259 30.4947 269.871 53.223V53.223C266.721 69.5367 279.68 84.4924 296.276 83.6964V83.6964C319.397 82.5874 332.036 110.262 316.057 127.01V127.01C304.587 139.031 307.403 158.619 321.795 166.921V166.921C341.846 178.489 337.516 208.603 315.018 214.053V214.053C298.871 217.965 290.65 235.966 298.268 250.731V250.731C308.882 271.303 288.958 294.296 267.086 286.718V286.718C251.387 281.278 234.739 291.977 233.165 308.517V308.517C230.972 331.561 201.78 340.133 187.477 321.932V321.932C177.211 308.869 157.421 308.869 147.155 321.932V321.932C132.852 340.133 103.66 331.561 101.467 308.517V308.517C99.8935 291.977 83.2457 281.278 67.5463 286.718V286.718C45.6739 294.296 25.7505 271.303 36.3642 250.732V250.732C43.9825 235.966 35.7617 217.965 19.6138 214.053V214.053C-2.8835 208.603 -7.21329 178.489 12.8373 166.921V166.921C27.229 158.619 30.0453 139.031 18.5757 127.01V127.01C2.59627 110.262 15.2348 82.5874 38.3563 83.6964V83.6964C54.9522 84.4924 67.9114 69.5367 64.7617 53.223V53.223C60.3734 30.4947 85.9677 14.0462 104.819 27.4796V27.4796C118.35 37.1216 137.338 31.5464 143.508 16.1195V16.1195Z" fill="#FCECFF"/>
+              </svg>
+            </div>
+            <div class="confetti" id="confetti" aria-hidden="true"></div>
+            <div class="phone-frame">
+              <div class="phone-inner">
+                <iframe
+                  class="artifact-iframe"
+                  id="artifact-iframe"
+                  src="../artifacts/bio-page-v2.html"
+                  title="Bio page artifact"
+                  loading="eager"></iframe>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="shell-footer">
+    <div class="footer-actions footer-actions-split">
+      <button class="btn btn-secondary"
+              data-inspect-label="Secondary Button — Share"
+              data-inspect-phrase="preview.bioSite.shareCta"
+              data-nav-to="flows/onboarding-share.html">Share</button>
+      <button class="btn btn-primary"
+              data-inspect-label="Primary Button — Continue"
+              data-inspect-phrase="preview.bioSite.continueCta"
+              data-trigger="primary-cta"
+              data-nav-to="flows/bio-page-links-edit.html"
+              data-nav-screen-id="scr-120">Continue</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Confetti generator — ported from loops-frontend Confetti.tsx.
+     45 seeded-random dots, identical formulas, built as inline DOM
+     so the static page reproduces the burst without React. -->
+<script>
+  (function () {
+    var COLORS = ['#8DA7FF', '#B5F2CE', '#A350D9', '#FFC77B', '#336BFF', '#7DEAAF', '#E4B5FF'];
+    var DOT_COUNT = 45;
+
+    function seededRandom(seed) {
+      var x = Math.sin(seed * 9301 + 49297) * 233280;
+      return x - Math.floor(x);
+    }
+
+    var root = document.getElementById('confetti');
+    if (!root) return;
+
+    for (var i = 0; i < DOT_COUNT; i++) {
+      var rand = (function (idx) {
+        return function (offset) { return seededRandom(idx * 7 + offset); };
+      })(i);
+
+      var x = document.createElement('div');
+      x.className = 'confetti-x';
+      x.style.setProperty('--dot-left', (-5 + rand(0) * 10) + '%');
+      x.style.setProperty('--dot-delay', (rand(1) * 0.06) + 's');
+      x.style.setProperty('--dot-duration', (2.5 + rand(2) * 1.5) + 's');
+      x.style.setProperty('--dot-x-drift', ((rand(3) - 0.5) * 500) + 'px');
+
+      var y = document.createElement('div');
+      y.className = 'confetti-y';
+      y.style.setProperty('--dot-delay', (rand(1) * 0.06) + 's');
+      y.style.setProperty('--dot-duration', (2.5 + rand(2) * 1.5) + 's');
+      y.style.setProperty('--dot-y-peak', (-(120 + rand(4) * 160)) + 'px');
+      y.style.setProperty('--dot-y-end', (80 + rand(5) * 120) + 'px');
+
+      var dot = document.createElement('div');
+      dot.className = 'confetti-dot';
+      dot.style.setProperty('--dot-color', COLORS[i % COLORS.length]);
+      dot.style.setProperty('--dot-delay', (rand(1) * 0.06) + 's');
+      dot.style.setProperty('--dot-duration', (2.5 + rand(2) * 1.5) + 's');
+      dot.style.setProperty('--dot-size', (3 + rand(6) * 2) + 'px');
+      dot.style.setProperty('--dot-rotate', (rand(7) * 360) + 'deg');
+
+      y.appendChild(dot);
+      x.appendChild(y);
+      root.appendChild(x);
+    }
+  })();
+</script>
+
+<script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js"></script>
+
+</body>
+</html>

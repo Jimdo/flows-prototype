@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=360, initial-scale=1">
+<title>Clara and Stone — Bio Page</title>
+<style>
+  /* ═══════════════════════════════════════════════
+     ARTIFACT — DARK TEMPLATE "Clara and Stone"
+     Standalone bio-page document. Rendered either
+     directly (standalone) or inside an iframe in
+     bio-page-preview.html at scale(0.6144).
+     Native mobile width: 360px.
+     ═══════════════════════════════════════════════ */
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #0a0a0a;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: 'Familjen Grotesk', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    color: #fff;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .bio-page {
+    width: 100%;
+    max-width: 360px;
+    min-height: 100vh;
+    margin: 0 auto;
+    background: #0a0a0a;
+    display: flex;
+    flex-direction: column;
+    padding-top: 0;
+  }
+
+  /* ── Zone A — Hero (Figma 13503:15594-15597) ──
+     Figma: title absolute at left=115 top=75 in 230-scale
+     = centered at (180, 117) in 360-native, overlapping image top.
+     Image 115 → 180 square, starts at pt 97.111 → 152.
+     Title 37.33 → 58, line-height 0.8.
+     Share 20.444 → 32, icon 15.333 → 24, bg rgba(0,0,0,0.30). */
+  .bio-hero {
+    position: relative;
+    padding: 71px 20px 16px; /* title starts at ~71 so image (title-bottom + small overlap) lands ~152 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+  .bio-hero-title {
+    font-size: 58px;
+    font-weight: 700;
+    line-height: 0.8;
+    letter-spacing: -1.75px;
+    text-transform: uppercase;
+    color: #ffffff;
+    margin: 0 0 -12px; /* overlap image top by 12px — matches Figma title/image overlap */
+    text-align: center;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+  }
+  .bio-hero-img-wrap {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #1a1015;
+    flex-shrink: 0;
+  }
+  .bio-hero-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 30%;
+  }
+  .bio-hero-share {
+    position: absolute;
+    top: 14px;
+    right: 11px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    z-index: 2;
+  }
+  .bio-hero-share svg { width: 18px; height: 18px; stroke-width: 1.5; }
+
+  /* ── Subtitle (Figma 13503:15598-15599) ──
+     font 11.5 → 18, color #aaa. Bottom padding bumped to 32
+     to create a clear hero → content section break. */
+  .bio-subtitle {
+    font-size: 18px;
+    font-weight: 400;
+    color: #aaa;
+    text-align: center;
+    line-height: 1.4;
+    padding: 20px 20px 40px;
+    margin: 0;
+  }
+
+  /* ── Zone B — Quick Actions ──
+     Aligned with buttons and info blocks: px 12, pb 16 (card-zone rhythm). */
+  .bio-quick-actions {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 12px 16px;
+  }
+  .bio-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 34px;
+    padding: 0 16px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .bio-chip svg { width: 14px; height: 14px; opacity: 0.85; }
+
+  /* ── Zone C — Blocks (merged buttons + info + map) ──
+     Single container holds every tappable row. 12px gap between items
+     gives rich cards (which carry more content) room to breathe without
+     losing group identity. Px 12 container inset matches the buttons'
+     Figma mapping. Bottom padding bumped to 40 to create a clear
+     content → socials section break that balances the upstream hero break.
+     Visual hierarchy is carried by item bg/radius, not spacing. */
+  .bio-blocks {
+    padding: 0 12px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* Button row — primary action (bg 0.15, radius 16) */
+  .bio-link-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 48px;
+    padding: 16px 20px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1;
+    text-align: left;
+    letter-spacing: 0;
+    gap: 8px;
+  }
+  .bio-link-arrow { width: 16px; height: 16px; opacity: 0.85; flex-shrink: 0; }
+
+  /* ── Rich button (Figma 13696:81844) ──
+     Two-part card: info header (image + bold title) stacked over an action
+     row (CTA label + arrow), separated by a 1px gap so the dark page bg
+     shows through as a thin divider. Shared visual style across variants
+     (book / pay / promo); differentiated purely by content. */
+  .bio-rich-btn {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    border-radius: 16px;
+  }
+
+  /* Top: 80px square image + bold title, tl/tr 16, bl/br 6 */
+  .bio-rich-btn-info {
+    display: flex;
+    align-items: stretch;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 16px 16px 6px 6px;
+  }
+
+  .bio-rich-btn-img {
+    flex-shrink: 0;
+    padding: 8px 0 8px 8px;
+    /* No vertical centring on purpose. The wrap stretches to match the info
+       block height, but the image sits at a fixed 8px from the top on every
+       card so image tops line up across BOOK / PAY / PROMO regardless of
+       how tall the info content is. */
+  }
+
+  .bio-rich-btn-img img,
+  .bio-rich-btn-img .bio-rich-btn-img-placeholder {
+    display: block;
+    width: 80px;
+    height: 80px;
+    /* Concentric corners: outer card radius 16 − 8px wrap padding = 8px inner.
+       Diverges from Figma's 12 to hold concentric rhythm as cards vary in size. */
+    border-radius: 8px;
+    object-fit: cover;
+    background: #1a1015;
+  }
+
+  .bio-rich-btn-title-wrap {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .bio-rich-btn-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.3;
+    margin: 0;
+    letter-spacing: -0.2px;
+  }
+
+  /* Meta row — secondary info beneath the title. Used by BOOK (date/time)
+     and PAY (shipping, stock). 13px muted so it doesn't compete with the
+     20px title. Price lives in the CTA bar, not here — keeps info area
+     short and reserves the bottom bar for transactional data. */
+  .bio-rich-btn-meta {
+    font-size: 13px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.4;
+    margin: 6px 0 0;
+  }
+
+  /* Leading icon in the CTA bar — used by BOOK for a calendar glyph that
+     signals scheduling without replacing the photo. */
+  .bio-rich-btn-cta-icon {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    color: #fff;
+    opacity: 0.85;
+  }
+
+  /* Trailing price accent in the CTA bar — used by BOOK and PAY. Sits
+     between the flex-1 label and the arrow so the action verb leads and
+     the commercial value reads as a tight right-hand accent. */
+  .bio-rich-btn-cta-price {
+    flex-shrink: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+    letter-spacing: -0.2px;
+  }
+
+  /* Bottom: CTA + arrow. tl/tr 6, bl/br 16 to mirror the info header */
+  .bio-rich-btn-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 48px;
+    padding: 16px 20px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 6px 6px 16px 16px;
+  }
+
+  .bio-rich-btn-cta-label {
+    flex: 1 1 0;
+    min-width: 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.3;
+  }
+
+  .bio-rich-btn-cta-arrow {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    opacity: 0.7;
+  }
+
+  /* ══════════════════════════════════════════════════════════════════════
+     Rich button — VARIATIONS
+     Each variant unlocks a use case the default layout handles poorly.
+     All share the base .bio-rich-btn outer (flex-column gap 1px + radius 16).
+     ══════════════════════════════════════════════════════════════════════ */
+
+  /* ── BOOK Featured ──
+     Full-width image hero on top. Three stacked rows (hero / info / CTA)
+     separated by 1px gaps, preserving the family's ribbon divider pattern.
+     Use for signature events where the photo sells the experience. */
+  .bio-rich-btn--featured .bio-rich-btn-hero {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 16px 16px 6px 6px;
+  }
+  .bio-rich-btn--featured .bio-rich-btn-hero img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 400ms ease-out;
+  }
+  /* Middle row: no image on left; title + meta stack directly inside info */
+  .bio-rich-btn--featured .bio-rich-btn-info {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 14px 20px;
+    border-radius: 6px;
+  }
+  .bio-rich-btn--featured .bio-rich-btn-info .bio-rich-btn-title {
+    margin: 0;
+  }
+  .bio-rich-btn--featured .bio-rich-btn-info .bio-rich-btn-meta {
+    margin: 4px 0 0;
+  }
+
+  /* ── PAY Tip Jar ──
+     Top half identical to base PAY (image + title + meta). Bottom half
+     swaps the single CTA for a chip grid so users can tap a preset amount
+     in one action. Each chip is its own interactive surface. */
+  .bio-rich-btn-chips {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    min-height: 48px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 6px 6px 16px 16px;
+  }
+  .bio-rich-btn-chip {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 36px;
+    padding: 0 10px;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0;
+    cursor: pointer;
+    transition: background-color 180ms ease-out,
+                border-color 180ms ease-out,
+                transform 150ms ease-out;
+  }
+  .bio-rich-btn-chip:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.55);
+    outline-offset: 2px;
+  }
+  @media (hover: hover) {
+    .bio-rich-btn-chip:hover {
+      background: rgba(255, 255, 255, 0.16);
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+  }
+  .bio-rich-btn-chip:active {
+    transform: scale(0.94);
+    transition-duration: 80ms;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bio-rich-btn-chip { transition: none; }
+    .bio-rich-btn-chip:active { transform: none; }
+  }
+
+  /* ── PROMO Immersive ──
+     Full-bleed image with a dark bottom gradient; title + eyebrow + arrow
+     sit on top. Single layer — no internal divider, no CTA bar — the
+     whole card is the tap target. Taller (220px) than the standard rich
+     button to earn its editorial hero role. */
+  .bio-rich-btn--immersive {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 220px;
+    border-radius: 16px;
+    overflow: hidden;
+    gap: 0;
+  }
+  .bio-rich-btn-immersive-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 400ms ease-out;
+  }
+  .bio-rich-btn-immersive-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0.55) 55%,
+      rgba(0, 0, 0, 0.85) 100%
+    );
+  }
+  .bio-rich-btn-immersive-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.78);
+  }
+  .bio-rich-btn-immersive-headline-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .bio-rich-btn-immersive-headline {
+    flex: 1 1 0;
+    min-width: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+    letter-spacing: -0.3px;
+    margin: 0;
+  }
+  .bio-rich-btn-immersive-arrow {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    color: #fff;
+    transition: transform 180ms ease-out;
+  }
+  @media (hover: hover) {
+    .bio-rich-btn--immersive:hover .bio-rich-btn-immersive-img {
+      transform: scale(1.04);
+    }
+    .bio-rich-btn--immersive:hover .bio-rich-btn-immersive-arrow {
+      transform: translateX(3px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bio-rich-btn-immersive-img,
+    .bio-rich-btn-immersive-arrow { transition: none; }
+    .bio-rich-btn--immersive:hover .bio-rich-btn-immersive-img,
+    .bio-rich-btn--immersive:hover .bio-rich-btn-immersive-arrow { transform: none; }
+  }
+
+  /* Info row — secondary info (bg 0.06, radius 16). Same padding & radius
+     as button so all block cards share the same corner treatment. */
+  .bio-info-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 48px;
+    padding: 16px 20px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1;
+  }
+  .bio-info-row svg { width: 16px; height: 16px; opacity: 0.75; color: #fff; flex-shrink: 0; }
+  .bio-info-label { flex: 1; color: rgba(255, 255, 255, 0.88); }
+  .bio-info-status {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.60);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .bio-info-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #4ade80;
+  }
+
+  /* Map card — visual info block (Figma 14169:13147).
+     Single rich-button: embedded map on top (320:120 aspect), icon + address
+     row beneath. bg 0.06, radius 16, no border. Iframe darkened via CSS
+     filter — Google Maps Embed API has no dark-mode param, this is the
+     standard zero-API-key approach. */
+  .bio-info-map {
+    display: flex;
+    flex-direction: column;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+  }
+  .bio-info-map-embed {
+    width: 100%;
+    aspect-ratio: 320 / 120;
+    border: 0;
+    display: block;
+    background: #1b1e24;
+    position: relative;
+  }
+  .bio-info-map-embed iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+  .bio-info-map-footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    min-height: 48px;
+    font-size: 14px;
+  }
+  .bio-info-map-footer svg { width: 18px; height: 18px; color: #fff; flex-shrink: 0; }
+  .bio-info-map-footer .bio-info-label { flex: 1; color: #fff; line-height: 1.3; }
+
+  /* ── Zone E — Social icons (Figma 13503:15600-15607) ──
+     wrapper: pb 15.333 → 24, pt 0, px 12.778 → 20
+     inner: gap 10.222 → 16
+     icon container: w 25.556 → 40, p 7.227 → 11
+     icon svg: size 11.563 → 18 */
+  .bio-socials {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 0 20px 24px;
+  }
+  .bio-social-dot {
+    width: 40px;
+    height: 40px;
+    padding: 11px;
+    border-radius: 0;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    box-sizing: border-box;
+  }
+  .bio-social-dot svg { width: 18px; height: 18px; }
+
+  /* ── Zone F — Legal (Figma 2LVaYKcy 8156:4926-4933) ──
+     With pill promo above, legal uses tighter top-padding (pt 32 in Figma).
+     wrapper pb 16, px 12
+     inner: gap 12, pb 20, pt 32, px 20
+     font 12, DM Sans / Faculty Glyphic fallback, underline. */
+  .bio-legal {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 32px 20px 20px;
+    margin: 0 12px 16px;
+    font-family: 'Faculty Glyphic', 'Familjen Grotesk', -apple-system, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #fff;
+    white-space: nowrap;
+  }
+  .bio-legal a { color: #fff; text-decoration: underline; text-underline-offset: 2px; }
+
+  /* ── Withdraw contract (below legal) ── */
+  .bio-withdraw-section {
+    display: flex;
+    justify-content: center;
+    padding: 0 20px 32px;
+  }
+  .bio-withdraw-btn {
+    font-family: 'Faculty Glyphic', 'Familjen Grotesk', -apple-system, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #fff;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 100px;
+    padding: 6px 20px;
+    cursor: pointer;
+  }
+
+  /* ── Jimdo promo pill (Figma 2LVaYKcy / 8156:4998-5001) ──
+     Replaces the full-width blue banner with a centered pill CTA.
+     Positioned ABOVE the legal links.
+     Wrapper: pt 56, px 16, w-full. Pill: bg #eff0ff, border 1px #b4c4ff,
+     radius 100, px 16 py 6, gap 8, font 14 weight 500 color #001453,
+     letter-spacing 0.14, J-icon 24×24 radius 2. */
+  .bio-jimdo-promo-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 56px 16px 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .bio-jimdo-promo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 6px 16px;
+    background: #eff0ff;
+    border: 1px solid #b4c4ff;
+    border-radius: 100px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.57;
+    letter-spacing: 0.14px;
+    color: #001453;
+    white-space: nowrap;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .bio-jimdo-promo-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 2px;
+    background: #001453;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #fff;
+  }
+  .bio-jimdo-promo-icon svg { width: 14px; height: 14px; }
+
+  /* ══════════════════════════════════════════════════════════════════════
+     Interaction states
+     Every tappable surface gets a baseline transition, a hover state
+     (pointer devices only), a press-down scale on :active, and a
+     keyboard focus ring. Micro-interactions are scoped to moments where
+     motion carries meaning — arrows nudging forward, socials lifting —
+     not applied everywhere as decoration.
+     ══════════════════════════════════════════════════════════════════════ */
+
+  .bio-hero-share,
+  .bio-chip,
+  .bio-link-btn,
+  .bio-rich-btn,
+  .bio-info-row,
+  .bio-info-map,
+  .bio-social-dot,
+  .bio-jimdo-promo,
+  .bio-withdraw-btn {
+    cursor: pointer;
+    transition: background-color 180ms ease-out,
+                border-color 180ms ease-out,
+                color 180ms ease-out,
+                transform 150ms ease-out;
+  }
+
+  /* Rich-button halves animate bg in sync so the card reads as one unit */
+  .bio-rich-btn-info,
+  .bio-rich-btn-cta {
+    transition: background-color 180ms ease-out;
+  }
+
+  /* Arrow transitions only the nudge, separate from the container's bg */
+  .bio-link-arrow,
+  .bio-rich-btn-cta-arrow {
+    transition: transform 180ms ease-out;
+  }
+
+  /* Keyboard focus — visible ring for all interactive surfaces */
+  .bio-hero-share:focus-visible,
+  .bio-chip:focus-visible,
+  .bio-link-btn:focus-visible,
+  .bio-rich-btn:focus-visible,
+  .bio-info-row:focus-visible,
+  .bio-info-map:focus-visible,
+  .bio-social-dot:focus-visible,
+  .bio-jimdo-promo:focus-visible,
+  .bio-withdraw-btn:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.55);
+    outline-offset: 3px;
+  }
+
+  /* Hover — scoped to pointer devices so touch doesn't get stuck states */
+  @media (hover: hover) {
+    .bio-hero-share:hover {
+      background: rgba(255, 255, 255, 0.22);
+    }
+    .bio-chip:hover {
+      background: rgba(255, 255, 255, 0.16);
+      border-color: rgba(255, 255, 255, 0.22);
+    }
+    .bio-link-btn:hover {
+      background: rgba(255, 255, 255, 0.20);
+    }
+    .bio-rich-btn:hover .bio-rich-btn-info,
+    .bio-rich-btn:hover .bio-rich-btn-cta {
+      background: rgba(255, 255, 255, 0.20);
+    }
+    .bio-info-row:hover,
+    .bio-info-map:hover {
+      background: rgba(255, 255, 255, 0.10);
+    }
+    .bio-social-dot:hover {
+      transform: translateY(-2px);
+      color: rgba(255, 255, 255, 0.95);
+    }
+    .bio-jimdo-promo:hover {
+      background: #f5f7ff;
+    }
+    .bio-withdraw-btn:hover {
+      border-color: rgba(255, 255, 255, 0.6);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    /* Arrow forward affordance — small nudge signals "go" */
+    .bio-link-btn:hover .bio-link-arrow,
+    .bio-rich-btn:hover .bio-rich-btn-cta-arrow {
+      transform: translateX(3px);
+    }
+  }
+
+  /* Active (press) — snappy scale-down feedback on every device */
+  .bio-hero-share:active,
+  .bio-chip:active,
+  .bio-link-btn:active,
+  .bio-rich-btn:active,
+  .bio-info-row:active,
+  .bio-info-map:active,
+  .bio-social-dot:active,
+  .bio-jimdo-promo:active,
+  .bio-withdraw-btn:active {
+    transform: scale(0.97);
+    transition-duration: 80ms;
+  }
+
+  /* ══════════════════════════════════════════════════════════════════════
+     Desktop presentation
+     On wider viewports the page is presented as a 360-wide card sitting
+     on a slightly lighter body canvas, with generous vertical breathing
+     room so it doesn't touch the browser edges. Rounded corners + a soft
+     drop shadow lift the card off the canvas. Mobile layout is untouched.
+     ══════════════════════════════════════════════════════════════════════ */
+  @media (min-width: 768px) {
+    body {
+      background: #1a1a1a;
+      padding: 40px 0;
+    }
+    .bio-page {
+      min-height: auto;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+  }
+
+  /* Respect users who prefer reduced motion — strip all transitions */
+  @media (prefers-reduced-motion: reduce) {
+    .bio-hero-share,
+    .bio-chip,
+    .bio-link-btn,
+    .bio-rich-btn,
+    .bio-rich-btn-info,
+    .bio-rich-btn-cta,
+    .bio-info-row,
+    .bio-info-map,
+    .bio-social-dot,
+    .bio-jimdo-promo,
+    .bio-withdraw-btn,
+    .bio-link-arrow,
+    .bio-rich-btn-cta-arrow {
+      transition: none;
+    }
+    .bio-hero-share:active,
+    .bio-chip:active,
+    .bio-link-btn:active,
+    .bio-rich-btn:active,
+    .bio-info-row:active,
+    .bio-info-map:active,
+    .bio-social-dot:active,
+    .bio-jimdo-promo:active,
+    .bio-withdraw-btn:active,
+    .bio-social-dot:hover,
+    .bio-link-btn:hover .bio-link-arrow,
+    .bio-rich-btn:hover .bio-rich-btn-cta-arrow {
+      transform: none;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="bio-page">
+
+  <!-- Zone A — Hero -->
+  <div class="bio-hero">
+    <div class="bio-hero-share" aria-label="Share">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+    </div>
+    <h1 class="bio-hero-title">Clara and<br>Stone</h1>
+    <div class="bio-hero-img-wrap" role="img" aria-label="Clara and Stone portrait">
+      <img class="bio-hero-img"
+           alt=""
+           src="../images/clara-stone.jpg"
+           aria-hidden="true" />
+    </div>
+  </div>
+
+  <div class="bio-subtitle">Handmade Jewellery</div>
+
+  <!-- Zone B — Quick Actions -->
+  <!-- TEMPORARILY HIDDEN — quick actions (call / whatsapp chips). Restore by removing wrapping comment. -->
+  <!--
+  <div class="bio-quick-actions">
+    <span class="bio-chip">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.5 12.5a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.41 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      Call
+    </span>
+    <span class="bio-chip">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+      WhatsApp
+    </span>
+  </div>
+  -->
+  <!-- /TEMPORARILY HIDDEN -->
+
+  <!-- Zone C — Blocks (merged: rich buttons + simple buttons + info rows + map, one container, 8px rhythm) -->
+  <div class="bio-blocks">
+
+    <!-- TEMPORARILY HIDDEN — rich-btn cards (Book, Pay, Promo). Restore by removing wrapping comment. -->
+    <!--
+    <!~~ Rich button — BOOK (workshop / service / event). Figma 13696:81844.
+         Unique: date/time meta under title; calendar icon + price in CTA
+         bar signal scheduling + commercial value without inflating the
+         info zone. ~~>
+    <div class="bio-rich-btn" role="button" tabindex="0" aria-label="Jewellery making for beginners — Saturday 10 May 14:00, 45 euros — Book my session">
+      <div class="bio-rich-btn-info">
+        <div class="bio-rich-btn-img">
+          <img src="../images/clara-stone.jpg" alt="">
+        </div>
+        <div class="bio-rich-btn-title-wrap">
+          <h3 class="bio-rich-btn-title">Jewellery making for beginners</h3>
+          <p class="bio-rich-btn-meta">Sat 10 May · 14:00</p>
+        </div>
+      </div>
+      <div class="bio-rich-btn-cta">
+        <svg class="bio-rich-btn-cta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        <span class="bio-rich-btn-cta-label">Book my session</span>
+        <span class="bio-rich-btn-cta-price">€45</span>
+        <svg class="bio-rich-btn-cta-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
+
+    <!~~ Rich button — PAY (product purchase / tip). Title + logistics meta
+         in the info zone; price lives as a tight accent in the CTA bar
+         alongside the verb, keeping the card compact. ~~>
+    <div class="bio-rich-btn" role="button" tabindex="0" aria-label="Silver hoop earrings, free shipping, in stock — Buy now, 45 euros">
+      <div class="bio-rich-btn-info">
+        <div class="bio-rich-btn-img">
+          <img src="../images/clara-stone.jpg" alt="">
+        </div>
+        <div class="bio-rich-btn-title-wrap">
+          <h3 class="bio-rich-btn-title">Silver hoop earrings</h3>
+          <p class="bio-rich-btn-meta">Free shipping · In stock</p>
+        </div>
+      </div>
+      <div class="bio-rich-btn-cta">
+        <span class="bio-rich-btn-cta-label">Buy now</span>
+        <span class="bio-rich-btn-cta-price">€45</span>
+        <svg class="bio-rich-btn-cta-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
+
+    <!~~ Rich button — PROMO (flow page link) ~~>
+    <div class="bio-rich-btn" role="button" tabindex="0" aria-label="Spring collection, up to 30% off — See the collection">
+      <div class="bio-rich-btn-info">
+        <div class="bio-rich-btn-img">
+          <img src="../images/clara-stone.jpg" alt="">
+        </div>
+        <div class="bio-rich-btn-title-wrap">
+          <h3 class="bio-rich-btn-title">Spring collection — up to 30% off</h3>
+        </div>
+      </div>
+      <div class="bio-rich-btn-cta">
+        <span class="bio-rich-btn-cta-label">See the collection</span>
+        <svg class="bio-rich-btn-cta-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
+    -->
+    <!-- /TEMPORARILY HIDDEN -->
+
+    <div class="bio-link-btn">
+      <span>Free trial session</span>
+      <svg class="bio-link-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+    <div class="bio-link-btn">
+      <span>Website</span>
+      <svg class="bio-link-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+    <!-- TEMPORARILY HIDDEN — opening hours info row. Restore by removing wrapping comment. -->
+    <!--
+    <div class="bio-info-row">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span class="bio-info-label">Opening hours</span>
+      <span class="bio-info-status"><span class="bio-info-dot" aria-hidden="true"></span>Open now</span>
+    </div>
+    -->
+    <!-- /TEMPORARILY HIDDEN -->
+    <div class="bio-info-map" role="group" aria-label="Location">
+      <div class="bio-info-map-embed">
+        <iframe
+          title="Map preview: Susannenstraße 14, 20357 Hamburg"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          src="./_map-embed.html?lat=53.5618&amp;lng=9.9595&amp;z=15&amp;label=Susannenstra%C3%9Fe+14"
+          aria-label="Map preview: Susannenstraße 14, 20357 Hamburg"></iframe>
+      </div>
+      <div class="bio-info-map-footer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span class="bio-info-label">Susannenstraße 14, 20357 Hamburg</span>
+      </div>
+    </div>
+
+    <!-- TEMPORARILY HIDDEN — rich-btn variations (Featured retreat, Tip jar, Immersive promo). Restore by removing wrapping comment. -->
+    <!--
+    <!~~ ── Rich button VARIATIONS ── ~~>
+
+    <!~~ BOOK Featured — full-width hero image on top. Signature event. ~~>
+    <div class="bio-rich-btn bio-rich-btn--featured" role="button" tabindex="0" aria-label="Jewellery intensive retreat — Saturday 10 May 14:00, Düsseldorf, 120 euros — Reserve your spot">
+      <div class="bio-rich-btn-hero">
+        <img src="../images/clara-stone.jpg" alt="">
+      </div>
+      <div class="bio-rich-btn-info">
+        <h3 class="bio-rich-btn-title">Jewellery intensive retreat</h3>
+        <p class="bio-rich-btn-meta">Sat 10 May · 14:00 · Düsseldorf</p>
+      </div>
+      <div class="bio-rich-btn-cta">
+        <svg class="bio-rich-btn-cta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        <span class="bio-rich-btn-cta-label">Reserve your spot</span>
+        <span class="bio-rich-btn-cta-price">€120</span>
+        <svg class="bio-rich-btn-cta-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
+
+    <!~~ PAY Tip Jar — preset amount chips replace the single CTA. ~~>
+    <div class="bio-rich-btn">
+      <div class="bio-rich-btn-info">
+        <div class="bio-rich-btn-img">
+          <img src="../images/clara-stone.jpg" alt="">
+        </div>
+        <div class="bio-rich-btn-title-wrap">
+          <h3 class="bio-rich-btn-title">Support my work</h3>
+          <p class="bio-rich-btn-meta">Every tip keeps the studio open</p>
+        </div>
+      </div>
+      <div class="bio-rich-btn-chips" role="group" aria-label="Send a tip">
+        <button type="button" class="bio-rich-btn-chip">€3</button>
+        <button type="button" class="bio-rich-btn-chip">€5</button>
+        <button type="button" class="bio-rich-btn-chip">€10</button>
+        <button type="button" class="bio-rich-btn-chip">Custom</button>
+      </div>
+    </div>
+
+    <!~~ PROMO Immersive — full-bleed image with gradient overlay text. ~~>
+    <div class="bio-rich-btn bio-rich-btn--immersive" role="button" tabindex="0" aria-label="Spring collection — Up to 30 percent off">
+      <img class="bio-rich-btn-immersive-img" src="../images/clara-stone.jpg" alt="">
+      <div class="bio-rich-btn-immersive-overlay">
+        <span class="bio-rich-btn-immersive-eyebrow">Spring collection</span>
+        <div class="bio-rich-btn-immersive-headline-row">
+          <h3 class="bio-rich-btn-immersive-headline">Up to 30% off</h3>
+          <svg class="bio-rich-btn-immersive-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+    </div>
+    -->
+    <!-- /TEMPORARILY HIDDEN -->
+
+  </div>
+
+  <!-- Zone E — Social icons -->
+  <div class="bio-socials" role="list" aria-label="Social links">
+    <span class="bio-social-dot" role="listitem" aria-label="Instagram">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+    </span>
+    <span class="bio-social-dot" role="listitem" aria-label="TikTok">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.14 8.14 0 0 0 4.79 1.54V6.76a4.85 4.85 0 0 1-1.02-.07z"/></svg>
+    </span>
+    <span class="bio-social-dot" role="listitem" aria-label="WhatsApp">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+    </span>
+  </div>
+
+  <!-- Jimdo promo pill — sits above the legal links -->
+  <div class="bio-jimdo-promo-wrap">
+    <a class="bio-jimdo-promo" href="#">
+      <span class="bio-jimdo-promo-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Stylised "J" mark on dark square — placeholder for Jimdo favicon -->
+          <path d="M15 5.5v9.5c0 2.2-1.8 3.5-4 3.5s-4-1.3-4-3.5" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none"/>
+          <circle cx="15" cy="6" r="1.4" fill="#fff"/>
+        </svg>
+      </span>
+      Build your page with Jimdo
+    </a>
+  </div>
+
+  <!-- Zone F — Legal -->
+  <nav class="bio-legal" aria-label="Legal">
+    <a href="#">Imprint</a>
+    <a href="#">Cookie Settings</a>
+    <a href="#">Privacy Policy</a>
+  </nav>
+
+  <!-- Zone F2 — Withdraw contract -->
+  <div class="bio-withdraw-section">
+    <button class="bio-withdraw-btn">Withdraw contract</button>
+  </div>
+
+</div>
+
+</body>
+</html>

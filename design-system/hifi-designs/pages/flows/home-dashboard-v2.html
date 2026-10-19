@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bio Page — Home (Vision)</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/management-shell.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<script type="module" src="/flows-prototype/design-system/hifi-designs/shared/shell-components.js"></script>
+<style>
+
+  /* ═══════════════════════════════════════
+     MAIN COLUMN — Figma 15841:70246 (768px content, 24px gap)
+     ═══════════════════════════════════════ */
+  .bio-home-container {
+    width: 100%;
+    max-width: 768px;
+    padding: var(--jui-layout-padding-l) var(--jui-layout-padding-m);
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-l);
+  }
+  .bio-home-title {
+    font-size: var(--jui-typography-sub-headline-large-size);
+    font-weight: var(--jui-typography-sub-headline-large-weight);
+    line-height: var(--jui-typography-sub-headline-large-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+    margin: 0;
+  }
+
+  /* ═══════════════════════════════════════
+     DOMAIN BANNER — Figma 15754:20589
+     purple/10 fill, 20px radius, h44, px16 py12, gap12.
+     ═══════════════════════════════════════ */
+  /* Full-surface interactive button — Figma "Domain Upgrade" states 15931:22289.
+     Default: upgrade-light + gray border. Hover/Active/Focus darken the fill and
+     switch the border to decorative-upgrade; Focus adds a blue ring. */
+  .domain-banner {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-s);
+    width: 100%;
+    min-height: 44px;
+    padding: var(--jui-layout-padding-s) var(--jui-layout-padding-m);
+    background: var(--jui-color-background-upgrade-light);
+    /* No resting outline; transparent 1px keeps hover/focus from shifting layout. */
+    border: 1px solid transparent;
+    border-radius: var(--jui-style-radius-16);
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.12s ease, border-color 0.12s ease;
+  }
+  .domain-banner:hover {
+    background: var(--jui-color-background-upgrade-medium);
+    border-color: var(--jui-color-decorative-upgrade);
+  }
+  .domain-banner:active {
+    background: var(--jui-color-background-upgrade-dark);
+    border-color: var(--jui-color-decorative-upgrade);
+  }
+  .domain-banner:focus-visible {
+    background: var(--jui-color-background-upgrade-medium);
+    border-color: var(--jui-color-decorative-upgrade);
+    outline: 2px solid var(--jui-color-blue-500);
+    outline-offset: 2px;
+  }
+  .domain-banner-name {
+    font-size: var(--jui-typography-body-small-medium-size);
+    font-weight: var(--jui-typography-body-small-medium-weight);
+    line-height: var(--jui-typography-body-small-medium-lh);
+    color: var(--jui-color-typography-upgrade-on-light);
+    white-space: nowrap;
+  }
+  .domain-banner-status {
+    display: flex;
+    flex: 1 0 0;
+    align-items: center;
+    gap: var(--jui-layout-gap-xs);
+    min-width: 0;
+  }
+  .domain-banner-status svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    color: var(--jui-color-decorative-positive);
+  }
+  .domain-banner-status-text {
+    font-size: var(--jui-typography-body-small-regular-size);
+    font-weight: var(--jui-typography-body-small-regular-weight);
+    line-height: var(--jui-typography-body-small-regular-lh);
+    color: var(--jui-color-typography-upgrade-on-light);
+  }
+  /* Right-side label — uppercase; the whole banner is the interactive surface. */
+  .domain-banner-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-xs);
+    font-size: var(--jui-typography-label-small-size);
+    font-weight: var(--jui-typography-label-small-weight);
+    letter-spacing: var(--jui-typography-label-small-ls);
+    line-height: var(--jui-typography-label-small-lh);
+    text-transform: uppercase;
+    color: var(--jui-color-typography-upgrade-on-light);
+    white-space: nowrap;
+  }
+  .domain-banner-cta svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+  /* ═══════════════════════════════════════
+     BIO PREVIEW CARD — Figma 15841:70253
+     white, gray-200 border, radius-l (20px in Figma), 8px (layout/base) padding,
+     16px gap between phone and body.
+     ═══════════════════════════════════════ */
+  .bio-preview-card {
+    display: flex;
+    gap: var(--jui-layout-gap-m);
+    padding: var(--jui-layout-padding-xs);
+    background: var(--jui-color-background-gray-light);
+    border: 1px solid var(--jui-color-gray-200);
+    border-radius: var(--jui-style-radius-20);
+  }
+
+  /* Phone preview — Figma 160×300, gray-100 border + soft shadow, radius-12.
+     Artifact iframe (360 wide) scaled 160/360 = 0.4444 to fill. */
+  .bio-phone {
+    width: 160px;
+    height: 300px;
+    flex-shrink: 0;
+    background: var(--jui-color-gray-black);
+    border: 1px solid var(--jui-color-gray-100);
+    border-radius: var(--jui-style-radius-m);
+    box-shadow: 0 3px 18px rgba(0, 0, 0, 0.10);
+    overflow: hidden;
+    position: relative;
+  }
+  .bio-phone-iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 360px;
+    height: 675px;
+    border: 0;
+    background: var(--jui-color-gray-black);
+    transform: scale(0.4444);
+    transform-origin: top left;
+    pointer-events: none;
+  }
+
+  /* Right column — url bar pinned top, content region fills below (Figma 15754:20209). */
+  .bio-preview-body {
+    flex: 1 0 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  /* Content region under the url bar — px16 py16, headline top / buttons bottom. */
+  .bio-preview-lower {
+    flex: 1 0 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: var(--jui-layout-padding-m);
+  }
+
+  /* URL bar — gray-dark fill, link-square icon + url + Share */
+  .bio-url-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-xs);
+    padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-xs) var(--jui-layout-padding-xs) var(--jui-layout-padding-s);
+    background: var(--jui-color-background-gray-canvas);
+    border-radius: var(--jui-style-radius-s);
+  }
+  .bio-url-bar svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    color: var(--jui-color-typography-gray-on-light-subdued);
+  }
+  .bio-url-text {
+    flex: 1 0 0;
+    min-width: 0;
+    font-size: var(--jui-typography-body-small-medium-size);
+    font-weight: var(--jui-typography-body-small-medium-weight);
+    letter-spacing: var(--jui-typography-link-small-ls);
+    color: var(--jui-color-typography-gray-on-light-default);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .bio-preview-headline {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-xxs);
+  }
+  .bio-preview-name {
+    font-size: var(--jui-typography-sub-headline-large-size);
+    font-weight: var(--jui-typography-sub-headline-large-weight);
+    line-height: var(--jui-typography-sub-headline-large-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+  .bio-preview-metric {
+    font-size: var(--jui-typography-body-medium-regular-size);
+    font-weight: var(--jui-typography-body-medium-regular-weight);
+    line-height: var(--jui-typography-body-medium-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-subdued);
+  }
+
+  /* Buttons row — auto-width, left-aligned, gap-8 (Figma 15754:20216) */
+  .bio-preview-actions {
+    display: flex;
+    gap: var(--jui-layout-gap-xs);
+  }
+  /* Content-width CTAs (DS buttons are full-width by default). */
+  /* primitive-override */
+  .bio-preview-actions .btn-primary,
+  .bio-preview-actions .btn-secondary {
+    width: auto;
+    padding-left: var(--jui-layout-padding-l);
+    padding-right: var(--jui-layout-padding-l);
+  }
+
+  /* ═══════════════════════════════════════
+     NEXT-ACTION CARD — Figma 11823:86511 / 86512 / 86513
+     "FeaturedSuggestionStack": a white card holding a tinted Body panel, a
+     160×160 illustration well and an Actions row. Two thin sheets peek
+     below, one per task still queued behind the front card.
+
+     Figma's illustrations are scaled component instances, so their spacing
+     exports as fractions (9.76, 6.507, 20.243, 26.026). Those are scaling
+     artifacts, not design intent — every gated value below is rounded to
+     the nearest on-scale token, landing within ~3px of the frame.
+     ═══════════════════════════════════════ */
+  .upnext-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .upnext-sheet {
+    height: var(--jui-layout-padding-xs);
+    background: var(--jui-color-background-gray-light);
+    border: 1px solid var(--jui-color-stroke-gray-default);
+    border-top: 0;
+    border-radius: 0 0 var(--jui-style-radius-m) var(--jui-style-radius-m);
+  }
+  .upnext-sheet--1 { margin: 0 var(--jui-layout-padding-s); }
+  .upnext-sheet--2 { margin: 0 var(--jui-layout-padding-l); }
+
+  /* Card shell — padding 4, gap 4, radius 16, gray-200 border. */
+  .upnext-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-padding-xxs);
+    padding: var(--jui-layout-padding-xxs);
+    background: var(--jui-color-background-gray-light);
+    border: 1px solid var(--jui-color-gray-200);
+    border-radius: var(--jui-style-radius-16);
+    overflow: hidden;
+  }
+
+  /* Inner Body panel — gray-medium, radius 12, pl 8 / pr 16 / py 8, gap 24. */
+  .upnext-body {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-l);
+    padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-m)
+             var(--jui-layout-padding-xs) var(--jui-layout-padding-xs);
+    background: var(--jui-color-background-gray-medium);
+    border-radius: var(--jui-style-radius-m);
+  }
+
+  /* Illustration well — a fixed 160 square clipping an oversized mock.
+     The Figma border is gray-50 on a gray-50 fill, so it is a no-op and is
+     deliberately not reproduced. */
+  .upnext-decoration {
+    flex-shrink: 0;
+    width: 160px;
+    height: 160px;
+    padding: 0 var(--jui-layout-padding-m);
+    background: var(--jui-color-background-gray-dark);
+    border-radius: var(--jui-style-radius-l);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  /* ── Illustration 1 — stacked action pills (payments) ── */
+  .deco-pills { gap: var(--jui-layout-gap-xs); }
+  .upnext-deco-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--jui-layout-padding-xs);
+    border-radius: var(--jui-style-radius-20);
+    background: var(--jui-color-background-gray-light);
+  }
+  .upnext-deco-bar svg { width: 18px; height: 18px; color: var(--jui-color-gray-300); }
+  .upnext-deco-bar.highlight { background: var(--jui-color-background-primary-dark); }
+  .upnext-deco-bar.highlight svg { color: var(--jui-color-actions-primary-rest); }
+
+  /* ── Illustration 2 — legal document (legal pages) ── */
+  .deco-doc { justify-content: flex-start; padding-top: 20px; }
+  .deco-doc-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-s);
+    width: 100%;
+    height: 173px;
+    flex-shrink: 0;
+    padding: var(--jui-layout-padding-s);
+    background: var(--jui-color-background-gray-light);
+    border-radius: var(--jui-style-radius-20);
+    box-shadow: 0 0 16px 0 rgba(0, 0, 0, 0.02);
+    overflow: hidden;
+  }
+  .deco-doc-card > svg {
+    width: 18px; height: 18px; flex-shrink: 0;
+    color: var(--jui-color-actions-primary-rest);
+  }
+  .deco-doc-lines { display: flex; flex-direction: column; gap: var(--jui-layout-gap-xs); }
+  .deco-doc-line {
+    height: 8px;
+    border-radius: var(--jui-style-radius-24);
+    background: var(--jui-color-blue-10);
+  }
+  .deco-doc-line--short { width: 53px; }
+
+  /* ── Illustration 3 — Instagram profile (bio link) ── */
+  .deco-ig-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-m);
+    width: 432px;                     /* oversized on purpose — the well clips it */
+    flex-shrink: 0;
+    padding: var(--jui-layout-padding-xs);
+    background: var(--jui-color-background-gray-light);
+    border-radius: var(--jui-style-radius-20);
+    box-shadow: 0 0 16px 0 rgba(0, 0, 0, 0.02);
+  }
+  .deco-ig-top {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-m);
+    padding: var(--jui-layout-padding-xs);
+  }
+  .deco-ig-stats {
+    display: flex;
+    flex: 1 0 0;
+    min-width: 0;
+    align-items: center;
+    gap: var(--jui-layout-gap-xl);
+    padding: 0 var(--jui-layout-padding-s);
+  }
+  .deco-ig-stat {
+    display: flex; flex: 1 0 0; min-width: 0;
+    flex-direction: column; gap: var(--jui-layout-gap-xxs);
+  }
+  .deco-ig-stat span {
+    border-radius: var(--jui-style-radius-24);
+    background: var(--jui-color-gray-50);
+  }
+  .deco-ig-stat span:first-child { width: 32px; height: 12px; }
+  .deco-ig-stat span:last-child  { width: 80px; height: 8px; }
+
+  .deco-ig-link {
+    display: flex;
+    align-items: center;
+    padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-xs)
+             var(--jui-layout-padding-xs) var(--jui-layout-padding-s);
+    border-radius: var(--jui-style-radius-l);
+    background: var(--jui-color-background-primary-light);
+  }
+  .deco-ig-link svg { width: 16px; height: 16px; color: var(--jui-color-actions-primary-rest); }
+
+  /* ── Card content column ── */
+  .upnext-content {
+    flex: 1 0 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-xs);
+  }
+  .upnext-eyebrow {
+    align-self: flex-start;
+    padding: 0 var(--jui-layout-padding-xs);
+    background: var(--jui-color-background-primary-light);
+    border-radius: var(--jui-style-radius-xs);
+    font-size: var(--jui-typography-label-small-size);
+    font-weight: var(--jui-typography-label-small-weight);
+    letter-spacing: var(--jui-typography-label-small-ls);
+    line-height: var(--jui-typography-label-small-lh);
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--jui-color-typography-primary-on-light);
+  }
+  .upnext-card-title {
+    font-size: var(--jui-typography-sub-headline-small-size);
+    font-weight: var(--jui-typography-sub-headline-small-weight);
+    line-height: var(--jui-typography-sub-headline-small-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+  .upnext-card-desc {
+    font-size: var(--jui-typography-body-small-regular-size);
+    font-weight: var(--jui-typography-body-small-regular-weight);
+    line-height: var(--jui-typography-body-small-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+
+  /* ── Actions row — Dismiss left, Maybe Later + primary right ── */
+  .upnext-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--jui-layout-gap-xs);
+    padding: var(--jui-layout-padding-xs);
+  }
+  .upnext-footer-end { display: flex; align-items: center; gap: var(--jui-layout-gap-xs); }
+  /* Content-width small buttons — @jimdo/ui buttonSize="small". layout.css
+     stretches buttons to full width, so narrow them back here. Shared by the
+     card footer and the progress row so both Dismiss controls match. */
+  /* primitive-override */
+  .upnext-footer .btn-secondary,
+  .upnext-footer .btn-subtle,
+  .setup-progress-row .btn-subtle {
+    width: auto;
+    height: var(--jui-layout-dimension-s);
+    padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-s);
+    font-size: var(--jui-typography-body-small-medium-size);
+  }
+  /* .btn-subtle sets display:flex, which outranks the hidden attribute.
+     Offered only once every task is resolved — see render(). */
+  .setup-progress-row .btn-subtle[hidden] { display: none; }
+  /* Only the front card of the queue renders. */
+  .upnext-card[hidden], .upnext-sheet[hidden] { display: none; }
+
+  /* Figma 11769:69420 groups the preview card, the progress row and the stack
+     at 12px, inside the container's 24px rhythm. Without the group they would
+     all inherit .bio-home-container's 24px gap. */
+  .bio-setup-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-s);
+  }
+  .setup-progress-row[hidden], .upnext-stack[hidden] { display: none; }
+
+  /* ─── Mobile: stack the preview card, wrap the banner ─── */
+  @media (max-width: 767px) {
+    .domain-banner { flex-wrap: wrap; }
+    .domain-banner-status { flex: 1 0 auto; }
+    .domain-banner-cta { flex-basis: 100%; }
+    .bio-preview-card { flex-direction: column; }
+    .bio-phone { width: 100%; min-height: 0; aspect-ratio: 5 / 7; align-self: stretch; }
+    .bio-phone-iframe { width: 100%; height: 140%; transform: none; }
+    .upnext-body { flex-direction: column; align-items: stretch; }
+    .upnext-decoration { width: 100%; }
+  }
+
+</style>
+</head>
+<body class="app-shell management-shell">
+
+  <!-- ─── Jimdo Topbar + Sidebar (Figma 15841:70239) ─── -->
+  <jimdo-topbar companion></jimdo-topbar>
+
+  <div class="shell-middle">
+    <jimdo-sidebar product="flows" active="flows" variant="contextual"
+                   back-label="More from Jimdo" back-product="core" back-screen="main-navigation.html"
+                   title="Flows" show-items="flows,solo-pages,legal-privacy"
+                   labels="flows=Bio Page" targets="flows=flows/home-dashboard-v2.html"
+                   hide-icons marker></jimdo-sidebar></jimdo-sidebar>
+
+    <main class="shell-working-area">
+      <div class="bio-home-container">
+
+        <!-- Page title -->
+        <h1 class="bio-home-title" data-inspect-phrase="biosite.productName">Bio Page</h1>
+
+        <!-- ─── Domain upgrade banner — full-surface button w/ states (Figma 15931:22289) ─── -->
+        <button class="domain-banner" type="button" aria-label="Get your own domain and standout" data-inspect-phrase="domain.upsell.cta">
+          <span class="domain-banner-name" data-inspect-phrase="" data-no-phrase>claraandstone.com/bio</span>
+          <span class="domain-banner-status">
+            <!-- Hugeicons Tick02 (plain checkmark) -->
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+            <span class="domain-banner-status-text" data-inspect-phrase="domain.status.available">Available</span>
+          </span>
+          <span class="domain-banner-cta">
+            Get your own domain and standout
+            <!-- Hugeicons ArrowRight01 -->
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 12H4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M15 17L20 12L15 7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+          </span>
+        </button>
+
+        <div class="bio-setup-group">
+        <!-- ─── Bio preview + edit card (Figma 15841:70253) ─── -->
+        <section class="bio-preview-card" aria-label="Your Bio Page">
+          <div class="bio-phone">
+            <iframe class="bio-phone-iframe" src="../artifacts/bio-page-v2.html" title="Bio page preview" loading="eager" tabindex="-1"></iframe>
+          </div>
+          <div class="bio-preview-body">
+            <div class="bio-url-bar">
+              <!-- Hugeicons LinkSquare02 -->
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M10.5 3H4.99995C3.89538 3 2.99995 3.89543 2.99995 5V19C2.99995 20.1046 3.89538 21 4.99995 21H19C20.1045 21 21 20.1046 21 19V13.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M11 13L20.3499 3.64944M21 9V3L15 3" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+              <span class="bio-url-text" data-inspect-phrase="" data-no-phrase>claranstone.jimdosite.com/bio</span>
+              <button class="btn-secondary btn-sm" data-inspect-phrase="preview.bioSite.shareCta">Share</button>
+            </div>
+            <div class="bio-preview-lower">
+              <div class="bio-preview-headline">
+                <div class="bio-preview-name">Clara and Stone</div>
+                <div class="bio-preview-metric"><span data-inspect-phrase="" data-no-phrase>3</span> <span data-inspect-phrase="stats.views">views</span></div>
+              </div>
+              <div class="bio-preview-actions">
+                <button class="btn-primary"
+                        data-nav-to="flows/bio-page-links-edit.html"
+                        data-nav-screen-id="scr-120"
+                        data-inspect-phrase="home.bio.editLinks">Edit Links</button>
+                <button class="btn-secondary"
+                        data-nav-to="flows/design-editor.html"
+                        data-nav-screen-id="scr-027"
+                        data-inspect-phrase="home.bio.editDesign">Edit Design</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ─── Setup progress (Figma 11769:69422) ─── -->
+        <div class="setup-progress setup-progress-row" id="setupProgress">
+          <svg class="setup-progress-ring" viewBox="0 0 32 32" role="img"
+               aria-label="0 of 3 setup tasks done">
+            <circle class="setup-progress-track" cx="16" cy="16" r="13.5"/>
+            <circle class="setup-progress-arc is-empty" cx="16" cy="16" r="13.5"
+                    stroke-dasharray="0 84.82" transform="rotate(-90 16 16)"/>
+          </svg>
+          <div class="setup-progress-label">
+            <span class="setup-progress-title" id="setupProgressTitle" data-inspect-phrase="">Finish your page to sell</span>
+            <span class="setup-progress-count" id="setupProgressCount">0 of 3</span>
+          </div>
+          <button type="button" class="btn-subtle" id="setupProgressDismiss" hidden
+            data-inspect-phrase=""
+            data-inspect-label="Dismiss — @jimdo/ui Button buttonStyle=subtle, size small"
+            data-inspect-tokens='[{"prop":"height","figma":"$jui-layout-dimension-s","value":"32px"},{"prop":"padding","value":"4px 12px"},{"prop":"font-size","value":"14px"},{"note":"Appears only after every task is resolved; removes the progress row"}]'>
+            Dismiss
+          </button>
+        </div>
+
+        <!-- ─── Next-action queue (Figma 11823:86511 / 86512 / 86513) ─── -->
+        <div class="upnext-stack" id="upnextStack">
+          <section class="upnext-card" data-task="1" aria-label="Next action">
+            <div class="upnext-body">
+              <div class="upnext-decoration deco-pills" aria-hidden="true"
+                data-inspect-label="Illustration well — action pills"
+                data-inspect-tokens='[{"prop":"size","value":"160×160"},{"prop":"background","figma":"$jui-color-background-gray-dark","value":"#f8f8f8"},{"prop":"border-radius","figma":"$jui-style-radius-l","value":"16px"}]'>
+                <div class="upnext-deco-bar"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M11.9264 15.0667C11.6335 15.3596 11.6335 15.8345 11.9264 16.1274C12.2193 16.4203 12.6941 16.4203 12.987 16.1274L11.9264 15.0667ZM14.0842 15.0302C14.3771 14.7373 14.3771 14.2625 14.0842 13.9696C13.7913 13.6767 13.3164 13.6767 13.0235 13.9696L14.0842 15.0302ZM14.9696 12.0235C14.6767 12.3164 14.6767 12.7913 14.9696 13.0842C15.2625 13.3771 15.7373 13.3771 16.0302 13.0842L14.9696 12.0235ZM18.0299 11.0845C18.3228 10.7916 18.3228 10.3168 18.0299 10.0239C17.737 9.73098 17.2621 9.73098 16.9692 10.0239L18.0299 11.0845ZM4.46967 15.8818C4.17678 16.1747 4.17678 16.6496 4.46967 16.9424C4.76257 17.2353 5.23744 17.2353 5.53033 16.9424L4.46967 15.8818ZM17.0302 5.44244C17.3231 5.14954 17.3231 4.67467 17.0302 4.38178C16.7373 4.08888 16.2625 4.08889 15.9696 4.38178L17.0302 5.44244ZM12.987 16.1274L14.0842 15.0302L13.0235 13.9696L11.9264 15.0667L12.987 16.1274ZM16.0302 13.0842L18.0299 11.0845L16.9692 10.0239L14.9696 12.0235L16.0302 13.0842ZM5.53033 16.9424L17.0302 5.44244L15.9696 4.38178L4.46967 15.8818L5.53033 16.9424Z" fill="currentColor"/><path d="M14.8691 3.07483L20.9252 9.13095C21.6916 9.89739 21.6916 11.14 20.9252 11.9065L11.9065 20.9252C11.14 21.6916 9.89739 21.6916 9.13095 20.9252L3.07483 14.8691C2.30839 14.1026 2.30839 12.86 3.07483 12.0935L12.0935 3.07483C12.86 2.30839 14.1026 2.30839 14.8691 3.07483Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M3.5 21.5H19.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></div>
+                <div class="upnext-deco-bar highlight"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M10 17V13H9M14 17L15 13H13" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M18 2V5M6 2V5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M19.5 3.5H4.5C3.39543 3.5 2.5 4.39543 2.5 5.5V20C2.5 21.1046 3.39543 22 4.5 22H19.5C20.6046 22 21.5 21.1046 21.5 20V5.5C21.5 4.39543 20.6046 3.5 19.5 3.5Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M6 9H18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></div>
+                <div class="upnext-deco-bar"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 13V16.7165C8 17.9875 8.40362 19.2257 9.15266 20.2525L10.4023 21.9656C10.4336 22.0085 10.4906 22.0118 10.5256 21.9725L12.9751 19.224C13.0132 19.1813 13.0067 19.1095 12.9618 19.0764L11.8492 18.2557C10.9455 17.5891 10.2471 16.6822 9.83324 15.6383L8.8654 13.1967" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M7.5 12.497V6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M7.5 6.5H5C3.89543 6.5 3 7.39543 3 8.5V10.5C3 11.6046 3.89543 12.5 5 12.5H7.5L16.7554 16.4666C17.5071 16.7888 18.3949 16.633 18.8995 15.9894C20.0464 14.5265 21 12.4901 21 9.5C21 6.50995 20.0464 4.47354 18.8995 3.01058C18.3949 2.36697 17.5071 2.21124 16.7554 2.53339L7.5 6.5Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></div>
+              </div>
+              <div class="upnext-content">
+                <span class="upnext-eyebrow" data-inspect-phrase="suggestion.actionNeeded.eyebrow">Action needed</span>
+                <div class="upnext-card-title" data-inspect-phrase="">Get paid online, not just in person</div>
+                <p class="upnext-card-desc" data-inspect-phrase="" style="margin:0;">Your page already takes payment in person. Add online payments and the money arrives when someone books.</p>
+              </div>
+            </div>
+            <div class="upnext-footer">
+              <button class="btn-subtle" data-upnext-resolve="dismiss" data-inspect-phrase="">Dismiss</button>
+              <div class="upnext-footer-end">
+                <button class="btn-subtle" data-upnext-resolve="later" data-inspect-phrase="suggestion.maybeLater">Maybe later</button>
+                <button class="btn-secondary" data-upnext-resolve="done" data-nav-to="flows/onboarding-business-details.html" data-inspect-phrase="">Add online payments</button>
+              </div>
+            </div>
+          </section>
+          <section class="upnext-card" data-task="2" aria-label="Next action" hidden>
+            <div class="upnext-body">
+              <div class="upnext-decoration" aria-hidden="true"
+                data-inspect-label="Illustration well — Instagram profile"
+                data-inspect-tokens='[{"note":"Inner mock is 432px wide and clipped by the 160px well, exactly as the frame does"}]'>
+                <div class="deco-ig-card">
+                  <div class="deco-ig-top">
+                    <div class="story-avatar"
+                      data-inspect-label="Instagram story ring — shared .story-avatar component"
+                      data-inspect-tokens='[{"prop":"background","figma":"Instagram story gradient","css":"components.css .story-avatar","value":"conic-gradient(from 200deg, #FFC60A, #EC8D36, #D9154C, #FFC60A)"},{"prop":"size","value":"48px"}]'>
+                      <div class="story-avatar-inner">
+                        <div class="story-avatar-head"></div>
+                        <div class="story-avatar-body"></div>
+                      </div>
+                    </div>
+                    <div class="deco-ig-stats">
+                      <div class="deco-ig-stat"><span></span><span></span></div>
+                      <div class="deco-ig-stat"><span></span><span></span></div>
+                      <div class="deco-ig-stat"><span></span><span></span></div>
+                    </div>
+                  </div>
+                  <div class="deco-ig-link"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M13.5 17H17C19.7614 17 22 14.7614 22 12C22 9.23858 19.7614 7 17 7H13.5M10.5 17H7C4.23858 17 2 14.7614 2 12C2 9.23858 4.23858 7 7 7H10.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M8.5 12H15.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></div>
+                </div>
+              </div>
+              <div class="upnext-content">
+                <span class="upnext-eyebrow" data-inspect-phrase="suggestion.actionNeeded.eyebrow">Action needed</span>
+                <div class="upnext-card-title" data-inspect-phrase="">Add your bio page link to Instagram</div>
+                <p class="upnext-card-desc" data-inspect-phrase="" style="margin:0;">People can only find your page if the link is in your bio.</p>
+              </div>
+            </div>
+            <div class="upnext-footer">
+              <button class="btn-subtle" data-upnext-resolve="dismiss" data-inspect-phrase="">Dismiss</button>
+              <div class="upnext-footer-end">
+                <button class="btn-subtle" data-upnext-resolve="later" data-inspect-phrase="suggestion.maybeLater">Maybe later</button>
+                <button class="btn-secondary" data-upnext-resolve="done" data-inspect-phrase="">Open Instagram</button>
+              </div>
+            </div>
+          </section>
+          <section class="upnext-card" data-task="3" aria-label="Next action" hidden>
+            <div class="upnext-body">
+              <div class="upnext-decoration deco-doc" aria-hidden="true"
+                data-inspect-label="Illustration well — legal document"
+                data-inspect-tokens='[{"note":"Inner card is 173px tall and clipped by the 160px well, exactly as the frame does"}]'>
+                <div class="deco-doc-card">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 11.0511V6.12325C21 5.34825 20.4145 4.70502 19.6551 4.57302C16.595 4.04108 14.0546 2.85772 12.8152 2.20154C12.3077 1.93282 11.6923 1.93282 11.1848 2.20154C9.94542 2.85772 7.40502 4.04108 4.34489 4.57302C3.58552 4.70502 3 5.34825 3 6.12325V11.0511C3 17.4795 9.53762 20.9859 11.4689 21.8815C11.8097 22.0395 12.1903 22.0395 12.5311 21.8815C14.4624 20.9859 21 17.4795 21 11.0511Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M13.7516 8.25C13.7516 9.2165 12.9678 10 12.0008 10C11.0339 10 10.25 9.2165 10.25 8.25C10.25 7.2835 11.0339 6.5 12.0008 6.5C12.9678 6.5 13.7516 7.2835 13.7516 8.25Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M14.625 16H9.375C8.89175 16 8.5 15.6082 8.5 15.125C8.5 13.6753 9.67525 12.5 11.125 12.5H12.875C14.3247 12.5 15.5 13.6753 15.5 15.125C15.5 15.6082 15.1082 16 14.625 16Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                  <div class="deco-doc-lines">
+                    <div class="deco-doc-line"></div>
+                    <div class="deco-doc-line"></div>
+                    <div class="deco-doc-line"></div>
+                    <div class="deco-doc-line deco-doc-line--short"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="upnext-content">
+                <span class="upnext-eyebrow" data-inspect-phrase="suggestion.actionNeeded.eyebrow">Action needed</span>
+                <div class="upnext-card-title" data-inspect-phrase="">Review your legal pages to stay compliant</div>
+                <p class="upnext-card-desc" data-inspect-phrase="" style="margin:0;">Up-to-date pages build trust and guard against warning notices.</p>
+              </div>
+            </div>
+            <div class="upnext-footer">
+              <button class="btn-subtle" data-upnext-resolve="dismiss" data-inspect-phrase="">Dismiss</button>
+              <div class="upnext-footer-end">
+                <button class="btn-subtle" data-upnext-resolve="later" data-inspect-phrase="suggestion.maybeLater">Maybe later</button>
+                <button class="btn-secondary" data-upnext-resolve="done" data-nav-to="flows/legal-privacy.html" data-nav-screen-id="scr-053" data-inspect-phrase="">Review legal pages</button>
+              </div>
+            </div>
+          </section>
+          <div class="upnext-sheet upnext-sheet--1" aria-hidden="true"></div>
+          <div class="upnext-sheet upnext-sheet--2" aria-hidden="true"></div>
+        </div>
+        </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+<script>
+  /* Next-action queue — Figma 11823:86511 / 86512 / 86513.
+
+     Three actions, and only two of them count as progress:
+
+       Primary action  the seller did it        → resolved, leaves the queue
+       Dismiss         the seller dropped it    → resolved, leaves the queue
+       Maybe Later     the seller deferred it   → goes to the BACK of the queue,
+                                                  progress unchanged
+
+     So the ring reports tasks actually settled, never how many cards the
+     seller has clicked past. It opens at 0 of 3 with an empty ring and fills
+     a third at a time. (The Figma frame shows 1 of 3 as an example of a
+     seller who had already done one.) Once the queue empties the ring is
+     full, the copy switches to the completed wording, and only then does the
+     Dismiss button on the strip appear — there is no way to hide the strip
+     while work is still outstanding.
+
+     Layout impact: a sheet peeks for every task queued behind the front card,
+     so the stack shortens as tasks resolve but holds its height when a task
+     is merely deferred. Completion removes the queue; dismissing the strip
+     removes the progress row too, collapsing that 12px group gap. */
+  (function () {
+    var CIRCUMFERENCE = 84.82;   /* 2 * PI * r, r = 13.5 */
+    var COPY = {
+      progress: 'Finish your page to sell',
+      done: 'Your page is ready to sell'
+    };
+
+    var stack = document.getElementById('upnextStack');
+    var row = document.getElementById('setupProgress');
+    if (!stack || !row) return;
+
+    var cards = Array.prototype.slice.call(stack.querySelectorAll('.upnext-card'));
+    var sheets = Array.prototype.slice.call(stack.querySelectorAll('.upnext-sheet'));
+    var arc = row.querySelector('.setup-progress-arc');
+    var ring = row.querySelector('.setup-progress-ring');
+    var title = document.getElementById('setupProgressTitle');
+    var count = document.getElementById('setupProgressCount');
+    var dismissStrip = document.getElementById('setupProgressDismiss');
+
+    var total = cards.length;
+    /* Card indices still in play, front first. Deferring rotates this; the
+       resolved count is derived from what has left it. */
+    var queue = cards.map(function (_, i) { return i; });
+
+    function render() {
+      var resolved = total - queue.length;
+      var complete = queue.length === 0;
+      var front = queue[0];
+
+      cards.forEach(function (c, i) { c.hidden = complete || i !== front; });
+      /* One sheet per task waiting behind the front card. */
+      var behind = complete ? 0 : queue.length - 1;
+      sheets.forEach(function (sheet, i) { sheet.hidden = i >= behind; });
+
+      stack.hidden = complete;
+      if (arc) {
+        arc.classList.toggle('is-empty', resolved === 0);
+        arc.setAttribute('stroke-dasharray', (CIRCUMFERENCE * resolved / total).toFixed(2) + ' ' + CIRCUMFERENCE);
+      }
+      if (title) title.textContent = complete ? COPY.done : COPY.progress;
+      if (count) count.textContent = resolved + ' of ' + total;
+      if (dismissStrip) dismissStrip.hidden = !complete;
+      if (ring) {
+        ring.setAttribute('aria-label', complete
+          ? 'Page setup complete, ' + total + ' of ' + total + ' tasks done'
+          : resolved + ' of ' + total + ' setup tasks done');
+      }
+    }
+
+    stack.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-upnext-resolve]');
+      if (!btn || !queue.length) return;
+
+      if (btn.getAttribute('data-upnext-resolve') === 'later') {
+        queue.push(queue.shift());          /* defer — back of the queue */
+      } else {
+        queue.shift();                      /* done or dropped — settled */
+      }
+      render();
+
+      var front = queue[0];
+      var next = front === undefined ? null : cards[front];
+      if (next && !next.hidden) { next.setAttribute('tabindex', '-1'); next.focus({ preventScroll: true }); }
+    });
+
+    dismissStrip.addEventListener('click', function () {
+      row.hidden = true;
+      stack.hidden = true;
+    });
+
+    render();
+  })();
+</script>
+
+<script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js"></script>
+
+  <!-- Design annotations — read by workbench chrome -->
+  <script type="application/json" id="design-annotations">
+  [
+    {
+      "title": "The payments card is an upgrade, not a repair",
+      "body": "A booking action page is created with in-person payment by default (kno-091), so nothing about it is unfinished \u2014 the page works and the seller can take money on day one. What is deferred is Jimdo's cut, because the transaction happens off-platform. The copy therefore concedes in-person up front and sells online payment on its own benefit, rather than framing it as setup left to finish."
+    },
+    {
+      "title": "Only two of the three actions are progress",
+      "body": "Primary action and Dismiss resolve a task and advance the ring. Maybe later moves the card to the back of the queue and leaves progress alone, so the counter reports tasks actually settled rather than cards clicked past. It opens at 0 of 3; the Figma frame shows 1 of 3 as an example of a seller who had already done one."
+    },
+    {
+      "title": "The strip can only be dismissed once it is done",
+      "body": "The Dismiss button on the progress row appears only when every task is resolved. While work is outstanding the ring stays and the only routes forward are doing a task, deferring it, or dropping it."
+    }
+  ]
+  </script>
+</body>
+</html>

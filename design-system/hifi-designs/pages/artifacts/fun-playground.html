@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fun Playground</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+  /* ─── Page shell ───
+     Breaks out of the standard header/body/footer anatomy.
+     Two cards sit side-by-side inside a gray canvas with 12px padding.
+     Each card is independently rounded; the right card carries its own
+     internal footer with a fade-to-white gradient. */
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--jui-color-gray-50, #f8f8f8);
+    color: var(--jui-color-typography-gray-on-light-default, #000);
+  }
+
+  .play-shell {
+    display: flex;
+    height: 100vh;
+    padding: 12px;
+    gap: 8px;
+    box-sizing: border-box;
+  }
+
+  /* ─── Left: decorative blue card ─── */
+  .play-deco {
+    position: relative;
+    width: 360px;
+    flex-shrink: 0;
+    background: var(--jui-color-blue-400);
+    border-radius: 20px;
+    border: 1px solid var(--jui-color-gray-50, #f8f8f8);
+    box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.02);
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  /* Pattern Studio decoration host.
+     pattern-loader.js renders an absolutely-positioned <svg> into this element;
+     in-flow siblings get position: relative + z-index: 1 so they sit above
+     the pattern. */
+  .play-deco > .play-deco-pattern {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    border-radius: inherit;
+  }
+  .play-deco > *:not(.play-deco-pattern) { position: relative; z-index: 1; }
+
+  /* Jimdo wordmark — uses the real Jimdo logo SVG (matches `.jimdo-logo--wordmark`
+     from sibling hifi pages). Sized to ~64px wide as per Figma. */
+  .play-jimdo-wordmark {
+    width: 64px;
+    height: auto;
+    color: var(--jui-color-gray-white, #fff);
+    flex-shrink: 0;
+  }
+  .play-jimdo-wordmark svg { display: block; width: 100%; height: auto; }
+
+  /* Glassmorphism testimonial card */
+  .play-testimonial {
+    backdrop-filter: blur(26px);
+    -webkit-backdrop-filter: blur(26px);
+    background: rgba(20, 20, 20, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.26);
+    border-radius: 12px;
+    padding: 24px;
+    color: var(--jui-color-gray-white, #fff);
+    box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.12);
+    text-shadow: 0 0 24px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .play-testimonial-quote {
+    margin: 0;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 1.25;
+  }
+  .play-testimonial-attribution {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.57;
+  }
+
+  /* ─── Right: form card ─── */
+  .play-form-card {
+    flex: 1 1 0;
+    min-width: 0;
+    background: var(--jui-color-gray-white, #fff);
+    border-radius: 20px;
+    border: 1px solid var(--jui-color-gray-50, #f8f8f8);
+    box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.02);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-sizing: border-box;
+    position: relative;
+  }
+
+  .play-form-content {
+    padding: 32px 32px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  /* Progress bar — 4 segments, 2px tall, 128px wide */
+  .play-progress {
+    display: flex;
+    gap: 4px;
+    width: 128px;
+    height: 8px;
+    align-items: center;
+    padding: 2px 0;
+  }
+  .play-progress-step {
+    flex: 1 0 0;
+    height: 2px;
+    border-radius: 12px;
+    background: var(--jui-color-blue-50);
+  }
+  .play-progress-step.active {
+    background: var(--jui-color-blue-500);
+  }
+
+  .play-form-body {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .play-intro {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .play-intro h1 {
+    margin: 0;
+    font-size: var(--jui-typography-sub-headline-large-size, 24px);
+    line-height: var(--jui-typography-sub-headline-large-lh, 1.33);
+    font-weight: 500;
+    color: var(--jui-color-typography-gray-on-light-default, #000);
+  }
+  .play-intro p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.57;
+    color: var(--jui-color-typography-gray-on-light-default, #000);
+  }
+
+  .play-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .play-input-group .form-input {
+    width: 360px;
+    max-width: 100%;
+  }
+  .play-input-helper {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.57;
+    color: var(--jui-color-typography-gray-on-light-subdued, #6d6d6d);
+  }
+
+  /* Right-card internal footer — gradient fade + actions */
+  .play-form-footer {
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(to top, var(--jui-color-gray-white, #fff) 40%, rgba(255, 255, 255, 0));
+    flex-shrink: 0;
+    margin-top: auto;
+    min-height: 80px;
+    box-sizing: border-box;
+  }
+  .play-form-footer .btn-primary {
+    width: auto;
+    padding: 12px 24px;
+  }
+
+  /* ─── Mobile fallback ─── */
+  @media (max-width: 767px) {
+    .play-shell {
+      flex-direction: column;
+      height: auto;
+      min-height: 100vh;
+    }
+    .play-deco {
+      width: 100%;
+      min-height: 280px;
+    }
+    .play-input-group .form-input { width: 100%; }
+  }
+
+</style>
+</head>
+<body>
+
+  <div class="variant active" id="variant-empty">
+    <div class="play-shell">
+
+      <!-- ─── Left: decorative blue card ─── -->
+      <aside class="play-deco" aria-hidden="true"
+        data-inspect-label="Decorative Card — Background"
+        data-inspect-tokens='[{"prop":"background","figma":"color/blue/400","css":"--jui-color-blue-400","value":"#336bff"},{"prop":"border-radius","figma":"style/radius/20","css":"--jui-style-radius-20","value":"20px"}]'>
+
+        <!-- Pattern Studio decoration host.
+             pattern-loader.js scans this attribute and renders an SVG inside.
+             The workbench right panel can drive the config live via postMessage. -->
+        <div class="play-deco-pattern" data-pattern='{"type":"doodle","colors":{"base":"#336bff","shape":"#ffffff"},"params":{"density":0.7,"sizeVar":0.6},"animate":true,"seed":7}'></div>
+
+        <div class="play-jimdo-wordmark" aria-label="Jimdo">
+          <svg viewBox="0 0 650 241" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M536 64.9905C505.071 64.9905 480 89.8375 480 120.49C480 151.143 505.071 175.99 536 175.99C566.929 175.99 592 151.143 592 120.49C592.01 89.8474 566.929 64.9905 536 64.9905ZM536 151.621C518.656 151.621 504.589 137.689 504.589 120.49C504.589 103.302 518.646 89.3595 536 89.3595C553.344 89.3595 567.411 103.292 567.411 120.49C567.411 137.689 553.354 151.621 536 151.621Z" fill="currentColor"/>
+            <path d="M228 67.9905H251.456L287.001 134.519L322.385 67.9905H346.002V174.99H319.633V117.819L289.613 174.99H284.399L254.378 117.969V174.99H228.01V67.9905H228Z" fill="currentColor"/>
+            <path d="M149 67.9905H122.515V132.046C122.515 142.257 114.224 150.538 104 150.538C93.7764 150.538 85.4853 142.257 85.4853 132.046H59C59 156.869 79.1469 176.99 104 176.99C128.853 176.99 149 156.869 149 132.046V67.9905Z" fill="currentColor"/>
+            <path d="M412.514 67.9905H373V174.99H412.514C442.054 174.99 466 151.039 466 121.49C466 91.9423 442.054 67.9905 412.514 67.9905ZM409.302 152.665H399.289V90.2963H409.302C426.516 90.2963 440.479 104.252 440.479 121.48C440.479 138.709 426.526 152.665 409.302 152.665Z" fill="currentColor"/>
+            <path d="M202 67.9905H175V173.99H202V67.9905Z" fill="currentColor"/>
+            <path d="M633.989 16.9798V225.001H16.0111V16.9798H633.989ZM650 0.990479H0V240.99H650V0.990479Z" fill="currentColor"/>
+          </svg>
+        </div>
+
+        <figure class="play-testimonial">
+          <p class="play-testimonial-quote">&ldquo;The booking tool really takes loads off my work. No email ping-pong, no phone stress.&rdquo;</p>
+          <figcaption class="play-testimonial-attribution">
+            Tahimi Glaser,<br>
+            Psychological Counselor
+          </figcaption>
+        </figure>
+
+      </aside>
+
+      <!-- ─── Right: form card ─── -->
+      <main class="play-form-card">
+        <div class="play-form-content">
+          <div class="play-progress" role="progressbar" aria-valuenow="1" aria-valuemin="1" aria-valuemax="4">
+            <div class="play-progress-step active"
+              data-inspect-label="Progress Bar — Active Step"
+              data-inspect-tokens='[{"prop":"background","figma":"color/blue/500","css":"--jui-color-blue-500","value":"#004ced"},{"prop":"border-radius","figma":"style/radius/12","css":"--jui-style-radius-12","value":"12px"}]'></div>
+            <div class="play-progress-step"></div>
+            <div class="play-progress-step"></div>
+            <div class="play-progress-step"></div>
+          </div>
+
+          <div class="play-form-body">
+            <div class="play-intro">
+              <h1>What do you offer?</h1>
+              <p>We&rsquo;ll suggest content based on what you do</p>
+            </div>
+
+            <div class="play-input-group">
+              <input type="text" class="form-input" placeholder="Hand made jewellery specialising in wedding rings"
+                data-inspect-label="Text Input — Resting"
+                data-inspect-tokens='[{"prop":"border","figma":"component/input/color/field/stroke/rest","css":"--jui-component-input-color-field-stroke-rest","value":"#b1b1b1"},{"prop":"border-radius","figma":"style/radius/m","css":"--jui-style-radius-m","value":"8px"},{"prop":"height","figma":"layout/dimension/m","css":"--jui-layout-dimension-m","value":"48px"}]'
+                data-inspect-phrase="businessInfo.offering.placeholder">
+              <p class="play-input-helper">You can edit later</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="play-form-footer">
+          <button class="icon-btn" aria-label="Back">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+              <path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+            </svg>
+          </button>
+          <button class="btn btn-primary"
+            data-inspect-label="Primary Button — Continue"
+            data-inspect-tokens='[{"prop":"background","figma":"color/actions/primary/rest","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"height","figma":"layout/dimension/m","css":"--jui-layout-dimension-m","value":"48px"},{"prop":"border-radius","figma":"component/button/radius","css":"--jui-component-button-radius","value":"8px"},{"prop":"color","figma":"color/typography/gray/on-dark/default","css":"--jui-color-gray-white","value":"#ffffff"}]'
+            data-inspect-phrase="questionaire.cta">Continue</button>
+        </div>
+      </main>
+
+    </div>
+  </div>
+
+  <div class="variant" id="variant-filled">
+    <div class="play-shell">
+
+      <aside class="play-deco" aria-hidden="true">
+        <div class="play-deco-pattern" data-pattern='{"type":"doodle","colors":{"base":"#336bff","shape":"#ffffff"},"params":{"density":0.7,"sizeVar":0.6},"animate":true,"seed":7}'></div>
+
+        <div class="play-jimdo-wordmark" aria-label="Jimdo">
+          <svg viewBox="0 0 650 241" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M536 64.9905C505.071 64.9905 480 89.8375 480 120.49C480 151.143 505.071 175.99 536 175.99C566.929 175.99 592 151.143 592 120.49C592.01 89.8474 566.929 64.9905 536 64.9905ZM536 151.621C518.656 151.621 504.589 137.689 504.589 120.49C504.589 103.302 518.646 89.3595 536 89.3595C553.344 89.3595 567.411 103.292 567.411 120.49C567.411 137.689 553.354 151.621 536 151.621Z" fill="currentColor"/>
+            <path d="M228 67.9905H251.456L287.001 134.519L322.385 67.9905H346.002V174.99H319.633V117.819L289.613 174.99H284.399L254.378 117.969V174.99H228.01V67.9905H228Z" fill="currentColor"/>
+            <path d="M149 67.9905H122.515V132.046C122.515 142.257 114.224 150.538 104 150.538C93.7764 150.538 85.4853 142.257 85.4853 132.046H59C59 156.869 79.1469 176.99 104 176.99C128.853 176.99 149 156.869 149 132.046V67.9905Z" fill="currentColor"/>
+            <path d="M412.514 67.9905H373V174.99H412.514C442.054 174.99 466 151.039 466 121.49C466 91.9423 442.054 67.9905 412.514 67.9905ZM409.302 152.665H399.289V90.2963H409.302C426.516 90.2963 440.479 104.252 440.479 121.48C440.479 138.709 426.526 152.665 409.302 152.665Z" fill="currentColor"/>
+            <path d="M202 67.9905H175V173.99H202V67.9905Z" fill="currentColor"/>
+            <path d="M633.989 16.9798V225.001H16.0111V16.9798H633.989ZM650 0.990479H0V240.99H650V0.990479Z" fill="currentColor"/>
+          </svg>
+        </div>
+
+        <figure class="play-testimonial">
+          <p class="play-testimonial-quote">&ldquo;The booking tool really takes loads off my work. No email ping-pong, no phone stress.&rdquo;</p>
+          <figcaption class="play-testimonial-attribution">
+            Tahimi Glaser,<br>
+            Psychological Counselor
+          </figcaption>
+        </figure>
+      </aside>
+
+      <main class="play-form-card">
+        <div class="play-form-content">
+          <div class="play-progress" role="progressbar" aria-valuenow="1" aria-valuemin="1" aria-valuemax="4">
+            <div class="play-progress-step active"></div>
+            <div class="play-progress-step"></div>
+            <div class="play-progress-step"></div>
+            <div class="play-progress-step"></div>
+          </div>
+
+          <div class="play-form-body">
+            <div class="play-intro">
+              <h1>What do you offer?</h1>
+              <p>We&rsquo;ll suggest content based on what you do</p>
+            </div>
+
+            <div class="play-input-group">
+              <input type="text" class="form-input focused" value="Hand made jewellery specialising in wedding rings"
+                data-inspect-label="Text Input — Focused"
+                data-inspect-tokens='[{"prop":"border","figma":"component/input/color/field/stroke/active","css":"--jui-component-input-color-field-stroke-active","value":"#004ced"},{"prop":"border-radius","figma":"style/radius/m","css":"--jui-style-radius-m","value":"8px"},{"prop":"height","figma":"layout/dimension/m","css":"--jui-layout-dimension-m","value":"48px"}]'
+                data-inspect-phrase="businessInfo.offering.placeholder">
+              <p class="play-input-helper">You can edit later</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="play-form-footer">
+          <button class="icon-btn" aria-label="Back">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+              <path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+            </svg>
+          </button>
+          <button class="btn btn-primary"
+            data-inspect-phrase="questionaire.cta">Continue</button>
+        </div>
+      </main>
+
+    </div>
+  </div>
+
+  <!-- Pattern Studio loader — auto-renders any [data-pattern] element on the page. -->
+  <script type="module" src="/flows-prototype/design-system/pattern-studio/pattern-loader.js"></script>
+
+  <script>
+    var VARIANTS = {
+      'empty': 'variant-empty',
+      'filled': 'variant-filled'
+    };
+    function showVariant(key) {
+      document.querySelectorAll('.variant').forEach(function(v) { v.classList.remove('active'); });
+      var target = document.getElementById(VARIANTS[key]);
+      if (target) target.classList.add('active');
+    }
+
+    // Apply a pattern config to every decoration host on the page.
+    // The workbench right panel sends `set-pattern` messages whenever the
+    // editor controls change; the pattern-loader's MutationObserver picks up
+    // the new data-pattern attribute and re-renders in place.
+    function applyPatternConfig(config) {
+      if (!config || typeof config !== 'object') return;
+      var json = JSON.stringify(config);
+      document.querySelectorAll('.play-deco-pattern').forEach(function(el) {
+        el.setAttribute('data-pattern', json);
+      });
+    }
+
+    window.addEventListener('message', function(e) {
+      var data = e.data;
+      if (!data || typeof data !== 'object') return;
+      if (data.type === 'set-variant' && VARIANTS[data.variant]) {
+        showVariant(data.variant);
+      } else if (data.type === 'set-pattern' && data.config) {
+        applyPatternConfig(data.config);
+      }
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Onboarding — Template</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+  /* ─── Screen overrides ───
+     The question centres on mobile like every other step, and on desktop it
+     reads from the same left edge as the row of layouts under it. Spacing
+     and the header come from the single-column setup variant. */
+
+  /* ─── Template carousel ─── */
+  /* Horizontal snap-scroll with peek of adjacent cards. Selected card gets a
+     2px blue outline + soft blue glow shadow; unselected cards carry a neutral
+     soft shadow.
+
+     Full-bleed on desktop: the carousel breaks out of content-container's
+     768px max-width so it extends edge-to-edge. page-intro above stays
+     inside the constrained container. */
+  .template-carousel {
+    --card-w: 180px;     /* .template-card-inner width */
+    --half-card-w: 90px; /* half of it */
+    display: flex;
+    gap: var(--jui-layout-gap-l);
+    overflow-x: auto;
+    scroll-snap-type: none;
+    scrollbar-width: none;
+    padding: var(--jui-layout-padding-l) 0 var(--jui-layout-padding-l);
+    margin-bottom: -12px;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    /* Left-aligned at both sizes. Centring the snapped card read well on its
+       own and badly beside the title above it, which starts at the column's
+       left edge — the chosen layout is the subject of the screen, so it sits
+       where reading starts. The scroller still spans the viewport and pads
+       itself back to that edge, which keeps the cards already scrolled past
+       on screen and clickable in the gutter. */
+    --bleed: var(--jui-layout-padding-s);
+    padding-left: var(--bleed);
+    /* Trailing room so the last layout can still reach the first place. */
+    padding-right: calc(100vw - var(--card-w));
+    scroll-padding-inline: 0;
+  }
+
+  .template-carousel::-webkit-scrollbar { display: none; }
+
+  @media (min-width: 768px) {
+    /* A left-aligned row rather than a centred one: the first layout is the
+       one being chosen, so it sits where reading starts. It still runs off
+       the right edge, which is what says there are more of them. */
+    .template-carousel {
+      gap: var(--jui-layout-gap-l);
+      width: auto;
+
+      /* The distance from the viewport edge to the column's content edge.
+         The scroller spans the whole viewport and pads itself back by that
+         much, so the first layout still starts on the title's left edge
+         while the ones already chosen past stay on screen in the gutter
+         rather than disappearing off it — they have to be visible to be
+         clickable again. It also gives the selected card's glow room, which
+         a scroller would otherwise clip. */
+      --bleed: calc(50vw - var(--setup-single-max) / 2 + var(--jui-layout-padding-m));
+      margin-left: calc(-1 * var(--bleed));
+      padding-left: var(--bleed);
+      margin-right: calc(-1 * var(--bleed));
+      /* Trailing room so the last layout can still reach the first place.
+         Without it the scroller runs out before the later cards get there
+         and the selection snaps back to whichever one the end of the scroll
+         happened to leave on the left. */
+      padding-right: calc(100vw - var(--card-w));
+      scroll-padding-inline: 0;
+      scroll-snap-type: none;
+    }
+  }
+
+  .template-card {
+    flex: 0 0 auto;
+    scroll-snap-align: center;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    border-radius: var(--jui-style-radius-l);
+  }
+
+  .template-card:focus-visible {
+    outline: 2px solid var(--jui-color-actions-primary-rest);
+    outline-offset: 4px;
+  }
+
+  .template-card-inner {
+    width: 180px;
+    aspect-ratio: 585 / 1091;
+    border-radius: var(--jui-style-radius-l);
+    padding: 0;
+    box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.10);
+    transition: border-radius 150ms ease, box-shadow 150ms ease, transform 200ms ease;
+    box-sizing: border-box;
+    transform-origin: center center;
+  }
+
+  .template-card[aria-checked="true"] .template-card-inner {
+    border: 2px solid var(--jui-color-actions-primary-rest);
+    border-radius: calc(var(--jui-style-radius-l) + 2px); /* concentric: image radius + border-width */
+    box-shadow: 0 5px 16px 0 var(--jui-color-blue-50);
+    transform: scale(1.06);
+  }
+
+  .template-thumb {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    object-position: top;
+    border: 1px solid var(--jui-color-gray-100);
+    border-radius: var(--jui-style-radius-l);
+    box-sizing: border-box;
+  }
+</style>
+</head>
+<body>
+
+  <div class="variant active" id="variant-default">
+    <div class="app-shell app-shell-setup-split app-shell-setup-single">
+
+      <div class="setup-split-header">
+        <div class="progress-pill" role="progressbar" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1" aria-label="Step 1 of 5"
+          data-inspect-label="Progress Pill"
+          data-inspect-tokens='[{"prop":"background","figma":"color/gray/50","css":"--jui-color-gray-50","value":"#f8f8f8"},{"prop":"border-radius","figma":"style/radius/16","css":"--jui-style-radius-16","value":"16px"}]'>
+          <span class="progress-pill-step is-current"></span>
+          <span class="progress-pill-step"></span>
+          <span class="progress-pill-step"></span>
+          <span class="progress-pill-step"></span>
+          <span class="progress-pill-step"></span>
+        </div>
+
+      </div>
+
+      <div class="setup-split-main">
+        <div class="setup-split-form">
+          <div class="setup-split-fields">
+            <div class="setup-split-intro">
+              <h1 class="setup-split-title" data-inspect-phrase="bioTemplatePickerScreen.title">Choose your layout</h1>
+              <p class="setup-split-subtitle" data-inspect-phrase="biopage.template.subtitle">You can change colours or templates anytime</p>
+            </div>
+
+            <div class="template-carousel" role="radiogroup" aria-label="Bio page templates">
+              <button type="button" class="template-card" role="radio" aria-checked="true" data-template-id="whiteMinimal"
+                data-inspect-label="Template Card — Selected"
+                data-inspect-tokens='[{"prop":"border","figma":"color/actions/primary/rest","css":"--jui-color-actions-primary-rest","value":"#004ced 2px solid"},{"prop":"border-radius","figma":"style/radius/16","css":"--jui-style-radius-16","value":"18px"},{"prop":"box-shadow","figma":"custom/selected-glow","css":"—","value":"0 5px 16px rgba(0,76,237,0.15)"}]'>
+                <div class="template-card-inner">
+                  <img src="../assets/template-picker/white_minimal_en.webp" alt="White minimal template" class="template-thumb">
+                </div>
+              </button>
+              <button type="button" class="template-card" role="radio" aria-checked="false" data-template-id="blackMinimal"
+                data-inspect-label="Template Card — Resting"
+                data-inspect-tokens='[{"prop":"border","figma":"—","css":"—","value":"2px solid transparent"},{"prop":"border-radius","figma":"style/radius/16","css":"--jui-style-radius-16","value":"18px"},{"prop":"box-shadow","figma":"custom/soft-card","css":"—","value":"0 4px 14px rgba(0,0,0,0.10)"}]'>
+                <div class="template-card-inner">
+                  <img src="../assets/template-picker/black_minimal_en.webp" alt="Black minimal template" class="template-thumb">
+                </div>
+              </button>
+              <button type="button" class="template-card" role="radio" aria-checked="false" data-template-id="elegantGreen">
+                <div class="template-card-inner">
+                  <img src="../assets/template-picker/elegant_green_en.webp" alt="Elegant green template" class="template-thumb">
+                </div>
+              </button>
+              <button type="button" class="template-card" role="radio" aria-checked="false" data-template-id="lightArtistic">
+                <div class="template-card-inner">
+                  <img src="../assets/template-picker/light_artistic_en.webp" alt="Light artistic template" class="template-thumb">
+                </div>
+              </button>
+              <button type="button" class="template-card" role="radio" aria-checked="false" data-template-id="boldColorful">
+                <div class="template-card-inner">
+                  <img src="../assets/template-picker/bold_colorful_en.webp" alt="Bold colorful template" class="template-thumb">
+                </div>
+              </button>
+              <button type="button" class="template-card" role="radio" aria-checked="false" data-template-id="softAndWarm">
+                <div class="template-card-inner">
+                  <img src="../assets/template-picker/soft_and_warm_en.webp" alt="Soft and warm template" class="template-thumb">
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <div class="setup-split-actions">
+          <button class="btn btn-primary"
+            data-inspect-label="Primary Button — Continue"
+            data-inspect-tokens='[{"prop":"background","figma":"color/actions/primary/rest","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"height","figma":"layout/dimension/m","css":"--jui-layout-dimension-m","value":"48px"},{"prop":"border-radius","figma":"component/button/radius","css":"--jui-component-button-radius","value":"8px"},{"prop":"color","figma":"color/typography/gray/on-dark/default","css":"--jui-color-gray-white","value":"#ffffff"}]'
+            data-inspect-phrase="questionaire.cta"
+            data-trigger="primary-cta"
+            data-nav-to="flows/onboarding-name.html"
+            data-nav-screen-id="scr-011">Continue</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    var VARIANTS = {
+      'default': 'variant-default'
+    };
+    function showVariant(key) {
+      document.querySelectorAll('.variant').forEach(function(v) { v.classList.remove('active'); });
+      var target = document.getElementById(VARIANTS[key]);
+      if (target) target.classList.add('active');
+    }
+    window.addEventListener('message', function(e) {
+      if (e.data && e.data.type === 'set-variant' && VARIANTS[e.data.variant]) {
+        showVariant(e.data.variant);
+      }
+    });
+
+    /* ─── Carousel behavior ─── */
+    /* Matches loops-frontend TemplateCarousel:
+       - click a card → it becomes selected and scroll-snaps to center
+       - scroll → auto-select the card closest to viewport center (debounced)
+       - Arrow keys / Home / End for keyboard navigation
+       - Only the selected card is in the tab order */
+    (function(){
+      var carousel = document.querySelector('.template-carousel');
+      if (!carousel) return;
+      var cards = Array.prototype.slice.call(carousel.querySelectorAll('.template-card'));
+
+      function select(card, opts){
+        opts = opts || {};
+        cards.forEach(function(c){
+          var isSel = c === card;
+          c.setAttribute('aria-checked', isSel ? 'true' : 'false');
+          c.tabIndex = isSel ? 0 : -1;
+        });
+        if (opts.scroll !== false) {
+          // Desktop puts the chosen layout in the first place and pushes the
+          // ones before it off to the left; mobile centres it. Measuring from
+          // the first card rather than from the padding keeps both honest if
+          // the bleed padding ever changes.
+          var wide = window.matchMedia('(min-width: 768px)').matches;
+          var target = wide
+            ? card.offsetLeft - cards[0].offsetLeft
+            : card.offsetLeft + card.offsetWidth / 2 - carousel.clientWidth / 2;
+          target = Math.max(0, Math.min(carousel.scrollWidth - carousel.clientWidth, target));
+          var before = carousel.scrollLeft;
+          try {
+            carousel.scrollTo({ left: target, behavior: opts.behavior || 'smooth' });
+          } catch (e) {
+            carousel.scrollLeft = target;
+          }
+          // Safety: if native scroll was a no-op (headless / hidden tab),
+          // force-assign after a tick so the selected card still centers.
+          setTimeout(function(){
+            if (Math.abs(carousel.scrollLeft - before) < 1 && Math.abs(target - before) > 1) {
+              carousel.scrollLeft = target;
+            }
+          }, 50);
+        }
+      }
+
+      /* Whichever card is nearest the place a selected card belongs — the
+         left edge on desktop, the middle on mobile. */
+      function closestToAnchor(){
+        var rect = carousel.getBoundingClientRect();
+        var wide = window.matchMedia('(min-width: 768px)').matches;
+        var anchorX = wide ? rect.left + cards[0].offsetLeft : rect.left + rect.width / 2;
+        var best = null, bestDist = Infinity;
+        cards.forEach(function(c){
+          var r = c.getBoundingClientRect();
+          var x = wide ? r.left : r.left + r.width / 2;
+          var d = Math.abs(x - anchorX);
+          if (d < bestDist) { bestDist = d; best = c; }
+        });
+        return best;
+      }
+
+      // Click to select
+      cards.forEach(function(card){
+        card.addEventListener('click', function(){ select(card); });
+      });
+
+      // Auto-select on scroll end (debounced)
+      var scrollTimer = null;
+      carousel.addEventListener('scroll', function(){
+        // Mobile snaps one card at a time, so where the scroll lands is the
+        // choice. Desktop scrolls freely, where landing on a card is just
+        // looking at it — there the choice moves on click only.
+        if (window.matchMedia('(min-width: 768px)').matches) return;
+        if (scrollTimer) clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(function(){
+          var c = closestToAnchor();
+          if (c && c.getAttribute('aria-checked') !== 'true') select(c, { scroll: false });
+        }, 120);
+      }, { passive: true });
+
+      // Keyboard navigation
+      carousel.addEventListener('keydown', function(e){
+        var current = cards.find(function(c){ return c.getAttribute('aria-checked') === 'true'; });
+        var idx = cards.indexOf(current);
+        var next = null;
+        if (e.key === 'ArrowRight') next = cards[Math.min(cards.length - 1, idx + 1)];
+        else if (e.key === 'ArrowLeft') next = cards[Math.max(0, idx - 1)];
+        else if (e.key === 'Home') next = cards[0];
+        else if (e.key === 'End') next = cards[cards.length - 1];
+        if (next) {
+          e.preventDefault();
+          select(next);
+          // preventScroll: focus() scrolls the element into view by itself,
+          // instantly, which lands on top of the smooth scroll select() has
+          // just begun — so the keys jumped where a click glided.
+          next.focus({ preventScroll: true });
+        }
+      });
+
+      // Initial: center the selected card (no scroll animation on load)
+      var initial = cards.find(function(c){ return c.getAttribute('aria-checked') === 'true'; }) || cards[0];
+      // Wait for layout + images so scrollIntoView measures correctly
+      window.addEventListener('load', function(){
+        select(initial, { behavior: 'instant' });
+      });
+    })();
+  </script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js"></script>
+
+</body>
+</html>

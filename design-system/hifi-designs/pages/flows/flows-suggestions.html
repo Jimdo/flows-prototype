@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Onboarding — What to offer</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+  /* ─── Screen overrides ───
+     Layout, preview stage, drawer, progress pill, select cards and idea
+     chips all come from the design system. This step only sets how much
+     of its list the drawer shows at rest: enough for the question and the
+     first two options, so the shape of the choice is visible before any
+     scrolling. */
+  .app-shell-setup-split {
+    --setup-drawer-rest-h: 400px;
+
+    /* The offer card is the tallest block the page can carry and it is the
+       one this step is about, so the frame is sized to the whole page rather
+       than to the 686px the earlier steps need. At this scale that is 585px
+       of panel against 616 available — it fits, and the card is not cut. */
+    --bp-natural-h: 752px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="app-shell app-shell-setup-split" id="shell" data-drawer="default">
+
+    <div class="setup-split-header">
+      <button class="setup-back-btn" aria-label="Back" data-no-phrase
+        data-nav-to="flows/onboarding-offer.html" data-nav-screen-id="scr-013">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+      </button>
+
+      <div class="progress-pill" role="progressbar" aria-valuemin="1" aria-valuemax="5" aria-valuenow="5" aria-label="Step 5 of 5">
+        <span class="progress-pill-step is-done"></span>
+        <span class="progress-pill-step is-done"></span>
+        <span class="progress-pill-step is-done"></span>
+        <span class="progress-pill-step is-done"></span>
+        <span class="progress-pill-step is-current"></span>
+      </div>
+
+      <div class="header-spacer"></div>
+    </div>
+
+    <div class="setup-split-main">
+
+      <div class="setup-split-preview">
+        <div class="setup-preview-panel">
+          <span class="setup-preview-tag" data-no-phrase>Preview</span>
+          <div class="bp-stage">
+            <div class="bp-frame">
+              <iframe id="bioPreview" title="Bio page preview" tabindex="-1"
+                src="/flows-prototype/design-system/hifi-designs/pages/artifacts/bio-page-v2.html"></iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-split-form">
+
+        <button class="setup-drawer-grip" id="grip" aria-label="Resize the question panel" data-no-phrase>
+          <span class="setup-drawer-grip-shape"></span>
+        </button>
+
+        <div class="setup-split-fields setup-split-fields--scroll">
+          <div class="setup-split-intro">
+            <h1 class="setup-split-title" data-inspect-phrase="businessInfo.offer.title">What do you want to offer?</h1>
+            <p class="setup-split-subtitle" data-inspect-phrase="businessInfo.offer.subtitle">Pick one to start. You can add more later.</p>
+          </div>
+
+          <!-- The four transactional pieces, named by what a visitor does with
+               them rather than by the use case they came from. Someone who
+               already knows what they want recognises their own case here;
+               someone who does not goes to the ideas below. -->
+          <div class="select-card-list" role="radiogroup" aria-labelledby="offerQuestion" id="offerList"
+            data-inspect-label="Select card list"
+            data-inspect-tokens='[{"prop":"gap","figma":"measurements/size/12","css":"--jui-layout-gap-s","value":"12px"},{"prop":"padding","figma":"$jui-layout-padding-m","css":"--jui-layout-padding-m","value":"16px"},{"prop":"border-radius","figma":"$jui-style-radius-l","css":"--jui-style-radius-16","value":"16px"}]'>
+
+            <button type="button" class="select-card" role="radio" aria-checked="true" data-offer="event"
+              data-edits="offer" data-no-phrase
+              data-title="Beginner workshop" data-meta="Sat 10 May · 14:00" data-cta="Book my session" data-price="€45" data-kind="book"
+              data-inspect-label="Select card — selected"
+              data-inspect-tokens='[{"prop":"border","figma":"color/blue/300","css":"--jui-color-blue-300","value":"#658aff"},{"prop":"background","figma":"color/gray/white","css":"--jui-color-gray-white","value":"#ffffff"}]'>
+              <span class="select-card-copy">
+                <span class="select-card-label">A date people sign up for</span>
+              </span>
+              <span class="select-card-radio" aria-hidden="true"></span>
+            </button>
+
+            <button type="button" class="select-card" role="radio" aria-checked="false" data-offer="slots"
+              data-edits="offer" data-no-phrase
+              data-title="A session with me" data-meta="Pick a time that suits you" data-cta="See my calendar" data-price="" data-kind="book"
+              data-inspect-label="Select card — resting"
+              data-inspect-tokens='[{"prop":"border","figma":"color/gray/100","css":"--jui-color-gray-100","value":"#e6e6e6"}]'>
+              <span class="select-card-copy">
+                <span class="select-card-label">Times people can book</span>
+              </span>
+              <span class="select-card-radio" aria-hidden="true"></span>
+            </button>
+
+            <button type="button" class="select-card" role="radio" aria-checked="false" data-offer="form"
+              data-edits="offer" data-no-phrase
+              data-title="Tell me what you need" data-meta="" data-cta="Get in touch" data-price="" data-kind="promo">
+              <span class="select-card-copy">
+                <span class="select-card-label">A form people fill in</span>
+              </span>
+              <span class="select-card-radio" aria-hidden="true"></span>
+            </button>
+
+            <button type="button" class="select-card" role="radio" aria-checked="false" data-offer="payment"
+              data-edits="offer" data-no-phrase
+              data-title="10-class pass" data-meta="Use any time" data-cta="Buy now" data-price="€120" data-kind="pay">
+              <span class="select-card-copy">
+                <span class="select-card-label">Something people pay for</span>
+              </span>
+              <span class="select-card-radio" aria-hidden="true"></span>
+            </button>
+          </div>
+
+          <!-- Ideas are shortcuts, not a separate path: each one picks the
+               card it belongs to and names the thing in the same tap. -->
+          <div class="idea-block">
+            <h2 class="idea-block-title" data-inspect-phrase="businessInfo.offer.ideasTitle">Not sure? Here are some ideas</h2>
+            <div class="idea-chips" id="ideaChips"
+              data-inspect-label="Idea chip"
+              data-inspect-tokens='[{"prop":"background","figma":"$jui-color-background-primary-light","css":"--jui-color-background-primary-light","value":"#eff0ff"},{"prop":"border-radius","figma":"layout/base","css":"--jui-style-radius-8","value":"8px"},{"prop":"padding","figma":"4 / 8","css":"--jui-layout-padding-xxs","value":"4px 8px"}]'></div>
+            <button type="button" class="text-action" id="moreIdeas"
+              data-inspect-phrase="businessInfo.offer.moreIdeasCta">Show me other ideas</button>
+          </div>
+        </div>
+
+        <div class="setup-split-actions">
+          <button class="btn btn-secondary"
+            data-inspect-phrase="questionaire.skipCta"
+            data-nav-to="flows/onboarding-handoff.html"
+            data-nav-screen-id="scr-470">Skip</button>
+          <button class="btn btn-primary"
+            data-inspect-label="Primary Button — Continue"
+            data-inspect-tokens='[{"prop":"background","figma":"color/actions/primary/rest","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"height","figma":"$jui-layout-dimension-m","css":"--jui-layout-dimension-m","value":"48px"}]'
+            data-inspect-phrase="questionaire.cta"
+            data-trigger="primary-cta"
+            data-nav-to="flows/onboarding-handoff.html"
+            data-nav-screen-id="scr-470">Continue</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js"></script>
+  <script type="module">
+    import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
+
+    const list      = document.getElementById('offerList');
+    const chipsWrap = document.getElementById('ideaChips');
+    const moreBtn   = document.getElementById('moreIdeas');
+    const cards     = Array.from(list.querySelectorAll('.select-card'));
+
+    // Each idea names something to offer and the piece it is built from, so
+    // choosing one answers both questions at once. In the product these come
+    // from what the seller said they do; here they are three fixed sets so
+    // the "other ideas" control has somewhere to go.
+    const IDEA_SETS = [
+      [
+        { label: 'A beginner workshop',        offer: 'event' },
+        { label: 'A free intro call',          offer: 'slots' },
+        { label: 'A 10-class pass',            offer: 'payment' },
+      ],
+      [
+        { label: 'A monthly group session',    offer: 'event' },
+        { label: 'Ask me about private classes', offer: 'form' },
+        { label: 'A gift voucher',             offer: 'payment' },
+      ],
+      [
+        { label: 'A weekend retreat',          offer: 'event' },
+        { label: 'A one-to-one consultation',  offer: 'slots' },
+        { label: 'Tell me what you need',      offer: 'form' },
+      ],
+    ];
+
+    let setIndex = 0;
+    let chosenLabel = null;
+
+    const split = initSetupSplit({
+      state: () => {
+        const card = cards.find((c) => c.getAttribute('aria-checked') === 'true');
+        return {
+          title: 'Clara and Stone',
+          subtitle: 'Yoga and mindfulness workshops for women',
+          image: 'photo',
+          // The page keeps its real link block for this step: the thing being
+          // chosen is a button on the page, so the preview has to show one.
+          links: 'none',
+          ghost: ['socials'],
+          // Same quick actions the earlier steps show, so the page reads as
+          // one page being built rather than a different mock per step.
+          contact: [
+            { id: 'whatsapp', on: true },
+            { id: 'email',    on: true },
+          ],
+          // Each piece puts a differently shaped card on the page, so the
+          // preview shows the shape, not just a renamed row: a date-bound
+          // booking carries a calendar icon and a date, a payment carries a
+          // price, a form carries neither.
+          offer: card ? {
+            on: true,
+            kind: card.getAttribute('data-kind'),
+            title: chosenLabel || card.getAttribute('data-title'),
+            meta: card.getAttribute('data-meta'),
+            cta: card.getAttribute('data-cta'),
+            price: card.getAttribute('data-price'),
+          } : { on: false },
+        };
+      },
+    });
+
+    function select(offer, label) {
+      cards.forEach((c) => c.setAttribute('aria-checked', String(c.getAttribute('data-offer') === offer)));
+      chosenLabel = label || null;
+      chipsWrap.querySelectorAll('.idea-chip').forEach((chip) => {
+        chip.setAttribute('aria-pressed', String(!!label && chip.textContent === label));
+      });
+      split.sync();
+    }
+
+    cards.forEach((card) => {
+      card.addEventListener('click', () => {
+        // Picking a piece directly drops any wording an idea had supplied —
+        // the label goes back to the generic one for that piece.
+        select(card.getAttribute('data-offer'), null);
+        card.focus();
+      });
+    });
+
+    function renderIdeas() {
+      chipsWrap.innerHTML = '';
+      IDEA_SETS[setIndex].forEach((idea) => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'idea-chip';
+        chip.setAttribute('aria-pressed', 'false');
+        chip.setAttribute('data-no-phrase', '');
+        chip.setAttribute('data-edits', 'offer');
+        chip.textContent = idea.label;
+        chip.addEventListener('click', () => {
+          select(idea.offer, idea.label);
+          // Keep focus on the chip: it declares data-edits="offer", so the
+          // preview marks the block the tap just changed. Browsers disagree
+          // about whether a clicked button takes focus, so do it explicitly.
+          chip.focus();
+        });
+        chipsWrap.appendChild(chip);
+      });
+    }
+
+    moreBtn.addEventListener('click', () => {
+      setIndex = (setIndex + 1) % IDEA_SETS.length;
+      renderIdeas();
+    });
+
+    const VARIANTS = {
+      'a-date-selected':   { drawer: 'default',   offer: 'event',   label: null, focus: true },
+      'times-selected':    { drawer: 'default',   offer: 'slots',   label: null, focus: true },
+      'idea-picked':       { drawer: 'default',   offer: 'event',   label: 'A beginner workshop', focus: false },
+      'drawer-expanded':   { drawer: 'expanded',  offer: 'event',   label: null, focus: false },
+      'preview-peek':      { drawer: 'collapsed', offer: 'event',   label: 'A beginner workshop', focus: false },
+    };
+
+    window.addEventListener('message', (e) => {
+      if (!e.data || e.data.type !== 'set-variant') return;
+      const v = VARIANTS[e.data.variant];
+      if (!v) return;
+      setIndex = 0;
+      renderIdeas();
+      select(v.offer, v.label);
+      split.setState(v.drawer);
+      const card = cards.find((c) => c.getAttribute('data-offer') === v.offer);
+      if (v.focus && card) card.focus(); else if (document.activeElement) document.activeElement.blur();
+      split.sync();
+    });
+
+    renderIdeas();
+  </script>
+
+</body>
+</html>

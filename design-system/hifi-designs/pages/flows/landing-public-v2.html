@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jimdo Flows — The bio page that turns your followers into customers</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+/* lint-disable */
+
+/* ═══════════════════════════════════════════════════════
+   PUBLIC LANDING PAGE — FLOWS v2 (Figma 15166:13021)
+   ─────────────────────────────────────────────────────
+   Sized to the Figma frame: 1200px wide, content column 1176
+   (12px gutters). All type/spacing values lifted from the
+   Figma node tree + design context. FAQ copy kept from v1.
+   Image slots are placeholders / template stand-ins.
+
+   Typography (from Figma tokens):
+   - eyebrow / labels:  14px, ls 8px, 600, uppercase
+   - section title:     36px, 600, lh 1.25, ls -0.02em
+   - body large:        18px / lh 1.55   body medium: 16 / 1.5
+   - hero eyebrow:      24px, 600, ls 0.08em
+   - hero title:        56px italic 600, lh 1.0, ls -0.02em
+   - dividers:          87px (special) / 229px (xl) bold italic,
+                        ls -0.05em, lh 1.05, blue #004ced
+   - CTA-card title:    64px bold, lh 1.25
+   Marketing gradients use raw values (lint-disabled block).
+   ═══════════════════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+html, body { overflow-x: hidden; }   /* big italic dividers clip at the viewport edge */
+
+body {
+  font-family: 'Euclid Circular A', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--jui-color-typography-gray-on-light-default);
+  background: var(--jui-color-gray-white);
+  line-height: 1.5;
+}
+
+/* ─── PAGE FRAME ─── */
+
+.lp-page {
+  --lp-rhythm: 96px;
+  display: flex;
+  flex-direction: column;
+}
+.lp-page > * + * { margin-top: var(--lp-rhythm); }
+.lp-divider + * { margin-top: 40px; }
+.lp-hero + .lp-trust  { margin-top: 24px; }
+.lp-trust + .lp-strip { margin-top: 32px; }
+.lp-strip + .lp-divider { margin-top: 72px; }
+
+/* Figma frame is 1200 wide; content column is 1176 (12px gutters). */
+.lp-container { width: 100%; max-width: 1176px; margin-inline: auto; padding-inline: 12px; }
+
+/* shared centered section head — 920 wide so titles stay on one line */
+.lp-head { display: flex; flex-direction: column; gap: 8px; max-width: 920px; margin-inline: auto; text-align: center; align-items: center; }
+.lp-head__title {
+  font-size: 36px;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+.lp-head__lede {
+  font-size: 18px;
+  line-height: 1.55;
+  color: var(--jui-color-typography-gray-on-light-subdued);
+  max-width: 760px;
+}
+
+/* ─── IMAGE SLOTS ─── */
+.lp-ph {
+  border: 1.5px dashed var(--jui-color-strokes-onlight-subdued);
+  border-radius: 16px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px; text-align: center; padding: 24px;
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+.lp-ph__label { font-size: 16px; font-weight: 600; color: var(--jui-color-typography-gray-on-light-default); }
+.lp-ph__hint  { font-size: 14px; }
+
+/* a phone-shaped bio-page card (stand-in image fills it) */
+.lp-phone {
+  aspect-ratio: 201 / 390;
+  border-radius: 18px;
+  background-color: var(--jui-color-gray-200);
+  background-size: cover;
+  background-position: top center;
+  background-repeat: no-repeat;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.18);
+  outline: 1px solid rgba(255, 255, 255, 0.35);
+  outline-offset: -1px;
+}
+
+/* ════════════════════════════════════════════════════════
+   1 · HERO  (card 1176×680, copy inset 80px)
+   ════════════════════════════════════════════════════════ */
+.lp-hero { margin-top: 12px; padding-inline: 0; }   /* card flush to the 12px viewport gutter */
+.lp-hero__card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  background: linear-gradient(112deg, #CFEEFF 0%, #DAD6F6 46%, #FBD3EE 100%);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 680px;
+}
+.lp-hero__copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 56px;
+  padding: 56px 24px 56px 80px;
+  justify-content: flex-start;
+}
+.lp-hero__brand { display: inline-flex; align-items: center; gap: 6px; }
+.lp-hero__brand-mark  { height: 22px; width: 63px; display: block; }
+.lp-hero__brand-flows { height: 10px; width: 44px; display: block; }
+.lp-hero__head { display: flex; flex-direction: column; gap: 8px; }
+.lp-hero__eyebrow {
+  font-size: clamp(16px, 2vw, 24px);
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+.lp-hero__title {
+  font-style: italic;
+  font-weight: 600;
+  font-size: clamp(38px, 4.7vw, 56px);
+  line-height: 1.0;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--jui-color-typography-gray-on-light-default);
+  max-width: 540px;
+}
+.lp-hero__cta {
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.4;
+  padding: 12px 24px;
+  border-radius: 8px;
+  background: var(--jui-color-blue-500);
+  color: var(--jui-color-gray-white);
+  width: auto;
+}
+/* right side: lifestyle photo bleeds, bio-page phone overlaps it */
+.lp-hero__visual { position: relative; }
+.lp-hero__photo { position: absolute; inset: 40px 24px 0 0; border-radius: 16px; }
+.lp-hero__phone { position: absolute; right: 9%; bottom: 0; width: 48%; max-width: 275px; }
+
+/* ════════════════════════════════════════════════════════
+   1b · TRUST MARKS ROW
+   ════════════════════════════════════════════════════════ */
+.lp-trust { display: flex; justify-content: center; flex-wrap: wrap; gap: 16px 40px; }
+.lp-trust__item { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; line-height: 1.57; color: var(--jui-color-typography-gray-on-light-default); }
+.lp-trust__item svg { width: 16px; height: 16px; flex: 0 0 auto; }
+
+/* ════════════════════════════════════════════════════════
+   2 · TEMPLATE STRIP (cards 201 wide, clipped at edges)
+   ════════════════════════════════════════════════════════ */
+.lp-strip { overflow: hidden; }
+.lp-strip__row { display: flex; gap: 24px; justify-content: center; min-width: max-content; margin-inline: auto; padding-inline: 12px; }
+.lp-strip__row .lp-phone { width: 201px; flex: 0 0 auto; border-radius: 16px; }
+
+/* ════════════════════════════════════════════════════════
+   BIG ITALIC DIVIDERS (live text, clipped both edges)
+   ════════════════════════════════════════════════════════ */
+.lp-divider { display: flex; justify-content: center; overflow: hidden; }
+.lp-divider b {
+  white-space: nowrap;
+  font-style: italic;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.05em;
+  line-height: 1.05;
+  color: var(--jui-color-blue-500);
+  font-size: clamp(44px, 7.3vw, 88px);
+}
+.lp-divider--xl b { font-size: clamp(96px, 19vw, 232px); }
+
+/* ════════════════════════════════════════════════════════
+   4 · FEATURE SCENE — phone (335×552) ringed by chips, stage 680×600
+   ════════════════════════════════════════════════════════ */
+.lp-feature { display: flex; flex-direction: column; gap: 48px; }
+.lp-scene { position: relative; width: 100%; max-width: 680px; height: 600px; margin-inline: auto; }
+.lp-scene__phone { position: absolute; left: 50%; top: 0; transform: translateX(-50%); width: 335px; }
+.lp-chip {
+  position: absolute;
+  display: inline-flex; align-items: center;
+  background: var(--jui-color-gray-white);
+  border: 1.5px solid var(--jui-color-blue-500);
+  color: var(--jui-color-blue-500);
+  font-style: italic; font-weight: 600; font-size: 18px;
+  padding: 16px 24px;
+  border-radius: 9999px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  white-space: nowrap;
+}
+/* positions are top-left % of the 680×600 stage (from Figma rel coords) */
+.lp-chip--style { left: 6%;  top: 38%; }     /* 8225 (44,228) */
+.lp-chip--book  { left: 0%;  top: 59%; }      /* 8260 (0,355) */
+.lp-chip--promo { left: 66%; top: 46%; }      /* 8258 (449,278) */
+.lp-chip--store { left: 64%; top: 62%; }      /* 8223 (439,375) */
+.lp-chip--domain{ left: 49%; top: 88%; }      /* 8262 (335,527) */
+.lp-blob {
+  position: absolute;
+  width: 76px; height: 76px;
+  border-radius: 18px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.10);
+}
+.lp-blob svg { width: 32px; height: 32px; }
+.lp-blob--link  { left: 21%; top: 22%; background: #f4d9ff; color: #8733be; transform: rotate(-8deg); }  /* 8266 */
+.lp-blob--mega  { left: 69%; top: 34%; background: #b5f2ce; color: #025832; transform: rotate(10deg); }  /* 8227 */
+.lp-blob--cal   { left: 13%; top: 82%; background: #b5f2ce; color: #025832; transform: rotate(-6deg); }  /* 8264 */
+.lp-blob--box   { left: 83%; top: 72%; background: #f4d9ff; color: #8733be; transform: rotate(8deg); }   /* 8229 */
+
+/* ════════════════════════════════════════════════════════
+   5 · MICRO PAGE SCENE — cluster 660×515 (main 259, side 209)
+   ════════════════════════════════════════════════════════ */
+.lp-cluster { position: relative; width: 100%; max-width: 660px; height: 515px; margin-inline: auto; }
+.lp-cluster__main { position: absolute; left: 32%; top: 0; width: 259px; z-index: 2; }
+.lp-cluster__side { position: absolute; right: 0; top: 46px; width: 209px; z-index: 1; }
+.lp-cluster__profile {
+  position: absolute; left: 0; top: 256px; width: 236px;
+  background: var(--jui-color-gray-white);
+  border-radius: 16px; box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12); padding: 16px; z-index: 3;
+}
+.lp-cluster__tag {
+  position: absolute; left: 4%; top: 28px;
+  font-style: italic; font-weight: 600; color: var(--jui-color-blue-500);
+  transform: rotate(-12deg);
+}
+
+/* ════════════════════════════════════════════════════════
+   6 · TESTIMONIALS
+   ════════════════════════════════════════════════════════ */
+.lp-quotes { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; max-width: 1048px; margin-inline: auto; }
+.lp-quote { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 20px; }
+.lp-quote__text { font-size: 24px; line-height: 1.33; font-weight: 500; }
+.lp-quote__person { display: flex; align-items: center; gap: 12px; }
+.lp-quote__avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 1px dashed var(--jui-color-strokes-onlight-subdued);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: var(--jui-color-typography-gray-on-light-subdued);
+}
+.lp-quote__meta { font-size: 14px; color: var(--jui-color-typography-gray-on-light-subdued); }
+
+/* ════════════════════════════════════════════════════════
+   8 / 10 · COLOURED BANDS (visual ~700 / text ~304, gap 80)
+   ════════════════════════════════════════════════════════ */
+/* bands are inset rounded cards (1176, 12px gutters) — NOT full-bleed.
+   radius 20, 40px padding, 80px gap, text column fixed 304 (per Figma). */
+.lp-band { width: 100%; max-width: 1176px; margin-inline: auto; border-radius: 20px; padding: 40px; color: var(--jui-color-gray-white); overflow: clip; }
+.lp-band--ig { background: linear-gradient(0deg, #FF9898 0%, #D60BA0 100%); }
+.lp-band--wa { background: #e0faeb; color: var(--jui-color-typography-gray-on-light-default); }
+.lp-band__grid { display: grid; gap: 80px; align-items: center; }
+.lp-band--ig .lp-band__grid { grid-template-columns: minmax(0, 1fr) 304px; }
+.lp-band--wa .lp-band__grid { grid-template-columns: 304px minmax(0, 1fr); }
+.lp-band__visual { position: relative; min-height: 437px; }
+.lp-band__text { display: flex; flex-direction: column; gap: 24px; }
+.lp-band__icon svg { width: 48px; height: 48px; display: block; }
+.lp-band__copy { display: flex; flex-direction: column; gap: 8px; }
+.lp-band__title { font-size: 24px; line-height: 1.33; font-weight: 500; }
+.lp-band__title strong { font-weight: 700; }
+.lp-band__lede { font-size: 16px; line-height: 1.5; opacity: 0.95; }
+.lp-band__lede + .lp-band__lede { margin-top: 16px; }
+
+/* IG phone cluster (430×437) + DM bubble */
+.lp-ig-stack { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; }
+.lp-ig-stack .lp-phone { width: 180px; }
+.lp-ig-stack__a { transform: rotate(-7deg) translateX(40px); z-index: 1; }
+.lp-ig-stack__b { z-index: 3; }
+.lp-ig-stack__c { transform: rotate(7deg) translateX(-40px); z-index: 2; }
+.lp-bubble {
+  position: absolute;
+  background: var(--jui-color-gray-white);
+  color: var(--jui-color-typography-gray-on-light-default);
+  border-radius: 14px; padding: 12px 16px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+  font-size: 14px; line-height: 1.4; max-width: 280px;
+}
+.lp-bubble__from { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--jui-color-typography-gray-on-light-subdued); margin-bottom: 4px; }
+.lp-bubble__dot { width: 18px; height: 18px; border-radius: 50%; background: linear-gradient(135deg, #F58529, #DD2A7B); flex: 0 0 auto; }
+.lp-ig-stack__dm { top: 0; left: 50%; transform: translateX(-50%); z-index: 4; }
+
+/* WhatsApp scene (conversation 680×447) */
+.lp-wa-stack { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; }
+.lp-wa-stack .lp-phone { width: 200px; }
+.lp-wa-bubble {
+  position: absolute;
+  background: var(--jui-color-gray-white);
+  border-radius: 14px; padding: 10px 14px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.10);
+  font-size: 14px; line-height: 1.4; max-width: 230px;
+}
+.lp-wa-bubble--green { background: #DCF8C6; }
+.lp-wa-bubble--1 { top: 6%; right: 0%; }
+.lp-wa-bubble--2 { top: 38%; right: 2%; }
+.lp-wa-bubble--3 { bottom: 26%; left: 0%; }
+.lp-wa-bubble--4 { bottom: 12%; left: 6%; }
+.lp-wa-link { color: var(--jui-color-blue-500); font-weight: 600; }
+
+/* ════════════════════════════════════════════════════════
+   11 · READY IN MINUTES (steps — from v1)
+   ════════════════════════════════════════════════════════ */
+.lp-ready { display: flex; flex-direction: column; gap: 48px; }
+.lp-steps { list-style: none; display: flex; flex-direction: column; gap: 24px; max-width: 560px; width: 100%; margin-inline: auto; text-align: left; }
+.lp-steps li { display: flex; align-items: flex-start; gap: 16px; }
+.lp-step-number {
+  flex-shrink: 0; width: 32px; height: 32px; border-radius: 9999px;
+  background: var(--jui-color-background-gray-medium);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 600;
+}
+.lp-step-text { font-size: 16px; line-height: 1.5; padding-top: 4px; }
+.lp-step-text strong { font-weight: 600; }
+
+/* ════════════════════════════════════════════════════════
+   12 · BUILT FOR YOUR CRAFT (isometric flip — ported from v1)
+   ════════════════════════════════════════════════════════ */
+.lp-craft-section { display: flex; flex-direction: column; align-items: center; gap: 32px; }
+.lp-craft__frame {
+  --lp-craft-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --lp-craft-duration: 600ms;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1176 / 460;
+  min-height: 360px;
+  overflow: hidden;
+  isolation: isolate;
+  container-type: size;
+}
+@keyframes lp-craft-wave { 0%, 100% { translate: 0 0; } 50% { translate: 0 -6px; } }
+.lp-craft__stage { position: absolute; inset: 0; }
+.lp-craft__card {
+  position: absolute;
+  top: 44%;
+  left: calc(50% + var(--i, 0) * 11%);
+  height: 60%;
+  width: auto;
+  aspect-ratio: 360 / 700;
+  transform-origin: 50% 50%;
+  transform: translate(-50%, -50%) skewY(-18deg);
+  animation: lp-craft-wave 6s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.5s);
+  transition: transform var(--lp-craft-duration) var(--lp-craft-ease),
+              left var(--lp-craft-duration) var(--lp-craft-ease);
+  perspective: 1000px;
+}
+.lp-craft__flipper { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform var(--lp-craft-duration) var(--lp-craft-ease); }
+.lp-craft__face {
+  position: absolute; inset: 0;
+  border-radius: 12px; backface-visibility: hidden;
+  box-shadow: 0 16px 40px 0 rgba(0, 0, 0, 0.10);
+  background-color: var(--jui-color-gray-200);
+  background-size: auto 100%; background-position: top center; background-repeat: no-repeat;
+  outline: 1px solid var(--jui-color-strokes-onlight-subdued); outline-offset: -1px;
+}
+.lp-craft__face--back { transform: rotateY(180deg); }
+.lp-craft__stage:has(.lp-craft__card:hover) .lp-craft__card { left: calc(50% + var(--i, 0) * 12.5%); }
+.lp-craft__card:hover .lp-craft__flipper { transform: rotateY(180deg); }
+.lp-craft__card:nth-child(1) { --i: -2.5; }
+.lp-craft__card:nth-child(2) { --i: -1.5; }
+.lp-craft__card:nth-child(3) { --i: -0.5; }
+.lp-craft__card:nth-child(4) { --i:  0.5; }
+.lp-craft__card:nth-child(5) { --i:  1.5; }
+.lp-craft__card:nth-child(6) { --i:  2.5; }
+@container (max-width: 480px) {
+  .lp-craft__card { height: 52%; left: calc(50% + var(--i, 0) * 10%); }
+  .lp-craft__stage:has(.lp-craft__card:hover) .lp-craft__card { left: calc(50% + var(--i, 0) * 11.5%); }
+}
+
+/* ════════════════════════════════════════════════════════
+   13 · STATS (inner 849, rules between)
+   ════════════════════════════════════════════════════════ */
+.lp-stats { display: grid; grid-template-columns: repeat(3, 1fr); max-width: 849px; margin-inline: auto; }
+.lp-stat { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; padding: 8px 24px; }
+.lp-stat + .lp-stat { border-left: 1px solid var(--jui-color-strokes-onlight-subdued); }
+.lp-stat__num { font-size: 40px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+.lp-stat__label { font-size: 16px; color: var(--jui-color-typography-gray-on-light-subdued); }
+
+/* ════════════════════════════════════════════════════════
+   14 · WHY JIMDO (left head + benefits 224 / gap 40)
+   ════════════════════════════════════════════════════════ */
+.lp-why { display: flex; flex-direction: column; gap: 56px; padding-inline: 68px; }
+.lp-why__head { display: flex; flex-direction: column; gap: 16px; max-width: 529px; }
+.lp-why__eyebrow { font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; color: var(--jui-color-typography-gray-on-light-subdued); }
+.lp-why__title { font-size: 36px; line-height: 1.25; letter-spacing: -0.02em; font-weight: 600; }
+.lp-why__lede { font-size: 18px; line-height: 1.55; color: var(--jui-color-typography-gray-on-light-subdued); }
+.lp-benefits { display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px; }
+.lp-benefit { display: flex; flex-direction: column; gap: 8px; text-align: left; }
+.lp-benefit__name { font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; }
+.lp-benefit__desc { font-size: 14px; line-height: 1.57; color: var(--jui-color-typography-gray-on-light-subdued); }
+
+/* ════════════════════════════════════════════════════════
+   15 · BLUE CTA CARD (title 64px, button 225×56)
+   ════════════════════════════════════════════════════════ */
+/* CTA sits on white — black title, blue primary button (no card). py 128 */
+.lp-cta-card { text-align: center; padding-block: 128px; display: flex; flex-direction: column; align-items: center; gap: 32px; }
+.lp-cta-card__title { font-size: clamp(40px, 5.3vw, 64px); line-height: 1.25; letter-spacing: -0.02em; font-weight: 700; max-width: 727px; color: var(--jui-color-typography-gray-on-light-default); }
+.lp-cta-card__btngroup { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.lp-cta-card__btn {
+  font-size: 16px; font-weight: 500; line-height: 1.5; letter-spacing: 0.01em;
+  padding: 16px 40px; border-radius: 8px;
+  background: var(--jui-color-blue-500); color: var(--jui-color-gray-white); width: auto;
+}
+.lp-cta-card__caption { font-size: 14px; color: var(--jui-color-typography-gray-on-light-subdued); }
+
+/* ════════════════════════════════════════════════════════
+   16 · FAQ (blue band, column 642)  — copy from v1
+   ════════════════════════════════════════════════════════ */
+/* FAQ is an inset blue block (1176, 12px gutters), square corners, pt/pb 128 */
+.lp-faq-band { width: 100%; max-width: 1176px; margin-inline: auto; background: var(--jui-color-blue-500); color: var(--jui-color-gray-white); padding: 128px 24px; display: flex; flex-direction: column; align-items: center; gap: 40px; }
+.lp-faq__title { font-size: 40px; line-height: 1.25; letter-spacing: -0.02em; font-weight: 500; text-align: center; max-width: 642px; }
+.lp-faq__list { width: 100%; max-width: 642px; }
+.lp-faq__item { border-bottom: 1px solid #1963ff; }
+.lp-faq__q {
+  width: 100%;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 20px 0;
+  background: none; border: none; color: var(--jui-color-gray-white);
+  font-size: 20px; font-weight: 500; line-height: 1.4;
+  text-align: left; cursor: pointer;
+}
+.lp-faq__q svg { width: 24px; height: 24px; flex: 0 0 auto; }
+.lp-faq__q:focus-visible { outline: 2px solid var(--jui-color-gray-white); outline-offset: 2px; border-radius: 4px; }
+
+/* ════════════════════════════════════════════════════════
+   17 · FOOTER
+   ════════════════════════════════════════════════════════ */
+.lp-footer { padding: 40px 24px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.lp-footer__links { display: flex; flex-wrap: wrap; justify-content: center; gap: 32px; }
+.lp-footer__links a { font-size: 14px; font-weight: 500; color: var(--jui-color-typography-gray-on-light-default); text-decoration: none; }
+.lp-footer__links a:hover { text-decoration: underline; }
+.lp-footer__meta { font-size: 14px; color: var(--jui-color-typography-gray-on-light-subdued); }
+
+/* ─── Responsive (below the 1200 desktop breakpoint the design targets) ─── */
+@media (max-width: 880px) {
+  .lp-page { --lp-rhythm: 72px; }
+  .lp-hero__card { grid-template-columns: 1fr; min-height: 0; }
+  .lp-hero__copy { padding: 32px 24px; gap: 32px; }
+  .lp-hero__visual { min-height: 360px; }
+  .lp-hero__photo { inset: 0 16px; }
+  .lp-band { padding: 24px; }
+  .lp-band--ig .lp-band__grid, .lp-band--wa .lp-band__grid { grid-template-columns: 1fr; gap: 40px; }
+  .lp-band--wa .lp-band__text { order: -1; }
+  .lp-faq-band { padding: 72px 24px; }
+  .lp-cta-card { padding-block: 80px; }
+  .lp-quotes { grid-template-columns: 1fr; }
+  .lp-benefits { grid-template-columns: 1fr 1fr; gap: 24px; }
+  .lp-why { padding-inline: 0; }
+  .lp-stats { grid-template-columns: 1fr; gap: 24px; }
+  .lp-stat + .lp-stat { border-left: none; border-top: 1px solid var(--jui-color-strokes-onlight-subdued); }
+  /* chip/cluster scenes don't position well narrow — recenter, drop the floats */
+  .lp-scene { height: auto; }
+  .lp-scene__phone { position: static; transform: none; margin-inline: auto; }
+  .lp-chip, .lp-blob, .lp-cluster__side, .lp-cluster__profile, .lp-cluster__tag { display: none; }
+  .lp-cluster { height: 520px; }
+  .lp-cluster__main { position: static; left: auto; transform: none; margin-inline: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lp-craft__card { animation: none; }
+  .lp-craft__card, .lp-craft__flipper { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="lp-page">
+
+  <!-- ═══ 1 · HERO ═══ -->
+  <section class="lp-hero lp-container">
+    <div class="lp-hero__card">
+      <div class="lp-hero__copy">
+        <div class="lp-hero__brand" data-no-phrase>
+          <img class="lp-hero__brand-mark"  src="/flows-prototype/design-system/hifi-designs/assets/landing-public/jimdo-mark.svg" alt="Jimdo">
+          <img class="lp-hero__brand-flows" src="/flows-prototype/design-system/hifi-designs/assets/landing-public/flows-text.svg" alt="Flows">
+        </div>
+        <div class="lp-hero__head">
+          <p class="lp-hero__eyebrow" data-inspect-phrase="flows.landingPublic.hero.eyebrow">The bio page that</p>
+          <h1 class="lp-hero__title" data-inspect-phrase="flows.landingPublic.hero.headline">Turns your followers into customers</h1>
+        </div>
+        <button class="btn btn-primary lp-hero__cta" data-inspect-phrase="flows.landingPublic.hero.cta">Get yours for free</button>
+      </div>
+      <div class="lp-hero__visual">
+        <div class="lp-ph lp-hero__photo">
+          <span class="lp-ph__label">Hero lifestyle photo</span>
+          <span class="lp-ph__hint">Person + product · bleeds behind the phone</span>
+        </div>
+        <div class="lp-phone lp-hero__phone" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/template-picker/bold_colorful_en.webp');" aria-hidden="true"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 1b · TRUST MARKS ═══ -->
+  <section class="lp-trust lp-container" data-no-phrase>
+    <span class="lp-trust__item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg>
+      GDPR-compliant
+    </span>
+    <span class="lp-trust__item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg>
+      Mobile-optimized
+    </span>
+    <span class="lp-trust__item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg>
+      Made in Germany
+    </span>
+  </section>
+
+  <!-- ═══ 2 · TEMPLATE STRIP ═══ -->
+  <section class="lp-strip" aria-hidden="true">
+    <div class="lp-strip__row">
+      <div class="lp-phone" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/template-picker/white_minimal_en.webp');"></div>
+      <div class="lp-phone" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/template-picker/black_minimal_en.webp');"></div>
+      <div class="lp-phone" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/template-picker/bold_colorful_en.webp');"></div>
+      <div class="lp-phone" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/template-picker/elegant_green_en.webp');"></div>
+      <div class="lp-phone" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/template-picker/light_artistic_en.webp');"></div>
+      <div class="lp-phone" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/template-picker/soft_and_warm_en.webp');"></div>
+    </div>
+  </section>
+
+  <!-- ═══ 3 · DIVIDER ═══ -->
+  <div class="lp-divider"><b data-no-phrase>What makes Flows special</b></div>
+
+  <!-- ═══ 4 · LINK TO MORE THAN SOCIAL ═══ -->
+  <section class="lp-feature lp-container">
+    <div class="lp-head">
+      <h2 class="lp-head__title" data-inspect-phrase="flows.landingPublic.special.title">Link to more than social media accounts</h2>
+      <p class="lp-head__lede" data-inspect-phrase="flows.landingPublic.special.lede">Appointment booking, contact form, quote page, and payments. All in a single link in your bio.</p>
+    </div>
+    <div class="lp-scene">
+      <div class="lp-phone lp-scene__phone" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/template-picker/elegant_green_en.webp');" aria-hidden="true"></div>
+      <span class="lp-chip lp-chip--style">Your style</span>
+      <span class="lp-chip lp-chip--book">Your bookings</span>
+      <span class="lp-chip lp-chip--promo">Your promotions</span>
+      <span class="lp-chip lp-chip--store">Your store</span>
+      <span class="lp-chip lp-chip--domain">Your domain</span>
+      <span class="lp-blob lp-blob--link" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6"/><path d="M11 6l1-1a4 4 0 0 1 6 6l-1 1"/><path d="M13 18l-1 1a4 4 0 0 1-6-6l1-1"/></svg>
+      </span>
+      <span class="lp-blob lp-blob--mega" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M16 9a3 3 0 0 1 0 6"/></svg>
+      </span>
+      <span class="lp-blob lp-blob--cal" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </span>
+      <span class="lp-blob lp-blob--box" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
+      </span>
+    </div>
+  </section>
+
+  <!-- ═══ 5 · ADDITIONAL LINK / MICRO PAGE ═══ -->
+  <section class="lp-feature lp-container">
+    <div class="lp-head">
+      <h2 class="lp-head__title" data-inspect-phrase="flows.landingPublic.micro.title">You get an additional link to a micro page</h2>
+      <p class="lp-head__lede" data-inspect-phrase="flows.landingPublic.micro.lede">Create a special offer, promote an event, or just collect emails by sharing a direct link in stories, dms, or groups.</p>
+    </div>
+    <div class="lp-cluster">
+      <span class="lp-cluster__tag">Put it in your bio</span>
+      <div class="lp-cluster__profile" aria-hidden="true">
+        <div class="lp-ph" style="min-height: 72px; border-radius: 10px;"><span class="lp-ph__hint">Profile + link preview</span></div>
+      </div>
+      <div class="lp-phone lp-cluster__main" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/template-picker/bold_colorful_en.webp');" aria-hidden="true"></div>
+      <div class="lp-phone lp-cluster__side" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/template-picker/soft_and_warm_en.webp');" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <!-- ═══ 6 · TESTIMONIALS ═══ -->
+  <section class="lp-container">
+    <div class="lp-quotes">
+      <div class="lp-quote">
+        <p class="lp-quote__text" data-inspect-phrase="flows.landingPublic.quotes.q1Text">"I got fully booked with Flows."</p>
+        <div class="lp-quote__person">
+          <div class="lp-quote__avatar" aria-hidden="true">M</div>
+          <div class="lp-quote__meta" data-inspect-phrase="flows.landingPublic.quotes.q1Meta">Mia — Yoga teacher</div>
+        </div>
+      </div>
+      <div class="lp-quote">
+        <p class="lp-quote__text" data-inspect-phrase="flows.landingPublic.quotes.q2Text">"Flows just makes any idea bigger and better!"</p>
+        <div class="lp-quote__person">
+          <div class="lp-quote__avatar" aria-hidden="true">L</div>
+          <div class="lp-quote__meta" data-inspect-phrase="flows.landingPublic.quotes.q2Meta">Laura — Musicians' manager</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 7 · DIVIDER ═══ -->
+  <div class="lp-divider lp-divider--xl"><b data-no-phrase>Instagram</b></div>
+
+  <!-- ═══ 8 · INSTAGRAM BAND ═══ -->
+  <section class="lp-band lp-band--ig">
+    <div class="lp-band__grid">
+      <div class="lp-band__visual">
+        <div class="lp-ig-stack" aria-hidden="true">
+          <div class="lp-phone lp-ig-stack__a" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/template-picker/black_minimal_en.webp');"></div>
+          <div class="lp-phone lp-ig-stack__b" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/template-picker/light_artistic_en.webp');"></div>
+          <div class="lp-phone lp-ig-stack__c" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/template-picker/soft_and_warm_en.webp');"></div>
+          <div class="lp-bubble lp-ig-stack__dm">
+            <div class="lp-bubble__from"><span class="lp-bubble__dot"></span> Laura messaged you</div>
+            Do you also do group workshops?
+          </div>
+        </div>
+      </div>
+      <div class="lp-band__text">
+        <span class="lp-band__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+        </span>
+        <div class="lp-band__copy">
+          <h2 class="lp-band__title" data-inspect-phrase="flows.landingPublic.ig.title">Put your solo page link in <strong>Instagram</strong> stories</h2>
+          <p class="lp-band__lede" data-inspect-phrase="flows.landingPublic.ig.lede">Send people directly to anything you are promoting now.</p>
+          <p class="lp-band__lede" data-inspect-phrase="flows.landingPublic.ig.lede2">No browsing, no getting lost.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 9 · DIVIDER ═══ -->
+  <div class="lp-divider lp-divider--xl"><b data-no-phrase>WhatsApp</b></div>
+
+  <!-- ═══ 10 · WHATSAPP BAND ═══ -->
+  <section class="lp-band lp-band--wa">
+    <div class="lp-band__grid">
+      <div class="lp-band__text">
+        <span class="lp-band__icon" style="color: #08a86e;" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l1.6-4.2A8 8 0 1 1 8.2 19.4L3 21z"/><path d="M8.5 9.5c0 3 2 5 5 5"/></svg>
+        </span>
+        <div class="lp-band__copy">
+          <h2 class="lp-band__title" data-inspect-phrase="flows.landingPublic.wa.title">Share using <strong>WhatsApp</strong> groups or DMs</h2>
+          <p class="lp-band__lede" data-inspect-phrase="flows.landingPublic.wa.lede">Let your contacts know you are promoting something new, every response is a new potential customer.</p>
+        </div>
+      </div>
+      <div class="lp-band__visual">
+        <div class="lp-wa-stack" aria-hidden="true">
+          <div class="lp-phone" style="width: 200px; background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/template-picker/elegant_green_en.webp');"></div>
+          <div class="lp-wa-bubble lp-wa-bubble--1">Hey! 🌿 I'm hosting a Workshop in two weeks. Thought of you!</div>
+          <div class="lp-wa-bubble lp-wa-bubble--2"><span class="lp-wa-link">miayoga.com/promo</span><br>Workshop for beginners</div>
+          <div class="lp-wa-bubble lp-wa-bubble--green lp-wa-bubble--3">Nice! I just registered 😊</div>
+          <div class="lp-wa-bubble lp-wa-bubble--green lp-wa-bubble--4">See you there!</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 11 · READY IN MINUTES ═══ -->
+  <section class="lp-ready lp-container">
+    <div class="lp-head">
+      <h2 class="lp-head__title" data-inspect-phrase="flows.landingPublic.ready.title">Ready in minutes, not weekends.</h2>
+      <p class="lp-head__lede" data-inspect-phrase="flows.landingPublic.ready.lede">Tell us what you do. Your pages come back ready. Tweak anything you want and share.</p>
+    </div>
+    <ol class="lp-steps">
+      <li>
+        <span class="lp-step-number" aria-hidden="true">1</span>
+        <span class="lp-step-text" data-inspect-phrase="flows.landingPublic.ready.step1"><strong>Tell us what you do.</strong> A few quick questions about your craft and your offers.</span>
+      </li>
+      <li>
+        <span class="lp-step-number" aria-hidden="true">2</span>
+        <span class="lp-step-text" data-inspect-phrase="flows.landingPublic.ready.step2"><strong>Your pages arrive ready.</strong> A bio page and your first solo page, built from what you told us.</span>
+      </li>
+      <li>
+        <span class="lp-step-number" aria-hidden="true">3</span>
+        <span class="lp-step-text" data-inspect-phrase="flows.landingPublic.ready.step3"><strong>Share the link.</strong> Drop it in your Instagram, TikTok, or Facebook bio. Or share a solo page in Stories, posts, and DMs.</span>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ═══ 12 · BUILT FOR YOUR CRAFT (isometric flip — from v1) ═══ -->
+  <section class="lp-craft-section lp-container">
+    <div class="lp-head">
+      <h2 class="lp-head__title" data-inspect-phrase="flows.landingPublic.craft.title">Built for people who love their craft.</h2>
+      <p class="lp-head__lede" data-inspect-phrase="flows.landingPublic.craft.lede">You pour everything into your work. Jimdo turns it into a page that helps you get paid for it — whatever you do.</p>
+    </div>
+    <div class="lp-craft__frame" aria-hidden="true">
+      <div class="lp-craft__stage">
+        <div class="lp-craft__card">
+          <div class="lp-craft__flipper">
+            <div class="lp-craft__face lp-craft__face--front" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/solopreneurs/pottery-artist.png');"></div>
+            <div class="lp-craft__face lp-craft__face--back" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/template-picker/light_artistic_en.webp');"></div>
+          </div>
+        </div>
+        <div class="lp-craft__card">
+          <div class="lp-craft__flipper">
+            <div class="lp-craft__face lp-craft__face--front" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/solopreneurs/dancer.png');"></div>
+            <div class="lp-craft__face lp-craft__face--back" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/template-picker/elegant_green_en.webp');"></div>
+          </div>
+        </div>
+        <div class="lp-craft__card">
+          <div class="lp-craft__flipper">
+            <div class="lp-craft__face lp-craft__face--front" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/solopreneurs/photographer-male.png');"></div>
+            <div class="lp-craft__face lp-craft__face--back" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/template-picker/soft_and_warm_en.webp');"></div>
+          </div>
+        </div>
+        <div class="lp-craft__card">
+          <div class="lp-craft__flipper">
+            <div class="lp-craft__face lp-craft__face--front" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/solopreneurs/content-creator.png');"></div>
+            <div class="lp-craft__face lp-craft__face--back" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/template-picker/bold_colorful_en.webp');"></div>
+          </div>
+        </div>
+        <div class="lp-craft__card">
+          <div class="lp-craft__flipper">
+            <div class="lp-craft__face lp-craft__face--front" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/solopreneurs/photographer-female.png');"></div>
+            <div class="lp-craft__face lp-craft__face--back" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/template-picker/black_minimal_en.webp');"></div>
+          </div>
+        </div>
+        <div class="lp-craft__card">
+          <div class="lp-craft__flipper">
+            <div class="lp-craft__face lp-craft__face--front" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/solopreneurs/designer.png');"></div>
+            <div class="lp-craft__face lp-craft__face--back" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/template-picker/white_minimal_en.webp');"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 13 · STATS ═══ -->
+  <section class="lp-container">
+    <div class="lp-stats">
+      <div class="lp-stat">
+        <span class="lp-stat__num">500K+</span>
+        <span class="lp-stat__label">Websites built with Jimdo</span>
+      </div>
+      <div class="lp-stat">
+        <span class="lp-stat__num">20 years</span>
+        <span class="lp-stat__label">Helping solopreneurs thrive</span>
+      </div>
+      <div class="lp-stat">
+        <span class="lp-stat__num">3 minutes</span>
+        <span class="lp-stat__label">To get your bio page ready</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 14 · WHY JIMDO ═══ -->
+  <section class="lp-why lp-container">
+    <div class="lp-why__head">
+      <span class="lp-why__eyebrow" data-inspect-phrase="flows.landingPublic.why.eyebrow">Why Jimdo</span>
+      <h2 class="lp-why__title" data-inspect-phrase="flows.landingPublic.why.title">And when you're ready there's more than a bio page.</h2>
+      <p class="lp-why__lede" data-inspect-phrase="flows.landingPublic.why.lede">You might know us for websites, start with a bio page today. Everything else is here on the same account, the day your business needs it.</p>
+    </div>
+    <div class="lp-benefits">
+      <div class="lp-benefit">
+        <h3 class="lp-benefit__name" data-inspect-phrase="flows.landingPublic.why.bookName">Get booked</h3>
+        <p class="lp-benefit__desc" data-inspect-phrase="flows.landingPublic.why.bookDesc">Let people book your time straight from your page. No back and forth messages.</p>
+      </div>
+      <div class="lp-benefit">
+        <h3 class="lp-benefit__name" data-inspect-phrase="flows.landingPublic.why.payName">Payments &amp; invoices</h3>
+        <p class="lp-benefit__desc" data-inspect-phrase="flows.landingPublic.why.payDesc">Send a link to get paid, and invoices that look professional.</p>
+      </div>
+      <div class="lp-benefit">
+        <h3 class="lp-benefit__name" data-inspect-phrase="flows.landingPublic.why.foundName">Get found online</h3>
+        <p class="lp-benefit__desc" data-inspect-phrase="flows.landingPublic.why.foundDesc">Show up when people search for what you do, without the technical homework.</p>
+      </div>
+      <div class="lp-benefit">
+        <h3 class="lp-benefit__name" data-inspect-phrase="flows.landingPublic.why.legalName">Legally compliant</h3>
+        <p class="lp-benefit__desc" data-inspect-phrase="flows.landingPublic.why.legalDesc">Privacy policy and legal pages generated for you, and kept up to date.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 15 · BLUE CTA CARD ═══ -->
+  <section class="lp-container">
+    <div class="lp-cta-card">
+      <h2 class="lp-cta-card__title" data-inspect-phrase="flows.landingPublic.ctaCard.title">Your bio link is ready to get to work.</h2>
+      <div class="lp-cta-card__btngroup">
+        <button class="btn btn-primary lp-cta-card__btn" data-inspect-phrase="flows.landingPublic.ctaCard.cta">Build yours for free</button>
+        <span class="lp-cta-card__caption" data-inspect-phrase="flows.landingPublic.ctaCard.caption">No credit card</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 16 · FAQ (copy from v1) ═══ -->
+  <section class="lp-faq-band">
+      <h2 class="lp-faq__title" data-inspect-phrase="flows.landingPublic.faq.title">Common questions about Flows.</h2>
+      <div class="lp-faq__list">
+        <div class="lp-faq__item">
+          <button class="lp-faq__q" data-inspect-phrase="flows.landingPublic.faq.q1">
+            Do I need a website first?
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+        </div>
+        <div class="lp-faq__item">
+          <button class="lp-faq__q" data-inspect-phrase="flows.landingPublic.faq.q2">
+            How is this different from Linktree?
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+        </div>
+        <div class="lp-faq__item">
+          <button class="lp-faq__q" data-inspect-phrase="flows.landingPublic.faq.q3">
+            Can I sell or take bookings from it?
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+        </div>
+        <div class="lp-faq__item">
+          <button class="lp-faq__q" data-inspect-phrase="flows.landingPublic.faq.q4">
+            What does it cost?
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+        </div>
+        <div class="lp-faq__item">
+          <button class="lp-faq__q" data-inspect-phrase="flows.landingPublic.faq.q5">
+            Can I change everything later?
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+        </div>
+      </div>
+  </section>
+
+  <!-- ═══ 17 · FOOTER ═══ -->
+  <footer class="lp-footer" data-no-phrase>
+    <div class="lp-footer__links">
+      <a href="#">Legal notice</a>
+      <a href="#">Terms of Service</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Cookie Settings</a>
+    </div>
+    <div class="lp-footer__meta">© Jimdo · Made in Germany</div>
+  </footer>
+
+</div>
+
+</body>
+</html>

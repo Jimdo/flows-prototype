@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minimal Layout</title>
+<!-- Baseline tokens (synced from @jimdo/ui). minimal.html intentionally
+     ships no layout/components CSS; baseline is the only DS link so the
+     embedded var(--jui-*) refs resolve to canonical upstream values. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+  /* lint-disable */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    background: var(--jui-color-background-gray-canvas, #f8f8f8);
+  }
+
+  .region-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    opacity: .8;
+  }
+
+  .region-sublabel {
+    font-size: 9px;
+    font-weight: 500;
+    opacity: .5;
+  }
+
+  .region-dim {
+    font-size: 8px;
+    font-weight: 600;
+    opacity: .4;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ─── Working Area — takes full viewport ─── */
+  .working-area {
+    flex: 1;
+    background: #86EFAC;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    position: relative;
+  }
+
+  .working-area .region-label { color: #166534; }
+  .working-area .region-sublabel { color: #166534; }
+  .working-area .region-dim { color: #166534; }
+
+  .absent-label {
+    position: absolute;
+    font-size: 9px;
+    font-weight: 600;
+    color: #a1a1aa;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 4px,
+      rgba(0,0,0,.03) 4px,
+      rgba(0,0,0,.03) 8px
+    );
+    width: 100%;
+    text-align: center;
+  }
+
+  .absent-top { top: 0; border-bottom: 1px dashed #d4d4d8; }
+  .absent-bottom { bottom: 0; border-top: 1px dashed #d4d4d8; }
+
+  .justification {
+    position: absolute;
+    bottom: 40px;
+    left: 12px;
+    right: 12px;
+    background: rgba(22,101,52,.08);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 9px;
+    color: #166534;
+    line-height: 1.4;
+  }
+
+  .justification strong {
+    font-weight: 700;
+    display: block;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    font-size: 8px;
+    opacity: .6;
+  }
+</style>
+</head>
+<body>
+
+  <!-- NO HEADER -->
+
+  <div class="working-area">
+    <span class="absent-label absent-top">no header (absent — needs justification)</span>
+
+    <span class="region-label">Full Viewport</span>
+    <span class="region-sublabel">no header · no footer</span>
+    <span class="region-dim">100% of available viewport</span>
+
+    <div class="justification">
+      <strong>When to use</strong>
+      Success screens, confirmations, or full-screen previews where Jimdo chrome is a distraction. Requires explicit justification — the app shell with header + footer is the strong default.
+    </div>
+
+    <span class="absent-label absent-bottom">no footer (absent — needs justification)</span>
+  </div>
+
+  <!-- NO FOOTER -->
+
+</body>
+</html>

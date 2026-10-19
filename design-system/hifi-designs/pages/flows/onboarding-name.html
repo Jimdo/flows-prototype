@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Onboarding — Name</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+  /* ─── Screen overrides ───
+     Layout, preview stage, drawer, progress pill and field sizing all come
+     from the split-preview setup anatomy. The one thing this step sets is
+     its resting drawer height: it carries a field *and* the link row, which
+     is 29px more than the 283px Figma default was drawn for. */
+  .app-shell-setup-split { --setup-drawer-rest-h: 424px; }
+</style>
+</head>
+<body>
+
+  <div class="app-shell app-shell-setup-split" id="shell" data-drawer="default" data-photo="empty">
+
+    <div class="setup-split-header"
+      data-inspect-label="Setup Header — no close control"
+      data-inspect-tokens='[{"prop":"padding-inline","figma":"$jui-layout-padding-l","css":"--layout-spacing-lg","value":"24px (desktop)"},{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px (desktop) / 48px (mobile)"}]'>
+      <button class="setup-back-btn" aria-label="Back" data-no-phrase
+        data-nav-to="flows/onboarding-template.html">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+      </button>
+
+      <div class="progress-pill" role="progressbar" aria-valuemin="1" aria-valuemax="5" aria-valuenow="2" aria-label="Step 2 of 5"
+        data-inspect-label="Progress Pill"
+        data-inspect-tokens='[{"prop":"background","figma":"color/gray/50","css":"--jui-color-gray-50","value":"#f8f8f8"},{"prop":"border-radius","figma":"style/radius/16","css":"--jui-style-radius-16","value":"16px"},{"prop":"padding","figma":"6 / measurements/size/8","css":"--jui-layout-padding-xs","value":"6px 8px"},{"prop":"gap","figma":"measurements/size/8","css":"--jui-layout-gap-xs","value":"8px"}]'>
+        <span class="progress-pill-step is-done"></span>
+        <span class="progress-pill-step is-current"
+          data-inspect-label="Progress Pill — Step in progress"
+          data-inspect-tokens='[{"prop":"background","figma":"color/blue/500","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"width","figma":"measurements/size/16","css":"—","value":"16px"},{"prop":"border-radius","figma":"style/radius/12","css":"--jui-style-radius-12","value":"12px"}]'></span>
+        <span class="progress-pill-step"></span>
+        <span class="progress-pill-step"></span>
+        <span class="progress-pill-step"></span>
+      </div>
+
+      <div class="header-spacer"></div>
+    </div>
+
+    <div class="setup-split-main">
+
+      <div class="setup-split-preview">
+        <div class="setup-preview-panel"
+          data-inspect-label="Preview Panel"
+          data-inspect-tokens='[{"prop":"background","figma":"color/gray/50","css":"--jui-color-gray-50","value":"#f8f8f8"},{"prop":"border-radius","figma":"style/radius/12","css":"--jui-style-radius-12","value":"12px"},{"prop":"padding","figma":"measurements/size/8","css":"--jui-layout-padding-xs","value":"8px 8px 4px"}]'>
+          <span class="setup-preview-tag" data-no-phrase>Preview</span>
+          <div class="bp-stage">
+            <div class="bp-frame"
+              data-inspect-label="Bio page preview — scaled artifact"
+              data-inspect-tokens='[{"prop":"border-radius","figma":"style/radius/24 (scaled)","css":"--jui-style-radius-24","value":"24px native"},{"prop":"border","figma":"color/gray/100","css":"--jui-color-gray-100","value":"#e6e6e6"},{"prop":"transform","figma":"—","css":"--bp-scale","value":"0.4111 / 0.95 / 0.7778"}]'>
+              <iframe id="bioPreview" title="Bio page preview" tabindex="-1"
+                src="/flows-prototype/design-system/hifi-designs/pages/artifacts/bio-page-v2.html"></iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-split-form">
+
+        <button class="setup-drawer-grip" id="grip" aria-label="Resize the question panel" data-no-phrase>
+          <span class="setup-drawer-grip-shape"
+            data-inspect-label="Drawer grip"
+            data-inspect-tokens='[{"prop":"background","figma":"—","css":"--jui-color-gray-200","value":"#d5d5d5"},{"prop":"width","figma":"40 + 4 stroke","css":"—","value":"44px"},{"prop":"height","figma":"stroke 4","css":"—","value":"4px flat / 9px chevron"}]'></span>
+        </button>
+
+        <div class="setup-split-fields">
+          <div class="setup-split-intro">
+            <h1 class="setup-split-title" data-inspect-phrase="businessInfo.nameAndPicture.title">Your business name</h1>
+            <p class="setup-split-subtitle" data-inspect-phrase="updateBusinessInfo.businessNameQSubTitle">A photo of you helps people connect</p>
+          </div>
+
+          <div class="avatar-upload">
+            <button class="avatar-wrapper" id="photoBtn" type="button" aria-label="Add a photo" data-no-phrase
+              data-edits="image"
+              data-inspect-label="Photo upload control"
+              data-inspect-tokens='[{"prop":"background","figma":"color/blue/10","css":"--jui-color-blue-10","value":"#eff0ff"},{"prop":"border-radius","figma":"style/radius/12","css":"--jui-style-radius-12","value":"12px"},{"prop":"size","figma":"measurements/size/80","css":"—","value":"80px"}]'>
+              <span class="avatar-circle">
+                <span class="avatar-head"></span>
+                <span class="avatar-body"></span>
+                <img class="avatar-photo" src="/flows-prototype/design-system/hifi-designs/pages/images/clara-stone.jpg" alt="">
+              </span>
+              <span class="avatar-add-btn"><svg class="avatar-add-icon-plus" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 4V20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><svg class="avatar-add-icon-edit" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g transform="translate(2.75 2.75) scale(1.4999)"><path d="M9.71585 0.00602053C10.0318 0.0344793 10.2865 0.179546 10.5166 0.360513C10.7325 0.530278 10.9714 0.768376 11.2481 1.04508L11.2891 1.0861C11.5658 1.36274 11.8039 1.60168 11.9737 1.81754C12.1546 2.04765 12.2997 2.30243 12.3282 2.61833C12.3362 2.70764 12.3362 2.79756 12.3282 2.88688C12.2997 3.20274 12.1546 3.45757 11.9737 3.68766C11.8039 3.90351 11.5657 4.14249 11.2891 4.41911L4.62503 11.0832C4.1127 11.596 3.75667 11.9528 3.29593 12.1437C2.83503 12.3346 2.33063 12.3335 1.6055 12.3332H0.501005C0.224863 12.3332 0.00100497 12.1093 0.00100497 11.8332V10.8234C0.00100487 10.7914 4.32922e-05 10.7598 2.84045e-05 10.7287C-0.000317779 10.0035 -0.000459922 9.49916 0.190458 9.03825C0.381362 8.57748 0.738172 8.22149 1.251 7.70915L7.91507 1.04508C8.19169 0.768434 8.43067 0.530247 8.64651 0.360513C8.8766 0.17961 9.13144 0.0344721 9.44729 0.00602053C9.53662 -0.00199738 9.62652 -0.0020163 9.71585 0.00602053ZM2.02542 8.34879C1.41861 8.95561 1.21961 9.1668 1.11429 9.42106C1.00897 9.67532 1.00101 9.96536 1.001 10.8234V11.3332H1.51077C2.36874 11.3332 2.65887 11.3242 2.91311 11.2189C3.1672 11.1135 3.37888 10.9153 3.98538 10.3088L9.12698 5.16715L7.16702 3.20719L2.02542 8.34879ZM9.53616 1.00211C9.49103 1.00625 9.41845 1.02575 9.26468 1.14665C9.10144 1.27501 8.90449 1.46972 8.60159 1.77262L7.87405 2.50016L9.83401 4.46012L10.5616 3.73258C10.8645 3.42968 11.0592 3.23274 11.1875 3.0695C11.3088 2.91528 11.328 2.84214 11.3321 2.79704C11.3347 2.76748 11.3347 2.73772 11.3321 2.70817C11.328 2.66306 11.3088 2.58998 11.1875 2.43571C11.0592 2.27246 10.8645 2.07555 10.5616 1.77262C10.2586 1.46968 10.0617 1.27503 9.89847 1.14665C9.74415 1.02529 9.67112 1.00618 9.626 1.00211C9.59625 0.99945 9.56592 0.999434 9.53616 1.00211Z" fill="currentColor"/></g></svg></span>
+            </button>
+            <p class="avatar-optional" data-inspect-phrase="businessInfo.nameAndPicture.optional">Optional</p>
+          </div>
+
+          <input type="text" class="form-input" id="nameInput"
+            data-edits="title"
+            placeholder="Ann Weber Studio"
+            autocomplete="organization"
+            data-prefill="name"
+            data-inspect-label="Text Input — Resting"
+            data-inspect-tokens='[{"prop":"border","figma":"component/input/color/field/stroke/rest","css":"--jui-component-input-color-field-stroke-rest","value":"#b1b1b1"},{"prop":"border-radius","figma":"input/style/radius","css":"--jui-style-radius-m","value":"8px"},{"prop":"height","figma":"$jui-layout-dimension-m","css":"--jui-layout-dimension-m","value":"48px"}]'
+            data-inspect-phrase="businessInfo.nameAndPicture.placeholder">
+
+          <div class="setup-link-reveal" id="linkReveal" data-shown="false">
+          <div class="setup-link" id="linkRow" data-link="read" data-filled="false"
+            data-inspect-label="Link row — derived from the name"
+            data-inspect-tokens='[{"prop":"color","figma":"color/green/400","css":"--jui-color-green-400","value":"#08a86e"},{"prop":"padding-block","figma":"measurements/size/8","css":"--jui-layout-padding-xs","value":"8px"},{"prop":"border-radius","figma":"input/style/radius","css":"--jui-style-radius-m","value":"8px (edit state)"}]'>
+
+            <button type="button" class="setup-link-read" id="editLink"
+              aria-label="Change the address" data-no-phrase>
+              <span class="setup-link-value">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 12L11 15L16 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="setup-status-spinner" aria-hidden="true"></span>
+                <span class="setup-link-address"><span class="setup-link-handle-value" id="handleValue"></span><span class="setup-link-suffix">.jim.do/bio</span></span>
+              </span>
+              <span class="setup-link-pencil" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g transform="translate(2.75 2.75) scale(1.4999)"><path d="M9.71585 0.00602053C10.0318 0.0344793 10.2865 0.179546 10.5166 0.360513C10.7325 0.530278 10.9714 0.768376 11.2481 1.04508L11.2891 1.0861C11.5658 1.36274 11.8039 1.60168 11.9737 1.81754C12.1546 2.04765 12.2997 2.30243 12.3282 2.61833C12.3362 2.70764 12.3362 2.79756 12.3282 2.88688C12.2997 3.20274 12.1546 3.45757 11.9737 3.68766C11.8039 3.90351 11.5657 4.14249 11.2891 4.41911L4.62503 11.0832C4.1127 11.596 3.75667 11.9528 3.29593 12.1437C2.83503 12.3346 2.33063 12.3335 1.6055 12.3332H0.501005C0.224863 12.3332 0.00100497 12.1093 0.00100497 11.8332V10.8234C0.00100487 10.7914 4.32922e-05 10.7598 2.84045e-05 10.7287C-0.000317779 10.0035 -0.000459922 9.49916 0.190458 9.03825C0.381362 8.57748 0.738172 8.22149 1.251 7.70915L7.91507 1.04508C8.19169 0.768434 8.43067 0.530247 8.64651 0.360513C8.8766 0.17961 9.13144 0.0344721 9.44729 0.00602053C9.53662 -0.00199738 9.62652 -0.0020163 9.71585 0.00602053ZM2.02542 8.34879C1.41861 8.95561 1.21961 9.1668 1.11429 9.42106C1.00897 9.67532 1.00101 9.96536 1.001 10.8234V11.3332H1.51077C2.36874 11.3332 2.65887 11.3242 2.91311 11.2189C3.1672 11.1135 3.37888 10.9153 3.98538 10.3088L9.12698 5.16715L7.16702 3.20719L2.02542 8.34879ZM9.53616 1.00211C9.49103 1.00625 9.41845 1.02575 9.26468 1.14665C9.10144 1.27501 8.90449 1.46972 8.60159 1.77262L7.87405 2.50016L9.83401 4.46012L10.5616 3.73258C10.8645 3.42968 11.0592 3.23274 11.1875 3.0695C11.3088 2.91528 11.328 2.84214 11.3321 2.79704C11.3347 2.76748 11.3347 2.73772 11.3321 2.70817C11.328 2.66306 11.3088 2.58998 11.1875 2.43571C11.0592 2.27246 10.8645 2.07555 10.5616 1.77262C10.2586 1.46968 10.0617 1.27503 9.89847 1.14665C9.74415 1.02529 9.67112 1.00618 9.626 1.00211C9.59625 0.99945 9.56592 0.999434 9.53616 1.00211Z" fill="currentColor"/></g></svg>
+              </span>
+            </button>
+
+            <div class="setup-link-edit" id="linkEdit">
+              <span class="setup-link-field">
+                <span class="setup-link-handle" id="handleEdit" contenteditable="plaintext-only"
+                  spellcheck="false" role="textbox" aria-label="Address"
+                  data-placeholder="yourname"></span><span class="setup-link-suffix">.jim.do/bio</span>
+              </span>
+              <span class="setup-link-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 12L11 15L16 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="setup-status-spinner" aria-hidden="true"></span>
+            </div>
+
+            <!-- Under the address they are getting, the one they could have
+                 instead. It names the domain and says it is free to take;
+                 the dialog says when. Replaces the "you can get your own
+                 domain later" hint, which said the same thing without
+                 saying which domain or when. -->
+            <button type="button" class="setup-domain-offer" id="domainOffer" data-no-phrase
+              data-inspect-label="Custom domain offer"
+              data-inspect-tokens='[{"prop":"state colour","figma":"$jui-color-actions-positive-hover","css":"--jui-color-actions-positive-hover","value":"#07754d"},{"prop":"padding","figma":"$jui-layout-padding-xs","css":"--jui-layout-padding-xs","value":"8px 12px"},{"prop":"type","figma":"Body/Small/Medium","css":"--jui-typography-body-small-medium-size","value":"14 / 500"}]'>
+              <span class="setup-domain-offer-mark" aria-hidden="true"><span class="setup-status-spinner setup-status-spinner--upgrade"></span><svg class="setup-domain-offer-rocket" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M10.9398 7.13563L13.7862 4.50451C15.4589 2.83179 19.0233 1.97655 21.9993 2.00049C21.9993 5.50049 21.1681 8.54101 19.4954 10.2137L16.8643 13.0601C16.6137 13.3312 16.5328 13.7183 16.654 14.067L17.088 15.3164C17.3396 16.0405 17.155 16.8448 16.613 17.3869L15.4993 18.5005L5.5 8.50049L6.61351 7.38698C7.15565 6.84484 7.96 6.66034 8.68422 6.91201L9.93277 7.34589C10.2815 7.46709 10.6687 7.38625 10.9398 7.13563Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/><path d="M17.4922 6.49414L17.4985 6.50049" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M2 22.0005L8 16M8 22.0005L11 19M2 16.0005L5 13" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/></svg></span>
+              <span class="setup-domain-offer-checking" data-inspect-phrase="businessInfo.domain.checking">Checking for a custom domain</span>
+              <span class="setup-domain-offer-copy">
+                <span class="setup-domain-offer-value" id="domainOfferValue">yourname.com</span>
+                <span class="setup-domain-offer-state" data-inspect-phrase="businessInfo.domain.available">available</span>
+              </span>
+              <svg class="setup-domain-offer-more" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+          </div>
+        </div>
+
+        <div class="setup-split-actions">
+          <button class="btn btn-primary"
+            data-inspect-label="Primary Button — Continue"
+            data-inspect-tokens='[{"prop":"background","figma":"color/actions/primary/rest","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"height","figma":"$jui-layout-dimension-m","css":"--jui-layout-dimension-m","value":"48px"},{"prop":"border-radius","figma":"button/radius","css":"--jui-component-button-radius","value":"8px"}]'
+            data-inspect-phrase="questionaire.cta"
+            data-trigger="primary-cta"
+            data-nav-to="flows/onboarding-offer.html"
+            data-nav-screen-id="scr-013">Continue</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Not a sales page. It answers the one question the row raises — can I
+       have it, and when — and leaves the buying to the paywall. -->
+  <div class="sheet-backdrop" id="domainSheet" data-open="false" role="dialog" aria-modal="true" aria-labelledby="domainSheetTitle">
+    <div class="sheet sheet--compact">
+      <div class="sheet-body">
+        <span class="dialog-mark dialog-mark--upgrade" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.9398 7.13563L13.7862 4.50451C15.4589 2.83179 19.0233 1.97655 21.9993 2.00049C21.9993 5.50049 21.1681 8.54101 19.4954 10.2137L16.8643 13.0601C16.6137 13.3312 16.5328 13.7183 16.654 14.067L17.088 15.3164C17.3396 16.0405 17.155 16.8448 16.613 17.3869L15.4993 18.5005L5.5 8.50049L6.61351 7.38698C7.15565 6.84484 7.96 6.66034 8.68422 6.91201L9.93277 7.34589C10.2815 7.46709 10.6687 7.38625 10.9398 7.13563Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/><path d="M17.4922 6.49414L17.4985 6.50049" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M2 22.0005L8 16M8 22.0005L11 19M2 16.0005L5 13" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/></svg></span>
+        <div class="dialog-copy">
+          <p class="dialog-title" id="domainSheetTitle"><span id="domainSheetName">yourname.com</span> is available</p>
+          <p class="sheet-copy" data-inspect-phrase="businessInfo.domain.dialog.copy">You can take this address once your page is set up.</p>
+        </div>
+      </div>
+      <!-- One way out. Nothing is for sale here yet: the answer to "can I
+           have it" is "after your page is set up", so the only action is
+           going back to setting it up. -->
+      <div class="sheet-actions sheet-actions--end">
+        <button type="button" class="btn btn-primary" id="domainLater" data-inspect-phrase="businessInfo.domain.dialog.cta">Continue setup</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js"></script>
+  <script type="module">
+    import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
+
+    const input    = document.getElementById('nameInput');
+    const linkRow  = document.getElementById('linkRow');
+    const linkReveal = document.getElementById('linkReveal');
+    const linkEdit = document.getElementById('linkEdit');
+    const editBtn  = document.getElementById('editLink');
+    const handle   = document.getElementById('handleValue');
+    const handleEd = document.getElementById('handleEdit');
+
+    // The name is what this step changes, so the page title is what the
+    // preview marks. The drawer, the drag and the bridge all come from the
+    // shared layout module.
+    // The name field carries data-edits="title", so the preview marks the
+    // title only while that field is focused. The handle field carries
+    // nothing: the address does not appear on the page, so there is nothing
+    // honest to point at while it is being edited.
+    const shell = document.getElementById('shell');
+    const photoBtn = document.getElementById('photoBtn');
+
+    const split = initSetupSplit({
+      state: () => ({
+        title: input.value || input.placeholder,
+        image: shell.getAttribute('data-photo') === 'added' ? 'photo' : 'placeholder',
+        // Nothing has been added yet, so the page shows the shape of what
+        // is coming rather than a short page that grows a piece at a time.
+        contact: [],
+        ghost: ['subtitle', 'contact', 'mainlink', 'map', 'socials'],
+      }),
+    });
+
+    function slugify(s) {
+      return String(s || '')
+        .toLowerCase()
+        .normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '')
+        .slice(0, 30);
+    }
+
+    // ─── Link ───
+    // The handle follows the name until the user edits it, which is why this
+    // step absorbed the old URL step: there is nothing left to ask that the
+    // name has not already answered.
+    let handleEdited = false;
+
+    // The address follows the name. With no name it shows the shape of one
+    // rather than disappearing, so the step opens complete.
+    function syncLink() {
+      const named = input.value.trim().length > 0;
+      linkReveal.setAttribute('data-shown', named ? 'true' : 'false');
+      if (named) settleWhenOpen();
+      linkRow.setAttribute('data-filled', named ? 'true' : 'false');
+      // Clearing the name closes an open editor on the way out, so the row
+      // does not come back mid-edit the next time a name is typed.
+      if (!named) {
+        linkRow.setAttribute('data-link', 'read');
+        handleEdited = false;
+      }
+      // Clipped again the moment it starts closing, so the shrink reads as a
+      // reveal in reverse rather than the content vanishing all at once.
+      if (!named) linkReveal.classList.remove('is-settled');
+      if (handleEdited) return;
+      const derived = slugify(input.value);
+      handle.textContent = derived;
+      handleEd.textContent = derived;
+      syncDomain();
+      if (named) check();
+    }
+
+    // ─── The other address ───
+    // The domain follows whatever the address shows, so the two read as the
+    // same name twice rather than two unrelated strings. The dialog carries
+    // the same value, because a dialog that renamed it would be about a
+    // different domain than the row that opened it.
+    const domainOffer = document.getElementById('domainOffer');
+    const domainValue = document.getElementById('domainOfferValue');
+    const domainName  = document.getElementById('domainSheetName');
+    const domainSheet = document.getElementById('domainSheet');
+
+    function syncDomain() {
+      const value = (handle.textContent || 'yourname') + '.com';
+      domainValue.textContent = value;
+      domainName.textContent = value;
+    }
+
+    // ─── Checking ───
+    // What the live step does (loops-frontend useLinkAvailability.ts): the
+    // typed value is debounced by AVAILABILITY_DEBOUNCE_MS, then a suggest
+    // call and a check call run against domains-backend, and `available` is
+    // held at undefined for the whole of it — so a tick is never shown for a
+    // name nobody has checked. Both addresses go through it: the jim.do one
+    // via check-jimdo-short-subdomain, the custom one via the domain
+    // suggestions endpoint. Here the two calls are a timer; the states, the
+    // debounce and the order they settle in are the real ones.
+    const CHECK_DEBOUNCE_MS = 400;   // AVAILABILITY_DEBOUNCE_MS
+    const CHECK_REQUEST_MS  = 450;   // suggest + check, standing in for the network
+    let checkTimer;
+
+    function check() {
+      linkRow.setAttribute('data-state', 'checking');
+      domainOffer.setAttribute('data-state', 'checking');
+      clearTimeout(checkTimer);
+      checkTimer = setTimeout(() => {
+        linkRow.setAttribute('data-state', 'ready');
+        domainOffer.setAttribute('data-state', 'ready');
+      }, CHECK_DEBOUNCE_MS + CHECK_REQUEST_MS);
+    }
+
+    function closeDomain() { domainSheet.setAttribute('data-open', 'false'); }
+
+    domainOffer.addEventListener('click', () => {
+      domainSheet.setAttribute('data-open', 'true');
+    });
+    document.getElementById('domainLater').addEventListener('click', closeDomain);
+    domainSheet.addEventListener('click', (e) => {
+      if (e.target === domainSheet) closeDomain();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeDomain();
+    });
+
+    function caretToEnd(el) {
+      el.focus();
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      range.collapse(false);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+
+    input.addEventListener('input', () => { syncLink(); split.sync(); });
+
+    // Once open, the reveal stops clipping so the field inside can show its
+    // focus ring. transitionend is the accurate signal; the timeout is the
+    // backstop for when transitions are off and it never fires.
+    let settleTimer = null;
+    function settleWhenOpen() {
+      window.clearTimeout(settleTimer);
+      if (linkReveal.getAttribute('data-shown') !== 'true') return;
+      settleTimer = window.setTimeout(() => linkReveal.classList.add('is-settled'), 320);
+    }
+    linkReveal.addEventListener('transitionend', (e) => {
+      if (e.propertyName !== 'grid-template-rows') return;
+      if (linkReveal.getAttribute('data-shown') === 'true') linkReveal.classList.add('is-settled');
+    });
+
+    photoBtn.addEventListener('click', () => {
+      shell.setAttribute('data-photo', shell.getAttribute('data-photo') === 'added' ? 'empty' : 'added');
+      split.sync();
+    });
+
+    editBtn.addEventListener('click', () => {
+      linkRow.setAttribute('data-link', 'edit');
+      // The edit field plus its hint is taller than the resting drawer, so
+      // on mobile the drawer lifts while the handle is being chosen.
+      split.setState('expanded');
+      caretToEnd(handleEd);
+    });
+
+    // Clicking the field anywhere puts the caret at the end of the handle,
+    // never inside the fixed suffix.
+    linkEdit.addEventListener('mousedown', (e) => {
+      if (e.target === handleEd) return;
+      e.preventDefault();
+      caretToEnd(handleEd);
+    });
+
+    handleEd.addEventListener('input', () => {
+      handleEdited = true;
+      const typed = slugify(handleEd.textContent);
+      handle.textContent = typed || slugify(input.value);
+      syncDomain();
+      check();
+      linkRow.setAttribute('data-filled', typed ? 'true' : 'false');
+    });
+
+    handleEd.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === 'Escape') { e.preventDefault(); handleEd.blur(); }
+    });
+
+    handleEd.addEventListener('blur', () => {
+      const cleaned = slugify(handleEd.textContent);
+      // An emptied handle goes back to following the name rather than
+      // sticking as a blank the user cannot recover from.
+      if (!cleaned) handleEdited = false;
+      handleEd.textContent = cleaned || slugify(input.value);
+      handle.textContent = handleEd.textContent;
+      linkRow.setAttribute('data-filled', handleEd.textContent ? 'true' : 'false');
+      linkRow.setAttribute('data-link', 'read');
+      split.setState('default');
+    });
+
+    // ─── Workbench variants ───
+    const VARIANTS = {
+      'drawer-open':      { drawer: 'default',   value: '',                 link: 'read', focus: null },
+      'editing-the-name': { drawer: 'default',   value: 'Ann Weber Studio', link: 'read', focus: input },
+      'editing-the-link': { drawer: 'expanded',  value: 'Ann Weber Studio', link: 'edit', focus: handleEd },
+      'drawer-expanded':  { drawer: 'expanded',  value: 'Ann Weber Studio', link: 'read', focus: null },
+      'preview-peek':     { drawer: 'collapsed', value: 'Ann Weber Studio', link: 'read', focus: null },
+    };
+
+    window.addEventListener('message', (e) => {
+      if (!e.data || e.data.type !== 'set-variant') return;
+      const v = VARIANTS[e.data.variant];
+      if (!v) return;
+      handleEdited = false;
+      input.value = v.value;
+      syncLink();
+      if (v.value) linkRow.setAttribute('data-link', v.link);
+      split.setState(v.drawer);
+      if (v.focus) v.focus.focus(); else if (document.activeElement) document.activeElement.blur();
+      split.sync();
+    });
+
+    syncLink();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paywall — Plans (simple)</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+  /* ─── Screen overrides ───
+     Two plans, so the column goes back to the 768 the rest of the flow uses;
+     992 was only ever to fit a third card. */
+  .app-shell-setup-single[data-explore] { --setup-single-max: 768px; }
+
+  .app-shell-setup-single {
+    --unlock-icon-bg: var(--jui-color-background-upgrade-light);
+    --unlock-icon-fg: var(--jui-color-typography-upgrade-on-light);
+  }
+</style>
+</head>
+<body>
+
+  <div class="app-shell app-shell-setup-split app-shell-setup-single" id="shell" data-explore="unlock">
+
+    <!-- Ported from loops-frontend PageHeader: space-between, 16 inline /
+         12 block, no rule underneath. The close is the small subtle button
+         the real header uses, not the 48px one this screen had. -->
+    <div class="setup-split-header">
+      <div class="paywall-header">
+        <span class="paywall-logo" aria-label="Jimdo"><svg aria-hidden="true" viewBox="0 0 650 241" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M536 64.9905C505.071 64.9905 480 89.8375 480 120.49C480 151.143 505.071 175.99 536 175.99C566.929 175.99 592 151.143 592 120.49C592.01 89.8474 566.929 64.9905 536 64.9905ZM536 151.621C518.656 151.621 504.589 137.689 504.589 120.49C504.589 103.302 518.646 89.3595 536 89.3595C553.344 89.3595 567.411 103.292 567.411 120.49C567.411 137.689 553.354 151.621 536 151.621Z" fill="#010334"/> <path d="M228 67.9905H251.456L287.001 134.519L322.385 67.9905H346.002V174.99H319.633V117.819L289.613 174.99H284.399L254.378 117.969V174.99H228.01V67.9905H228Z" fill="#010334"/> <path d="M149 67.9905H122.515V132.046C122.515 142.257 114.224 150.538 104 150.538C93.7764 150.538 85.4853 142.257 85.4853 132.046H59C59 156.869 79.1469 176.99 104 176.99C128.853 176.99 149 156.869 149 132.046V67.9905Z" fill="#010334"/> <path d="M412.514 67.9905H373V174.99H412.514C442.054 174.99 466 151.039 466 121.49C466 91.9423 442.054 67.9905 412.514 67.9905ZM409.302 152.665H399.289V90.2963H409.302C426.516 90.2963 440.479 104.252 440.479 121.48C440.479 138.709 426.526 152.665 409.302 152.665Z" fill="#010334"/> <path d="M202 67.9905H175V173.99H202V67.9905Z" fill="#010334"/> <path d="M633.989 16.9798V225.001H16.0111V16.9798H633.989ZM650 0.990479H0V240.99H650V0.990479Z" fill="#010334"/> </svg></span>
+        <button class="icon-btn-sm muted" type="button" aria-label="Close" data-no-phrase
+          data-inspect-label="Close — Subtle Icon Only, Small"
+          data-inspect-tokens='[{"prop":"size","figma":"measurements/size/32","css":"--jui-layout-dimension-s","value":"32px"},{"prop":"icon","figma":"measurements/size/16","css":"--jui-layout-padding-m","value":"16px"}]'
+          data-nav-to="flows/home-dashboard-v2.html" data-nav-screen-id="scr-131">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M5 5L19 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M19 5L5 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="setup-split-main">
+      <div class="setup-split-form">
+        <div class="setup-split-fields">
+
+          <div class="setup-split-intro">
+            <h1 class="setup-split-title" data-inspect-phrase="paywall.plan.title">Let your page do the work</h1>
+            <p class="setup-split-subtitle" data-inspect-phrase="paywall.plan.subtitle">Get booked and take enquiries, from the one page you share everywhere.</p>
+          </div>
+
+          <div class="plan-choice"
+            data-inspect-label="Plan cards"
+            data-inspect-tokens='[{"prop":"panel fill (paid)","figma":"$jui-color-background-upgrade-light","css":"--jui-color-background-upgrade-light","value":"#fcecff"},{"prop":"panel fill (free)","figma":"color/gray/50","css":"--jui-color-gray-50","value":"#f8f8f8"},{"prop":"outer radius","figma":"style/radius/16","css":"--jui-style-radius-16","value":"16px"},{"prop":"padding","figma":"$jui-layout-padding-m","css":"--jui-layout-padding-m","value":"16px"}]'>
+
+            <div class="plan-option plan-option--free">
+              <div class="plan-option-main">
+                <div class="plan-option-top">
+                  <div class="plan-option-head">
+                    <p class="plan-option-name" data-inspect-phrase="upgrade.free.label">Free</p>
+                  </div>
+                  <p class="plan-option-price">
+                    <span class="plan-option-amount" data-no-phrase>€0</span>
+                    <span class="plan-option-period" data-inspect-phrase="paywall.plan.period">/month</span>
+                  </p>
+                  <p class="plan-option-note" data-inspect-phrase="paywall.plan.free.note">For trying things out</p>
+                </div>
+                <button class="btn btn-secondary"
+                  data-inspect-phrase="paywall.domain.ctaSecondary"
+                  data-nav-to="flows/home-dashboard-v2.html"
+                  data-nav-screen-id="scr-131">Continue free</button>
+                <ul class="plan-feature-list">
+                  <li class="plan-feature"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span data-inspect-phrase="upgrade.free.feature1">Your bio page, links and contact buttons</span></li>
+                  <li class="plan-feature"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span data-inspect-phrase="upgrade.free.feature2">One booking or one enquiry form</span></li>
+                  <li class="plan-feature"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span data-inspect-phrase="upgrade.free.feature3">A jim.do web address</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="plan-option plan-option--pro">
+              <div class="plan-option-main">
+                <div class="plan-option-top">
+                  <div class="plan-option-head">
+                    <p class="plan-option-name" data-inspect-phrase="paywall.plan.pro.name">Jimdo Start</p>
+                    <span class="plan-option-rec" data-inspect-phrase="paywall.plan.recommended">Recommended</span>
+                  </div>
+                  <p class="plan-option-price">
+                    <span class="plan-option-amount" data-no-phrase>€11.50</span>
+                    <span class="plan-option-period" data-inspect-phrase="paywall.plan.period">/month</span>
+                  </p>
+                  <p class="plan-option-note" data-inspect-phrase="paywall.plan.pro.note">For getting booked and paid</p>
+                </div>
+                <button class="btn btn-primary btn-upgrade"
+                  data-inspect-label="Upgrade Button"
+                  data-inspect-tokens='[{"prop":"background","figma":"$jui-color-actions-upgrade-rest","css":"--jui-color-actions-upgrade-rest","value":"#8733be"},{"prop":"color","figma":"$jui-color-typography-upgrade-on-dark","css":"--jui-color-typography-upgrade-on-dark","value":"#fcecff"},{"prop":"height","figma":"$jui-layout-dimension-m","css":"--jui-layout-dimension-m","value":"48px"}]'
+                  data-inspect-phrase="paywall.domain.ctaPrimary"
+                  data-trigger="primary-cta"
+                  data-nav-to="flows/home-dashboard-v2.html"
+                  data-nav-screen-id="scr-131">Upgrade</button>
+                <ul class="plan-feature-list">
+                  <li class="plan-feature"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span data-inspect-phrase="upgrade.paid.feature1">Get booked for everything you offer</span></li>
+                  <li class="plan-feature"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span data-inspect-phrase="upgrade.paid.feature2">Get enquiries with the details you need</span></li>
+                  <li class="plan-feature"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span data-inspect-phrase="upgrade.paid.feature3">Take payments and send invoices</span></li>
+                  <li class="plan-feature"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span data-inspect-phrase="upgrade.paid.feature4">Your Jimdo website, same plan</span></li>
+                </ul>
+              </div>
+              <div class="plan-option-foot"
+                data-inspect-label="Custom domain panel">
+                <ul class="plan-feature-list">
+                  <li class="plan-feature"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span data-inspect-phrase="upgrade.feature1">Your custom domain</span></li>
+                </ul>
+                <span class="plan-domain">
+                  <span class="plan-domain-value" data-no-phrase>claraandstone.com/bio</span>
+                  <span class="plan-domain-state" data-inspect-phrase="paywall.domain.tagAvailable">available</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <ul class="trust-line"
+            data-inspect-label="Trust line"
+            data-inspect-tokens='[{"prop":"color","figma":"$jui-color-typography-gray-on-light-subdued","css":"--jui-color-typography-gray-on-light-subdued","value":"#6d6d6d"},{"prop":"divider","figma":"color/gray/100","css":"--jui-color-gray-100","value":"#e6e6e6"}]'>
+            <li><b data-no-phrase>500K+</b><span data-inspect-phrase="paywall.plan.trust.pages">pages built with Jimdo</span></li>
+            <li><b data-no-phrase>20 years</b><span data-inspect-phrase="paywall.plan.trust.years">helping solopreneurs</span></li>
+          </ul>
+
+          <p class="paywall-terms" data-inspect-phrase="paywall.plan.terms">Prices apply for a 12-month contract term. Prices for other contract terms may vary. All prices include VAT.</p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js"></script>
+
+</body>
+</html>

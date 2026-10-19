@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flows — In Product Landing</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/management-shell.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<script type="module" src="/flows-prototype/design-system/hifi-designs/shared/shell-components.js"></script>
+<style>
+  /* ═══════════════════════════════════════════════════════
+     IN-PRODUCT LANDING — Flows
+     ─────────────────────────────────────────────────────
+     Rebuilt to match Figma 15355-11994. 9-section narrative.
+     Reuses the lip-* shell architecture + the section vocabulary
+     proven on landing-public-v2.html (hero, chip scene, hub-spoke
+     cluster, IG band, ready steps) + existing template-picker webp
+     phone mockups. Decorative phone/chip/url/badge content is mock
+     illustration (data-no-phrase); real page copy carries phrase keys.
+     ═══════════════════════════════════════════════════════ */
+
+  body { background: var(--jui-color-gray-white); }
+  .shell-working-area { background: var(--jui-color-gray-white); }
+
+  .lip-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--jui-measurements-size-24);
+    gap: 0;
+  }
+
+  .lip-canvas {
+    width: 100%;
+    max-width: 904px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-measurements-size-40);
+  }
+
+  /* ─── Section shell ───
+     Figma: white page, flat content sections. Only hero / IG / FAQ
+     carry a background block. So the base section is FLAT (transparent,
+     vertical rhythm only); bg-bearing blocks add their own background. */
+
+  .lip-card { padding: var(--jui-measurements-size-40); }
+  .lip-block { border-radius: 24px; }   /* applied to hero / faq alongside their bg */
+
+  /* ─── Gray-square placeholders (pending real images) ─── */
+
+  .lip-placeholder {
+    background: var(--jui-color-background-gray-medium);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--jui-color-typography-gray-on-light-subdued);
+    font-size: var(--jui-typography-body-small-regular-size);
+    line-height: var(--jui-typography-body-small-regular-lh);
+  }
+
+  /* ─── Typography helpers ─── */
+
+  .lip-section-title {
+    margin: 0;
+    font-size: var(--jui-typography-sub-headline-large-size);
+    line-height: var(--jui-typography-sub-headline-large-lh);
+    font-weight: var(--jui-typography-sub-headline-large-weight);
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+
+  .lip-section-lede {
+    margin: 0;
+    font-size: var(--jui-typography-body-medium-regular-size);
+    line-height: var(--jui-typography-body-medium-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-subdued);
+  }
+
+  .lip-cta-caption {
+    font-size: var(--jui-typography-body-small-regular-size);
+    line-height: var(--jui-typography-body-small-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-subdued);
+  }
+
+  /* ─── 1. HERO ─── */
+
+  .lip-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--jui-measurements-size-40);
+    border-radius: 24px;
+    /* soft blue→lavender gradient block (nearest jui tints) */
+    background: linear-gradient(120deg, var(--jui-color-blue-50) 0%, var(--jui-color-purple-50) 100%);
+  }
+
+  .lip-hero-text {
+    flex: 0 0 342px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-measurements-size-32);
+  }
+
+  .lip-hero-text-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-measurements-size-16);
+  }
+
+  .lip-headline {
+    margin: 0;
+    font-size: 40px;
+    line-height: 1.05;
+    font-weight: 700;
+    font-style: italic;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+
+  .lip-sub {
+    margin: 0;
+    font-size: var(--jui-typography-body-medium-regular-size);
+    line-height: var(--jui-typography-body-medium-regular-lh);
+    font-weight: var(--jui-typography-body-medium-regular-weight);
+    color: var(--jui-color-typography-gray-on-light-subdued);
+  }
+
+  .lip-cta-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--jui-measurements-size-8);
+  }
+
+  /* dense template cascade, exported from Figma, bleeding off the right edge */
+  .lip-hero-visual {
+    flex: 1;
+    align-self: stretch;
+    position: relative;
+    min-height: 392px;
+    overflow: clip;
+  }
+  .lip-hero-cascade {
+    position: absolute;
+    top: 50%; left: 0;
+    transform: translateY(-50%);
+    height: 100%;
+    width: auto;
+    max-width: none;
+  }
+
+  /* ─── 2. SOCIAL PROOF ─── */
+
+  .lip-proof {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--jui-measurements-size-16);
+    text-align: center;
+  }
+  .lip-proof__rule { width: 100%; height: 1px; background: var(--jui-color-stroke-gray-decorative); }
+  .lip-proof__quote {
+    margin: 0;
+    max-width: 360px;
+    font-size: var(--jui-typography-body-medium-medium-size);
+    line-height: var(--jui-typography-body-medium-medium-lh);
+    font-weight: var(--jui-typography-body-medium-medium-weight);
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+  .lip-proof__quote::before { content: "\201C"; }
+  .lip-proof__quote::after  { content: "\201D"; }
+  .lip-proof__author {
+    margin: 0;
+    font-style: normal;
+    font-size: var(--jui-typography-body-small-regular-size);
+    line-height: var(--jui-typography-body-small-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-subdued);
+  }
+
+  /* ─── Exported Figma illustration images ─── */
+
+  .lip-illus { display: block; max-width: 100%; height: auto; }
+
+  /* ─── 3. ADD MORE THAN SOCIAL — phone ringed by chips (exported) ─── */
+
+  .lip-feature {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-measurements-size-40);
+  }
+  .lip-feature-text { flex: 0 0 340px; display: flex; flex-direction: column; gap: var(--jui-measurements-size-16); }
+  .lip-feature-visual { flex: 1; display: flex; justify-content: center; }
+  .lip-feature-visual .lip-illus { width: 100%; max-width: 468px; }
+
+  /* ─── 4. SECOND LINK (heading) ─── */
+
+  .lip-secondlink { display: flex; flex-direction: column; gap: var(--jui-measurements-size-8); text-align: center; align-items: center; }
+  .lip-secondlink .lip-section-lede { max-width: 540px; }
+
+  /* ─── 5. HUB-SPOKE DIAGRAM (exported) ─── */
+
+  .lip-diagram { display: flex; justify-content: center; }
+  .lip-diagram-img { width: 100%; max-width: 623px; }
+
+  /* ─── 6. TWO COLUMNS ─── */
+
+  .lip-pages-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--jui-measurements-size-32);
+  }
+  .lip-page-item { display: flex; flex-direction: column; gap: var(--jui-measurements-size-16); }
+  .lip-page-num {
+    width: 48px; height: 48px; border-radius: 9999px;
+    border: 1.5px solid var(--jui-color-blue-500);
+    background: var(--jui-color-gray-white);
+    color: var(--jui-color-blue-500);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: var(--jui-typography-sub-headline-medium-size);
+    font-weight: var(--jui-typography-sub-headline-medium-weight);
+  }
+  .lip-page-name {
+    margin: 0;
+    font-size: var(--jui-typography-sub-headline-medium-size);
+    line-height: var(--jui-typography-sub-headline-medium-lh);
+    font-weight: var(--jui-typography-sub-headline-medium-weight);
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+  .lip-page-desc {
+    margin: 0;
+    font-size: var(--jui-typography-body-medium-regular-size);
+    line-height: var(--jui-typography-body-medium-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-subdued);
+  }
+
+  /* ─── 7. INSTAGRAM BAND ─── */
+
+  .lip-band {
+    border-radius: 24px;
+    padding: var(--jui-measurements-size-40);
+    color: var(--jui-color-gray-white);
+    overflow: clip;
+    /* Instagram band — nearest jui tokens (exact IG brand hex is lint-blocked) */
+    background: linear-gradient(0deg, var(--jui-color-red-300) 0%, var(--jui-color-purple-500) 100%);
+  }
+  .lip-band__grid { display: grid; grid-template-columns: minmax(0, 1fr) 304px; gap: var(--jui-measurements-size-40); align-items: center; }
+  .lip-band__visual { display: flex; justify-content: center; align-items: center; min-height: 360px; }
+  .lip-ig-img { width: 100%; max-width: 392px; }
+  .lip-band__text { display: flex; flex-direction: column; gap: var(--jui-measurements-size-24); }
+  .lip-band__icon svg { width: 48px; height: 48px; display: block; }
+  .lip-band__copy { display: flex; flex-direction: column; gap: var(--jui-measurements-size-8); }
+  .lip-band__title {
+    margin: 0;
+    font-size: var(--jui-typography-sub-headline-medium-size);
+    line-height: var(--jui-typography-sub-headline-medium-lh);
+    font-weight: var(--jui-typography-sub-headline-medium-weight);
+  }
+  .lip-band__title strong { font-weight: 700; }
+  .lip-band__lede { margin: 0; font-size: var(--jui-typography-body-medium-regular-size); line-height: var(--jui-typography-body-medium-regular-lh); }
+
+  /* ─── 8. READY IN MINUTES ─── */
+
+  .lip-ready { display: flex; flex-direction: column; gap: var(--jui-measurements-size-24); align-items: center; text-align: center; }
+  .lip-ready-steps {
+    list-style: none; margin: 0; padding: 0;
+    display: flex; flex-direction: column; gap: var(--jui-measurements-size-16);
+    max-width: 540px; text-align: left;
+  }
+  .lip-ready-steps li {
+    display: flex; align-items: flex-start; gap: var(--jui-measurements-size-12);
+    font-size: var(--jui-typography-body-medium-regular-size);
+    line-height: var(--jui-typography-body-medium-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+  .lip-ready-steps li strong { font-weight: 600; }
+  .lip-step-number {
+    flex-shrink: 0; width: 24px; height: 24px; border-radius: 9999px;
+    background: var(--jui-color-background-gray-medium);
+    color: var(--jui-color-typography-gray-on-light-default);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: var(--jui-typography-body-small-medium-size);
+    font-weight: var(--jui-typography-body-small-medium-weight);
+    line-height: 1;
+  }
+
+  /* ─── 9. FAQ ─── */
+
+  .lip-faq { display: flex; flex-direction: column; gap: var(--jui-measurements-size-24); align-items: center; background: var(--jui-color-background-gray-light); border-radius: 24px; }
+  .lip-faq__list { width: 100%; max-width: 660px; display: flex; flex-direction: column; }
+  .lip-faq__item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: var(--jui-measurements-size-16) 0;
+    border-bottom: 1px solid var(--jui-color-stroke-gray-decorative);
+    font-size: var(--jui-typography-body-medium-medium-size);
+    line-height: var(--jui-typography-body-medium-medium-lh);
+    font-weight: var(--jui-typography-body-medium-medium-weight);
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+  .lip-faq__item svg { width: 20px; height: 20px; flex: 0 0 auto; color: var(--jui-color-typography-gray-on-light-subdued); }
+
+  /* CTAs hug their label instead of the component's default full width */
+  /* primitive-override */
+  .lip-cta-group .btn-primary { width: auto; padding-inline: var(--jui-measurements-size-24); }
+
+  /* ─── Responsive ─── */
+
+  @media (max-width: 880px) {
+    .lip-hero { flex-direction: column; align-items: stretch; }
+    .lip-hero-text { flex: 1; }
+    .lip-feature { flex-direction: column; align-items: stretch; }
+    .lip-feature-text { flex: 1; }
+    .lip-pages-grid { grid-template-columns: 1fr; }
+    .lip-band__grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 600px) {
+    .lip-content { padding: var(--jui-measurements-size-12); }
+    .lip-card { padding: var(--jui-measurements-size-20); border-radius: 16px; }
+    .lip-cta-group { align-items: stretch; text-align: center; }
+    /* primitive-override — full-width buttons on phone */
+    .lip-cta-group .btn-primary { width: 100%; }
+  }
+</style>
+</head>
+<body class="app-shell management-shell">
+
+  <jimdo-topbar></jimdo-topbar>
+
+  <div class="shell-middle">
+    <jimdo-sidebar product="jimdo" active="flows"></jimdo-sidebar>
+
+    <main class="shell-working-area">
+      <div class="management-content lip-content">
+        <div class="lip-canvas">
+
+          <!-- ─── 1. HERO ─── -->
+          <section class="lip-card lip-hero">
+            <div class="lip-hero-text">
+              <div class="lip-hero-text-group">
+                <h1 class="lip-headline" data-inspect-phrase="flows.landingInProduct.hero.headline">
+                  Turn your followers into customers
+                </h1>
+                <p class="lip-sub" data-inspect-phrase="flows.landingInProduct.hero.sub">
+                  One link for your bio, a second for what you're offering now.
+                </p>
+              </div>
+              <div class="lip-cta-group">
+                <button class="btn btn-primary" data-trigger="primary-cta" data-nav-to="flows/onboarding-offer.html" data-inspect-phrase="flows.landingInProduct.hero.cta">
+                  Build yours for Free
+                </button>
+                <span class="lip-cta-caption" data-inspect-phrase="flows.landingInProduct.hero.caption">
+                  3 minutes - Built with what's already in your account.
+                </span>
+              </div>
+            </div>
+            <div class="lip-hero-visual">
+              <img class="lip-hero-cascade" src="/flows-prototype/design-system/hifi-designs/pages/assets/landing-in-product/hero-cascade.png" alt="" aria-hidden="true">
+            </div>
+          </section>
+
+          <!-- ─── 2. SOCIAL PROOF ─── -->
+          <section class="lip-card lip-proof">
+            <div class="lip-proof__rule" aria-hidden="true"></div>
+            <blockquote class="lip-proof__quote" data-inspect-phrase="flows.landingInProduct.proof.quote">
+              I got fully booked using flows
+            </blockquote>
+            <p class="lip-proof__author" data-inspect-phrase="flows.landingInProduct.proof.author">
+              Tom - Small business in real estate
+            </p>
+            <div class="lip-proof__rule" aria-hidden="true"></div>
+          </section>
+
+          <!-- ─── 3. ADD MORE THAN SOCIAL ─── -->
+          <section class="lip-card lip-feature">
+            <div class="lip-feature-visual">
+              <img class="lip-illus" src="/flows-prototype/design-system/hifi-designs/pages/assets/landing-in-product/feature-chips.png" alt="" aria-hidden="true">
+            </div>
+            <div class="lip-feature-text">
+              <h2 class="lip-section-title" data-inspect-phrase="flows.landingInProduct.special.title">
+                Add more than just social media profiles
+              </h2>
+              <p class="lip-section-lede" data-inspect-phrase="flows.landingInProduct.special.lede">
+                Built-in appointment booking, contact form, quote page, payments and more. All in a single link in your Instagram bio.
+              </p>
+            </div>
+          </section>
+
+          <!-- ─── 4. SECOND LINK (heading) ─── -->
+          <section class="lip-card lip-secondlink">
+            <h2 class="lip-section-title" data-inspect-phrase="flows.landingInProduct.secondLink.title">
+              You get a second link to your first action page
+            </h2>
+            <p class="lip-section-lede" data-inspect-phrase="flows.landingInProduct.secondLink.lede">
+              Bookings, payments, forms, promotions as buttons and an action page to share, all without leaving Jimdo.
+            </p>
+          </section>
+
+          <!-- ─── 5. HUB-SPOKE DIAGRAM ─── -->
+          <section class="lip-card lip-diagram">
+            <img class="lip-illus lip-diagram-img" src="/flows-prototype/design-system/hifi-designs/pages/assets/landing-in-product/diagram.png" alt="" aria-hidden="true">
+          </section>
+
+          <!-- ─── 6. TWO COLUMNS ─── -->
+          <section class="lip-card lip-pages-grid">
+            <div class="lip-page-item">
+              <span class="lip-page-num" aria-hidden="true">1</span>
+              <h3 class="lip-page-name" data-inspect-phrase="flows.landingInProduct.pages.bioName">Bio page</h3>
+              <p class="lip-page-desc" data-inspect-phrase="flows.landingInProduct.pages.bioDesc">
+                This is the home for your links, bookings, payments, and action pages.
+              </p>
+            </div>
+            <div class="lip-page-item">
+              <span class="lip-page-num" aria-hidden="true">2</span>
+              <h3 class="lip-page-name" data-inspect-phrase="flows.landingInProduct.pages.actionName">Action pages</h3>
+              <p class="lip-page-desc" data-inspect-phrase="flows.landingInProduct.pages.actionDesc">
+                Create a special offer, promote an event, or just collect emails with a direct link.
+              </p>
+            </div>
+          </section>
+
+          <!-- ─── 7. INSTAGRAM BAND ─── -->
+          <section class="lip-band">
+            <div class="lip-band__grid">
+              <div class="lip-band__visual">
+                <img class="lip-illus lip-ig-img" src="/flows-prototype/design-system/hifi-designs/pages/assets/landing-in-product/ig-phones.png" alt="" aria-hidden="true">
+              </div>
+              <div class="lip-band__text">
+                <span class="lip-band__icon" data-no-phrase>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>
+                </span>
+                <div class="lip-band__copy">
+                  <h2 class="lip-band__title" data-inspect-phrase="flows.landingInProduct.ig.title">
+                    Put your action page in <strong>Instagram</strong> stories
+                  </h2>
+                  <p class="lip-band__lede" data-inspect-phrase="flows.landingInProduct.ig.lede">
+                    Send people directly to anything you are promoting now. No browsing, no getting lost.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ─── 8. READY IN MINUTES ─── -->
+          <section class="lip-card lip-ready">
+            <h2 class="lip-section-title" data-inspect-phrase="flows.landingInProduct.ready.title">
+              Ready in minutes so you can focus on your craft
+            </h2>
+            <ol class="lip-ready-steps">
+              <li>
+                <span class="lip-step-number" aria-hidden="true">1</span>
+                <span data-inspect-phrase="flows.landingInProduct.ready.step1">
+                  <strong>We use what's in your account:</strong> style, name, photos, the things you do.
+                </span>
+              </li>
+              <li>
+                <span class="lip-step-number" aria-hidden="true">2</span>
+                <span data-inspect-phrase="flows.landingInProduct.ready.step2">
+                  <strong>Your pages arrive ready:</strong> a bio page, plus your first solo page with content made to sell.
+                </span>
+              </li>
+              <li>
+                <span class="lip-step-number" aria-hidden="true">3</span>
+                <span data-inspect-phrase="flows.landingInProduct.ready.step3">
+                  <strong>Change anything:</strong> words, photos, layout, links, or share as is.
+                </span>
+              </li>
+            </ol>
+          </section>
+
+          <!-- ─── 9. FAQ ─── -->
+          <section class="lip-card lip-faq">
+            <h2 class="lip-section-title" data-inspect-phrase="flows.landingInProduct.faq.title">
+              Common questions about Flows
+            </h2>
+            <div class="lip-faq__list">
+              <div class="lip-faq__item">
+                <span data-inspect-phrase="flows.landingInProduct.faq.q1">Do I need a website first?</span>
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div class="lip-faq__item">
+                <span data-inspect-phrase="flows.landingInProduct.faq.q2">What does it cost?</span>
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div class="lip-faq__item">
+                <span data-inspect-phrase="flows.landingInProduct.faq.q3">Does this work for my business?</span>
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </main>
+  </div>
+
+<script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js"></script>
+</body>
+</html>

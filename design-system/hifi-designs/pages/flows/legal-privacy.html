@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Example: Legal & Privacy</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/management-shell.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<script type="module" src="/flows-prototype/design-system/hifi-designs/shared/shell-components.js"></script>
+<style>
+
+  /* ═══════════════════════════════════════
+     PAGE CONTENT — centered on desktop
+     ═══════════════════════════════════════ */
+  .page-content-wrapper { width: 100%; padding-bottom: var(--jui-layout-padding-l); }
+
+  @media (min-width: 768px) {
+    .page-content-wrapper { max-width: 768px; width: 100%; }
+  }
+
+  /* Subheadline/Medium (default page-title from components.css):
+     20px, 500, 1.4 — consistent with all other settings screens.
+     No responsive override needed; settings pages use a single size. */
+  .page-top { padding: 20px 20px var(--jui-layout-padding-l); }
+  /* Body/Small: 14px, 400, 0px, 1.57 */
+  .page-subtitle { font-size: var(--jui-typography-body-small-regular-size); font-weight: var(--jui-typography-body-small-regular-weight); color: var(--jui-color-gray-500); line-height: var(--jui-typography-body-small-regular-lh); letter-spacing: 0; }
+
+  /* ─── Section headings — organizational labels ───
+     14px/500/sentence-case/gray-500: clearly distinct from
+     card Label/Small (12px/600/UPPERCASE/black). */
+  .section-heading {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-xs);
+    padding: 0 20px;
+    margin-bottom: var(--jui-layout-padding-s);
+  }
+  .section-heading-text {
+    font-size: var(--jui-typography-body-small-medium-size);
+    font-weight: var(--jui-typography-body-small-medium-weight);
+    letter-spacing: var(--jui-typography-link-small-ls);
+    color: var(--jui-color-gray-500);
+    line-height: var(--jui-typography-body-small-medium-lh);
+  }
+
+  /* ═══════════════════════════════════════
+     LEGAL PAGE CARDS
+     ═══════════════════════════════════════ */
+  .legal-cards { display: flex; flex-direction: column; gap: var(--jui-layout-gap-m); padding: 0 20px; }
+
+  /* Upgrade trigger placement — 24px above (page-top padding-bottom) and below,
+     per Figma 11769:68386 which gaps title / trigger / card group at 24. */
+  .zone-upgrade { padding: 0 20px; margin-bottom: var(--jui-layout-gap-l); }
+
+  /* Card states per Figma (node 6429:20746):
+     Default  → white bg, 1px gray-100 border
+     Hover    → white bg, 2px blue-500 border (via 1px border + 1px inset shadow)
+     Focus    → white bg, 1px blue-200 border, concentric ring (2px blue-10 + 4px blue-500)
+     Active   → blue-10 bg, 2px blue-500 border (via 1px border + 1px inset shadow)
+     Border stays 1px on all states; extra thickness simulated with box-shadow
+     to prevent layout shift. Focus ring also uses box-shadow (overflow:auto clips outline). */
+  .legal-card { background: var(--jui-color-gray-white); border: 1px solid var(--jui-color-gray-100); border-radius: var(--jui-style-radius-l); padding: var(--jui-layout-padding-m); display: flex; flex-direction: column; gap: var(--jui-layout-gap-m); cursor: pointer; transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease; }
+  .legal-card:hover { border-color: var(--jui-color-blue-500); box-shadow: inset 0 0 0 1px var(--jui-color-blue-500); }
+  .legal-card:focus-visible { outline: none; border-color: var(--jui-color-blue-200); box-shadow: 0 0 0 2px var(--jui-color-blue-10), 0 0 0 4px var(--jui-color-blue-500); }
+  .legal-card:active { background: var(--jui-color-blue-10); border-color: var(--jui-color-blue-500); box-shadow: inset 0 0 0 1px var(--jui-color-blue-500); }
+
+  .legal-card-icon { width: 24px; height: 24px; flex-shrink: 0; }
+  .legal-card-icon svg { width: 24px; height: 24px; stroke: var(--jui-color-gray-black); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .legal-card-content { display: flex; flex-direction: column; gap: var(--jui-layout-gap-xxs); }
+
+  /* Label/Small: 12px, 600, 0.96px, uppercase — card title */
+  .legal-card-label { font-size: var(--jui-typography-label-small-size); font-weight: var(--jui-typography-label-small-weight); letter-spacing: var(--jui-typography-label-small-ls); text-transform: uppercase; color: var(--jui-color-gray-black); line-height: var(--jui-typography-label-small-lh); }
+  /* Body/Small: 14px, 400 */
+  .legal-card-desc { font-size: var(--jui-typography-body-small-regular-size); font-weight: var(--jui-typography-body-small-regular-weight); color: var(--jui-color-gray-black); line-height: var(--jui-typography-body-small-regular-lh); letter-spacing: 0; }
+  /* Link/Small: 14px, 500 */
+  .legal-card-link { font-size: var(--jui-typography-body-small-medium-size); font-weight: var(--jui-typography-body-small-medium-weight); color: var(--jui-color-blue-500); letter-spacing: var(--jui-typography-link-small-ls); line-height: var(--jui-typography-body-small-medium-lh); text-decoration: none; cursor: pointer; }
+  .legal-card-link:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════
+     STATISTICS SECTION — uses card-status from components.css
+     Only page-specific overrides here.
+     ═══════════════════════════════════════ */
+  .statistics-section { padding: 0 20px; }
+
+  /* Card-status downsized for settings pages where the card is a
+     peer section, not the primary content.
+     Headline: Subheadline/Small (16px/500) — base component uses 20px.
+     Description: Body/Small (14px/400) — aligned with legal-card-desc. */
+  .card-status .card-status-headline { font-size: var(--jui-typography-body-medium-medium-size); line-height: 1.25; }
+  .card-status .card-status-desc { font-size: var(--jui-typography-body-small-regular-size); line-height: var(--jui-typography-body-small-regular-lh); }
+
+  /* Legal notice: remove top margin since card-status-content has gap: var(--jui-layout-gap-m) */
+  .card-status .legal-notice { margin-top: 0; }
+
+  /* Toggle — canonical .toggle styles live in components.css */
+  .toggle { margin-top: 2px; }
+
+  /* ─── Legal notice — compliance text below toggle ───
+     Body/Small: 14px, 400, 0, 1.57
+     Minimum body text size per design system. */
+  .legal-notice {
+    font-size: var(--jui-typography-body-small-regular-size);
+    font-weight: var(--jui-typography-body-small-regular-weight);
+    color: var(--jui-color-gray-500);
+    line-height: var(--jui-typography-body-small-regular-lh);
+    letter-spacing: 0;
+    margin-top: var(--jui-layout-padding-s);
+  }
+  .legal-notice a {
+    color: var(--jui-color-blue-500);
+    text-decoration: underline;
+    font-weight: 400;
+  }
+  .legal-notice a:hover {
+    color: var(--jui-color-blue-600);
+  }
+
+  /* Link/Small — more separation from content above */
+  .visit-link { display: inline-flex; align-items: center; gap: var(--jui-layout-gap-xxs); font-size: var(--jui-typography-body-small-medium-size); font-weight: var(--jui-typography-body-small-medium-weight); color: var(--jui-color-blue-500); letter-spacing: var(--jui-typography-link-small-ls); line-height: var(--jui-typography-body-small-medium-lh); text-decoration: none; cursor: pointer; margin-top: var(--jui-layout-padding-m); }
+  .visit-link:hover { text-decoration: underline; }
+  .visit-link svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ═══════════════════════════════════════
+     TOAST POSITIONING — screen-specific
+     ═══════════════════════════════════════ */
+  .toast-container {
+    position: absolute;
+    top: 72px;
+    left: 20px;
+    right: 20px;
+  }
+  .toast-container .toast {
+    max-width: 100%;
+  }
+  @media (min-width: 768px) {
+    .toast-container {
+      top: 56px;
+      left: auto;
+      right: var(--jui-layout-padding-l);
+    }
+    .toast-container .toast {
+      max-width: 400px;
+    }
+  }
+
+  /* ═══════════════════════════════════════
+     SECTION SPACING
+     ═══════════════════════════════════════ */
+  .zone-statistics { margin-bottom: 0; }
+  .zone-legal { margin-top: var(--jui-layout-gap-xl); padding-bottom: var(--jui-layout-padding-l); }
+</style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════
+       VARIANT 1: Statistics ON (default)
+       ═══════════════════════════════════════ -->
+  <div class="variant active" id="v-on">
+    <div class="app-shell management-shell" style="height:100%; position:relative;">
+
+      <jimdo-topbar></jimdo-topbar>
+
+      <!-- Toast container — empty on load, populated by toggle interaction -->
+      <div class="toast-container" id="toast-on"></div>
+
+      <div class="shell-middle">
+        <jimdo-sidebar product="flows" active="legal-privacy" variant="contextual"
+                       back-label="More from Jimdo" back-product="core" back-screen="main-navigation.html"
+                       title="Flows" show-items="flows,solo-pages,legal-privacy"
+                       labels="flows=Bio Page" targets="flows=flows/home-dashboard-v2.html"
+                       hide-icons marker></jimdo-sidebar></jimdo-sidebar>
+
+        <div class="shell-working-area">
+          <div class="page-content-wrapper">
+
+            <div class="page-top">
+              <div class="page-title">Legal & Privacy</div>
+              <div class="page-subtitle" data-inspect-phrase="legalPages.subHeading">These settings apply to your website and all Flows.</div>
+            </div>
+
+            <!-- Legal text generator cross-sell — Figma 11769:69136 -->
+            <div class="zone-upgrade">
+              <a class="upgrade-trigger" href="#" data-inspect-phrase="">
+                <span class="upgrade-trigger-text">Keep your legal pages up to date and guard against warning notices.</span>
+                <span class="upgrade-trigger-cta">Get legal text generator</span>
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15.0001 17L20 12L15 7"/><path d="M4 12H20"/></svg>
+              </a>
+            </div>
+
+            <!-- Statistics (top — primary action) -->
+            <div class="zone-statistics">
+              <div class="statistics-section">
+                <div class="card-status card-status--confirmation">
+                  <div class="card-status-highlight">
+                    <span class="card-status-highlight-icon">
+                      <svg viewBox="0 0 24 24"><path d="M22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12Z"/><path d="M8 12L11 15L16 9"/></svg>
+                    </span>
+                    <span class="card-status-highlight-label" data-inspect-phrase="archive.state.active">Active</span>
+                  </div>
+                  <div class="card-status-frame">
+                    <div class="card-status-content">
+                      <div class="card-status-header">
+                        <div class="card-status-copy">
+                          <div class="card-status-headline">Visitor tracking</div>
+                          <div class="card-status-desc" data-inspect-phrase="legalPages.visitorTracking.description">It can take a few hours for your statistics to show up.</div>
+                        </div>
+                        <button class="toggle" role="switch" aria-checked="true" aria-label="Visitor tracking">
+                          <span class="toggle-thumb" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                          </span>
+                        </button>
+                      </div>
+
+                      <div class="legal-notice">
+                        When you activate this feature, our <a href="#">Terms of Service</a> and <a href="#">Additional Information on Jimdo Statistics</a> apply. For further questions on how Jimdo processes your personal data, please read our <a href="#">Privacy Policy</a>.
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Legal pages (below) -->
+            <div class="zone-legal">
+              <div class="section-heading">
+                <span class="section-heading-text" data-inspect-phrase="legalPages.heading">Legal pages</span>
+              </div>
+              <div class="legal-cards">
+                <div class="legal-card" tabindex="0">
+                  <div class="legal-card-icon">
+                    <svg viewBox="0 0 24 24"><path d="M20 3.5H4C2.89543 3.5 2 4.39543 2 5.5V18.5C2 19.6046 2.89543 20.5 4 20.5H20C21.1046 20.5 22 19.6046 22 18.5V5.5C22 4.39543 21.1046 3.5 20 3.5Z"/><path d="M5 16C6.03569 13.4189 9.89616 13.2491 11 16M9.75 9.75C9.75 10.7165 8.9665 11.5 8 11.5C7.0335 11.5 6.25 10.7165 6.25 9.75C6.25 8.7835 7.0335 8 8 8C8.9665 8 9.75 8.7835 9.75 9.75Z"/><path d="M14 8.5H19M14 12H19M14 15.5H16.5"/></svg>
+                  </div>
+                  <div class="legal-card-content">
+                    <div class="legal-card-label">Imprint</div>
+                    <div class="legal-card-desc" data-inspect-phrase="legalPages.imprint">Contains essential business information, such as legal address and contact details.</div>
+                  </div>
+                  <a class="legal-card-link" data-inspect-phrase="legalPages.editCta">Edit</a>
+                </div>
+                <div class="legal-card" tabindex="0">
+                  <div class="legal-card-icon">
+                    <svg viewBox="0 0 24 24"><path d="M21 11.0511V6.12325C21 5.34825 20.4145 4.70502 19.6551 4.57302C16.595 4.04108 14.0546 2.85772 12.8152 2.20154C12.3077 1.93282 11.6923 1.93282 11.1848 2.20154C9.94542 2.85772 7.40502 4.04108 4.34489 4.57302C3.58552 4.70502 3 5.34825 3 6.12325V11.0511C3 17.4795 9.53762 20.9859 11.4689 21.8815C11.8097 22.0395 12.1903 22.0395 12.5311 21.8815C14.4624 20.9859 21 17.4795 21 11.0511Z"/><path d="M13.7516 8.25C13.7516 9.2165 12.9678 10 12.0008 10C11.0339 10 10.25 9.2165 10.25 8.25C10.25 7.2835 11.0339 6.5 12.0008 6.5C12.9678 6.5 13.7516 7.2835 13.7516 8.25Z"/><path d="M14.625 16H9.375C8.89175 16 8.5 15.6082 8.5 15.125C8.5 13.6753 9.67525 12.5 11.125 12.5H12.875C14.3247 12.5 15.5 13.6753 15.5 15.125C15.5 15.6082 15.1082 16 14.625 16Z"/></svg>
+                  </div>
+                  <div class="legal-card-content">
+                    <div class="legal-card-label">Privacy Policy</div>
+                    <div class="legal-card-desc" data-inspect-phrase="legalPages.privacyPolicy">Explains how you collect, use, and protect visitors' personal data.</div>
+                  </div>
+                  <a class="legal-card-link" data-inspect-phrase="legalPages.editCta">Edit</a>
+                </div>
+                <div class="legal-card" tabindex="0">
+                  <div class="legal-card-icon">
+                    <svg viewBox="0 0 24 24"><path d="M2 12C2 17.5228 6.48759 22 12.0233 22C17.2307 22 21.5107 18.0382 22 12.9709C21.8512 12.9901 21.6995 13 21.5455 13C19.6848 13 18.1625 11.5548 18.0446 9.72818C17.7481 9.90098 17.4031 10 17.035 10C15.9278 10 15.0303 9.10457 15.0303 8C15.0303 7.39892 15.2961 6.85978 15.7168 6.49315C14.7043 5.87927 14.028 4.76843 14.028 3.5C14.028 3.05943 14.1096 2.63788 14.2585 2.24956C13.5398 2.08624 12.7916 2 12.0233 2C6.48759 2 2 6.47715 2 12Z"/><path d="M11.009 12L11 12" stroke-width="2"/><path d="M6.00898 10L6 10" stroke-width="2"/><path d="M12.009 18L12 18" stroke-width="2"/><path d="M10 6L9 7"/><path d="M16.5 14.5L15.5 15.5"/><path d="M7 15L8 16"/></svg>
+                  </div>
+                  <div class="legal-card-content">
+                    <div class="legal-card-label">Cookie Settings</div>
+                    <div class="legal-card-desc" data-inspect-phrase="legalPages.cookiesSettings">Lets visitors manage their preferences for website cookies and tracking technologies.</div>
+                  </div>
+                  <a class="legal-card-link" data-inspect-phrase="legalPages.editCta">Edit</a>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       VARIANT 2: Statistics OFF
+       ═══════════════════════════════════════ -->
+  <div class="variant" id="v-off">
+    <div class="app-shell management-shell" style="height:100%; position:relative;">
+
+      <jimdo-topbar></jimdo-topbar>
+
+      <!-- Toast container — empty on load, populated by toggle interaction -->
+      <div class="toast-container" id="toast-off"></div>
+
+      <div class="shell-middle">
+        <jimdo-sidebar product="flows" active="legal-privacy" variant="contextual"
+                       back-label="More from Jimdo" back-product="core" back-screen="main-navigation.html"
+                       title="Flows" show-items="flows,solo-pages,legal-privacy"
+                       labels="flows=Bio Page" targets="flows=flows/home-dashboard-v2.html"
+                       hide-icons marker></jimdo-sidebar></jimdo-sidebar>
+
+        <div class="shell-working-area">
+          <div class="page-content-wrapper">
+
+            <div class="page-top">
+              <div class="page-title">Legal & Privacy</div>
+              <div class="page-subtitle" data-inspect-phrase="legalPages.subHeading">These settings apply to your website and all Flows.</div>
+            </div>
+
+            <!-- Legal text generator cross-sell — Figma 11769:69136 -->
+            <div class="zone-upgrade">
+              <a class="upgrade-trigger" href="#" data-inspect-phrase="">
+                <span class="upgrade-trigger-text">Keep your legal pages up to date and guard against warning notices.</span>
+                <span class="upgrade-trigger-cta">Get legal text generator</span>
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15.0001 17L20 12L15 7"/><path d="M4 12H20"/></svg>
+              </a>
+            </div>
+
+            <!-- Statistics — OFF state -->
+            <div class="zone-statistics">
+              <div class="statistics-section">
+                <div class="card-status card-status--neutral">
+                  <div class="card-status-highlight">
+                    <span class="card-status-highlight-icon">
+                      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2.5 2.5"/></svg>
+                    </span>
+                    <span class="card-status-highlight-label" data-inspect-phrase="legalPages.visitorTracking.inactiveBadge">Inactive</span>
+                  </div>
+                  <div class="card-status-frame">
+                    <div class="card-status-content">
+                      <div class="card-status-header">
+                        <div class="card-status-copy">
+                          <div class="card-status-headline">Visitor tracking</div>
+                          <div class="card-status-desc">Turn this on to see how many people visit your Flows.</div>
+                        </div>
+                        <button class="toggle" role="switch" aria-checked="false" aria-label="Visitor tracking">
+                          <span class="toggle-thumb" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                          </span>
+                        </button>
+                      </div>
+
+                      <div class="legal-notice">
+                        When you activate this feature, our <a href="#">Terms of Service</a> and <a href="#">Additional Information on Jimdo Statistics</a> apply. For further questions on how Jimdo processes your personal data, please read our <a href="#">Privacy Policy</a>.
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Legal pages -->
+            <div class="zone-legal">
+              <div class="section-heading">
+                <span class="section-heading-text" data-inspect-phrase="legalPages.heading">Legal pages</span>
+              </div>
+              <div class="legal-cards">
+                <div class="legal-card" tabindex="0">
+                  <div class="legal-card-icon">
+                    <svg viewBox="0 0 24 24"><path d="M20 3.5H4C2.89543 3.5 2 4.39543 2 5.5V18.5C2 19.6046 2.89543 20.5 4 20.5H20C21.1046 20.5 22 19.6046 22 18.5V5.5C22 4.39543 21.1046 3.5 20 3.5Z"/><path d="M5 16C6.03569 13.4189 9.89616 13.2491 11 16M9.75 9.75C9.75 10.7165 8.9665 11.5 8 11.5C7.0335 11.5 6.25 10.7165 6.25 9.75C6.25 8.7835 7.0335 8 8 8C8.9665 8 9.75 8.7835 9.75 9.75Z"/><path d="M14 8.5H19M14 12H19M14 15.5H16.5"/></svg>
+                  </div>
+                  <div class="legal-card-content">
+                    <div class="legal-card-label">Imprint</div>
+                    <div class="legal-card-desc" data-inspect-phrase="legalPages.imprint">Contains essential business information, such as legal address and contact details.</div>
+                  </div>
+                  <a class="legal-card-link" data-inspect-phrase="legalPages.editCta">Edit</a>
+                </div>
+                <div class="legal-card" tabindex="0">
+                  <div class="legal-card-icon">
+                    <svg viewBox="0 0 24 24"><path d="M21 11.0511V6.12325C21 5.34825 20.4145 4.70502 19.6551 4.57302C16.595 4.04108 14.0546 2.85772 12.8152 2.20154C12.3077 1.93282 11.6923 1.93282 11.1848 2.20154C9.94542 2.85772 7.40502 4.04108 4.34489 4.57302C3.58552 4.70502 3 5.34825 3 6.12325V11.0511C3 17.4795 9.53762 20.9859 11.4689 21.8815C11.8097 22.0395 12.1903 22.0395 12.5311 21.8815C14.4624 20.9859 21 17.4795 21 11.0511Z"/><path d="M13.7516 8.25C13.7516 9.2165 12.9678 10 12.0008 10C11.0339 10 10.25 9.2165 10.25 8.25C10.25 7.2835 11.0339 6.5 12.0008 6.5C12.9678 6.5 13.7516 7.2835 13.7516 8.25Z"/><path d="M14.625 16H9.375C8.89175 16 8.5 15.6082 8.5 15.125C8.5 13.6753 9.67525 12.5 11.125 12.5H12.875C14.3247 12.5 15.5 13.6753 15.5 15.125C15.5 15.6082 15.1082 16 14.625 16Z"/></svg>
+                  </div>
+                  <div class="legal-card-content">
+                    <div class="legal-card-label">Privacy Policy</div>
+                    <div class="legal-card-desc" data-inspect-phrase="legalPages.privacyPolicy">Explains how you collect, use, and protect visitors' personal data.</div>
+                  </div>
+                  <a class="legal-card-link" data-inspect-phrase="legalPages.editCta">Edit</a>
+                </div>
+                <div class="legal-card" tabindex="0">
+                  <div class="legal-card-icon">
+                    <svg viewBox="0 0 24 24"><path d="M2 12C2 17.5228 6.48759 22 12.0233 22C17.2307 22 21.5107 18.0382 22 12.9709C21.8512 12.9901 21.6995 13 21.5455 13C19.6848 13 18.1625 11.5548 18.0446 9.72818C17.7481 9.90098 17.4031 10 17.035 10C15.9278 10 15.0303 9.10457 15.0303 8C15.0303 7.39892 15.2961 6.85978 15.7168 6.49315C14.7043 5.87927 14.028 4.76843 14.028 3.5C14.028 3.05943 14.1096 2.63788 14.2585 2.24956C13.5398 2.08624 12.7916 2 12.0233 2C6.48759 2 2 6.47715 2 12Z"/><path d="M11.009 12L11 12" stroke-width="2"/><path d="M6.00898 10L6 10" stroke-width="2"/><path d="M12.009 18L12 18" stroke-width="2"/><path d="M10 6L9 7"/><path d="M16.5 14.5L15.5 15.5"/><path d="M7 15L8 16"/></svg>
+                  </div>
+                  <div class="legal-card-content">
+                    <div class="legal-card-label">Cookie Settings</div>
+                    <div class="legal-card-desc" data-inspect-phrase="legalPages.cookiesSettings">Lets visitors manage their preferences for website cookies and tracking technologies.</div>
+                  </div>
+                  <a class="legal-card-link" data-inspect-phrase="legalPages.editCta">Edit</a>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var VARIANTS = { 'on': 'v-on', 'off': 'v-off' };
+
+    function showVariant(key) {
+      document.querySelectorAll('.variant').forEach(function(v) { v.classList.remove('active'); });
+      var target = document.getElementById(VARIANTS[key]);
+      if (target) target.classList.add('active');
+    }
+
+    window.addEventListener('message', function(e) {
+      if (e.data && e.data.type === 'set-variant' && VARIANTS[e.data.variant]) {
+        showVariant(e.data.variant);
+      }
+    });
+
+    /* ─── Toast system — Hugeicons stroke-standard ─── */
+    var TOAST_ICONS = {
+      /* PartyStrokeStandardIcon from @hugeicons/react */
+      success: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7.81205 6.6438L2.08091 20.5623C1.72921 21.4164 2.58335 22.2705 3.43748 21.9188L17.356 16.1877C18.0416 15.9054 18.2194 15.0163 17.6951 14.492L9.50776 6.30466C8.98342 5.78032 8.09439 5.95812 7.81205 6.6438Z"/><path d="M6.5 10.5L13.5 17.5M4.5 15.5L8.5 19.5"/><path d="M16 8L19 5"/><path d="M14.1973 2C14.5963 2.66667 14.9156 4.4 13 6"/><path d="M22 9.80274C21.3333 9.40365 19.6 9.08438 18 11"/><path d="M17.9998 2V2.02"/><path d="M21.9998 6V6.02"/><path d="M20.9998 13V13.02"/><path d="M10.9998 3V3.02"/></svg>',
+      /* CheckmarkCircle02StrokeStandardIcon from @hugeicons/react */
+      info: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12Z"/><path d="M8 12L11 15L16 9"/></svg>'
+    };
+
+    function showToast(containerId, type, message) {
+      var container = document.getElementById(containerId);
+      if (!container) return;
+      container.innerHTML = '';
+
+      var toast = document.createElement('div');
+      toast.className = 'toast toast-' + type;
+
+      var icon = document.createElement('span');
+      icon.className = 'toast-icon';
+      icon.innerHTML = TOAST_ICONS[type] || '';
+
+      var msg = document.createElement('span');
+      msg.className = 'toast-message';
+      msg.textContent = message;
+
+      toast.appendChild(icon);
+      toast.appendChild(msg);
+      container.appendChild(toast);
+
+      /* Auto-dismiss after 5s — ~20 words ≈ 4s read time + 1s buffer */
+      setTimeout(function() {
+        if (toast.parentNode && !toast.classList.contains('toast-hiding')) {
+          toast.classList.add('toast-hiding');
+          toast.addEventListener('animationend', function() { toast.remove(); }, { once: true });
+        }
+      }, 5000);
+    }
+
+    /* ─── Toggle interaction — card-status variant swap ─── */
+    var HIGHLIGHT_ICONS = {
+      on: '<svg viewBox="0 0 24 24"><path d="M22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12Z"/><path d="M8 12L11 15L16 9"/></svg>',
+      off: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2.5 2.5"/></svg>'
+    };
+
+    document.querySelectorAll('.toggle').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var isOn = btn.getAttribute('aria-checked') === 'true';
+        var newState = !isOn;
+        btn.setAttribute('aria-checked', newState ? 'true' : 'false');
+
+        /* Swap card-status variant */
+        var card = btn.closest('.card-status');
+        if (card) {
+          card.classList.remove('card-status--confirmation', 'card-status--neutral');
+          card.classList.add(newState ? 'card-status--confirmation' : 'card-status--neutral');
+
+          /* Update highlight strip */
+          var highlightIcon = card.querySelector('.card-status-highlight-icon');
+          var highlightLabel = card.querySelector('.card-status-highlight-label');
+          if (highlightIcon) highlightIcon.innerHTML = newState ? HIGHLIGHT_ICONS.on : HIGHLIGHT_ICONS.off;
+          if (highlightLabel) highlightLabel.textContent = newState ? 'Active' : 'Inactive';
+
+          /* Update description */
+          var desc = card.querySelector('.card-status-desc');
+          if (desc) desc.textContent = newState
+            ? 'It can take a few hours for your statistics to show up.'
+            : 'Turn this on to see how many people visit your Flows.';
+        }
+
+        /* Show toast in the correct variant container */
+        var variantEl = btn.closest('.variant');
+        var containerId = variantEl ? variantEl.querySelector('.toast-container').id : null;
+        if (containerId) {
+          if (newState) {
+            showToast(containerId, 'success', 'You have successfully activated Jimdo Statistics! It may take a few hours before you start seeing traffic.');
+          } else {
+            showToast(containerId, 'info', 'Visitor tracking has been turned off.');
+          }
+        }
+      });
+    });
+
+    /* ─── Mobile menu toggle handled by jimdo-topbar component ─── */
+  </script>
+
+  <!-- Design annotations — read by workbench chrome -->
+  <script type="application/json" id="design-annotations">
+  []
+  </script>
+
+</body>
+</html>

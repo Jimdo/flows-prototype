@@ -1,0 +1,5360 @@
+/* ═══════════════════════════════════════════════════════
+   Hi-Fi Design Components
+   Shared visual components for Design tab example screens.
+   Link after layout.css: <link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+   ═══════════════════════════════════════════════════════ */
+
+
+/* ─── Layer 1: Foundation ─── */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+button, input, select, textarea { font-family: inherit; }
+
+/* <jimdo-icon> — wrapper has no own size; parent CSS sizes the inner <svg>. */
+jimdo-icon { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; line-height: 0; }
+jimdo-icon svg { display: block; }
+
+:root {
+  --jui-color-actions-primary-tint: rgba(0, 76, 237, 0.08);
+  --jui-color-blue-focus: rgba(0, 76, 237, 0.1);
+  --jui-color-surface-glass: rgba(255, 255, 255, 0.8);
+  --jui-color-surface-glass-border: rgba(255, 255, 255, 0.9);
+  --jui-effects-elevation-blue-lg: 0 4px 32px rgba(0, 76, 237, 0.10);
+  --jui-effects-elevation-blue-sm: 0 4px 16px rgba(0, 76, 237, 0.10);
+  --jui-layout-width-m: 576px;
+  --jui-typography-body-medium-medium-lh: 1.5;
+  --jui-typography-body-medium-medium-size: 1rem;
+  --jui-typography-body-medium-medium-weight: 500;
+  --jui-typography-body-medium-regular-lh: 1.5;
+  --jui-typography-body-medium-regular-size: 1rem;
+  --jui-typography-body-medium-regular-weight: 400;
+  --jui-typography-body-medium-semibold-lh: 1.5;
+  --jui-typography-body-medium-semibold-size: 1rem;
+  --jui-typography-body-medium-semibold-weight: 600;
+  --jui-typography-body-small-medium-lh: 1.57;
+  --jui-typography-body-small-medium-size: 0.875rem;
+  --jui-typography-body-small-medium-weight: 500;
+  --jui-typography-body-small-regular-lh: 1.57;
+  --jui-typography-body-small-regular-size: 0.875rem;
+  --jui-typography-body-small-regular-weight: 400;
+  --jui-typography-label-small-lh: 1.66;
+  --jui-typography-label-small-ls: 0.08em;
+  --jui-typography-label-small-size: 0.75rem;
+  --jui-typography-label-small-weight: 600;
+  /* Label/Medium — Figma 14 / 600 / 1.57 / 1.12px tracking. Not present in the
+     @jimdo/ui baseline, so declared here with the other local-only tokens. */
+  --jui-typography-label-medium-lh: 1.57;
+  --jui-typography-label-medium-ls: 0.08em;
+  --jui-typography-label-medium-size: 0.875rem;
+  --jui-typography-label-medium-weight: 600;
+  --jui-typography-link-small-ls: 0.01em;
+  --jui-typography-sub-headline-large-lh: 1.33;
+  --jui-typography-sub-headline-large-size: 1.5rem;
+  --jui-typography-sub-headline-large-weight: 500;
+  --jui-typography-sub-headline-medium-lh: 1.4;
+  --jui-typography-sub-headline-medium-size: 1.25rem;
+  --jui-typography-sub-headline-medium-weight: 500;
+  --jui-typography-sub-headline-small-lh: 1.25;
+  --jui-typography-sub-headline-small-size: 1rem;
+  --jui-typography-sub-headline-small-weight: 500;
+}
+
+body {
+  font-family: 'Euclid Circular A', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background: var(--jui-color-gray-white);
+  color: var(--jui-color-gray-black);
+}
+
+/* Variant system — used by multi-state screens */
+.variant { display: none; }
+.variant.active { display: flex; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden; }
+
+
+/* ─── Layer 2: Buttons ─── */
+
+.btn-primary {
+  display: flex; align-items: center; justify-content: center;
+  gap: var(--jui-layout-gap-s);
+  width: 100%; height: 48px; border-radius: var(--jui-component-button-radius);
+  background: var(--jui-color-actions-primary-rest); color: var(--jui-color-gray-white);
+  font-family: inherit; font-size: 16px; font-weight: 500;
+  letter-spacing: 0.16px; line-height: 1.5;
+  border: none; cursor: pointer; transition: background 150ms ease;
+}
+.btn-primary svg { width: 20px; height: 20px; flex-shrink: 0; }
+.btn-primary:hover { background: var(--jui-color-actions-primary-hover); }
+.btn-primary:active { background: var(--jui-color-actions-primary-pressed); }
+.btn-primary:focus-visible { outline: 2px solid var(--jui-color-actions-primary-rest); outline-offset: 2px; }
+
+/* Subtle — mirrors @jimdo/ui Button buttonStyle="subtle":
+   same dimensions as primary, transparent bg, black text,
+   faint tint on hover/active. Used for skip, dismiss, back. */
+.btn-subtle {
+  display: flex; align-items: center; justify-content: center;
+  gap: var(--jui-layout-gap-s);
+  width: 100%; height: 48px; border-radius: var(--jui-style-radius-xs);
+  background: transparent; color: var(--jui-color-typography-gray-on-light-default);
+  font-family: inherit; font-size: 16px; font-weight: 500;
+  letter-spacing: 0.16px; line-height: 1.5;
+  border: 1px solid transparent; cursor: pointer;
+  transition: background-color 200ms ease-out;
+}
+.btn-subtle svg { width: 20px; height: 20px; flex-shrink: 0; }
+.btn-subtle:hover { background: rgba(0, 0, 0, 0.02); }
+.btn-subtle:active { background: rgba(0, 0, 0, 0.04); }
+.btn-subtle:focus-visible { outline: 2px solid var(--jui-color-actions-primary-rest); outline-offset: 2px; }
+
+/* Secondary (outlined) — mirrors @jimdo/ui Button buttonStyle="secondary":
+   white bg, blue-100 border, blue-500 text. Border darkens on hover/active. */
+.btn-secondary {
+  display: flex; align-items: center; justify-content: center;
+  gap: var(--jui-layout-gap-s);
+  width: 100%; height: 48px; border-radius: var(--jui-component-button-radius);
+  background: var(--jui-color-gray-white); color: var(--jui-color-actions-primary-rest);
+  font-family: inherit; font-size: 16px; font-weight: 500;
+  letter-spacing: 0.16px; line-height: 1.5;
+  border: 1px solid var(--jui-color-blue-100); cursor: pointer;
+  transition: background-color 200ms ease-out, border-color 200ms ease-out, color 200ms ease-out;
+}
+.btn-secondary svg { width: 20px; height: 20px; flex-shrink: 0; }
+.btn-secondary:hover { background: var(--jui-color-gray-10); color: var(--jui-color-actions-primary-hover); }
+.btn-secondary:active { background: var(--jui-color-gray-50); }
+.btn-secondary:focus-visible { outline: 2px solid var(--jui-color-actions-primary-rest); outline-offset: 2px; }
+
+/* Size modifier — small (32px). Applies to any style variant.
+   Mirrors @jimdo/ui buttonSize="small": 32px height, 14px font, 4px 12px padding.
+   Small buttons are inline by default (header CTAs, inline actions), with
+   nowrap text and flex-shrink:0 to survive narrow flex containers.
+   Usage: <button class="btn-primary btn-sm">…</button> */
+.btn-sm {
+  display: inline-flex;
+  gap: var(--jui-layout-gap-xs);
+  height: var(--jui-layout-dimension-s);
+  padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-s);
+  font-size: var(--jui-typography-body-small-medium-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  letter-spacing: var(--jui-typography-link-small-ls);
+  width: auto;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.btn-sm svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+
+/* ─── Layer 3: Form elements ─── */
+
+.form-input {
+  width: 100%;
+  padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-s);
+  border: 1px solid var(--jui-component-input-color-field-stroke-rest);
+  border-radius: var(--jui-style-radius-m);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--jui-color-typography-gray-on-light-default);
+  background: var(--jui-color-background-gray-light);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.form-input:not(:focus):hover { border-color: var(--jui-component-input-color-field-stroke-hover); }
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--jui-color-stroke-primary-actionable);
+  box-shadow: 0 4px 24px 0 var(--jui-color-blue-focus), 0 0 0 2px var(--jui-color-gray-white), 0 0 0 3px var(--jui-color-actions-primary-rest);
+}
+
+.form-input::placeholder {
+  color: var(--jui-color-gray-400);
+}
+
+/* Static focused appearance for design mockups (mirrors :focus) */
+.form-input.focused {
+  border-color: var(--jui-color-stroke-primary-actionable);
+  box-shadow: 0 4px 24px 0 var(--jui-color-blue-focus), 0 0 0 2px var(--jui-color-gray-white), 0 0 0 3px var(--jui-color-actions-primary-rest);
+}
+
+.form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-l);
+}
+
+/* ─── Toggle — 44×24 pill with check glyph ───
+   Figma node 10098:8702
+   OFF: white bg, 2px gray-300 border, 16×16 gray-300 thumb on left
+   ON:  blue-500 bg + border, 20×20 white thumb flush right with blue check inside
+   Supports two markup patterns:
+     1. Button: <button class="toggle" role="switch" aria-checked="true"><span class="toggle-thumb"><svg/></span></button>
+     2. Label+checkbox: <label class="toggle"><input type="checkbox" checked><span class="toggle-thumb"><svg/></span></label>
+*/
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+  padding: 0;
+  cursor: pointer;
+  vertical-align: middle;
+  background: var(--jui-color-background-gray-light);
+  border: 2px solid var(--jui-component-input-color-field-stroke-rest);
+  border-radius: var(--jui-style-radius-l);
+  box-sizing: border-box;
+  transition: background-color 0.18s ease, border-color 0.18s ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.toggle > input[type="checkbox"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--jui-component-input-color-field-stroke-rest);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: transparent;
+  pointer-events: none;
+  transition: top 0.18s ease, left 0.18s ease, width 0.18s ease, height 0.18s ease, background-color 0.18s ease, color 0.18s ease;
+}
+.toggle-thumb > svg { width: 10px; height: 10px; }
+
+.toggle[aria-checked="true"],
+.toggle.on,
+.toggle:has(> input[type="checkbox"]:checked) {
+  background: var(--jui-color-actions-primary-rest);
+  border-color: var(--jui-color-actions-primary-rest);
+}
+
+.toggle[aria-checked="true"] .toggle-thumb,
+.toggle.on .toggle-thumb,
+.toggle:has(> input[type="checkbox"]:checked) .toggle-thumb {
+  top: 0;
+  left: 20px; /* padding-box 40px − 20px thumb = 20 → 2px gap from outer right (matches border width) */
+  width: 20px;
+  height: 20px;
+  background: var(--jui-color-gray-white);
+  color: var(--jui-color-actions-primary-rest);
+}
+
+.toggle:focus-visible,
+.toggle:has(> input[type="checkbox"]:focus-visible) {
+  outline: 2px solid var(--jui-color-actions-primary-rest);
+  outline-offset: 2px;
+}
+
+.toggle:active { opacity: 0.9; }
+
+/* ─── Field Row — collapsible container with input(s) inside ───
+   Figma "Field" node 5168:16903 (collapsed) / "QuestionV2" node 5168:16896 (expanded)
+   Structure:
+     <div class="field-card" [is-expanded]>
+       <button class="field-card-head">
+         <svg class="field-card-icon">…</svg>
+         <span class="field-card-label">Label</span>
+         <span class="field-card-chevron-btn"><svg chevron-down/></span>
+       </button>
+       <div class="field-card-input-slot">…inputs…</div>
+       <div class="field-card-actions">…actions…</div>
+     </div>
+*/
+.field-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--jui-color-background-gray-light);
+  border: 1px solid var(--jui-color-stroke-gray-default);
+  border-radius: var(--jui-style-radius-m);
+  width: 100%;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+.field-card:hover { border-color: var(--jui-color-gray-300); }
+
+/* Head = the trigger. Same padding/layout collapsed or expanded.
+   Figma: pl 16, pr 8, py 8, gap 12, icon 16, label body-small-regular, chevron btn 32. */
+.field-card-head {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-s);
+  padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-xs) var(--jui-layout-padding-xs) var(--jui-layout-padding-m);
+  background: none;
+  border: none;
+  border-radius: inherit;
+  font-family: inherit;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+  color: inherit;
+}
+.field-card-head:focus-visible { outline: var(--jui-effects-on-light-focus); outline-offset: 2px; }
+
+/* Collapsed state: hide everything except the head. */
+.field-card:not(.is-expanded) > :not(.field-card-head) { display: none; }
+
+/* 16px leading icon */
+.field-card-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--jui-color-typography-gray-on-light-subdued);
+  flex-shrink: 0;
+}
+
+/* Label — body/small/regular (14/1.57/0)
+   Figma: active/filled fields use black; placeholders (hidden/empty) use gray-400. */
+.field-card-label {
+  flex: 1 0 0;
+  min-width: 0;
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  color: var(--jui-color-typography-gray-on-light-default);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.field-card-label.placeholder { color: var(--jui-color-gray-400); }
+
+/* Optional status tag inside the head (SETUP / UPGRADE etc.) */
+.field-card-status {
+  font-size: var(--jui-typography-label-small-size);
+  font-weight: var(--jui-typography-label-small-weight);
+  letter-spacing: var(--jui-typography-label-small-ls);
+  text-transform: uppercase;
+}
+.field-card-status.upgrade { color: var(--jui-color-typography-upgrade-on-light); }
+.field-card-status.setup   { color: var(--jui-color-typography-gray-on-light-subdued); }
+
+/* Trailing chevron — 32×32 button, 24×24 icon (subtle icon-only) */
+.field-card-chevron-btn {
+  width: var(--jui-layout-dimension-s);
+  height: var(--jui-layout-dimension-s);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: var(--jui-component-button-radius);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+  flex-shrink: 0;
+  transition: background-color 0.12s ease, transform 0.18s ease;
+  pointer-events: none; /* head handles the click */
+}
+.field-card-chevron-btn svg { width: 24px; height: 24px; }
+.field-card.is-expanded .field-card-chevron-btn { transform: rotate(180deg); }
+
+/* Expanded: 2px blue border + elevation. */
+.field-card.is-expanded {
+  border: 2px solid var(--jui-color-actions-primary-rest);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.10);
+}
+
+/* Input slot inside expanded card — Figma: px 16 py 0, stacked with gap-xs */
+.field-card-input-slot {
+  padding: 0 var(--jui-layout-padding-m);
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xs);
+}
+
+.field-card-input-slot:last-child {
+  padding-bottom: var(--jui-layout-padding-m);
+}
+
+/* Actions row inside expanded card — Figma QuestionActions: px 16 py 12 */
+.field-card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-m) var(--jui-layout-padding-s);
+}
+
+/* Labelled input pattern used inside field-card-input-slot
+   Figma: label body-small-medium above TextField, small vertical gap */
+.labelled-input {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xxs);
+  padding: var(--jui-layout-padding-xxs) 0 var(--jui-layout-padding-xs);
+}
+.labelled-input-label {
+  font-size: var(--jui-typography-body-small-medium-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+
+/* Trailing "Visible" + toggle group inside .field-card-actions */
+.visible-group {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-s);
+}
+.visible-label {
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+
+.form-hint {
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+  text-align: center;
+  line-height: var(--jui-typography-body-small-regular-lh);
+}
+
+
+/* ─── Layer 4: Setup header ─── */
+
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: var(--jui-layout-padding-s);
+  padding-right: var(--jui-layout-padding-s);
+  max-width: var(--layout-container-max);
+  margin: 0 auto;
+  width: 100%;
+}
+
+.icon-btn {
+  width: var(--jui-layout-dimension-m);
+  height: var(--jui-layout-dimension-m);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--layout-radius-sm);
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--jui-color-typography-gray-on-light-default);
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.icon-btn:hover { background: var(--jui-color-background-gray-canvas); }
+.icon-btn svg { width: 24px; height: 24px; }
+
+.header-spacer {
+  width: var(--jui-layout-dimension-m);
+  height: var(--jui-layout-dimension-m);
+  flex-shrink: 0;
+}
+
+.progress-bar {
+  display: flex;
+  gap: var(--jui-layout-gap-xxs);
+  align-items: center;
+  width: 128px;
+  height: 8px;
+  padding: 2px 0;
+}
+
+.progress-segment {
+  flex: 1;
+  height: 2px;
+  border-radius: var(--jui-style-radius-l);
+  background: var(--jui-color-background-primary-medium);
+}
+
+.progress-segment.filled {
+  background: var(--jui-color-actions-primary-rest);
+}
+
+
+/* ─── Layer 4.5: Screen header (label + action) ───
+   Top-of-screen bar used by screens that need a short status
+   label (uppercase, label-small, subdued) plus a trailing action
+   button (Done, Save and Continue, etc.). Used by:
+     - bio-page-links-edit.html  ("EDITING LINKS" + Done)
+     - bio-page-preview.html     ("PREVIEWING"   + Save and Continue)
+   Button classes stay per-screen (they differ semantically); this
+   layer only owns the wrapper + label styling. */
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-s);
+  padding: var(--jui-layout-padding-s) 0;
+}
+
+.page-header-label {
+  font-size: var(--jui-typography-label-small-size);
+  font-weight: var(--jui-typography-label-small-weight);
+  letter-spacing: var(--jui-typography-label-small-ls);
+  line-height: var(--jui-typography-label-small-lh);
+  text-transform: uppercase;
+  color: var(--jui-color-typography-gray-on-light-subdued);
+  flex: 1 0 0;
+  min-width: 0;
+}
+
+
+/* ─── Layer 4.6: Screen footer action row ───
+   Shared wrapper + base button for bottom-of-screen action rows on
+   bio-link-style editor/preview screens. Distinct from layout.css's
+   `.footer-actions` (which targets setup/onboarding anatomy with
+   flex-direction: column). Sizes, spacing, icon size, font,
+   transition and state semantics are common. The two visual
+   variants differ only in shape + fill:
+     .footer-btn--pill  : pill radius + blue-tint fill + blue-400 border
+     .footer-btn--ghost : 8px radius  + white fill     + blue-200 border
+   Used by:
+     - bio-page-preview.html     (Design / Links tab pills) → --pill
+     - bio-page-links-edit.html  (Add / Reorder)            → --ghost */
+
+.screen-footer-actions {
+  display: flex;
+  flex-direction: row;
+  gap: var(--jui-layout-gap-xs);
+  padding: var(--jui-layout-padding-s) 0;
+}
+
+.footer-btn {
+  flex: 1 0 0;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--jui-layout-gap-xs);
+  height: var(--jui-layout-dimension-s);
+  padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-s);
+  border: 1px solid transparent;
+  font-family: inherit;
+  font-size: var(--jui-typography-body-small-medium-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  letter-spacing: var(--jui-typography-link-small-ls);
+  color: var(--jui-color-actions-primary-rest);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.12s ease, border-color 0.12s ease, filter 0.12s ease;
+}
+.footer-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+.footer-btn:focus-visible { outline: var(--jui-effects-on-light-focus); outline-offset: 2px; }
+.footer-btn[disabled] { opacity: 0.4; pointer-events: none; }
+
+/* Pill variant — blue-tint fill, fully rounded (preview screens) */
+.footer-btn--pill {
+  background: var(--jui-color-background-primary-light);
+  border-color: var(--jui-color-blue-400);
+  border-radius: 9999px;
+}
+.footer-btn--pill:hover { filter: brightness(0.96); }
+.footer-btn--pill:active,
+.footer-btn--pill.is-active { filter: brightness(0.93); }
+
+/* Ghost variant — white fill, 8px rounded (editor screens) */
+.footer-btn--ghost {
+  background: var(--jui-color-background-gray-light);
+  border-color: var(--jui-color-blue-200);
+  border-radius: var(--jui-style-radius-m);
+}
+.footer-btn--ghost:hover { background: var(--jui-color-background-primary-light); }
+.footer-btn--ghost:active,
+.footer-btn--ghost.is-active {
+  background: var(--jui-color-background-primary-light);
+  border-color: var(--jui-color-blue-400);
+}
+
+
+/* ─── Layer 4.7: Drawer (bottom sheet) ───
+   Figma references: 7796:54005 (Edit font pairings) and 7537:22582 (Style).
+   Shared anatomy: header (title + optional trailing close/action)
+                   body (scrollable)
+                   footer (optional — CTA or info strip)
+   Used by:
+     - bio-page-links-edit.html            (#add-drawer, #hours-drawer)
+     - flows-suggestions.html              (#peek-drawer — share context)
+     - onboarding-business-details.html    (#hours-drawer — opening hours)
+   Modifier:
+     .drawer--desktop-modal             → on desktop: centers sheet, max-width 480,
+                                           all-corners radius (peek-drawer behavior). */
+
+.drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  pointer-events: none;
+  visibility: hidden;
+  transition: visibility 0s 0.22s;
+}
+.drawer.is-open {
+  pointer-events: auto;
+  visibility: visible;
+  transition: visibility 0s 0s;
+}
+
+.drawer-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0);
+  transition: background-color 0.18s ease;
+}
+.drawer.is-open .drawer-backdrop { background: rgba(0, 0, 0, 0.35); }
+
+.drawer-sheet {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--jui-color-background-gray-light);
+  border-radius: var(--jui-style-radius-16) var(--jui-style-radius-16) 0 0;
+  box-shadow: 0 0 var(--jui-layout-padding-m) rgba(0, 0, 0, 0.2);
+  max-height: calc(100vh - var(--jui-layout-padding-l));
+  overflow: hidden;
+  transform: translateY(100%);
+  transition: transform 0.22s ease;
+}
+.drawer.is-open .drawer-sheet { transform: translateY(0); }
+
+/* Desktop-modal variant — centered, all-corners radius */
+@media (min-width: 768px) {
+  .drawer--desktop-modal { justify-content: center; align-items: center; }
+  .drawer--desktop-modal .drawer-sheet {
+    border-radius: var(--jui-style-radius-16);
+    max-width: var(--jui-layout-width-m);
+    width: 100%;
+    max-height: 80vh;
+    transform: translateY(var(--jui-layout-padding-m));
+    opacity: 0;
+    transition: transform 0.22s ease, opacity 0.22s ease;
+  }
+  .drawer--desktop-modal.is-open .drawer-sheet { transform: translateY(0); opacity: 1; }
+}
+
+/* Header — title + optional trailing action/close */
+.drawer-header {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-s);
+  padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-xs) 0 var(--jui-layout-padding-s);
+  flex-shrink: 0;
+}
+
+.drawer-title {
+  flex: 1 0 0;
+  min-width: 0;
+  font-size: var(--jui-typography-body-medium-medium-size);
+  font-weight: var(--jui-typography-body-medium-medium-weight);
+  line-height: var(--jui-typography-body-medium-medium-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+
+/* Close icon button — 48×48 hit area, 24px icon */
+.drawer-close {
+  flex-shrink: 0;
+  width: var(--jui-layout-dimension-m);
+  height: var(--jui-layout-dimension-m);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: var(--jui-style-radius-xs);
+  color: var(--jui-color-typography-gray-on-light-default);
+  cursor: pointer;
+  padding: 0;
+  transition: background-color 0.12s ease;
+}
+.drawer-close:hover { background: var(--jui-color-background-gray-canvas); }
+.drawer-close:focus-visible { outline: var(--jui-effects-on-light-focus); outline-offset: 2px; }
+.drawer-close svg { width: var(--jui-layout-dimension-xs); height: var(--jui-layout-dimension-xs); }
+
+/* Action button — alternative trailing element (e.g. "Confirm", "Done") */
+.drawer-action {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--jui-layout-dimension-s);
+  padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-s);
+  background: var(--jui-color-background-gray-light);
+  border: 1px solid var(--jui-color-stroke-primary-on-light);
+  border-radius: var(--jui-style-radius-xs);
+  color: var(--jui-color-actions-primary-rest);
+  font-family: inherit;
+  font-size: var(--jui-typography-body-small-medium-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  letter-spacing: var(--jui-typography-link-small-ls);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.12s ease, border-color 0.12s ease;
+}
+.drawer-action:hover { background: var(--jui-color-background-primary-light); }
+.drawer-action:focus-visible { outline: var(--jui-effects-on-light-focus); outline-offset: 2px; }
+
+/* Body — scrollable content region */
+.drawer-body {
+  padding: var(--jui-layout-padding-m);
+  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xs);
+}
+
+/* Optional hint paragraph directly below the title (inside drawer-body top). */
+.drawer-hint {
+  margin: 0 0 var(--jui-layout-padding-m);
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
+/* Footer — optional CTA row at the bottom */
+.drawer-footer {
+  flex-shrink: 0;
+  padding: var(--jui-layout-padding-s) var(--jui-layout-padding-m) var(--jui-layout-padding-m);
+  background: var(--jui-color-background-gray-light);
+}
+
+/* Footer info strip — muted context note (Figma node 7796:53536) */
+.drawer-footer-info {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-s);
+  padding: var(--jui-layout-padding-s);
+  margin: 0 var(--jui-layout-padding-s) var(--jui-layout-padding-m);
+  background: var(--jui-color-gray-10);
+  border: 1px solid var(--jui-color-gray-50);
+  border-radius: var(--jui-style-radius-m);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
+}
+.drawer-footer-info svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+
+/* ─── Layer 5: Page intro ─── */
+
+.page-content {
+  padding-top: var(--jui-layout-padding-l);
+  padding-bottom: var(--jui-layout-padding-l);
+}
+
+.page-intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--page-intro-gap, 0);
+  text-align: var(--page-intro-align, center);
+  margin-bottom: var(--page-intro-mb, 24px);
+}
+
+.page-title {
+  font-size: var(--page-title-size, var(--jui-typography-sub-headline-medium-size));
+  font-weight: var(--jui-typography-sub-headline-medium-weight);
+  color: var(--jui-color-typography-gray-on-light-default);
+  line-height: var(--page-title-lh, var(--jui-typography-sub-headline-medium-lh));
+}
+
+.page-subtitle {
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  color: var(--jui-color-typography-gray-on-light-default);
+  line-height: var(--jui-typography-body-small-regular-lh);
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   Layer 6: Toast Notifications
+   Transient feedback confirming a user action just completed.
+   Auto-dismisses after 5 seconds. No close button.
+
+   Anatomy:
+     .toast-container          — positioning wrapper (screen sets position)
+       .toast.toast-{variant}  — notification card
+         .toast-icon           — Hugeicons SVG (24×24, stroke-standard)
+         .toast-message        — text content (Body/Small: 14/400)
+
+   Variants:  toast-success · toast-info · toast-warning · toast-error
+   Each variant sets: background (-light), border (-actionable), icon color (-actionable)
+
+   Figma tokens used:
+     background → color/background/{intent}/light
+     border     → color/stroke/{intent}/actionable
+     icon       → color/actions/{intent}/rest
+
+   Animation:
+     In:  toastSlideIn  — 300ms ease, fade + slide from right
+     Out: toastSlideOut — 200ms ease (add .toast-hiding class)
+
+   Timing:
+     5 seconds — covers ~20 words at average reading speed + 1s buffer.
+     WCAG-friendly minimum for non-interactive timed content.
+
+   Icons (Hugeicons stroke-standard, from @hugeicons/react):
+     success → PartyStrokeStandardIcon
+     info    → CheckmarkCircle02StrokeStandardIcon
+     warning → Alert02StrokeStandardIcon (suggested)
+     error   → Cancel01StrokeStandardIcon (suggested)
+
+   Usage (static):
+     <div class="toast-container" style="position:absolute; top:56px; right:24px;">
+       <div class="toast toast-success">
+         <span class="toast-icon"><svg ...><!-- Hugeicons SVG --></svg></span>
+         <span class="toast-message">Action completed successfully.</span>
+       </div>
+     </div>
+
+   Usage (dynamic — preferred):
+     showToast('container-id', 'success', 'Your message here.');
+
+   Positioning: .toast-container is unstyled by default.
+   Each screen sets position via page-level CSS:
+     position: absolute; top: 56px; right: 24px;  (desktop)
+     position: absolute; top: 72px; left: 20px; right: 20px;  (mobile)
+   ═══════════════════════════════════════════════════════ */
+
+.toast-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xs);
+  pointer-events: none;
+  z-index: 30;
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--jui-layout-gap-s);
+  padding: var(--jui-layout-padding-m);
+  border-radius: var(--jui-style-radius-l);
+  border: 1px solid transparent;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.57;
+  letter-spacing: 0;
+  color: var(--jui-color-typography-gray-on-light-default);
+  max-width: 400px;
+  pointer-events: auto;
+  animation: toastSlideIn 300ms ease both;
+}
+
+.toast-icon {
+  flex-shrink: 0;
+  font-size: 18px;
+  line-height: 22px; /* aligns with first text line: 14px × 1.57 ≈ 22px */
+  display: flex;
+  align-items: flex-start;
+}
+.toast-icon svg {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.toast-message {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ─── Dismiss animation ─── */
+.toast.toast-hiding {
+  animation: toastSlideOut 200ms ease both;
+}
+
+/* ─── Success (green) — positive confirmations ─── */
+.toast-success {
+  background: var(--jui-color-background-positive-light);
+  border-color: var(--jui-color-stroke-positive-actionable);
+}
+.toast-success .toast-icon { color: var(--jui-color-actions-positive-rest); }
+
+/* ─── Info (blue) — neutral confirmations ─── */
+.toast-info {
+  background: var(--jui-color-background-primary-light);
+  border-color: var(--jui-color-stroke-primary-actionable);
+}
+.toast-info .toast-icon { color: var(--jui-color-actions-primary-rest); }
+
+/* ─── Warning (amber) — caution notices ─── */
+.toast-warning {
+  background: var(--jui-color-background-notice-light);
+  border-color: var(--jui-color-decorative-notice);
+}
+.toast-warning .toast-icon { color: var(--jui-color-yellow-500); }
+
+/* ─── Error (red) — failure notices ─── */
+.toast-error {
+  background: var(--jui-color-background-negative-light);
+  border-color: var(--jui-color-stroke-negative-actionable);
+}
+.toast-error .toast-icon { color: var(--jui-color-actions-negative-rest); }
+
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes toastSlideOut {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(16px); }
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   LAYER 7 — Card Status
+   Figma: nodes 9396:30076 (neutral), 9396:30146 (confirmation)
+   Status-frame card: colored highlight strip + colored border
+   wrapping a white content area. Used for settings with
+   active/inactive states (e.g., statistics toggle).
+
+   Figma tokens used:
+     neutral:      color/background/gray/dark → highlight + frame
+     confirmation: color/background/positive/dark → highlight + frame
+                   color/typography/positive/on-light → text
+   ═══════════════════════════════════════════════════════ */
+
+.card-status {
+  border-radius: var(--jui-style-radius-m);
+  overflow: hidden;
+  transition: background-color 300ms ease;
+}
+
+/* ─── Highlight strip — icon + status label ─── */
+.card-status-highlight {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
+  padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-s);
+  transition: background-color 300ms ease, color 300ms ease;
+}
+.card-status-highlight-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+}
+.card-status-highlight-icon svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* Label/Small: 12px, 600, 0.96px, uppercase */
+.card-status-highlight-label {
+  font-size: var(--jui-typography-label-small-size);
+  font-weight: var(--jui-typography-label-small-weight);
+  letter-spacing: var(--jui-typography-label-small-ls);
+  text-transform: uppercase;
+  line-height: var(--jui-typography-label-small-lh);
+}
+
+/* ─── Frame — colored border wrapper ─── */
+.card-status-frame {
+  padding: 0 4px 4px;
+  transition: background-color 300ms ease;
+}
+
+/* ─── Content — white inner area ─── */
+.card-status-content {
+  background: var(--jui-color-background-gray-light);
+  border-radius: var(--jui-style-radius-s);
+  padding: var(--jui-layout-padding-m);
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-m);
+}
+
+/* ─── Header — headline + action row ─── */
+.card-status-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--jui-layout-gap-m);
+}
+.card-status-copy {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+/* Subheadline/Medium: 20px, 500, 0, 1.4 */
+.card-status-headline {
+  font-size: var(--jui-typography-sub-headline-medium-size);
+  font-weight: var(--jui-typography-sub-headline-medium-weight);
+  color: var(--jui-color-typography-gray-on-light-default);
+  line-height: var(--jui-typography-sub-headline-medium-lh);
+  letter-spacing: 0;
+}
+/* Body/Medium/Regular: 16px, 400, 0, 1.5 */
+.card-status-desc {
+  font-size: var(--jui-typography-body-medium-regular-size);
+  font-weight: var(--jui-typography-body-medium-regular-weight);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+  line-height: var(--jui-typography-body-medium-regular-lh);
+  letter-spacing: 0;
+}
+
+/* ═══ Variant: Neutral (inactive/off) ═══ */
+.card-status--neutral .card-status-highlight {
+  background: var(--jui-color-background-gray-dark);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+.card-status--neutral .card-status-frame {
+  background: var(--jui-color-background-gray-dark);
+}
+
+/* ═══ Variant: Upgrade (entitlement limit reached) ═══ */
+/* color/background/upgrade/dark → purple-100 (#e4b5ff)        */
+/* color/typography/upgrade/on-light → purple-800 (#4e0079)    */
+.card-status--upgrade .card-status-highlight {
+  background: var(--jui-color-background-upgrade-dark);
+  color: var(--jui-color-typography-upgrade-on-light);
+}
+.card-status--upgrade .card-status-frame {
+  background: var(--jui-color-background-upgrade-dark);
+}
+
+/* ═══ Variant: Confirmation (active/on) ═══ */
+/* color/background/positive/dark → green-100 (#b5f2ce)        */
+/* color/typography/positive/on-light → green-800 (#00260d)    */
+.card-status--confirmation .card-status-highlight {
+  background: var(--jui-color-background-positive-dark);
+  color: var(--jui-color-typography-positive-on-light);
+}
+.card-status--confirmation .card-status-frame {
+  background: var(--jui-color-background-positive-dark);
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   LAYER 8 — Placeholder Content
+   Centered stub for screens that haven't been built yet.
+   Used by management shell pages (dashboard, analytics,
+   settings, business-profile).
+
+   HTML:
+     <div class="placeholder-content">
+       <div class="placeholder-content-title">Screen Name</div>
+       <div class="placeholder-content-sub">Product · Context</div>
+     </div>
+   ═══════════════════════════════════════════════════════ */
+
+.placeholder-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--jui-layout-gap-xs);
+  padding: var(--jui-layout-gap-xxl) var(--jui-layout-padding-l);
+  color: var(--jui-color-gray-400);
+  text-align: center;
+}
+.placeholder-content-title {
+  font-size: var(--jui-typography-body-medium-medium-size);
+  font-weight: var(--jui-typography-body-medium-medium-weight);
+}
+.placeholder-content-sub {
+  font-size: var(--jui-typography-label-small-size);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   LAYER 9 — Story Avatar
+   Instagram-style avatar with gradient story ring and
+   white silhouette on blue-50 background. Decorative only.
+
+   Used across: onboarding-link, onboarding-share,
+   publish-celebration, home-dashboard (future).
+
+   Gradient derived from Figma exploration gradient stops:
+     0% #FFC60A (yellow) → 18% #EC8D36 (orange) → 75% #D9154C (magenta)
+   Rendered as conic-gradient starting at bottom-left (~200deg)
+   to approximate the Instagram story ring sweep.
+
+   HTML:
+     <div class="story-avatar [story-avatar--sm]">
+       <div class="story-avatar-inner">
+         <div class="story-avatar-head"></div>
+         <div class="story-avatar-body"></div>
+       </div>
+     </div>
+
+   Sizes:
+     Default (48px): share page, celebration
+     Small  (44px): link input (inside bio frame)
+   ═══════════════════════════════════════════════════════ */
+
+.story-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  padding: 2px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.story-avatar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 200deg,
+    #FFC60A 0%,
+    #EC8D36 18%,
+    #D9154C 75%,
+    #FFC60A 100%
+  );
+  animation: storyRingSpin 8s linear infinite;
+}
+
+.story-avatar-inner {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes storyRingSpin {
+  to { transform: rotate(360deg); }
+}
+
+.story-avatar--sm {
+  width: 44px;
+  height: 44px;
+}
+
+.story-avatar-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid var(--jui-color-gray-white);
+  background: var(--jui-color-blue-50);
+  overflow: hidden;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 20%;
+  gap: 2px;
+}
+
+.story-avatar-head {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--jui-color-gray-white);
+  flex-shrink: 0;
+}
+
+.story-avatar-body {
+  width: 26px;
+  height: 25px;
+  border-radius: 50%;
+  background: var(--jui-color-gray-white);
+  flex-shrink: 0;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   LAYER 11 — Title Highlight (.title-highlight)
+   Bold span with a yellow rotated rectangle behind the text.
+   Matches loops-frontend IntroScreen `.titleHighlight`.
+   Block-centered on mobile, inline on desktop.
+   Used on: onboarding-intro-1, onboarding-intro-2.
+   ═══════════════════════════════════════════════════════════════ */
+
+.title-highlight {
+  display: block;
+  width: fit-content;
+  margin-inline: auto;
+  font-weight: 700;
+  position: relative;
+  isolation: isolate;
+}
+.title-highlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: #eaf63c;
+  transform: rotate(-1.434deg);
+  z-index: -1;
+}
+@media (min-width: 640px) {
+  .title-highlight {
+    display: inline;
+    width: auto;
+    margin-inline: 0;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   LAYER 12 — Artifact Stage (.fc-stage, .fc-artifact, .fc-arrow)
+   Shared structural base for the animated bio-page + flow-page
+   composition used on onboarding-intro-1, onboarding-intro-2,
+   and flows-created. Each page overrides animation-delay only.
+   ═══════════════════════════════════════════════════════════════ */
+
+.intro-stage-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 0 var(--jui-layout-padding-m);
+}
+.fc-stage {
+  position: relative;
+  width: 252px;
+  height: 270px;
+  flex-shrink: 0;
+}
+.fc-artifact {
+  position: absolute;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: #0a0a0a;
+  border: 2px solid var(--jui-color-background-primary-medium);
+  transform-origin: center center;
+}
+.fc-artifact iframe {
+  position: absolute;
+  top: 0; left: 0;
+  width: 360px;
+  border: 0;
+  background: #0a0a0a;
+  transform-origin: top left;
+  pointer-events: none;
+}
+
+.fc-artifact--bio {
+  left: 5px; top: 5px;
+  width: 100px; height: 198.077px;
+  border-radius: 6.957px;
+  box-shadow: 0 1.923px 16px rgba(0, 76, 237, 0.10);
+  transform: rotate(-3deg);
+}
+.fc-artifact--bio iframe { height: 728px; transform: scale(0.2667); }
+
+.fc-artifact--flow {
+  left: 109.66px; top: 5.75px;
+  width: 130px; height: 257.739px;
+  border-radius: 9.043px;
+  box-shadow: 0 2.125px 24px rgba(0, 76, 237, 0.15);
+  transform: rotate(5.63deg);
+}
+.fc-artifact--flow iframe { height: 728px; transform: scale(0.35); }
+
+.fc-arrow {
+  position: absolute;
+  left: 38px; top: 230px;
+  width: 120px; height: 90px;
+  pointer-events: none;
+  overflow: visible;
+  color: var(--jui-color-background-primary-dark);
+}
+.fc-arrow-curve {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.fc-arrowhead {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transform-box: fill-box;
+  transform-origin: 90% 50%;
+}
+
+@keyframes fc-bio-move-in {
+  0%   { opacity: 0; filter: blur(5px); transform: translate(71px, 31px) rotate(0deg); }
+  100% { opacity: 1; filter: blur(0);   transform: translate(0, 0) rotate(-3deg); }
+}
+@keyframes fc-flow-grow {
+  0%   { opacity: 0; filter: blur(3px); transform: translate(-120px, -31px) scale(0.05) rotate(0deg); }
+  15%  { opacity: 1; }
+  100% { opacity: 1; filter: blur(0);   transform: translate(0, 0) scale(1) rotate(5.63deg); }
+}
+@keyframes fc-arrow-draw   { to { stroke-dashoffset: 0; } }
+@keyframes fc-arrowhead-land { to { transform: scale(1); } }
+@keyframes fc-fade {
+  from { opacity: 0; filter: blur(2px); }
+  to   { opacity: 1; filter: blur(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fc-artifact--bio, .fc-artifact--flow,
+  .fc-arrow-curve, .fc-arrowhead {
+    animation: none;
+    opacity: 1;
+    filter: none;
+    stroke-dashoffset: 0;
+  }
+  .fc-artifact--bio  { transform: rotate(-3deg); }
+  .fc-artifact--flow { transform: rotate(5.63deg); }
+  .fc-arrowhead      { transform: scale(1); }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   LAYER 13 — Small Icon Button (.icon-btn-sm)
+   32×32 hit area, 24×24 icon. Compact sibling of .icon-btn (48×48).
+   Figma component 9654:25392.
+
+   Used by: home-dashboard (bio card actions, flow card actions),
+   flow-preview (header actions), bio-page-links-edit (inline actions).
+
+   Two color variants:
+     Default:  blue icon (primary interactive context)
+     Muted:    subdued gray icon (secondary/inline context)
+   ═══════════════════════════════════════════════════════════════ */
+
+.icon-btn-sm {
+  width: var(--jui-layout-dimension-s);
+  height: var(--jui-layout-dimension-s);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--jui-style-radius-m);
+  background: transparent;
+  color: var(--jui-color-actions-primary-rest);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+.icon-btn-sm:hover { background: var(--jui-color-background-primary-light); }
+.icon-btn-sm:active { background: var(--jui-color-background-primary-medium); }
+.icon-btn-sm:focus-visible { outline: 2px solid var(--jui-color-actions-primary-rest); outline-offset: 2px; }
+.icon-btn-sm svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+/* Subtle — the icon-only form of .btn-subtle. Same near-black, same
+   barely-there wash, for an icon doing a labelled button's job. */
+.icon-btn-sm.subtle {
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+.icon-btn-sm.subtle:hover { background: rgba(0, 0, 0, 0.02); }
+.icon-btn-sm.subtle:active { background: rgba(0, 0, 0, 0.04); }
+
+.icon-btn-sm.muted {
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+.icon-btn-sm.muted:hover { background: var(--jui-color-background-gray-canvas); }
+.icon-btn-sm.muted:active { background: var(--jui-color-background-gray-dark); }
+
+/* Bordered variant — secondary-style icon-only button.
+   White bg, blue-100 border, blue icon. Matches .btn-secondary
+   visual language in icon-only form.
+   Used by: flows-details (More options). */
+.icon-btn-sm.bordered {
+  background: var(--jui-color-background-gray-light);
+  border: 1px solid var(--jui-color-stroke-primary-on-light);
+}
+.icon-btn-sm.bordered:hover { background: var(--jui-color-background-primary-light); }
+.icon-btn-sm.bordered:active { background: var(--jui-color-background-primary-medium); }
+
+/* Danger variant — destructive icon-only button. Subdued gray by default
+   (parallel to .muted) so it doesn't shout-red in passive rows; turns
+   negative-rest red on hover to signal the destructive consequence.
+   Used by: bio-page-links-edit "Remove X" trash icons. */
+.icon-btn-sm.danger {
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+.icon-btn-sm.danger:hover {
+  background: var(--jui-color-background-negative-light);
+  color: var(--jui-color-actions-negative-rest);
+}
+.icon-btn-sm.danger:active { background: var(--jui-color-background-negative-medium); }
+
+
+/* ═══════════════════════════════════════════════════════════════
+   LAYER 14 — Status Badges (.badge)
+   Pill-shaped status indicators. Figma Status component.
+   Label/Small typography: 12px / 600 / 0.96px / uppercase.
+   Height: 24px (dimension-xs). Padding: 0 8px. Radius: 4px.
+
+   Variants:
+     .badge--positive : green (live, active, confirmed)
+     .badge--notice   : yellow (draft, pending, attention)
+     .badge--primary  : blue (new, next, informational)
+     .badge--neutral  : gray (alternative, archived, inactive)
+
+   Used by: home-dashboard (flow cards), flow-preview, suggestions.
+   ═══════════════════════════════════════════════════════════════ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  height: var(--jui-layout-dimension-xs);
+  padding: 0 var(--jui-layout-padding-xs);
+  font-size: var(--jui-typography-label-small-size);
+  font-weight: var(--jui-typography-label-small-weight);
+  letter-spacing: var(--jui-typography-label-small-ls);
+  line-height: var(--jui-layout-dimension-xs);
+  text-transform: uppercase;
+  border: 1px solid;
+  border-radius: var(--jui-component-badge-radius);
+  white-space: nowrap;
+}
+
+.badge--positive {
+  color: var(--jui-color-typography-positive-on-light);
+  background: var(--jui-color-background-positive-dark);
+  border-color: var(--jui-color-typography-positive-on-light);
+}
+
+.badge--notice {
+  color: var(--jui-color-yellow-800);
+  background: var(--jui-color-background-notice-dark);
+  border-color: var(--jui-color-yellow-800);
+}
+
+.badge--primary {
+  background: var(--jui-color-background-primary-light);
+  color: var(--jui-color-typography-primary-on-light);
+  border-color: transparent;
+}
+
+.badge--neutral {
+  background: var(--jui-color-background-gray-canvas);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+  border-color: transparent;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   LAYER 14b — Inline Icon (16px colored icon wrapper)
+   Semantic color variants for small inline icons in tables,
+   lists, and feature comparisons.
+   ═══════════════════════════════════════════════════════════════ */
+
+.icon-sm {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+.icon-sm svg {
+  width: var(--jui-layout-padding-m);  /* 16px */
+  height: var(--jui-layout-padding-m);
+}
+
+.icon-sm--positive { color: var(--jui-color-actions-positive-rest); }
+.icon-sm--upgrade  { color: var(--jui-color-actions-upgrade-rest); }
+.icon-sm--gray     { color: var(--jui-color-typography-gray-on-light-subdued); }
+
+
+/* ═══════════════════════════════════════════════════════════════
+   LAYER 15 — Segmented Control (.seg-control)
+   View-switching control (NOT navigation tabs).
+   Figma 13588:29159.
+
+   Outer container: gray-50 canvas bg, 2px padding, radius-m (8px).
+   Items: 32px height, 12px horizontal padding, radius 6px (concentric).
+
+   Active state: white bg + blue-100 border + blue text.
+   Inactive hover: gray-10 bg.
+
+   Semantic note: this is a segmented control for switching views
+   of the same content. For navigation between independent content
+   sections, use real tabs instead.
+
+   Spec — Figma 11769:70176 (named "Tabs" there, composed rather than a
+   single component). There is no SplitControl/SegmentedControl export in
+   @jimdo/ui 83.21.0: the frame builds it from a gray-50 track holding a
+   Button buttonStyle="secondary" size="small" for the selected segment
+   and buttonStyle="subtle" for the rest. Track radius style/radius/8 and
+   item radius button/radius — both 8, not the 12/6 this used to carry.
+
+   Used by: home-dashboard, solo-pages, ai-suggestions-v2
+   (all the Active/Archived filters).
+   ═══════════════════════════════════════════════════════════════ */
+
+.seg-control {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  background: var(--jui-color-background-gray-canvas);
+  border-radius: var(--jui-style-radius-s);
+}
+
+.seg-control-item {
+  height: var(--jui-layout-dimension-s);
+  padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-s);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-size: var(--jui-typography-body-small-medium-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  letter-spacing: var(--jui-typography-link-small-ls);
+  line-height: var(--jui-typography-body-small-medium-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--jui-component-button-radius);
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+.seg-control-item[aria-pressed="true"],
+.seg-control-item.active {
+  background: var(--jui-color-background-gray-light);
+  border-color: var(--jui-color-stroke-primary-on-light);
+  color: var(--jui-color-actions-primary-rest);
+}
+.seg-control-item:hover:not(.active):not([aria-pressed="true"]) {
+  background: var(--jui-color-background-gray-medium);
+  color: var(--jui-color-actions-primary-rest);
+}
+.seg-control-item:focus-visible {
+  outline: 2px solid var(--jui-color-actions-primary-rest);
+  outline-offset: 2px;
+}
+/* Primary-tinted variant — blue-light pill instead of gray canvas. */
+.seg-control--primary {
+  background: var(--jui-color-background-primary-light);
+}
+.seg-control--primary .seg-control-item:hover:not(.active):not([aria-pressed="true"]) {
+  background: var(--jui-color-background-primary-medium);
+  color: var(--jui-color-actions-primary-rest);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   LAYER 16 — Upgrade Banner (.upgrade-banner)
+   Nested card pattern: purple-50 outer → header strip → rounded inner body.
+   Two variants:
+     default  — white inner body (home-dashboard upgrade trigger)
+     --tinted — purple-10 inner body (flows-details compact banner)
+
+   HTML:
+     .upgrade-banner
+       .upgrade-banner-header
+         svg (icon, e.g. Crown)
+         .upgrade-banner-eyebrow
+       .upgrade-banner-body  (or .upgrade-banner-body--tinted)
+         [content: text, headline+journey, etc.]
+       (optional) .upgrade-banner-cta
+         button.btn-upgrade
+
+   Used by: home-dashboard (expanded journey), flows-details (compact text).
+   ═══════════════════════════════════════════════════════════════ */
+
+.upgrade-banner {
+  background: var(--jui-color-background-upgrade-medium);
+  border-radius: var(--jui-style-radius-l);
+  padding: var(--jui-layout-padding-xxs);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.upgrade-banner-header {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-s);
+  padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-s);
+}
+.upgrade-banner-header svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--jui-color-purple-700);
+}
+
+.upgrade-banner-eyebrow {
+  font-size: var(--jui-typography-label-small-size);
+  font-weight: var(--jui-typography-label-small-weight);
+  letter-spacing: var(--jui-typography-label-small-ls);
+  line-height: var(--jui-typography-label-small-lh);
+  text-transform: uppercase;
+  color: var(--jui-color-purple-700);
+}
+
+/* Inner body — default: white background */
+.upgrade-banner-body {
+  background: var(--jui-color-background-gray-light);
+  border-radius: var(--jui-style-radius-m);
+  padding: var(--jui-layout-padding-m);
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-m);
+}
+
+/* Light outer shell — Figma 11944:93209 uses purple-10 for the surround
+   rather than the purple-50 of the dashboard trigger. */
+.upgrade-banner--light { background: var(--jui-color-background-upgrade-light); }
+
+/* Row body — copy on the left, the upgrade button on its right, both sitting
+   on the same baseline (Figma 11944:93209). Stacks under 768. */
+.upgrade-banner-body--row {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--jui-layout-gap-m);
+}
+@media (min-width: 768px) {
+  .upgrade-banner-body--row {
+    flex-direction: row;
+    align-items: flex-end;
+    gap: var(--jui-layout-gap-l);
+  }
+}
+.upgrade-banner-body--row .upgrade-banner-headline { flex: 1; min-width: 0; }
+/* The copy gives way, the button does not. And since every button in this
+   system is full-width by default — which carries no horizontal padding —
+   one that sizes to its label has to be given that padding back, or the
+   words sit flush against both edges. Same treatment as .sheet-actions .btn. */
+.upgrade-banner-body--row .upgrade-banner-cta { flex-shrink: 0; }
+.upgrade-banner-body--row .upgrade-banner-cta .btn {
+  width: auto;
+  padding: 0 var(--jui-layout-padding-l);
+  white-space: nowrap;
+}
+/* Figma 11944:93209 paints both lines of the body in the default colour —
+   the second reads lighter because it is 14/400 beside 16/500. */
+.upgrade-banner-body--row .upgrade-banner-subtitle {
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+
+/* Tinted variant — purple-10 background, horizontal layout */
+.upgrade-banner-body--tinted {
+  background: var(--jui-color-background-upgrade-light);
+  border-radius: var(--jui-style-radius-m);
+  padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-s);
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-s);
+}
+
+.upgrade-banner-title {
+  font-size: var(--jui-typography-sub-headline-small-size);
+  font-weight: var(--jui-typography-sub-headline-small-weight);
+  line-height: var(--jui-typography-sub-headline-small-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+  margin: 0;
+}
+
+.upgrade-banner-subtitle {
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
+.upgrade-banner-text {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+
+.upgrade-banner-headline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xxs);
+}
+
+.upgrade-banner-cta {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Upgrade CTA button */
+.btn-upgrade {
+  background: var(--jui-color-actions-upgrade-rest);
+  border-color: transparent;
+  color: var(--jui-color-typography-upgrade-on-dark);
+  flex-shrink: 0;
+}
+.btn-upgrade:hover { background: var(--jui-color-actions-upgrade-hover); }
+.btn-upgrade:active { background: var(--jui-color-actions-upgrade-pressed); }
+.btn-upgrade:focus-visible { outline: 2px solid var(--jui-color-actions-upgrade-rest); outline-offset: 2px; }
+
+/* Upgrade, outlined. Mirrors @jimdo/ui `upgradeSecondaryButton` exactly:
+   white, a purple-100 edge and purple-800 text, with the edge darkening
+   only on press. After .btn-secondary and .btn-upgrade both, since it is
+   the pair of them it has to beat. */
+.btn-secondary.btn-upgrade {
+  background: var(--jui-color-gray-white);
+  border: 1px solid var(--jui-color-stroke-upgrade-on-light);
+  color: var(--jui-color-typography-upgrade-on-light);
+}
+.btn-secondary.btn-upgrade:hover {
+  background: var(--jui-color-gray-10);
+  color: var(--jui-color-typography-upgrade-on-light);
+}
+.btn-secondary.btn-upgrade:active {
+  background: var(--jui-color-gray-50);
+  border-color: var(--jui-color-stroke-upgrade-on-medium);
+}
+
+/* Subtle (tertiary) upgrade button — matches @jimdo/ui ButtonSubtle with
+   color="upgrade". Behaves as a styled link: no background, no border, no
+   radius. On hover/focus/active the text color darkens from upgrade-rest
+   to upgrade-hover and gains an underline (verified against
+   @jimdo/ui/dist/index.css IPR8l8Ng + LQTHgGxq classes). */
+.btn-upgrade-subtle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
+  height: 48px;
+  padding: var(--jui-layout-padding-s) var(--jui-layout-padding-m);
+  background: none;
+  border: none;
+  color: var(--jui-color-actions-upgrade-rest);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 20px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  cursor: pointer;
+  transition: color 200ms ease;
+}
+.btn-upgrade-subtle svg { width: 20px; height: 20px; flex-shrink: 0; }
+.btn-upgrade-subtle:hover,
+.btn-upgrade-subtle:focus,
+.btn-upgrade-subtle:active {
+  color: var(--jui-color-actions-upgrade-hover);
+  text-decoration: underline;
+}
+.btn-upgrade-subtle:focus,
+.btn-upgrade-subtle:active { outline: none; }
+.btn-upgrade-subtle:disabled { color: var(--jui-color-purple-100); cursor: not-allowed; }
+
+
+/* ═══════════════════════════════════════════════════════════════
+   LAYER 16b — Simple Upgrade Trigger (.upgrade-trigger)
+   Figma LinkContainer/SimpleUpgradeTrigger — node 11769:69136.
+
+   A single-row upgrade strip. Distinct from .upgrade-banner above:
+   that one is a multi-line card (eyebrow / title / subtitle / CTA);
+   this is one 44px line of reason + uppercase link + arrow, sized to
+   sit between a page title and the content it refers to.
+
+   Anatomy:
+     a.upgrade-trigger
+       .upgrade-trigger-text   — Body/Small, the reason
+       .upgrade-trigger-cta    — Label/Uppercase/Small, the action
+       svg                     — arrow-right-02, 16×16
+
+   Figma values: bg color/purple/10, radius $jui-style-radius-l (16),
+   h 44, px measurements/size/16, gap $jui-layout-padding-s (12).
+   Vertical padding is expressed as centering inside the fixed 44px
+   so the rendered height matches the frame exactly.
+   ═══════════════════════════════════════════════════════════════ */
+
+.upgrade-trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-s);
+  height: 44px;
+  padding: 0 var(--jui-layout-padding-m);
+  border-radius: var(--jui-style-radius-l);
+  background: var(--jui-color-background-upgrade-light);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+.upgrade-trigger-text {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  letter-spacing: 0;
+  color: var(--jui-color-typography-upgrade-on-light);
+}
+
+.upgrade-trigger-cta {
+  flex-shrink: 0;
+  font-size: var(--jui-typography-label-small-size);
+  font-weight: var(--jui-typography-label-small-weight);
+  line-height: var(--jui-typography-label-small-lh);
+  letter-spacing: var(--jui-typography-label-small-ls);
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--jui-color-actions-upgrade-pressed);
+}
+
+.upgrade-trigger svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  stroke: var(--jui-color-actions-upgrade-pressed);
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.upgrade-trigger:hover { background: var(--jui-color-background-upgrade-medium); }
+.upgrade-trigger:active { background: var(--jui-color-background-upgrade-dark); }
+.upgrade-trigger:focus-visible {
+  outline: 2px solid var(--jui-color-actions-upgrade-rest);
+  outline-offset: 2px;
+}
+
+/* Below 768px the reason wraps, so the row grows instead of clipping.
+   The link and arrow stay on one line at the trailing edge. */
+@media (max-width: 767px) {
+  .upgrade-trigger {
+    height: auto;
+    min-height: 44px;
+    flex-wrap: wrap;
+    padding: var(--jui-layout-padding-s) var(--jui-layout-padding-m);
+  }
+  .upgrade-trigger-text { flex: 1 1 100%; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   LAYER 16c — Setup Progress (.setup-progress)
+   Figma "Business Info / Progress" — node 11769:69422.
+
+   The header for a stack of setup tasks: a ring showing how far through
+   the stack the seller is, the stack's name, and an "n of m" counter.
+   Sits directly above .upnext-stack.
+
+   Anatomy:
+     .setup-progress
+       svg.setup-progress-ring   — 32×32, track + arc
+       .setup-progress-label
+         .setup-progress-title   — Label/Uppercase/Medium
+         .setup-progress-count   — Label/Uppercase/Small
+
+   Figma values: gap $jui-layout-gap-m (16), px measurements/size/8 (8),
+   py measurements/size/4 (4), radius $jui-style-radius-m (12), ring 32.
+   Arc uses decorative-positive; the track uses stroke-gray-default.
+   ═══════════════════════════════════════════════════════════════ */
+
+.setup-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-m);
+  width: 100%;
+  padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-xs);
+  border-radius: var(--jui-style-radius-m);
+  overflow: hidden;
+}
+
+.setup-progress-ring {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+/* Explicit token strokes rather than currentColor: the ring is a 3px
+   data mark, not a 1.5px icon, so it must not inherit icon styling. */
+.setup-progress-ring .setup-progress-track {
+  fill: none;
+  stroke: var(--jui-color-stroke-gray-default);
+  stroke-width: 3;
+}
+
+.setup-progress-ring .setup-progress-arc {
+  fill: none;
+  stroke: var(--jui-color-decorative-positive);
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke-dasharray 240ms ease;
+}
+
+/* A round linecap paints a dot even at zero dash length, so an empty ring has
+   to drop the arc out of the paint rather than draw 0 of it. */
+.setup-progress-ring .setup-progress-arc.is-empty { visibility: hidden; }
+
+.setup-progress-label {
+  flex: 1 0 0;
+  min-width: 0;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--jui-layout-gap-xs);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.setup-progress-title {
+  font-size: var(--jui-typography-label-medium-size);
+  font-weight: var(--jui-typography-label-medium-weight);
+  line-height: var(--jui-typography-label-medium-lh);
+  letter-spacing: var(--jui-typography-label-medium-ls);
+  color: var(--jui-color-gray-black);
+}
+
+.setup-progress-count {
+  flex-shrink: 0;
+  font-size: var(--jui-typography-label-small-size);
+  font-weight: var(--jui-typography-label-small-weight);
+  line-height: var(--jui-typography-label-small-lh);
+  letter-spacing: var(--jui-typography-label-small-ls);
+  color: var(--jui-color-gray-black);
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   LAYER 17 — Inline Alert (.inline-alert)
+   Compact inline status message with icon + text.
+   Body/Small typography. Icon: 16×16.
+
+   Used by: home-dashboard (flow limit warning).
+   Candidate for reuse in validation messages, usage limits, notices.
+   ═══════════════════════════════════════════════════════════════ */
+
+.inline-alert {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+.inline-alert svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+.inline-alert-text {
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
+}
+
+/* Upgrade variant — states an entitlement limit at the point it applies.
+   Figma "Frame 1171278033" (node 11805:71339): 24px alert-diamond +
+   Body/Small/Medium in actions-upgrade-rest, gap layout/base (8).
+   Larger icon and heavier text than the neutral alert on purpose: this row
+   carries a consequence, not a note. */
+.inline-alert--upgrade { color: var(--jui-color-actions-upgrade-rest); }
+.inline-alert--upgrade svg { width: 24px; height: 24px; }
+.inline-alert--upgrade .inline-alert-text {
+  font-weight: var(--jui-typography-body-small-medium-weight);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   LAYER 22 — Action-Page Type Section (.ap-section)
+   Figma "MGMT_Dashboard_ActionPage" — node 11769:70166.
+
+   The frame groups action pages under a plain per-type header. That does
+   not scale: four types with several pages each is an undifferentiated
+   wall. So each type is a disclosure — count and a link to the parent
+   product in the header, body collapsible — and an empty type shows a
+   cross-sell card in the slot a page would occupy, rather than a line of
+   text apologising for the absence.
+
+   Built on native <details>/<summary>: correct semantics, keyboard
+   support and toggling with no script. The parent-product link is a
+   sibling of the <details>, not a child of it — a closed <details> hides
+   every non-summary child, so a link inside would disappear exactly on
+   the collapsed rows that most need it. It is absolutely positioned into
+   the header band, which also keeps it out of the summary's click target.
+
+   Anatomy:
+     .ap-section                             (position: relative)
+       details.ap-section-disc[open]
+         summary.ap-section-head
+           .ap-section-chevron               — rotates when open
+           h3.ap-section-title
+           span.ap-section-count            — count, collapsed only
+         .ap-section-body
+           a.flow-card-h ×n   —or—   .ap-cross
+       a.ap-section-nav                      — parent product, open only
+
+   The trailing edge is one slot with two states: while collapsed it holds
+   the count, because the contents cannot be seen; once open the cards
+   count themselves, so the slot hands over to the parent-product link.
+   ═══════════════════════════════════════════════════════════════ */
+
+.ap-section {
+  position: relative;
+  padding: var(--jui-layout-padding-xs);
+  background: var(--jui-color-background-gray-canvas);
+  border-radius: var(--jui-style-radius-l);
+}
+
+.ap-section-head {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-m);
+  min-height: 36px;
+  padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-xs) var(--jui-layout-padding-xxs) var(--jui-layout-padding-xxs);
+  cursor: pointer;
+  list-style: none;
+  border-radius: var(--jui-style-radius-s);
+}
+/* Suppress the native disclosure marker in every engine. */
+.ap-section-head::-webkit-details-marker { display: none; }
+.ap-section-head::marker { content: ''; }
+.ap-section-head:focus-visible {
+  outline: 2px solid var(--jui-color-actions-primary-rest);
+  outline-offset: 2px;
+}
+
+.ap-section-chevron {
+  flex-shrink: 0;
+  line-height: 0;
+  color: var(--jui-color-typography-gray-on-light-subdued);
+  transition: transform 160ms ease;
+}
+.ap-section-chevron svg { width: 20px; height: 20px; }
+.ap-section-disc[open] .ap-section-chevron { transform: rotate(90deg); }
+
+/* Subheadline/Medium — 20 / 500 / 1.4 */
+.ap-section-title {
+  font-size: var(--jui-typography-sub-headline-medium-size);
+  font-weight: var(--jui-typography-sub-headline-medium-weight);
+  line-height: var(--jui-typography-sub-headline-medium-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+  margin: 0;
+}
+/* The count trails the title rather than hugging it, so the left edge stays
+   a clean scannable list of type names. It occupies the same trailing slot
+   the parent-product link uses, and only one of the two is ever shown. */
+.ap-section-count {
+  flex-shrink: 0;
+  margin-left: auto;
+  font-size: var(--jui-typography-body-small-medium-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  line-height: var(--jui-typography-body-small-medium-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+  font-variant-numeric: tabular-nums;
+}
+/* Zero recedes: an empty type is an invitation, not a figure to read. */
+.ap-section-count--zero { color: var(--jui-color-typography-gray-on-light-subdued); }
+/* Open: the cards are visible and countable, so the slot gives way to the
+   link, and the title gets the band back as padding. */
+.ap-section-disc[open] .ap-section-head .ap-section-count { display: none; }
+.ap-section-disc[open] .ap-section-head { padding-right: 200px; }
+
+/* Parent-product link — every type has one, so the seller can always get
+   to where that type is actually managed. */
+.ap-section-nav {
+  /* Hidden while collapsed — the count holds this slot instead. Turned on by
+     the [open] sibling rule below. Only one display declaration here: an
+     earlier `display: none` plus a later `display: inline-flex` in the same
+     block silently cancelled the first. */
+  display: none;
+  position: absolute;
+  top: var(--jui-layout-padding-xs);
+  right: var(--jui-layout-padding-xs);
+  align-items: center;
+  gap: var(--jui-layout-gap-xxs);
+  height: 36px;
+  padding: 0 var(--jui-layout-padding-s);
+  border-radius: var(--jui-style-radius-s);
+  font-size: var(--jui-typography-body-small-medium-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  line-height: var(--jui-typography-body-small-medium-lh);
+  letter-spacing: var(--jui-typography-link-small-ls);
+  color: var(--jui-color-actions-primary-rest);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.ap-section-disc[open] ~ .ap-section-nav { display: inline-flex; }
+.ap-section-nav:hover { background: var(--jui-color-background-primary-light); }
+.ap-section-nav:focus-visible {
+  outline: 2px solid var(--jui-color-actions-primary-rest);
+  outline-offset: 2px;
+}
+.ap-section-nav svg { width: 16px; height: 16px; }
+
+.ap-section-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xs);
+  margin-top: var(--jui-layout-gap-xs);
+}
+
+/* ── Cross-sell card for an empty type ──
+   Occupies the slot a real page would, so an unused type reads as an
+   offer rather than an absence: what it does, in the seller's terms,
+   and the one action that starts it. */
+.ap-cross {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-m);
+  padding: var(--jui-layout-padding-m);
+  background: var(--jui-color-background-gray-light);
+  border: 1px solid var(--jui-color-stroke-gray-default);
+  border-radius: var(--jui-style-radius-m);
+}
+.ap-cross-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--jui-style-radius-m);
+  background: var(--jui-color-background-primary-light);
+  color: var(--jui-color-actions-primary-rest);
+}
+.ap-cross-icon svg { width: 24px; height: 24px; }
+.ap-cross-copy {
+  flex: 1 0 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xxs);
+}
+/* Subheadline/Small — 16 / 500 / 1.25 */
+.ap-cross-title {
+  font-size: var(--jui-typography-sub-headline-small-size);
+  font-weight: var(--jui-typography-sub-headline-small-weight);
+  line-height: var(--jui-typography-sub-headline-small-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+  margin: 0;
+}
+.ap-cross-desc {
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+  margin: 0;
+}
+
+@media (max-width: 767px) {
+  /* The link flows under the header instead of overlapping it. */
+  .ap-section-head,
+  .ap-section-disc[open] .ap-section-head { padding-right: var(--jui-layout-padding-xxs); }
+  .ap-section-nav {
+    position: static;
+    align-self: flex-start;
+    height: var(--jui-layout-dimension-s);
+    padding-left: var(--jui-layout-padding-xxs);
+  }
+  .ap-cross { flex-direction: column; align-items: flex-start; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   LAYER 23 — Horizontal Action-Page Card (.flow-card-h)
+   Figma "Horizontal - FlowCard" — node 11769:70273.
+   64px thumbnail, title, then views / clicks / customers.
+   ═══════════════════════════════════════════════════════════════ */
+
+.flow-card-h {
+  display: flex;
+  align-items: stretch;
+  gap: var(--jui-layout-padding-s);
+  padding: var(--jui-layout-padding-xxs);
+  background: var(--jui-color-background-gray-light);
+  border: 1px solid var(--jui-color-stroke-gray-default);
+  border-radius: var(--jui-style-radius-m);
+  overflow: hidden;
+  text-decoration: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.flow-card-h:hover {
+  border-color: var(--jui-color-blue-300);
+  box-shadow: inset 0 0 0 1px var(--jui-color-blue-300);
+}
+.flow-card-h:focus-visible {
+  outline: 2px solid var(--jui-color-actions-primary-rest);
+  outline-offset: 2px;
+}
+
+.flow-card-h-thumb {
+  flex-shrink: 0;
+  width: 64px;
+  height: 88px;
+  border-radius: var(--jui-style-radius-8);
+  background: var(--jui-color-background-gray-dark);
+  object-fit: cover;
+  display: block;
+}
+
+.flow-card-h-body {
+  flex: 1 0 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xxs);
+  padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-xxs) 0 0;
+}
+/* Subheadline/Small — 16 / 500 / 1.25 */
+.flow-card-h-title {
+  font-size: var(--jui-typography-sub-headline-small-size);
+  font-weight: var(--jui-typography-sub-headline-small-weight);
+  line-height: var(--jui-typography-sub-headline-small-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.flow-card-h-activity {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--jui-layout-gap-xs);
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+/* 4px separator dot between metrics. */
+.flow-card-h-activity span + span::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  margin-right: var(--jui-layout-gap-xs);
+  border-radius: 50%;
+  background: var(--jui-color-gray-500);
+  vertical-align: middle;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   LAYER 20 — Setup split-preview parts
+
+   Companion components for the .setup-split layout in layout.css.
+   Used by: onboarding-name (scr-011), onboarding-photo (scr-469).
+
+   Figma: 2LVaYKcyyN2F2MUwSssFrL  12290:21630
+          6nhXk3oOEpH7TbMAr430tN  17451:52936 / 53156 / 53266
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Progress pill ──
+   Replaces the four-segment .progress-bar on split-preview steps:
+   a grey track carrying one dot per step. The step in progress is a
+   16px pill; steps already done keep full-strength blue, steps ahead
+   drop to blue/100. Figma 12290:22109. */
+.progress-pill {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
+  padding: 6px var(--jui-layout-padding-xs);
+  background: var(--jui-color-gray-50);
+  border-radius: var(--jui-style-radius-16);
+  flex-shrink: 0;
+}
+
+.progress-pill-step {
+  width: 4px;
+  height: 4px;
+  border-radius: var(--jui-style-radius-12);
+  background: var(--jui-color-blue-100);
+  flex-shrink: 0;
+}
+
+.progress-pill-step.is-done {
+  background: var(--jui-color-blue-400);
+}
+
+.progress-pill-step.is-current {
+  width: 16px;
+  background: var(--jui-color-actions-primary-rest);
+}
+
+/* ── Back button — 32px on desktop, 48px on mobile ──
+   Subtle icon-only button in the setup header. Darker than
+   .icon-btn-sm.muted: the back arrow is navigation, not a hint. */
+.setup-back-btn {
+  width: var(--jui-layout-dimension-m);
+  height: var(--jui-layout-dimension-m);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--jui-style-radius-4);
+  background: none;
+  color: var(--jui-color-typography-gray-on-light-default);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background-color 120ms ease;
+}
+.setup-back-btn svg { width: 24px; height: 24px; }
+.setup-back-btn:hover { background: var(--jui-color-background-gray-canvas); }
+.setup-back-btn:focus-visible { outline: 2px solid var(--jui-color-actions-primary-rest); outline-offset: 2px; }
+
+@media (min-width: 768px) {
+  .setup-back-btn { width: var(--jui-layout-dimension-s); height: var(--jui-layout-dimension-s); }
+  .setup-back-btn svg { width: 16px; height: 16px; }
+}
+
+/* ── Preview panel — desktop only ──
+   Grey stage the artifact sits on. On mobile the artifact sits
+   straight on the page background, so the panel is transparent. */
+.setup-preview-panel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  position: relative;
+  width: 100%;
+}
+
+.setup-preview-tag {
+  display: none;
+}
+
+/* ── First sight of the preview, on mobile ──
+   Desktop can afford a standing "Preview" label beside the page; a phone
+   cannot, and without it the thing behind the drawer is just a picture with
+   no name. So it is said once, over the page, at the moment the page first
+   appears — long enough to read and gone before it is furniture.
+   Driven by data-preview-ready, which the split module sets when the artifact
+   reports in, so the label lands with the page rather than on a timer that
+   might beat it. */
+@media (max-width: 767px) {
+  .app-shell-setup-split[data-preview-ready="true"] .setup-preview-tag {
+    display: inline-flex;
+    align-items: center;
+    position: absolute;
+    top: var(--jui-layout-padding-s);
+    left: 50%;
+    z-index: 3;
+    padding: 0 var(--jui-layout-padding-s);
+    height: var(--jui-layout-dimension-xs);
+    border-radius: 999px;
+    background: var(--jui-color-gray-black);
+    color: var(--jui-color-gray-white);
+    font-size: var(--jui-typography-label-small-size);
+    font-weight: var(--jui-typography-label-small-weight);
+    letter-spacing: var(--jui-typography-label-small-ls);
+    line-height: var(--jui-layout-dimension-xs);
+    text-transform: uppercase;
+    white-space: nowrap;
+    pointer-events: none;
+    animation: setup-preview-tag-once 2600ms cubic-bezier(0.32, 0.72, 0, 1) both;
+  }
+}
+
+@keyframes setup-preview-tag-once {
+  0%   { opacity: 0; transform: translate(-50%, -6px); }
+  12%  { opacity: 1; transform: translate(-50%, 0); }
+  76%  { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, -6px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-shell-setup-split[data-preview-ready="true"] .setup-preview-tag {
+    animation-name: setup-preview-tag-once-plain;
+  }
+}
+@keyframes setup-preview-tag-once-plain {
+  0%, 76% { opacity: 1; }
+  100%    { opacity: 0; }
+}
+
+@media (min-width: 768px) {
+  .setup-preview-panel {
+    justify-content: center;
+    background: var(--jui-color-gray-50);
+    border-radius: var(--jui-style-radius-12);
+    padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-xs) var(--jui-layout-padding-xxs);
+    overflow: hidden;
+  }
+
+  .setup-preview-tag {
+    display: inline-flex;
+    align-items: center;
+    position: absolute;
+    top: 20px;
+    left: var(--jui-layout-padding-m);
+    height: 20px;
+    padding: 0 var(--jui-layout-padding-xs);
+    background: var(--jui-color-gray-10);
+    border-radius: var(--jui-style-radius-4);
+    color: var(--jui-color-typography-gray-on-light-subdued);
+    font-size: var(--jui-typography-label-small-size);
+    font-weight: var(--jui-typography-label-small-weight);
+    line-height: var(--jui-typography-label-small-lh);
+  }
+}
+
+/* ── Artifact stage ──
+   The bio page renders at its native 360px and is scaled down by
+   --bp-scale, so radius, border and shadow all shrink with it
+   instead of being re-authored per size. The stage reserves the
+   scaled footprint; anything taller is clipped, exactly as a phone
+   viewport clips a long page.
+   Scales: 0.4111 mobile drawer-open · 0.95 mobile peek · 0.7778 desktop. */
+/* Registering --bp-scale makes the number itself interpolate, so the stage's
+   width, its height and the frame's transform all move off one animated
+   value and cannot drift apart. Transitioning them separately desyncs:
+   transform is composited, width and height are layout. */
+@property --bp-scale {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+
+.bp-stage {
+  position: relative;
+  flex-shrink: 0;
+  width: calc(360px * var(--bp-scale, 1));
+  height: calc(var(--bp-natural-h, 686px) * var(--bp-scale, 1));
+}
+
+.bp-frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 360px;
+  height: var(--bp-natural-h, 686px);
+  background: var(--jui-color-gray-black);
+  border: 2px solid var(--jui-color-gray-100);
+  border-radius: var(--jui-style-radius-24);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transform: scale(var(--bp-scale, 1));
+  transform-origin: top left;
+}
+
+/* The frame never takes pointer events. Events inside an iframe do not reach
+   the document around it, so letting the page have them would cost the tap
+   that collapses the drawer and the host would never see a gesture again.
+   Scrolling is relayed instead — see setup-split.js — which keeps the page
+   scrollable at every drawer height and the tap intact. */
+.bp-frame iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: var(--jui-color-gray-black);
+  pointer-events: none;
+}
+
+/* ── Drawer grip — mobile only ──
+   Three shapes, one per drawer height: a flat bar when the drawer is
+   at rest, and a chevron pointing the way the drawer can still move.
+   Figma 17451:52999 / 53329. */
+.setup-drawer-grip {
+  flex-shrink: 0;
+  height: var(--jui-layout-dimension-s);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--jui-color-gray-200);
+}
+.setup-drawer-grip:focus-visible { outline: 2px solid var(--jui-color-actions-primary-rest); outline-offset: 2px; }
+
+/* Two bars meeting in the middle. Flat they read as one 44px bar; rotated
+   14 degrees each they become the 40x5 chevron Figma draws (17451:53329),
+   and the shape morphs rather than swapping. Each bar runs 1px past the
+   centre line so the two rounded caps overlap — butted end to end they
+   leave a visible pinch.
+   data-grip, not data-drawer: while the drawer is being dragged the grip
+   tracks the stop it would snap to, without the title size and the action
+   row flickering along with it. */
+.setup-drawer-grip-shape {
+  position: relative;
+  width: 44px;
+  height: 12px;
+}
+.setup-drawer-grip-shape::before,
+.setup-drawer-grip-shape::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  width: 23px;
+  height: 4px;
+  border-radius: 9999px;
+  background: currentColor;
+  transition: transform var(--setup-motion-duration-fast, 200ms) var(--setup-motion-ease, ease);
+}
+.setup-drawer-grip-shape::before { left: 0; transform-origin: right center; }
+.setup-drawer-grip-shape::after { right: 0; transform-origin: left center; }
+
+/* Peek — chevron up: the drawer can only come back up. */
+[data-grip="collapsed"] .setup-drawer-grip-shape::before { transform: rotate(-14deg); }
+[data-grip="collapsed"] .setup-drawer-grip-shape::after { transform: rotate(14deg); }
+
+/* Expanded — chevron down: the drawer can only go back down. */
+[data-grip="expanded"] .setup-drawer-grip-shape::before { transform: rotate(14deg); }
+[data-grip="expanded"] .setup-drawer-grip-shape::after { transform: rotate(-14deg); }
+
+/* The grip is a drag surface first, a button second. */
+.setup-drawer-grip { touch-action: none; }
+
+@media (min-width: 768px) {
+  .setup-drawer-grip { display: none; }
+}
+
+/* ── Question block inside the edit column ──
+   Title steps down to subheadline/small in the peek state so the
+   question still fits a 72px bar. */
+.setup-split-intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xs);
+  flex-shrink: 0;
+}
+
+.setup-split-title {
+  margin: 0;
+  font-size: var(--jui-typography-sub-headline-medium-size);
+  font-weight: var(--jui-typography-sub-headline-medium-weight);
+  line-height: var(--jui-typography-sub-headline-medium-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+
+.setup-split-subtitle {
+  margin: 0;
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+
+/* The peek is 72px: 4 padding + 32 grip + 4 padding leaves exactly 32 for
+   the question. The question is the one thing that bar exists to show, so
+   at this stop it is the only thing in it and it is held to a single line.
+   Left to wrap — a longer heading, a German string — its second line would
+   fall out of the bar and take the first line's meaning with it. */
+[data-drawer="collapsed"] .setup-split-title {
+  font-size: var(--jui-typography-sub-headline-small-size);
+  line-height: var(--jui-typography-sub-headline-small-lh);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 767px) {
+  [data-drawer="collapsed"] .setup-split-fields > :not(.setup-split-intro),
+  [data-drawer="collapsed"] .setup-split-subtitle { display: none; }
+}
+
+/* Left at both sizes. The drawer centred its question for a while, which
+   read well on its own and badly next to everything under it — the fields,
+   the options and the actions all start on the left edge, so a centred
+   heading was the one thing in the panel not lining up with anything. */
+
+@media (min-width: 768px) {
+  .setup-split-title {
+    font-size: var(--jui-typography-sub-headline-large-size);
+    line-height: var(--jui-typography-sub-headline-large-lh);
+  }
+}
+
+/* ── Actions row ──
+   Buttons in the design system are full-width by default (mobile-first).
+   In the edit column mobile keeps Continue flexible with Skip beside it;
+   desktop sizes both to their label and right-aligns them. Figma 12290:21769. */
+.setup-split-actions .btn-primary,
+.setup-split-actions .btn-secondary,
+.setup-split-actions .btn-subtle {
+  width: auto;
+  flex: 0 0 auto;
+  padding-left: var(--jui-layout-padding-l);
+  padding-right: var(--jui-layout-padding-l);
+}
+
+@media (max-width: 767px) {
+  .setup-split-actions .btn-primary { flex: 1 1 auto; }
+}
+
+/* Fields in the edit column keep the 48px Figma height and never shrink
+   when the drawer is dragged down. */
+.setup-split-fields .form-input {
+  height: var(--jui-layout-dimension-m);
+  flex-shrink: 0;
+}
+
+/* And so does a button sitting directly in that column. It declares a
+   height and nothing else there can give, so a crowded list took the space
+   out of the button — 48px became 26px exactly when the list was long
+   enough to need the control. */
+.setup-split-fields > .btn { flex-shrink: 0; }
+
+/* ── Link row — the address the page will live at ──
+   The handle follows the business name, so it is confirmed on the name
+   step rather than asked for on a step of its own. Read state is a
+   confirmation line; the pencil turns the handle into a field in place.
+   Figma 12290:22177. */
+.setup-link {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xs);
+  flex-shrink: 0;
+}
+
+/* ── Reveal ──
+   The address does not exist until the page has a name, so the row is not
+   there either. It arrives as the name is typed, which turns a field that
+   would otherwise sit waiting into an answer: something appeared because of
+   what you did. Clearing the name takes it away again.
+
+   Grid rather than height: 0fr to 1fr animates to the row's own height
+   whichever state it is in, and the negative margin cancels the column gap
+   that a zero-height child would otherwise still be owed. */
+.setup-link-reveal {
+  display: grid;
+  grid-template-rows: 0fr;
+  margin-top: calc(-1 * var(--setup-fields-gap, 16px));
+  opacity: 0;
+  transition: grid-template-rows 280ms cubic-bezier(0.32, 0.72, 0, 1),
+              margin-top 280ms cubic-bezier(0.32, 0.72, 0, 1),
+              opacity 180ms ease;
+}
+
+.setup-link-reveal > * {
+  overflow: hidden;
+  min-height: 0;
+  transform: translateY(-6px);
+  transition: transform 280ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.setup-link-reveal[data-shown="true"] {
+  grid-template-rows: 1fr;
+  margin-top: 0;
+  opacity: 1;
+}
+
+.setup-link-reveal[data-shown="true"] > * { transform: none; }
+
+/* The clipping is only needed while the row is growing into view. Left on
+   afterwards it cuts the focus ring and glow off the field inside, so it is
+   dropped once the reveal has settled — see the transitionend handler that
+   sets this. */
+.setup-link-reveal.is-settled > * { overflow: visible; }
+
+@media (prefers-reduced-motion: reduce) {
+  .setup-link-reveal,
+  .setup-link-reveal > * { transition: none; }
+}
+
+/* Before a name exists the row shows what it is waiting for rather than an
+   address nobody has chosen: a muted placeholder, and a tick with nothing
+   yet to confirm. */
+.setup-link-handle:empty::before {
+  content: attr(data-placeholder);
+  color: var(--jui-color-gray-400);
+  font-weight: 400;
+}
+
+/* Nothing typed yet: the whole line steps back and the tick loses its
+   green, so the row reads as a preview of the address rather than a claim
+   that it is already the user's. It firms up as they type. */
+.setup-link[data-filled="false"] .setup-link-value,
+.setup-link[data-filled="false"] .setup-link-value svg,
+.setup-link[data-filled="false"] .setup-link-check {
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
+.setup-link[data-filled="false"] .setup-link-suffix { color: var(--jui-color-gray-400); }
+
+/* Read and edit are the same box as the field above them — same height,
+   same radius, same border, same hover, same focus ring — so clicking the
+   address lands somewhere that was already behaving like an input rather
+   than somewhere that turns into one. */
+.setup-link-read,
+.setup-link-edit {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--jui-layout-gap-xs);
+  min-height: var(--jui-layout-dimension-m);
+  padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-s);
+  border: 1px solid transparent;
+  border-radius: var(--jui-style-radius-m);
+  transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.setup-link[data-link="read"] .setup-link-edit,
+.setup-link[data-link="edit"] .setup-link-read { display: none; }
+
+/* Read and edit share one box: same padding, same radius, same height, so
+   turning one into the other moves nothing. The resting fill also stops the
+   row reading as blank space before anyone has touched it. */
+/* Filled at rest: the address is already decided, so the row reads as a
+   field holding a value rather than one waiting for input. */
+.setup-link-read {
+  width: 100%;
+  background: var(--jui-color-background-gray-canvas);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.setup-link-read:hover { border-color: var(--jui-component-input-color-field-stroke-hover); }
+.setup-link-read:focus-visible {
+  border-color: var(--jui-color-stroke-primary-actionable);
+  box-shadow: 0 4px 24px 0 var(--jui-color-blue-focus), 0 0 0 2px var(--jui-color-gray-white), 0 0 0 3px var(--jui-color-actions-primary-rest);
+  outline: none;
+}
+
+/* The pencil keeps the affordance visible; the whole filled row is the
+   target, because a field-shaped thing that only responds to a 16px icon
+   is a field-shaped thing that feels broken. */
+.setup-link-pencil {
+  display: flex;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+.setup-link-pencil svg { width: 16px; height: 16px; }
+
+.setup-link-value {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
+  min-width: 0;
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+
+/* The address is one string. 8px separates it from the tick; the handle and
+   its suffix sit 2px apart, as in Figma 12290:22178 — any more and they read
+   as two unrelated words. */
+.setup-link-address {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+
+.setup-link-value svg,
+.setup-link-check {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--jui-color-green-400);
+}
+
+.setup-link-suffix { color: var(--jui-color-typography-gray-on-light-subdued); }
+
+/* Edit — only the handle is editable; the suffix is fixed text beside it,
+   so there is never a field holding a URL the user could half-delete. */
+.setup-link-edit {
+  border-color: var(--jui-component-input-color-field-stroke-rest);
+  background: var(--jui-color-background-gray-light);
+  cursor: text;
+}
+
+.setup-link-edit:not(:focus-within):hover { border-color: var(--jui-component-input-color-field-stroke-hover); }
+
+.setup-link-edit:focus-within {
+  border-color: var(--jui-color-stroke-primary-actionable);
+  box-shadow: 0 4px 24px 0 var(--jui-color-blue-focus), 0 0 0 2px var(--jui-color-gray-white), 0 0 0 3px var(--jui-color-actions-primary-rest);
+}
+
+.setup-link-field {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+}
+
+.setup-link-handle {
+  outline: none;
+  min-width: 1px;
+  font-weight: 500;
+  color: var(--jui-color-typography-gray-on-light-default);
+  caret-color: var(--jui-color-actions-primary-rest);
+  white-space: nowrap;
+}
+
+/* ── Checking ──
+   The live step (loops-frontend LinkField.tsx) puts a LoadingIndicator in the
+   status slot while an address is being checked and holds `available` at
+   undefined for the whole of it, so the tick never reports on a name nobody
+   has checked yet. Same here: the spinner takes the tick's place rather than
+   sitting beside it. */
+@keyframes setup-status-spin { to { transform: rotate(360deg); } }
+.setup-status-spinner {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--jui-color-blue-100);
+  border-top-color: var(--jui-color-actions-primary-rest);
+  animation: setup-status-spin 700ms linear infinite;
+}
+/* The paid address is looked for in its own colour. */
+.setup-status-spinner--upgrade {
+  border-color: var(--jui-color-purple-100);
+  border-top-color: var(--jui-color-actions-upgrade-rest);
+}
+.setup-link:not([data-state="checking"]) .setup-status-spinner { display: none; }
+.setup-link[data-state="checking"] .setup-link-value > svg,
+.setup-link[data-state="checking"] .setup-link-check > svg { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .setup-status-spinner { animation-duration: 2.4s; }
+}
+
+/* ── The other address ──
+   Under the one they are getting, the one they could have. Same 12 of
+   padding, 16 of mark and 8 of gap as the address above it, so the two names
+   line up and read as a pair. The chevron says
+   it opens something; the row edits nothing, unlike the box above it.
+
+   It replaced a "you can get your own domain later" hint that showed only
+   while the handle was being edited: same promise, no name, no when. */
+.setup-domain-offer {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
+  width: 100%;
+  padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-s);
+  border: none;
+  border-radius: var(--jui-style-radius-m);
+  background: none;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+.setup-domain-offer:hover { background: var(--jui-color-background-gray-canvas); }
+.setup-domain-offer:focus-visible {
+  outline: 2px solid var(--jui-color-actions-primary-rest);
+  outline-offset: 2px;
+}
+.setup-domain-offer-value,
+.setup-domain-offer-state {
+  font-size: var(--jui-typography-body-small-medium-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  line-height: var(--jui-typography-body-small-medium-lh);
+}
+/* The address itself in the upgrade colour: it is the paid one, and the row
+   is the only place that says so once the spinner has gone. Matches the live
+   DomainBanner, which paints its upgrade state upgrade-on-light. */
+.setup-domain-offer-value { color: var(--jui-color-typography-upgrade-on-light); }
+/* Not decorative-positive: the paywall's own availability tag found green-400
+   too light to report a result with, and this is the same word. */
+.setup-domain-offer-state { color: var(--jui-color-actions-positive-hover); }
+.setup-domain-offer-more {
+  flex-shrink: 0;
+  margin-left: auto;
+  width: 16px;
+  height: 16px;
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
+/* The row says what it is doing rather than shimmering while it does it. A
+   skeleton stands in for text whose shape you already know; this row is an
+   offer the seller has not seen yet, so a bar of nothing says nothing. */
+.setup-domain-offer-copy {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
+  min-width: 0;
+}
+/* In the upgrade colour: what is being looked for is the paid address, and
+   the wait is the only moment the row can say so. The live DomainBanner
+   paints its whole upgrade state upgrade-on-light for the same reason. */
+/* Marked the way the dialog it opens is marked — same rocket, same purple —
+   so the row and the thing behind it read as one object. While the address
+   is being looked for the slot holds the spinner instead, which is what the
+   address above it does too. */
+.setup-domain-offer-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--jui-color-decorative-upgrade);
+}
+.setup-domain-offer-rocket { width: 16px; height: 16px; display: block; }
+.setup-domain-offer[data-state="checking"] .setup-domain-offer-rocket { display: none; }
+.setup-domain-offer:not([data-state="checking"]) .setup-domain-offer-mark .setup-status-spinner { display: none; }
+
+.setup-domain-offer-checking {
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-upgrade-on-light);
+}
+.setup-domain-offer[data-state="checking"] { pointer-events: none; }
+.setup-domain-offer[data-state="checking"] .setup-domain-offer-copy,
+.setup-domain-offer[data-state="checking"] .setup-domain-offer-more { display: none; }
+.setup-domain-offer:not([data-state="checking"]) .setup-domain-offer-checking { display: none; }
+
+
+/* ═══════════════════════════════════════════════════════════════
+   LAYER 21 — Select cards + idea chips
+
+   A single-choice list where each option is a card, used when the
+   options are features the user picks between rather than a form
+   field. Paired with the idea chips below it: a chip is a shortcut
+   that picks a card and names the thing in one tap.
+
+   Used by: flows-suggestions (scr-046).
+   Figma: 2LVaYKcyyN2F2MUwSssFrL  12297:24568 / 24641
+   ═══════════════════════════════════════════════════════════════ */
+
+.select-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-s);
+  width: 100%;
+  flex-shrink: 0;
+}
+
+/* The selected card carries a 2px border where the others carry 1px.
+   Both are drawn so the row never changes height when selection moves. */
+.select-card {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-s);
+  width: 100%;
+  padding: var(--jui-layout-padding-m);
+  background: var(--jui-color-gray-white);
+  border: 2px solid var(--jui-color-gray-100);
+  border-radius: var(--jui-style-radius-16);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+.select-card:hover { border-color: var(--jui-color-blue-100); }
+.select-card:focus-visible {
+  outline: 2px solid var(--jui-color-actions-primary-rest);
+  outline-offset: 2px;
+}
+
+.select-card[aria-checked="true"] { border-color: var(--jui-color-blue-300); }
+
+.select-card-copy {
+  flex: 1 0 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xxs);
+}
+
+.select-card-label {
+  margin: 0;
+  font-size: var(--jui-typography-sub-headline-small-size);
+  font-weight: var(--jui-typography-sub-headline-small-weight);
+  line-height: var(--jui-typography-sub-headline-small-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+
+/* Radio mark — drawn rather than an <input> so the whole card is the
+   control and the dot can sit on the card's own selected state. */
+.select-card-radio {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--jui-color-gray-300);
+  border-radius: 50%;
+  position: relative;
+  transition: border-color 150ms ease;
+}
+
+.select-card[aria-checked="true"] .select-card-radio {
+  border-color: var(--jui-color-actions-primary-rest);
+  border-width: 2px;
+}
+
+.select-card[aria-checked="true"] .select-card-radio::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border-radius: 50%;
+  background: var(--jui-color-actions-primary-rest);
+}
+
+/* ── Idea chips ──
+   The escape hatch for someone who does not recognise themselves in the
+   list above. Each chip names a thing to offer and knows which card it
+   belongs to, so one tap answers both questions. */
+.idea-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-s);
+  width: 100%;
+  flex-shrink: 0;
+  padding-top: var(--jui-layout-padding-xs);
+}
+
+.idea-block-title {
+  margin: 0;
+  font-size: var(--jui-typography-sub-headline-small-size);
+  font-weight: var(--jui-typography-sub-headline-small-weight);
+  line-height: var(--jui-typography-sub-headline-small-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+
+.idea-chips {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--jui-layout-gap-xxs);
+}
+
+.idea-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-xs);
+  background: var(--jui-color-background-primary-light);
+  border: 1px solid transparent;
+  border-radius: var(--jui-style-radius-8);
+  font-family: inherit;
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.idea-chip:hover { border-color: var(--jui-color-stroke-primary-actionable); }
+.idea-chip:focus-visible {
+  outline: 2px solid var(--jui-color-actions-primary-rest);
+  outline-offset: 2px;
+}
+.idea-chip[aria-pressed="true"] {
+  background: var(--jui-color-background-primary-medium);
+  border-color: var(--jui-color-stroke-primary-actionable);
+}
+
+/* Text button — a link-weight action that is not navigation. */
+.text-action {
+  align-self: flex-start;
+  padding: 0;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: 500;
+  line-height: var(--jui-typography-body-small-regular-lh);
+  letter-spacing: var(--jui-typography-link-small-ls);
+  color: var(--jui-color-actions-primary-rest);
+  cursor: pointer;
+}
+.text-action:hover { text-decoration: underline; }
+.text-action:focus-visible {
+  outline: 2px solid var(--jui-color-actions-primary-rest);
+  outline-offset: 2px;
+  border-radius: var(--jui-style-radius-4);
+}
+
+/* A step whose control is a list has to scroll inside the drawer; the
+   peek still shows only the question, so nothing can be scrolled out of
+   that state. */
+@media (max-width: 767px) {
+  .setup-split-fields--scroll { overflow: hidden auto; }
+}
+
+
+
+/* ═══════════════════════════════════════════════════════════════
+   LAYER 22 — Labelled field group
+
+   A short uppercase label over one or more fields, each field an
+   icon beside its value. Used where a step collects several small
+   things that land in different places on the artifact.
+
+   Used by: onboarding-business-details (scr-014).
+   Figma: 2LVaYKcyyN2F2MUwSssFrL  12297:23638
+   ═══════════════════════════════════════════════════════════════ */
+
+.field-group-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-s);
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xs);
+  width: 100%;
+}
+
+.field-group-label {
+  margin: 0;
+  padding-left: var(--jui-layout-padding-xxs);
+  font-size: var(--jui-typography-label-small-size);
+  font-weight: var(--jui-typography-label-small-weight);
+  line-height: var(--jui-typography-label-small-lh);
+  letter-spacing: var(--jui-typography-label-small-ls);
+  text-transform: uppercase;
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+
+/* Figma's $jui-style-radius-m is 12 here where ours is 8, so the pixel is
+   matched with the on-scale 12 token rather than the semantic name. */
+.field-row {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-s);
+  width: 100%;
+  padding: var(--jui-layout-padding-s) var(--jui-layout-padding-s) var(--jui-layout-padding-s) var(--jui-layout-padding-m);
+  background: var(--jui-color-gray-white);
+  border: 1px solid var(--jui-color-gray-100);
+  border-radius: var(--jui-style-radius-12);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.field-row:hover { border-color: var(--jui-color-stroke-primary-actionable); }
+.field-row:focus-within,
+.field-row:focus-visible {
+  border-color: var(--jui-color-stroke-primary-actionable);
+  box-shadow: 0 4px 24px 0 var(--jui-color-blue-focus), 0 0 0 2px var(--jui-color-gray-white), 0 0 0 3px var(--jui-color-actions-primary-rest);
+  outline: none;
+}
+
+.field-row-icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+.field-row-icon svg { width: 16px; height: 16px; display: block; }
+
+.field-row-value {
+  flex: 1 0 0;
+  min-width: 0;
+  border: none;
+  outline: none;
+  padding: 0;
+  background: none;
+  font-family: inherit;
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+.field-row-value::placeholder { color: var(--jui-color-typography-gray-on-light-subdued); }
+
+
+/* ═══════════════════════════════════════════════════════════════
+   LAYER 23 — Avatar upload
+
+   An 80px control carrying the same silhouette the bio page shows,
+   so the control and the thing it changes read as one object. The
+   plus badge straddles the top-right corner; once a photo is in,
+   the silhouette gives way to it and the plus becomes a pencil.
+
+   Used by: onboarding-name (scr-011), onboarding-photo (scr-469).
+   Figma: 2LVaYKcyyN2F2MUwSssFrL  12290:22119 / 22121 / 22124
+   ═══════════════════════════════════════════════════════════════ */
+
+.avatar-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--jui-layout-gap-xxs);
+  flex-shrink: 0;
+  width: 80px;
+}
+
+.avatar-wrapper {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin-top: var(--jui-layout-padding-s);
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.avatar-circle {
+  width: 80px;
+  height: 80px;
+  background: var(--jui-color-blue-10);
+  border: 2px solid var(--jui-color-blue-10);
+  border-radius: var(--jui-style-radius-12);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: var(--jui-layout-padding-m);
+  gap: var(--jui-layout-gap-xxs);
+  transition: background-color 150ms ease, border-color 150ms ease, transform 150ms ease;
+}
+
+.avatar-head,
+.avatar-body {
+  border-radius: 50%;
+  background: var(--jui-color-gray-white);
+  flex-shrink: 0;
+}
+.avatar-head { width: 40px; height: 40px; }
+.avatar-body { width: 74px; height: 74px; }
+
+.avatar-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+  display: block;
+}
+
+.avatar-wrapper:hover .avatar-circle { border-color: var(--jui-color-blue-100); }
+.avatar-wrapper:active .avatar-circle { transform: scale(0.96); }
+.avatar-wrapper:focus-visible {
+  outline: 2px solid var(--jui-color-actions-primary-rest);
+  outline-offset: 3px;
+  border-radius: var(--jui-style-radius-12);
+}
+
+.avatar-add-btn {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--jui-layout-padding-xxs);
+  background: var(--jui-color-gray-white);
+  border: 1px solid var(--jui-color-blue-50);
+  border-radius: var(--jui-style-radius-24);
+  color: var(--jui-color-actions-primary-rest);
+  pointer-events: none;
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+.avatar-add-btn svg { width: 16px; height: 16px; display: block; }
+.avatar-wrapper:hover .avatar-add-btn {
+  background: var(--jui-color-actions-primary-rest);
+  border-color: var(--jui-color-actions-primary-rest);
+  color: var(--jui-color-gray-white);
+}
+
+.avatar-optional {
+  margin: 0;
+  white-space: nowrap;
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
+/* Added — the silhouette gives way to the photo and the plus becomes a
+   pencil, so the control stops reading as empty. */
+[data-photo="added"] .avatar-head,
+[data-photo="added"] .avatar-body { display: none; }
+[data-photo="added"] .avatar-circle { padding-top: 0; background: var(--jui-color-gray-100); }
+[data-photo="empty"] .avatar-photo { display: none; }
+[data-photo="added"] .avatar-add-icon-plus { display: none; }
+[data-photo="empty"] .avatar-add-icon-edit { display: none; }
+
+/* Mobile halves the control. The drawer has to hold a question, an avatar,
+   a field and the link row in roughly 420px, and at 80px the avatar took
+   more of that than its job is worth. The plus badge keeps its 24px, so it
+   stays a comfortable target on the smaller square. Figma 12327:25408. */
+@media (max-width: 767px) {
+  .avatar-upload { margin-left: auto; margin-right: auto; width: 40px; }
+  .avatar-wrapper {
+    width: 40px;
+    height: 40px;
+    margin-top: var(--jui-layout-padding-xs);
+  }
+  .avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--jui-style-radius-8);
+    padding-top: var(--jui-layout-padding-xs);
+    gap: 2px;
+  }
+  .avatar-head { width: 20px; height: 20px; }
+  .avatar-body { width: 37px; height: 37px; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   LAYER 24 — Textarea + reassurance hint
+
+   A multi-line field in the setup column, and the quiet note that
+   sits under it. The note is positive-light rather than grey: it
+   answers "am I committing to this?", which is reassurance, not
+   instruction.
+
+   Used by: onboarding-offer (scr-013).
+   Figma: 2LVaYKcyyN2F2MUwSssFrL  12290:22187
+   ═══════════════════════════════════════════════════════════════ */
+
+.form-textarea {
+  width: 100%;
+  /* Two lines of Body/Medium plus the field's own padding. Fixed rather
+     than auto-growing: a box that changes height as you type moves the
+     hint under it and, on mobile, the whole drawer. */
+  min-height: 72px;
+  padding: var(--jui-layout-padding-s);
+  border: 1px solid var(--jui-component-input-color-field-stroke-rest);
+  border-radius: var(--jui-style-radius-m);
+  background: var(--jui-color-background-gray-light);
+  font-family: inherit;
+  font-size: var(--jui-typography-body-medium-regular-size);
+  font-weight: var(--jui-typography-body-medium-regular-weight);
+  line-height: var(--jui-typography-body-medium-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+  resize: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.form-textarea::placeholder { color: var(--jui-color-gray-400); }
+.form-textarea:not(:focus):hover { border-color: var(--jui-component-input-color-field-stroke-hover); }
+.form-textarea:focus,
+.form-textarea.focused {
+  outline: none;
+  border-color: var(--jui-color-stroke-primary-actionable);
+  box-shadow: 0 4px 24px 0 var(--jui-color-blue-focus), 0 0 0 2px var(--jui-color-gray-white), 0 0 0 3px var(--jui-color-actions-primary-rest);
+}
+
+.setup-hint {
+  margin: 0;
+  width: 100%;
+  flex-shrink: 0;
+  padding: var(--jui-layout-padding-s) var(--jui-layout-padding-m);
+  background: var(--jui-color-background-positive-light);
+  border-radius: var(--jui-style-radius-16);
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-positive-on-light);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   LAYER 25 — Copy suggestion
+
+   Appears a beat after typing stops: first that something is
+   reading, then what it noticed, with one way to take it. It sits
+   where the reassurance note sits and hides it while up — they are
+   the same kind of thing and never need to be read at once, which
+   also keeps the field above from moving.
+
+   Used by: onboarding-offer (scr-013).
+   ═══════════════════════════════════════════════════════════════ */
+
+.ai-suggest {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-s);
+  width: 100%;
+  flex-shrink: 0;
+  padding: var(--jui-layout-padding-s) var(--jui-layout-padding-m);
+  background: var(--jui-color-background-primary-light);
+  border-radius: var(--jui-style-radius-16);
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+.ai-suggest[hidden] { display: none; }
+
+.ai-suggest[data-state="loading"] .ai-suggest-body,
+.ai-suggest[data-state="ready"] .ai-suggest-loading { display: none; }
+
+.ai-suggest-loading {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
+/* Three dots rather than a spinner: a spinner says "waiting", and the wait
+   is the point here — something is reading what was just written. */
+.ai-suggest-dots {
+  display: inline-flex;
+  gap: var(--jui-layout-gap-xxs);
+  flex-shrink: 0;
+}
+.ai-suggest-dots i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--jui-color-actions-primary-rest);
+  animation: ai-suggest-pulse 1.1s ease-in-out infinite;
+}
+.ai-suggest-dots i:nth-child(2) { animation-delay: 0.15s; }
+.ai-suggest-dots i:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes ai-suggest-pulse {
+  0%, 100% { opacity: 0.25; transform: scale(0.8); }
+  50%      { opacity: 1;    transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-suggest-dots i { animation: none; opacity: 0.6; }
+}
+
+.ai-suggest-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--jui-layout-gap-s);
+}
+
+.ai-suggest-text { margin: 0; }
+
+.ai-suggest-apply {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  height: var(--jui-layout-dimension-s);
+  padding: 0 var(--jui-layout-padding-s);
+  background: var(--jui-color-gray-white);
+  border: 1px solid var(--jui-color-stroke-primary-actionable);
+  border-radius: var(--jui-style-radius-8);
+  font-family: inherit;
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: 500;
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-actions-primary-rest);
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+.ai-suggest-apply:hover { background: var(--jui-color-background-primary-medium); }
+.ai-suggest-apply:focus-visible {
+  outline: 2px solid var(--jui-color-actions-primary-rest);
+  outline-offset: 2px;
+}
+
+
+/* ═══ Celebration ═════════════════════════════════════════════════════════
+   The burst and the backdrop. Both were hand-copied into four screens before
+   they were lifted here — see shared/confetti.js for the generator and the
+   markup it expects. */
+
+/* ── Burst ──
+   One dot is three nested elements because the three motions want three
+   curves: the drift is fast then settles, the arc eases both ways, the fade
+   is linear and also spins and flips the dot so it reads as paper. */
+.confetti {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 0;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 3;
+}
+.confetti-x {
+  position: absolute;
+  left: var(--dot-left);
+  top: 0;
+  animation: confetti-x var(--dot-duration) var(--dot-delay) cubic-bezier(0, 0.9, 0.4, 1) forwards;
+}
+.confetti-y {
+  animation: confetti-y var(--dot-duration) var(--dot-delay) ease-in-out forwards;
+}
+.confetti-dot {
+  width: var(--dot-size);
+  height: var(--dot-size);
+  border-radius: 50%;
+  background-color: var(--dot-color);
+  opacity: 0;
+  animation: confetti-fade var(--dot-duration) var(--dot-delay) linear forwards;
+}
+@keyframes confetti-x {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(var(--dot-x-drift)); }
+}
+@keyframes confetti-y {
+  0%   { transform: translateY(0); }
+  20%  { transform: translateY(var(--dot-y-peak)); }
+  100% { transform: translateY(var(--dot-y-end)); }
+}
+@keyframes confetti-fade {
+  0%   { opacity: 0;    transform: rotate(0deg) scaleX(1); }
+  6%   { opacity: 0.9; }
+  25%  { transform: rotate(calc(var(--dot-rotate) * 0.3)) scaleX(-1); }
+  50%  { opacity: 0.85; transform: rotate(calc(var(--dot-rotate) * 0.6)) scaleX(1); }
+  75%  { opacity: 0.7;  transform: rotate(calc(var(--dot-rotate) * 0.8)) scaleX(-1); }
+  90%  { opacity: 0.3; }
+  100% { opacity: 0;    transform: rotate(var(--dot-rotate)) scaleX(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .confetti-x, .confetti-y { animation: none; }
+  .confetti-dot { animation: none; opacity: 0.6; }
+}
+
+/* ── Backdrop ──
+   A rounded star at color/purple/10 turned 15°, twice the width of the page
+   it sits behind. Sized off --bp-scale rather than in pixels, so it follows
+   the preview through every drawer height instead of needing a number per
+   stop. Figma 12270:23186. */
+.celebrate-blob {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(360px * var(--bp-scale, 1) * 2);
+  aspect-ratio: 1;
+  /* The square is centred on the page; the shape inside it is not centred on
+     the square, so the last step puts the shape itself on the page's middle.
+     In percent and inside the rotation, so it holds at every preview size. */
+  transform: translate(-50%, -50%) rotate(15deg) translateY(0.68%);
+  z-index: 0;
+  pointer-events: none;
+}
+/* The shape is inset inside its square, not the same size as it — that inset
+   is what keeps the halo close to the page instead of swallowing it. Figma
+   measures it in the rotated frame, so it is applied inside the rotation. */
+.celebrate-blob svg {
+  position: absolute;
+  inset: 10.23% 10.57% 11.59% 10.57%;
+  display: block;
+  width: auto;
+  height: auto;
+}
+
+/* ── Celebrate mode ──
+   The split step at the end of onboarding, which is the same step as the
+   four before it in every measurement that matters — same column widths,
+   same preview size, same action row. The one change is that the preview
+   stops being a specimen: the grey panel and the "Preview" tag come off and
+   the backdrop comes in behind. Keeping everything else identical is the
+   point; this has to land as the end of what they were already doing. */
+.app-shell-setup-split[data-mode="celebrate"] .setup-preview-panel {
+  background: none;
+  overflow: visible;
+}
+.app-shell-setup-split[data-mode="celebrate"] .setup-preview-tag { display: none; }
+
+/* The copy column holds no fields here, only a short read and two buttons,
+   so the 360px the editing steps need is more than it has to say. Even
+   halves instead: the page gets the room its celebration wants and the words
+   stop hugging the right edge. Desktop only — mobile is still a drawer. */
+@media (min-width: 768px) {
+  .app-shell-setup-split[data-mode="celebrate"] .setup-split-form {
+    width: auto;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  /* The column is half the frame now, which is wider than a line of text
+     wants to be — the editing steps got their measure from the 360px they
+     needed for fields, and this one has to be asked for. Prose only: a
+     control is not read left to right, and holding the options to a reading
+     measure would leave them short of the button they lead to. */
+  .app-shell-setup-split[data-mode="celebrate"] .setup-split-intro,
+  .app-shell-setup-split[data-mode="celebrate"] .setup-note {
+    max-width: 42ch;
+  }
+}
+
+/* The phrase in the copy and the block in the preview are the same thing
+   named twice, so they are marked the same way — the words carry the tint
+   the highlight paints on the page. */
+.setup-emphasis {
+  background: var(--jui-color-background-primary-light);
+  color: var(--jui-color-typography-primary-on-light);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  border-radius: var(--jui-style-radius-4);
+  padding: 0 var(--jui-layout-padding-xxs);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+/* The page arrives on its own, after the backdrop has opened behind it.
+   One-shot: a celebration that keeps going is a loading state. */
+.app-shell-setup-split[data-mode="celebrate"] .bp-stage {
+  position: relative;
+  z-index: 2;
+  animation: celebrate-stage-in 620ms cubic-bezier(0.32, 0.72, 0, 1) 120ms both;
+}
+.celebrate-blob { animation: celebrate-blob-in 760ms cubic-bezier(0.32, 0.72, 0, 1) both; }
+@keyframes celebrate-stage-in {
+  from { transform: translateY(14px) scale(0.965); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+@keyframes celebrate-blob-in {
+  from { transform: translate(-50%, -50%) rotate(15deg) translateY(0.68%) scale(0.86); opacity: 0; }
+  to   { transform: translate(-50%, -50%) rotate(15deg) translateY(0.68%) scale(1); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-shell-setup-split[data-mode="celebrate"] .bp-stage,
+  .celebrate-blob { animation: none; }
+}
+
+/* The consequence of the choice, which only exists once the choice is made.
+   It animates in rather than appearing, because an appearance is the thing
+   the eye misses — see the staging in the screen's script. */
+.setup-note {
+  margin: 0;
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+  transition: grid-template-rows 300ms cubic-bezier(0.32, 0.72, 0, 1),
+              opacity 200ms ease;
+}
+.setup-note > * { overflow: hidden; min-height: 0; }
+.setup-note[data-shown="true"] { grid-template-rows: 1fr; opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .setup-note { transition: none; }
+}
+
+/* ── Two copies, one slot ──
+   The body text and the action pair swap together when the choice is made.
+   The copy is grid-stacked so the column does not jump by the difference in
+   their heights; the actions are not, because they are the same height. */
+.setup-swap { display: grid; }
+.setup-swap > * { grid-area: 1 / 1; }
+.setup-swap-state { transition: opacity 240ms ease; }
+.setup-swap-state[data-on="false"] {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.setup-action-set {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-s);
+  width: 100%;
+}
+.setup-action-set[data-on="false"] { display: none; }
+.setup-action-set .btn { flex: 1; }
+
+@media (min-width: 768px) {
+  .setup-action-set { justify-content: flex-end; }
+  .setup-action-set .btn { flex: 0 0 auto; }
+}
+
+/* The blob and the burst are placed against the page, not the column — they
+   belong to the thing being celebrated. */
+.celebrate-stage-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ═══ Upgrade ══════════════════════════════════════════════════════════════
+   What a paid plan opens up, as a list of things the seller can then do —
+   not a Free-vs-Pro table. A comparison table hands the reasoning back to the
+   reader: it shows two columns of ticks and leaves them to work out which
+   ones they care about. A list of unlocks does the reasoning for them and
+   says it in their words. */
+.unlock-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-m);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.unlock-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--jui-layout-gap-s);
+}
+
+.unlock-icon {
+  flex-shrink: 0;
+  width: var(--jui-layout-dimension-s);
+  height: var(--jui-layout-dimension-s);
+  border-radius: var(--jui-style-radius-8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--unlock-icon-bg, var(--jui-color-background-primary-light));
+  color: var(--unlock-icon-fg, var(--jui-color-typography-primary-on-light));
+}
+.unlock-icon svg { width: 18px; height: 18px; display: block; }
+
+.unlock-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xxs);
+  min-width: 0;
+}
+
+.unlock-title {
+  margin: 0;
+  font-size: var(--jui-typography-body-medium-medium-size);
+  font-weight: var(--jui-typography-body-medium-medium-weight);
+  line-height: var(--jui-typography-body-medium-medium-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+
+.unlock-detail {
+  margin: 0;
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
+/* ── Price ──
+   Said once, in one line, with what it is measured against. A price with no
+   anchor is a number the reader has to place on their own. */
+.upgrade-price {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--jui-layout-gap-xs);
+}
+.upgrade-price-amount {
+  font-size: var(--jui-typography-sub-headline-medium-size);
+  font-weight: var(--jui-typography-sub-headline-medium-weight);
+  line-height: var(--jui-typography-sub-headline-medium-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+.upgrade-price-note {
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
+/* ── Peer voice ──
+   A solopreneur, named, with their craft and an outcome. Brand claims are
+   discounted here and peer outcomes are not — but only when the person is
+   identifiable enough to be real. Needs consent before it ships. */
+.upgrade-quote {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xs);
+  margin: 0;
+  padding: var(--jui-layout-padding-m);
+  border-radius: var(--jui-style-radius-12);
+  background: var(--jui-color-gray-50);
+}
+.upgrade-quote p {
+  margin: 0;
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+.upgrade-quote footer {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+.upgrade-quote-avatar {
+  width: var(--jui-layout-dimension-xs);
+  height: var(--jui-layout-dimension-xs);
+  border-radius: 999px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* ── Value anchor ──
+   The price set against the thing it pays for. For a product whose whole
+   point is taking bookings, the honest anchor is one booking. */
+.upgrade-anchor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xxs);
+  padding: var(--jui-layout-padding-m);
+  border-radius: var(--jui-style-radius-12);
+  background: var(--jui-color-background-primary-light);
+}
+.upgrade-anchor-headline {
+  margin: 0;
+  font-size: var(--jui-typography-body-medium-medium-size);
+  font-weight: var(--jui-typography-body-medium-medium-weight);
+  line-height: var(--jui-typography-body-medium-medium-lh);
+  color: var(--jui-color-typography-primary-on-light);
+}
+.upgrade-anchor-detail {
+  margin: 0;
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+
+/* ── Plan card ──
+   The unlocks in a surface of their own, so they read as the contents of a
+   plan rather than as five sentences on a page. Two boxes: a tinted frame
+   with the label, and a white body holding the list. Figma 12270:23730 —
+   outer radius 20 with 4px of frame leaves exactly 16 inside, which is why
+   the inner corners sit true against the outer ones.
+   The plan's name is a label, not a column: there is no second column to
+   compare it against, and nothing on this screen is for the reader to work
+   out. */
+/* The single-column variant turns scrolling off so the template carousel can
+   bleed past the column. A screen with more to read than the frame holds
+   needs it back, with the actions staying where they are. */
+.app-shell-setup-single[data-explore] .setup-split-fields {
+  overflow-y: auto;
+  overflow-x: hidden;
+  gap: var(--jui-layout-gap-l);
+  padding-bottom: var(--jui-layout-padding-l);
+}
+
+/* Top-aligned, like every other screen in the flow. The column was centred
+   for a while, from when this was two short cards and a heading; with the
+   cards at their full height it only pushed the title into the middle of an
+   otherwise empty frame. */
+@media (min-width: 768px) {
+  .app-shell-setup-single[data-explore] .setup-split-fields {
+    padding-top: var(--jui-layout-padding-s);
+    padding-bottom: var(--jui-layout-padding-l);
+    gap: var(--jui-layout-gap-l);
+  }
+}
+
+.plan-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-measurements-size-2, 2px);
+  padding: var(--jui-layout-padding-xxs);
+  border-radius: var(--jui-style-radius-20);
+  background: var(--jui-color-gray-50);
+}
+
+.plan-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--jui-layout-gap-s);
+  padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-s);
+}
+
+.plan-card-title {
+  margin: 0;
+  font-size: var(--jui-typography-body-small-medium-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  line-height: var(--jui-typography-body-small-medium-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+
+.plan-card-plan {
+  margin: 0;
+  font-size: var(--jui-typography-label-small-size);
+  font-weight: var(--jui-typography-label-small-weight);
+  letter-spacing: var(--jui-typography-label-small-ls);
+  line-height: var(--jui-typography-label-small-lh);
+  text-transform: uppercase;
+  color: var(--jui-color-actions-upgrade-pressed);
+}
+
+.plan-card-body {
+  padding: var(--jui-layout-padding-m);
+  border-radius: var(--jui-style-radius-16);
+  background: var(--jui-color-gray-white);
+}
+
+/* ── Their address, already free ──
+   The one piece of this screen that is about them rather than about the
+   plan, so it gets the only coloured edge on the page: a purple hairline and
+   a purple-cast shadow, both drawn from the upgrade family so it reads as
+   part of what is being offered. Figma 12270:23730. */
+.domain-offer {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
+  flex-wrap: wrap;
+  padding: var(--jui-layout-padding-l);
+  border: 1px solid var(--jui-color-purple-50);
+  border-radius: var(--jui-style-radius-20);
+  background: var(--jui-color-gray-white);
+  box-shadow: 0 4px 12px rgba(163, 80, 217, 0.1);
+}
+
+.domain-offer-value {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--jui-typography-sub-headline-small-size);
+  font-weight: var(--jui-typography-sub-headline-small-weight);
+  line-height: var(--jui-typography-sub-headline-small-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+  white-space: nowrap;
+}
+
+.domain-offer-tick {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--jui-color-green-400);
+}
+
+.domain-offer-spacer { flex: 1 1 auto; }
+
+/* Figma's Tag at color=green, variant=medium: a soft fill and no edge.
+   .badge--positive is the darker variant with a stroke — a different tag,
+   kept as it is because other screens are using it. */
+.badge--positive-medium {
+  color: var(--jui-color-typography-positive-on-light);
+  background: var(--jui-color-background-positive-medium);
+  border-color: transparent;
+}
+
+/* ═══ Plan cards ═══════════════════════════════════════════════════════════
+   Free and Pro side by side, each ending in its own button. Not a radio pair:
+   a selection asks the reader to choose and then confirm, and the gap between
+   those two acts is where people leave. A button inside each card means both
+   ways out are on screen at once and reading one card is not a step on the
+   way to the other.
+
+   The order inside a card is the hierarchy, taken from the benchmark: who it
+   is for, what it costs, what to press, and only then the detail. The price
+   is the biggest thing in the card because it is the thing being decided. */
+.plan-choice {
+  display: grid;
+  gap: var(--jui-layout-gap-m);
+  /* Equal height. Two plans are one comparison, and a short card beside a
+     tall one reads as the lesser of two things rather than as the other
+     option. */
+  align-items: stretch;
+}
+
+/* The card is a frame holding one or two panels, not a box with everything
+   inside it. Same construction the rich buttons on the bio page use: the
+   halves carry the fill and the radii, and a 2px gap between them says they
+   are two things without needing a rule to say it. */
+.plan-option {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  /* 1px, so the divider reads as a rule rather than a trench. */
+  gap: 1px;
+  border: 1px solid var(--jui-color-stroke-gray-default);
+  border-radius: var(--jui-style-radius-16);
+  /* The frame is also what shows through the 2px seam, so its fill and its
+     edge are the same colour: the card reads as one outlined object with a
+     line across it rather than two panels that happen to be near each other. */
+  background: var(--jui-color-stroke-gray-default);
+  /* The panels carry their own radii; this keeps them inside the frame's. */
+  overflow: hidden;
+}
+
+.plan-option-main,
+.plan-option-foot {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: var(--jui-layout-padding-m);
+  background: var(--jui-color-gray-50);
+}
+
+/* No radius on the panels: the frame's own corners clip them, so the card has
+   exactly one rounding and the seam runs straight across between the two.
+   Three declarations used to describe the same four corners, and the 4px at
+   the seam made the card read as two blocks rather than one divided. */
+.plan-option-main {
+  flex: 1 1 auto;
+  gap: var(--jui-layout-gap-m);
+}
+.plan-option-foot {
+  flex: 0 0 auto;
+  gap: var(--jui-layout-gap-xxs);
+}
+
+/* Free is a surface; Pro is the offer. */
+/* purple-100 is the lightest stroke token the upgrade family has and it was
+   still heavier than the card wants. purple-50 has no stroke alias, so the
+   scale token is used directly — a choice, not an oversight. */
+.plan-option--pro {
+  border-color: var(--jui-color-purple-50);
+  background: var(--jui-color-purple-50);
+}
+.plan-option--pro .plan-option-main,
+.plan-option--pro .plan-option-foot {
+  background: var(--jui-color-background-upgrade-light);
+}
+
+/* Everything-in-the-one-before, so it leads with that rather than repeating
+   five lines the reader has just taken in. */
+.plan-feature--carry {
+  font-weight: var(--jui-typography-body-small-medium-weight);
+}
+.plan-feature--carry svg { color: var(--jui-color-typography-gray-on-light-subdued); }
+
+/* Name, price and the line under it are one block. They were three siblings
+   sharing the card's gap, which put 24px between a 16px label and a 40px
+   number and made the label look like an orphan rather than the price's
+   name. */
+.plan-option-top {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xxs);
+}
+
+.plan-option-head {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
+}
+
+.plan-option-name {
+  flex: 1 1 auto;
+  margin: 0;
+  font-size: var(--jui-typography-body-medium-medium-size);
+  font-weight: var(--jui-typography-body-medium-medium-weight);
+  line-height: var(--jui-typography-body-medium-medium-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+
+.plan-option-price {
+  display: flex;
+  align-items: baseline;
+  gap: var(--jui-layout-gap-xxs);
+  white-space: nowrap;
+}
+.plan-option-amount {
+  font-size: 24px;
+  font-weight: var(--jui-typography-sub-headline-large-weight);
+  line-height: 1.2;
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+.plan-option-period {
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
+/* The paid plan's note is the reassurance, so it carries the plan's colour
+   rather than sitting in the same grey as the free one's — and specifically
+   the button's own purple, so the promise and the action it is about read as
+   one thing. 5.72:1 on the card tint. */
+.plan-option--pro .plan-option-note { color: var(--jui-color-actions-upgrade-rest); }
+
+.plan-option-note {
+  margin: var(--jui-layout-gap-xxs) 0 0;
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
+/* Short lines only, and below the button rather than above it. By the time
+   someone is reading the fourth tick they have already decided; the button
+   should not be further away for it. */
+.plan-feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.plan-feature {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--jui-layout-gap-xs);
+  margin: 0;
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+.plan-feature svg {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin-top: 3px;
+  /* Decorative upgrade, not positive: a tick in a paid plan's list marks it
+     as part of that plan, and green reads as a result rather than a feature.
+     Green is left for the one thing on this screen that really is a result —
+     the domain coming back available. */
+  color: var(--jui-color-decorative-upgrade);
+}
+/* Grey on the free plan. The same green on both lists made every line look
+   equally worth having, which is the one thing a plan comparison must not
+   do: a tick on the plan you already have is a statement of fact, a tick on
+   the other one is the reason to move. */
+.plan-option--free .plan-feature svg { color: var(--jui-color-gray-400); }
+
+/* ── Two marks, two jobs ──
+   "Recommended" is ours — an opinion about the plan — so it is purple and
+   lives in the header beside the plan's name. "available" is theirs — a fact
+   about their domain — so it is green, small, and sits inline with the thing
+   it describes. Both were pills in the same green, which made the page look
+   like it was saying one thing twice and ranked neither. */
+.plan-option-rec {
+  flex-shrink: 0;
+  padding: 0 var(--jui-layout-padding-xs);
+  border-radius: var(--jui-component-badge-radius);
+  background: var(--jui-color-background-upgrade-medium);
+  color: var(--jui-color-typography-upgrade-on-light);
+  font-size: var(--jui-typography-label-small-size);
+  font-weight: var(--jui-typography-label-small-weight);
+  letter-spacing: var(--jui-typography-label-small-ls);
+  line-height: var(--jui-layout-dimension-xs);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ── Their address, inside the plan that carries it ──
+   A white inset on the tinted card, so the one concrete thing on the page
+   reads as part of what they would be buying rather than as a separate offer
+   underneath it. Outer 16 less the card's padding leaves 12 for the inset,
+   which keeps the corners concentric. */
+.plan-domain {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
+  flex-wrap: wrap;
+  /* 16 of icon + 8 of gap, so it starts where the bullet's words start. */
+  /* 16 of tick + 8 of gap, so the address starts where the words above it
+     start rather than under their bullet. */
+  margin: 0 0 0 var(--jui-layout-gap-l);
+  width: auto;
+}
+
+.plan-feature-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xxs);
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.plan-domain-value {
+  font-size: var(--jui-typography-body-small-medium-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  line-height: var(--jui-typography-body-small-medium-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+.plan-domain-state {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xxs);
+  margin-left: auto;
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  /* Not decorative-positive: green-400 measured 2.72:1 on the card's tint,
+     which is unreadable for a word that reports a result. */
+  color: var(--jui-color-actions-positive-hover);
+}
+.plan-domain-state { font-weight: var(--jui-typography-body-small-medium-weight); }
+
+/* ── Desktop ──
+   Side by side, and given room: the cards are the whole screen here, so the
+   air inside them is what separates the two prices from everything else. */
+@media (min-width: 768px) {
+  /* loops-frontend's shell sets no vertical padding at all — not on the
+     container, the main, the header or the footer. The only padding-block it
+     carries is env(safe-area-inset-*) on the sticky variants, which is notch
+     handling rather than spacing. A page there owns its own rhythm. This
+     screen is modelled on that page, so it drops the 12/16 the setup shell
+     adds and spaces itself. */
+  .app-shell-setup-single[data-explore] {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  /* Three plans do not fit the 768 the editing steps use — at that width the
+     cards are 234px and every second feature wraps. The column widens for
+     this screen only. */
+  .app-shell-setup-single[data-explore] { --setup-single-max: 992px; }
+
+  /* Columns follow the number of plans rather than being set per screen,
+     so a two-tier version does not inherit a third empty column. */
+  .plan-choice {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--jui-layout-gap-s);
+  }
+  .plan-choice:has(> :nth-child(3)) { grid-template-columns: repeat(3, 1fr); }
+  .plan-option-main { gap: var(--jui-layout-gap-l); }
+  .plan-option-main .plan-feature-list { margin-top: var(--jui-layout-gap-xs); }
+  .plan-option-amount { font-size: 40px; }
+  .plan-feature-list { gap: var(--jui-layout-gap-s); }
+}
+
+/* Every .btn- variant sets display, which outranks the hidden attribute on
+   source order alone. Stated once here so hiding a button works the way the
+   markup says it does. */
+.btn[hidden] { display: none !important; }
+
+@media (max-width: 767px) {
+  .plan-feature-list { gap: var(--jui-layout-gap-xxs); }
+
+  /* Stacked, only one card is on screen at a time, so the recommended one
+     goes first rather than being the thing you reach by scrolling past the
+     one we are not recommending. Side by side both are visible at once and
+     cheapest-first reads correctly, so this is a phone-only reversal. */
+  .plan-choice .plan-option--pro { order: -1; }
+}
+
+/* ── Trust line ──
+   The two facts from the public page that answer the question actually being
+   asked here, which is not "is this good" but "are these people still going
+   to be around next year". Longevity and scale, in one grey line under the
+   cards. No photographs, no quotes: a paywall that starts advertising at the
+   moment of payment reads as a pitch, and this has to read as a footnote. */
+.trust-line {
+  margin-top: var(--jui-layout-gap-m);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs) var(--jui-layout-gap-s);
+  padding: 0;
+  list-style: none;
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+.trust-line li {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
+}
+/* A hairline between the facts rather than a dot — the public page separates
+   them with rules, and a bullet between two numbers reads as a list. Only
+   while they share a line: on a phone they stack, and a rule down the left
+   of the second one is a divider dividing nothing. */
+@media (min-width: 768px) {
+  .trust-line li + li {
+    padding-left: var(--jui-layout-gap-s);
+    border-left: 1px solid var(--jui-color-gray-100);
+  }
+}
+@media (max-width: 767px) {
+  .trust-line {
+    flex-direction: column;
+    align-items: center;
+    gap: var(--jui-layout-gap-xxs);
+  }
+}
+.trust-line b {
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+
+@media (min-width: 768px) {
+  .trust-line { margin-top: var(--jui-layout-gap-s); }
+}
+
+/* ── Billing period ──
+   @jimdo/ui ToggleButton, ported from its compiled styles rather than drawn
+   again: 44x24 track, a 16px knob that grows to 20 and gains a tick when it
+   is on. A label either side, which is how the benchmark reads it and the
+   only arrangement where "yearly" is a thing you are turning on rather than
+   a tab you are visiting. */
+.billing-switch {
+  display: flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: var(--jui-layout-gap-s);
+  font-size: var(--jui-typography-body-small-medium-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  line-height: var(--jui-typography-body-small-medium-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+.billing-switch-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
+  transition: color 180ms ease-out;
+}
+.billing-switch-label[data-on="true"] { color: var(--jui-color-typography-gray-on-light-default); }
+.billing-save {
+  font-size: var(--jui-typography-label-small-size);
+  font-weight: var(--jui-typography-label-small-weight);
+  letter-spacing: var(--jui-typography-label-small-ls);
+  text-transform: uppercase;
+  color: var(--jui-color-typography-positive-on-light);
+}
+
+.jui-toggle { position: relative; display: inline-flex; flex-shrink: 0; }
+.jui-toggle input,
+.jui-toggle-indicator { width: 44px; height: 24px; margin: 0; }
+.jui-toggle-indicator {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  border: 2px solid var(--jui-color-gray-300);
+  border-radius: var(--jui-style-radius-16);
+  background-color: var(--jui-color-gray-white);
+}
+.jui-toggle-circle {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: var(--jui-color-gray-500);
+  transition-property: left, width, height, top, background-color;
+  transition-duration: 0.2s;
+}
+.jui-toggle-circle svg { display: none; width: 20px; height: 20px; }
+.jui-toggle input {
+  position: absolute;
+  z-index: 1;
+  opacity: 0;
+  cursor: pointer;
+}
+.jui-toggle input:hover + .jui-toggle-indicator { border-color: var(--jui-color-gray-400); }
+.jui-toggle input:checked + .jui-toggle-indicator {
+  background: var(--jui-color-actions-primary-rest);
+  border-color: var(--jui-color-actions-primary-rest);
+}
+.jui-toggle input:checked + .jui-toggle-indicator .jui-toggle-circle {
+  width: 20px;
+  height: 20px;
+  left: calc(100% - 20px);
+  top: 0;
+  background-color: var(--jui-color-gray-white);
+}
+.jui-toggle input:checked + .jui-toggle-indicator .jui-toggle-circle svg {
+  display: flex;
+  color: var(--jui-color-actions-primary-rest);
+}
+.jui-toggle input:checked:hover + .jui-toggle-indicator {
+  border-color: transparent;
+  background-color: var(--jui-color-actions-primary-hover);
+}
+.jui-toggle input:focus-visible + .jui-toggle-indicator {
+  outline: 2px solid var(--jui-color-actions-primary-rest);
+  outline-offset: 2px;
+}
+
+
+/* Centred over the pair of cards on a desktop, and left on a phone — where
+   the cards are stacked, there is no symmetry to sit in the middle of, and
+   everything else in the flow starts from the left edge. */
+@media (min-width: 768px) {
+  .app-shell-setup-single[data-explore] .setup-split-intro,
+  .app-shell-setup-single[data-explore] .paywall-terms { text-align: center; }
+  .app-shell-setup-single[data-explore] .paywall-terms { margin-inline: auto; }
+  .trust-line { justify-content: center; }
+}
+
+/* The switch is part of the comparison below it, not a third thing under the
+   heading — hence the bigger break above than below. Centred over the pair
+   it governs; the heading stays left because it is prose and prose is read
+   from an edge. */
+.billing-switch {
+  align-self: center;
+  margin-top: var(--jui-layout-gap-m);
+}
+
+/* Centred under the cards for the same reason: it is a footnote about both
+   of them, not a line belonging to the left one. */
+
+/* ═══ Editor mode ══════════════════════════════════════════════════════════
+   The link editor and the design editor, on the same frame the onboarding
+   steps use: grey preview panel, the drawer on mobile, the same action row.
+   Someone who has just been through onboarding should recognise where they
+   are. Two differences only — the column is half the frame rather than the
+   360px a field column needs, and the header carries a view switch and a
+   Done instead of a back and a progress bar. */
+@media (min-width: 768px) {
+  .app-shell-setup-split[data-mode="editor"] .setup-split-form {
+    width: auto;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
+
+/* Two zones: the way out at the left, where every other step in this flow
+   keeps it, and the way to finish at the right. It held a third in the
+   middle — a switch between the links half of the editor and the design
+   half — until the two stopped being tabs of one screen. */
+.setup-editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--jui-layout-gap-s);
+  width: 100%;
+}
+
+/* The back button carries its own optical gutter, the way the onboarding
+   steps' does; the Done button at the other end does not, so the bar keeps
+   the 16 that the drawer's content starts at. */
+@media (max-width: 767px) {
+  .setup-editor-header { padding: 0 var(--jui-layout-padding-m); }
+}
+
+/* ── One list, three zones ──
+   Buttons, quick actions and social used to be three tabs, which made one
+   page look like three collections and hid two thirds of it at any moment.
+   It is one list now — but not an undifferentiated one: contact buttons sit
+   in a row under the name and social icons sit at the foot, both in places
+   the page gives them. Only the middle is free to be ordered, so only the
+   middle is draggable, and the headings say which is which. */
+.edit-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xs);
+}
+
+.edit-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--jui-layout-gap-xs);
+  flex-wrap: wrap;
+}
+.edit-section-title {
+  margin: 0;
+  font-size: var(--jui-typography-body-small-medium-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  line-height: var(--jui-typography-body-small-medium-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+/* Why this group cannot be dragged, said once where the question comes up. */
+.edit-section-note {
+  margin: 0;
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
+.edit-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.edit-row {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-s);
+  width: 100%;
+  min-height: var(--jui-layout-dimension-m);
+  padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-s);
+  border: 1px solid var(--jui-color-stroke-gray-default);
+  border-radius: var(--jui-style-radius-12);
+  background: var(--jui-color-gray-white);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 160ms ease-out, background-color 160ms ease-out;
+}
+.edit-row:hover { border-color: var(--jui-color-gray-300); }
+.edit-row:focus-visible {
+  outline: 2px solid var(--jui-color-actions-primary-rest);
+  outline-offset: 2px;
+}
+
+.edit-row-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+.edit-row-icon svg { width: 100%; height: 100%; display: block; }
+
+.edit-row-grip {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  color: var(--jui-color-gray-400);
+  cursor: grab;
+  /* The browser's own scroll gesture and a drag start the same way on touch;
+     this one is ours. */
+  touch-action: none;
+}
+.edit-row-grip svg { width: 100%; height: 100%; display: block; }
+.edit-row-grip:active { cursor: grabbing; }
+
+.edit-row-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+
+/* A piece that is on the page but cannot do its job yet — the same state the
+   handoff screen marks in the preview, said here in words. */
+.edit-row-flag {
+  flex-shrink: 0;
+  font-size: var(--jui-typography-label-small-size);
+  font-weight: var(--jui-typography-label-small-weight);
+  letter-spacing: var(--jui-typography-label-small-ls);
+  text-transform: uppercase;
+  color: var(--jui-color-typography-upgrade-on-light);
+}
+
+.edit-row-edit {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  color: var(--jui-color-actions-primary-rest);
+}
+.edit-row-edit svg { width: 100%; height: 100%; display: block; }
+
+/* ── Suggestion ──
+   A piece the page is holding a place for, not a piece the page has. The
+   outline is dashed and primary, the same mark the Add button carries: both
+   are places where something could go. A finished row is solid and gray,
+   so the two never have to be read against each other to be told apart.
+
+   It carries its own actions rather than being one tap like a finished row.
+   A suggestion is a proposal, and a proposal has to be refusable in the
+   same breath it is offered — Remove sits beside Set it up, not behind an
+   edit screen the seller would have to open to decline.
+
+   Used by: bio-page-links-edit (scr-120). */
+.edit-suggestion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-s);
+  width: 100%;
+  padding: var(--jui-layout-padding-s);
+  border: 1px dashed var(--jui-color-stroke-primary-actionable);
+  border-radius: var(--jui-style-radius-12);
+  background: var(--jui-color-gray-white);
+}
+.edit-suggestion[hidden] { display: none; }
+
+.edit-suggestion-head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--jui-layout-gap-s);
+  min-width: 0;
+}
+.edit-suggestion-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+/* The mark keeps the name's line rather than centring on two lines of it. */
+.edit-suggestion .edit-suggestion-mark { margin-top: 2px; }
+/* The name says what the piece is and what it builds — "Beginner workshop
+   booking" — so it carries no separate tag beside it. It is set a step up
+   from a finished row's label: a suggestion is the thing being read, where a
+   row is one of a list being scanned. */
+.edit-suggestion-head .edit-row-label {
+  white-space: normal;
+  font-size: var(--jui-typography-sub-headline-small-size);
+  font-weight: var(--jui-typography-sub-headline-small-weight);
+  line-height: var(--jui-typography-sub-headline-small-lh);
+}
+
+/* One cell, two marks — a suggestion and a finished row both. The piece
+   wears what it is until the pointer arrives, and then wears what you can
+   do with it. Stacking them rather than lining them up is what
+   keeps the name in the same place through the swap — side by side, the row
+   twitched every time the pointer crossed it. The whole cell is the drag
+   handle, which is why the grip is the one on top. */
+.edit-suggestion-mark,
+.edit-row-mark {
+  position: relative;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+.edit-suggestion-mark > *,
+.edit-row-mark > * {
+  position: absolute;
+  inset: 0;
+  transition: opacity 120ms ease;
+}
+.edit-suggestion .edit-row-grip,
+.edit-row .edit-row-grip { opacity: 0; }
+.edit-suggestion:hover .edit-row-icon,
+.edit-suggestion:focus-within .edit-row-icon,
+.edit-row:hover .edit-row-icon,
+.edit-row:focus-within .edit-row-icon { opacity: 0; }
+.edit-suggestion:hover .edit-row-grip,
+.edit-suggestion:focus-within .edit-row-grip,
+.edit-row:hover .edit-row-grip,
+.edit-row:focus-within .edit-row-grip { opacity: 1; }
+/* Touch has no hover, and no pointer to reveal anything with. */
+@media (hover: none) {
+  .edit-suggestion .edit-row-icon,
+  .edit-row .edit-row-icon { opacity: 0; }
+  .edit-suggestion .edit-row-grip,
+  .edit-row .edit-row-grip { opacity: 1; }
+}
+
+/* Set it up sits at the right end, with Remove inboard of it: the action
+   being proposed is the one the thumb lands on, and the one that undoes the
+   proposal is the one it has to reach past. Stacked on a phone the two take
+   the ends of their own row, which puts the widest possible gap between the
+   thing you meant to press and the thing that throws it away. */
+.edit-suggestion-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--jui-layout-gap-xs);
+  flex-shrink: 0;
+}
+
+/* Inline once there is width for it. Stacked is a phone answer: on a panel
+   half a screen wide it left a short name on one line and two small buttons
+   on another, which reads as two rows rather than one piece. */
+@media (min-width: 768px) {
+  /* Top-aligned, not centred: the reason under the name makes the card as
+     tall as the words happen to be, and actions floating against the middle
+     of a two-line card read as belonging to the second line. */
+  .edit-suggestion { flex-direction: row; align-items: flex-start; }
+  .edit-suggestion-head { flex: 1 1 auto; }
+  .edit-suggestion-copy { flex: 1 1 auto; }
+  .edit-suggestion-actions { justify-content: flex-end; }
+}
+
+/* The reason the suggestion is being made, on the suggestion. One line
+   under the name: a card that proposes something has to say why, and a
+   tinted panel above three of them said it once for all three. */
+.edit-suggestion-why {
+  margin: 0;
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
+/* ── Add: a modal on desktop, the drawer's own content on a phone ──
+   A sheet over a drawer is two surfaces to dismiss and hides the page they
+   are both about. There is one copy of the list; the screen moves it between
+   the two hosts at the breakpoint, and these rules say which host is in
+   play. */
+.app-shell-setup-split[data-view="add"] [data-view-only="list"],
+.app-shell-setup-split[data-view="list"] [data-view-only="add"] { display: none; }
+
+/* The editor's action row holds one full-width control, not a pair of
+   auto-width ones, so it opts out of the row's own button sizing. */
+.app-shell-setup-split[data-mode="editor"] .setup-split-actions .btn {
+  width: 100%;
+  flex: 1 1 auto;
+}
+
+/* ── The editor panel's own gutter ──
+   The title sits outside the scrolling list, so it carries the list's own
+   gutter rather than inheriting it, and lands on the same left edge as the
+   cards below it. Matched as a direct child of the form on purpose: the
+   design editor keeps its title inside the list, where the padding already
+   is, and would take this on top of it. */
+.setup-split-form > .setup-split-intro {
+  flex-shrink: 0;
+  padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-s) 0;
+}
+
+@media (min-width: 768px) {
+  .setup-split-form > .setup-split-intro {
+    padding: var(--layout-spacing-lg) var(--layout-spacing-lg) 0 var(--layout-spacing-md);
+  }
+  /* Pinned at the foot in both layouts, with its own space above it — the
+     list scrolls over it and a scroll container's own padding travels with
+     its content. */
+  .app-shell-setup-split[data-mode="editor"] .setup-split-actions {
+    padding: var(--layout-spacing-md) var(--layout-spacing-lg) 0 var(--layout-spacing-md);
+  }
+
+  /* ── The editor's two columns share one frame ──
+     The preview panel is the reference: the title sits on its top edge and
+     Add link on its bottom, so the column beside it reads as the same object
+     rather than as a list that happens to be next to a picture. The outer
+     margins match on both sides too — 16 left against 24 right was the kind
+     of difference you feel before you can name it.
+
+     Scoped to the editor on purpose: this geometry belongs to a panel with a
+     title above a list and an action under it. The onboarding steps put a
+     question where the title is and their own footer where the action is,
+     and they share the rule these override. */
+  .app-shell-setup-split[data-mode="editor"] .setup-split-preview {
+    padding-left: var(--layout-spacing-lg);
+  }
+  .app-shell-setup-split[data-mode="editor"] .setup-split-form > .setup-split-intro {
+    padding-top: var(--layout-gutter-sm);
+  }
+}
+
+/* A section heading arrives with the section's first item. Empty labelled
+   sections on a first view are a form to work through; nothing but the
+   suggestions is an offer to act on. */
+.edit-section[hidden] { display: none; }
+/* display:flex on these outranks the hidden attribute on its own. */
+.edit-section-head[hidden] { display: none; }
+.edit-row[hidden] { display: none; }
+/* An empty list should take no room: its own gap would otherwise space out
+   the sections around a section that has nothing in it yet. */
+.edit-list:empty { display: none; }
+
+/* One way in, for everything. Three Add buttons behind three tabs made the
+   seller choose a category before they knew what they wanted. */
+.edit-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--jui-layout-gap-xs);
+  width: 100%;
+  height: var(--jui-layout-dimension-m);
+  /* Its siblings in a scrolling edit column all declare this. Without it the
+     button is the one item the column can take height from, and it collapsed
+     to 26px against a full list — a 48px control that shrinks when the page
+     gets busy is smallest exactly when it is most needed. */
+  flex-shrink: 0;
+  border: 1px dashed var(--jui-color-stroke-primary-actionable);
+  border-radius: var(--jui-style-radius-12);
+  background: var(--jui-color-gray-white);
+  color: var(--jui-color-actions-primary-rest);
+  font-family: inherit;
+  font-size: var(--jui-typography-body-medium-medium-size);
+  font-weight: var(--jui-typography-body-medium-medium-weight);
+  line-height: var(--jui-typography-body-medium-medium-lh);
+  cursor: pointer;
+  transition: background-color 160ms ease-out;
+}
+.edit-add:hover { background: var(--jui-color-background-primary-light); }
+.edit-add svg { width: 20px; height: 20px; }
+
+/* ── Sheet ──
+   One surface for adding and for editing: a bottom sheet on a phone, a
+   centred dialog on a desktop. The contents differ; the way it arrives does
+   not, and a seller should not have to learn two of these.
+   What can go on the page, grouped by what it does for the seller rather
+   than by what we call it internally. "Action pages" is not a category a
+   person shopping for a way to get booked would look under, and the whole
+   direction is for that name to recede behind the thing it does. The groups
+   and their wording come from the onboarding steps, so a seller meets the
+   same four ideas in the same words the second time. */
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
+.sheet-backdrop[data-open="true"] { opacity: 1; pointer-events: auto; }
+
+.sheet {
+  width: 100%;
+  max-height: 92%;
+  display: flex;
+  flex-direction: column;
+  background: var(--jui-color-gray-white);
+  border-radius: var(--jui-style-radius-20) var(--jui-style-radius-20) 0 0;
+  transform: translateY(16px);
+  transition: transform 280ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.sheet-backdrop[data-open="true"] .sheet { transform: none; }
+
+@media (min-width: 768px) {
+  .sheet-backdrop { align-items: center; }
+  .sheet {
+    /* On a breakpoint, and the one that fits what it holds: three idea
+       cards with a full-size button in each need ~208px of card, which sm
+       cannot give and md can. */
+    max-width: var(--jui-layout-breakpoints-md);
+    max-height: 84%;
+    border-radius: var(--jui-style-radius-20);
+  }
+}
+
+.sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--jui-layout-gap-s);
+  flex-shrink: 0;
+  padding: var(--jui-layout-padding-m) var(--jui-layout-padding-m) var(--jui-layout-padding-xs);
+}
+/* Takes the room between the controls, so its text stays on the left
+   whether the header carries two children or three. */
+.sheet-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  font-size: var(--jui-typography-sub-headline-small-size);
+  font-weight: var(--jui-typography-sub-headline-small-weight);
+  line-height: var(--jui-typography-sub-headline-small-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+.sheet-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-l);
+  padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-s) var(--jui-layout-padding-m);
+}
+@media (min-width: 768px) {
+  .sheet-body { padding-left: var(--jui-layout-padding-m); padding-right: var(--jui-layout-padding-m); }
+}
+
+.add-group { display: flex; flex-direction: column; gap: var(--jui-layout-gap-xs); }
+/* Groups inside a submenu sit as far apart as the groups in the root list,
+   so a label always reads as belonging to what is under it. */
+.add-group-stack { display: flex; flex-direction: column; gap: var(--jui-layout-gap-l); }
+/* display:flex outranks the hidden attribute on its own. */
+.add-group[hidden] { display: none; }
+/* Label, not a heading: these name a kind of thing rather than introducing a
+   section of prose, and the uppercase label is what the rest of the system
+   uses for that job. */
+.add-group-title {
+  margin: 0 0 var(--jui-layout-gap-xs);
+  font-size: var(--jui-typography-label-small-size);
+  font-weight: var(--jui-typography-label-small-weight);
+  line-height: var(--jui-typography-label-small-lh);
+  letter-spacing: var(--jui-typography-label-small-ls);
+  text-transform: uppercase;
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+
+/* ── Add row ──
+   Figma 2LVaYKcyyN2F2MUwSssFrL 12421:35880 ("CMS Pill"). A row, not a card:
+   no fill, no border, no medallion behind the icon. py 12 / px 16, 12 between
+   the icon and the words, and the icon at its own 16px with nothing around it.
+   Both lines are gray-on-light-default — the second reads lighter because it
+   is 14/400 against 16/500, not because it is a paler colour.
+
+   Figma gives the row radius-none, which is invisible while nothing is
+   painted behind it; the 8 here is only ever seen as the shape of the hover
+   wash, which the frame does not specify. */
+.add-option {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-s);
+  width: 100%;
+  padding: var(--jui-layout-padding-s) var(--jui-layout-padding-m);
+  border: none;
+  border-radius: var(--jui-style-radius-8);
+  background: none;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 160ms ease-out;
+}
+/* display:flex above outranks the hidden attribute on its own, which is how
+   a list meant to open at its most-used few opened at its full length. */
+.add-option[hidden] { display: none; }
+
+/* A row that opens a list rather than adding a thing. The chevron is the
+   whole of the difference, and it is the difference that matters: one of
+   these costs a tap, the other costs a decision. */
+.add-option-more {
+  flex-shrink: 0;
+  margin-left: auto;
+  width: 16px;
+  height: 16px;
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+.add-option-more svg { width: 16px; height: 16px; display: block; }
+
+/* ── Second level ──
+   Picking from what the seller already has — their website pages, their
+   action pages — is a list of its own, so it gets the level rather than a
+   nested panel. One surface, two depths, and a way back at the top of it. */
+/* One level on screen at a time: root, a list you stepped into, or the
+   prompt. Written as "not this level" so adding a fourth needs no new rule. */
+.add-host[data-level="root"] [data-level-only]:not([data-level-only="root"]),
+.add-host[data-level="picker"] [data-level-only]:not([data-level-only="picker"]),
+.add-host[data-level="ask"] [data-level-only]:not([data-level-only="ask"]) { display: none; }
+
+/* Back sits in the header, left of the title, in the shape the onboarding
+   steps use — so going up a level is the same gesture everywhere, and the
+   list below it never shifts to make room for a control. */
+.add-head-back { flex-shrink: 0; }
+.add-head-back[hidden] { display: none; }
+.sheet-head .add-head-back,
+.setup-split-intro--back .add-head-back {
+  width: var(--jui-layout-dimension-s);
+  height: var(--jui-layout-dimension-s);
+  margin-left: calc(-1 * var(--jui-layout-padding-xs));
+}
+.sheet-head .add-head-back svg,
+.setup-split-intro--back .add-head-back svg { width: 20px; height: 20px; }
+
+/* The title keeps its line when a back button joins it. */
+.setup-split-intro--back {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
+}
+
+/* Making a new one is an action, not a thing you already have. */
+.add-option--make .add-option-icon { color: var(--jui-color-actions-primary-rest); }
+.add-option--make .add-option-title { color: var(--jui-color-actions-primary-rest); }
+
+/* ...and in the upgrade colour when the plan is what stands in the way.
+   After --make on purpose: a row can be both, and the price is the part
+   that decides how it reads. */
+.add-option--upgrade .add-option-icon,
+.add-option--upgrade .add-option-title { color: var(--jui-color-typography-upgrade-on-light); }
+
+/* ── One height across both levels ──
+   A modal that resizes when you step into a list makes the step feel like a
+   different surface. It holds the height of its fullest state instead. */
+.sheet--tall { height: 92%; }
+@media (min-width: 768px) {
+  .sheet--tall { height: 84%; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Form preview (.form-preview)
+
+   What the seller's clients will fill in, shown back to them after it is
+   made for them. A read-only picture of a form rather than a form: the
+   numbers are what make it read as a sequence of questions, and the rows
+   carry no inputs because nothing here is being answered.
+
+   HTML:
+     .form-preview
+       ol.form-preview-list
+         li.form-preview-row > .form-preview-index + .form-preview-label
+   ═══════════════════════════════════════════════════════════════ */
+.form-preview {
+  border: 1px solid var(--jui-color-stroke-gray-default);
+  border-radius: var(--jui-style-radius-12);
+  background: var(--jui-color-gray-white);
+  overflow: hidden;
+}
+
+.form-preview-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xs);
+  margin: 0;
+  padding: var(--jui-layout-padding-m);
+  list-style: none;
+}
+
+/* The question's number, not a bullet: a form is answered in order, and the
+   row is a picture of a question rather than an item in a set. */
+.form-preview-row {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-m);
+  padding: var(--jui-layout-padding-s) var(--jui-layout-padding-m);
+  border-radius: var(--jui-style-radius-8);
+  background: var(--jui-color-gray-50);
+}
+
+.form-preview-index {
+  flex-shrink: 0;
+  min-width: 12px;
+  font-size: var(--jui-typography-body-medium-medium-size);
+  font-weight: var(--jui-typography-body-medium-medium-weight);
+  line-height: var(--jui-typography-body-medium-medium-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
+.form-preview-label {
+  min-width: 0;
+  font-size: var(--jui-typography-body-medium-regular-size);
+  font-weight: var(--jui-typography-body-medium-regular-weight);
+  line-height: var(--jui-typography-body-medium-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+
+
+/* ── A question, not a panel ──
+   Figma 4081:27673 — the confirmation dialog this system already has, in
+   blue rather than the red it wears for destructive work: a marked icon on
+   a tinted square, the question, a line about what it costs, and the two
+   answers at the foot on the right.
+
+   Figma draws it 600 wide on 20 padding; both land on the nearest thing our
+   scale has — the sm breakpoint (576) and padding-l (24). On a phone it is
+   still the sheet it was. */
+.sheet--compact .sheet-body {
+  flex: 0 0 auto;
+  gap: var(--jui-layout-gap-l);
+  padding: var(--jui-layout-padding-l);
+}
+.sheet--compact .sheet-actions { padding: 0 var(--jui-layout-padding-l) var(--jui-layout-padding-l); }
+.sheet--compact .sheet-copy {
+  font-size: var(--jui-typography-body-medium-regular-size);
+  line-height: var(--jui-typography-body-medium-regular-lh);
+}
+@media (min-width: 768px) {
+  .sheet--compact { max-width: var(--jui-layout-breakpoints-sm); }
+}
+
+/* The mark. A 32px icon on its own tinted square — the size of the thing is
+   what makes it read as a state rather than decoration. */
+.dialog-mark {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--jui-layout-padding-m);
+  border-radius: var(--jui-style-radius-8);
+  background: var(--jui-color-background-primary-light);
+  color: var(--jui-color-decorative-primary);
+}
+.dialog-mark svg { width: 32px; height: 32px; display: block; }
+/* Purple when the thing being marked is a paid one. */
+.dialog-mark--upgrade {
+  background: var(--jui-color-background-upgrade-light);
+  color: var(--jui-color-decorative-upgrade);
+}
+
+.dialog-copy { display: flex; flex-direction: column; gap: var(--jui-layout-gap-xs); }
+.dialog-title {
+  margin: 0;
+  font-size: var(--jui-typography-sub-headline-large-size);
+  font-weight: var(--jui-typography-sub-headline-large-weight);
+  line-height: var(--jui-typography-sub-headline-large-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+
+/* Plain body copy. The tinted panel is for a piece that cannot do its job
+   yet — a question about leaving is not that. */
+.sheet-copy {
+  margin: 0;
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+.add-option:hover { background: var(--jui-color-background-gray-canvas); }
+.add-option:focus-visible {
+  outline: 2px solid var(--jui-color-actions-primary-rest);
+  outline-offset: 2px;
+}
+.add-option-icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+.add-option-icon svg { width: 16px; height: 16px; display: block; }
+.add-option-copy { display: flex; flex-direction: column; min-width: 0; }
+/* Link/Medium in Figma — 16 / 500 / 1.5, tracking 0.16 at that size. */
+.add-option-title {
+  margin: 0;
+  font-size: var(--jui-typography-body-medium-medium-size);
+  font-weight: var(--jui-typography-body-medium-medium-weight);
+  line-height: var(--jui-typography-body-medium-medium-lh);
+  letter-spacing: var(--jui-typography-link-small-ls);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+.add-option-detail {
+  margin: 0;
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+
+/* ── One left edge, and one rhythm per depth ──
+   Rows inside a group touch; groups stand 24 apart. The gap is what says
+   which options belong together now that the rows carry no border of their
+   own — at one spacing the whole list read as a single run.
+
+   The row keeps the 16px sides the Figma frame gives it: a row is a surface
+   you press, and content sitting on its own edge gives a hover nothing to
+   sit inside. Everything that is not a row takes the same 16 — the labels,
+   the back link, the text actions, and the card grid's own edges — so the
+   whole list still reads off one line. */
+/* Each depth is its own column, so the 24 between groups lands on the groups
+   and not on the two levels — which are never on screen together. */
+.add-host, .add-level, .add-picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-l);
+  width: 100%;
+}
+.add-group { gap: var(--jui-layout-gap-zero); }
+.add-host .add-group-title,
+.add-host .add-back,
+.add-host .text-action { padding-left: var(--jui-layout-padding-m); }
+/* The grid is a block like the rows and starts where they start. Insetting
+   it by the row's own padding put the cards 16 right of every band under
+   them. The cards carry that 16 inside instead, so their words land on the
+   same line as the labels and the row text. */
+
+/* The surface keeps its own gutter, so the list sits inside the modal rather
+   than running out to its edges. The row's 16 is on top of that, and it is
+   the inset a press needs to land on a band rather than on the words. */
+.add-group .text-action { margin: var(--jui-layout-gap-m) 0 0; }
+
+/* ── The pieces that take money ──
+   Given cards rather than rows, and put first. These are the reason the page
+   exists — a link or a map is a detail about the business, but a thing
+   someone can book is the business happening. Levelling them with the rest
+   made the page look like a link list with some extras. */
+.add-grid {
+  /* Stacked on a phone. Side by side, a card's name wraps to three lines and
+     the button under it loses its label — one per row reads in a glance. */
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--jui-layout-gap-xs);
+}
+@media (min-width: 768px) {
+  /* Three across, always three: auto-fit on a 1fr minimum keeps inventing
+     empty tracks past the last card. */
+  .add-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+
+.add-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  /* 4 between the name and the line under it — they are one thought. The
+     icon above and the button below buy their own room back. */
+  gap: var(--jui-layout-gap-xxs);
+  padding: var(--jui-layout-padding-m);
+  border: 1px solid var(--jui-color-stroke-primary-on-light);
+  border-radius: var(--jui-style-radius-12);
+  /* White, not a tint. The tinted card is the one that costs money — see
+     .add-card--upgrade — and an idea you can simply set up should not wear
+     the colour of a thing you have to buy. */
+  background: var(--jui-color-gray-white);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 160ms ease-out, transform 160ms ease-out;
+}
+.add-card:hover {
+  border-color: var(--jui-color-stroke-primary-actionable);
+  transform: translateY(-1px);
+}
+.add-card:focus-visible {
+  outline: 2px solid var(--jui-color-actions-primary-rest);
+  outline-offset: 2px;
+}
+/* No medallion behind it. The card is already a tinted surface, so a white
+   tile under the icon was a second surface doing no work — the icon carries
+   the colour on its own. Decorative primary, not the typography one: this
+   icon labels the card, it is not a link you can press. */
+.add-card-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--jui-color-decorative-primary);
+}
+.add-card-icon svg { width: 20px; height: 20px; display: block; }
+.add-card-icon { margin-bottom: var(--jui-layout-gap-xxs); }
+.add-card-title {
+  margin: 0;
+  font-size: var(--jui-typography-body-small-medium-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  line-height: var(--jui-typography-body-small-medium-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+/* The card proposes; the button accepts. Same pair the dashed rows in the
+   list carry, so an idea met here and an idea already on the page are the
+   same object at two moments. */
+.add-card-action { margin-top: auto; padding-top: var(--jui-layout-gap-s); }
+/* The button is the design system's, at its own size and with its own
+   padding. It was full-width with the padding zeroed for a while to force a
+   long label into a narrow card, which left the words pressed against both
+   edges — the card is what has to give, not the control. */
+
+/* ── Ask for something else ──
+   The three ideas are guesses. This is the way to say what the guess missed,
+   and it sits with them rather than after the list, because it answers the
+   same question they do. */
+.add-ask {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xs);
+  width: 100%;
+}
+.add-ask[hidden] { display: none; }
+.add-ask-row {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
+}
+.add-ask-row .form-input { flex: 1 1 auto; min-width: 0; }
+.add-ask-row .btn { width: auto; flex: 0 0 auto; }
+
+/* ── At the limit ──
+   The same pieces, in the colour the system uses for things a plan does not
+   include yet. The shape stays identical on purpose: what is on offer has
+   not changed, only what it costs. */
+.add-card--upgrade {
+  background: var(--jui-color-background-upgrade-light);
+  border-color: var(--jui-color-stroke-upgrade-on-light);
+}
+.add-card--upgrade:hover { border-color: var(--jui-color-stroke-upgrade-actionable); }
+.add-card--upgrade .add-card-icon { color: var(--jui-color-decorative-upgrade); }
+.add-card--upgrade .add-card-title { color: var(--jui-color-typography-upgrade-on-light); }
+
+.add-card-detail {
+  margin: 0;
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
+/* Everything else is a detail about the business, so it stays a plain row
+   and the gap between the two tiers does the ranking. */
+@media (min-width: 768px) {
+  .sheet-body { gap: var(--jui-layout-gap-xl); }
+}
+
+/* ── Sheet form ──
+   What the edit sheet holds. Same fields the onboarding steps use, so a
+   seller changing their WhatsApp number later meets the control they first
+   met when they added it. */
+.sheet-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-m);
+}
+.sheet-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xxs);
+}
+.sheet-label {
+  font-size: var(--jui-typography-body-small-medium-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  line-height: var(--jui-typography-body-small-medium-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+
+/* Save sits on the right where a primary belongs; remove sits apart from it
+   on the left, because the one thing worse than a hard-to-find delete is a
+   delete next to the button you meant to press. */
+.sheet-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--jui-layout-gap-s);
+  flex-shrink: 0;
+  padding: var(--jui-layout-padding-s) var(--jui-layout-padding-m) var(--jui-layout-padding-m);
+}
+/* The buttons here size to their labels. Everything in this system is
+   full-width by default, which carries no horizontal padding — so sizing to
+   content without restoring it clamps the label against both edges. */
+.sheet-actions .btn {
+  width: auto;
+  flex: 0 0 auto;
+  padding: 0 var(--jui-layout-padding-l);
+}
+
+/* A dialog's actions belong together, at the end of the row: the pair is one
+   decision with two answers, not two unrelated controls at opposite ends.
+   Declared after .sheet-actions so the modifier actually modifies it. */
+.sheet-actions--end { justify-content: flex-end; }
+
+.btn-danger-subtle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
+  height: var(--jui-layout-dimension-m);
+  padding: 0 var(--jui-layout-padding-s);
+  border: 1px solid transparent;
+  border-radius: var(--jui-component-button-radius);
+  background: none;
+  color: var(--jui-color-typography-negative-on-light);
+  font-family: inherit;
+  font-size: var(--jui-typography-body-medium-medium-size);
+  font-weight: var(--jui-typography-body-medium-medium-weight);
+  line-height: var(--jui-typography-body-medium-medium-lh);
+  cursor: pointer;
+  transition: background-color 160ms ease-out;
+}
+.btn-danger-subtle:hover { background: var(--jui-color-background-negative-light); }
+.btn-danger-subtle:focus-visible {
+  outline: 2px solid var(--jui-color-actions-negative-rest);
+  outline-offset: 2px;
+}
+
+/* The transactional pieces carry more than a label and a value, so their
+   sheet says what is still missing rather than pretending it is a field. */
+.sheet-pending {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--jui-layout-gap-xs);
+  padding: var(--jui-layout-padding-s);
+  border-radius: var(--jui-style-radius-12);
+  background: var(--jui-color-background-upgrade-light);
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+
+/* ── While a row is being carried ──
+   It lifts off the list and everything else keeps its place but slides. The
+   list stops taking text selections, which otherwise highlight half the
+   panel the moment the pointer moves. */
+.edit-list.is-reordering { user-select: none; }
+.edit-list li.is-dragging {
+  position: relative;
+  z-index: 2;
+}
+.edit-list li.is-dragging .edit-row {
+  border-color: var(--jui-color-stroke-primary-actionable);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  cursor: grabbing;
+}
+.edit-list li.is-dragging .edit-row-grip { cursor: grabbing; }
+
+@media (prefers-reduced-motion: reduce) {
+  .edit-list li { transition: none !important; }
+}
+
+/* ═══ Paywall header ═══════════════════════════════════════════════════════
+   Ported from loops-frontend's PageHeader: space-between, 16 inline / 12
+   block, and no rule under it — the body below is already on its own surface
+   and a border was drawing a line between two things that are one page. */
+.paywall-header {
+  /* The header row this sits in is justified to its end for the screens that
+     carry only a close; this one carries both edges and needs the span. */
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--jui-layout-gap-s);
+  flex-shrink: 0;
+  padding: var(--jui-layout-padding-s) var(--jui-layout-padding-m);
+}
+.paywall-logo {
+  display: flex;
+  align-items: center;
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+.paywall-logo svg { width: 58px; height: auto; display: block; }
+
+/* ── The line the lawyers need ──
+   Under the cards, quiet. It is not a disclaimer to be buried: a price that
+   says what it actually costs is read as a price you can trust, and the
+   seller is going to meet these terms at checkout either way. */
+.paywall-terms {
+  margin: var(--jui-layout-gap-xs) 0 0;
+  max-width: 62ch;
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}

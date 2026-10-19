@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jimdo — Google Business</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+  /* ─── Screen overrides ─── */
+  .page-intro { --page-intro-gap: var(--jui-layout-gap-xs); --page-intro-mb: var(--jui-layout-dimension-s); }
+  .page-title {
+    --page-title-size: var(--jui-typography-sub-headline-large-size);
+    --page-title-lh: var(--jui-typography-sub-headline-large-lh);
+    text-align: center;
+  }
+  .page-subtitle { text-align: center; }
+
+  /* ─── Google Business card — visual container for the URL input ─── */
+  .gb-card {
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+    background: var(--jui-color-background-gray-light);
+    border: 1px solid var(--jui-color-blue-10);
+    border-radius: var(--jui-style-radius-l);
+    box-shadow: 0 4px 32px 0 var(--jui-color-blue-focus);
+    padding: var(--jui-layout-padding-l);
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-padding-m);
+    box-sizing: border-box;
+  }
+
+  /* Google icon + label header row */
+  .gb-card-header {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-s);
+  }
+
+  .gb-icon-wrap {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--jui-style-radius-m);
+    background: var(--jui-color-background-gray-canvas);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .gb-icon-wrap svg {
+    width: var(--jui-layout-dimension-xs);
+    height: var(--jui-layout-dimension-xs);
+  }
+
+  .gb-card-title {
+    font-size: var(--jui-typography-body-medium-medium-size);
+    font-weight: var(--jui-typography-body-medium-medium-weight);
+    color: var(--jui-color-typography-gray-on-light-default);
+    line-height: var(--jui-typography-body-medium-medium-lh);
+  }
+
+  /* URL input — matches .form-input from the design system */
+  .gb-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-xxs);
+  }
+
+  /* .gb-input reuses .form-input from components.css — no custom rules needed */
+
+  /* Filled state — positive border + check */
+  .gb-input-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .gb-input-check {
+    position: absolute;
+    right: var(--jui-layout-padding-s);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    opacity: 0;
+    transition: opacity 150ms ease, transform 150ms ease;
+    pointer-events: none;
+  }
+
+  .gb-input-check.visible {
+    opacity: 1;
+  }
+
+  /* primitive-override */
+  /* extra right-padding makes room for the .gb-input-check icon overlay */
+  .gb-input-row:has(.gb-input-check.visible) .form-input {
+    padding-right: var(--jui-layout-padding-xl);
+  }
+
+  .gb-input-check svg {
+    width: 16px;
+    height: 16px;
+    display: block;
+  }
+
+  /* ─── Loader state ─── */
+  .gb-card.is-loading .gb-input-row { display: none; }
+  .gb-loader {
+    display: none;
+    align-items: center;
+    gap: var(--jui-layout-gap-s);
+    color: var(--jui-color-typography-gray-on-light-default);
+    font-size: var(--jui-typography-body-medium-medium-size);
+    padding: var(--jui-layout-padding-s) 0;
+  }
+  .gb-card.is-loading .gb-loader { display: flex; }
+  .gb-loader-spinner {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid var(--jui-color-blue-10);
+    border-top-color: var(--jui-color-actions-primary-rest);
+    animation: gb-spin 0.8s linear infinite;
+  }
+  @keyframes gb-spin { to { transform: rotate(360deg); } }
+  .gb-error {
+    display: none;
+    color: var(--jui-color-red-500);
+    font-size: var(--jui-typography-body-small-medium-size, 14px);
+    margin-top: var(--jui-layout-gap-xs);
+  }
+  .gb-card.has-error .gb-error { display: block; }
+
+</style>
+</head>
+<body>
+
+  <!-- ═══ Variant: empty — initial state ═══ -->
+  <div class="variant active" id="variant-empty">
+    <div class="app-shell app-shell-onboarding"
+      data-inspect-label="Page Background"
+      data-inspect-tokens='[{"prop":"background","figma":"color/background/gray/medium","css":"--jui-color-background-gray-medium","value":"#fdfdfd"}]'>
+
+      <div class="shell-header no-pad-y">
+        <div class="header-row">
+          <button class="icon-btn" aria-label="Back">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+          </button>
+          <div class="progress-bar"
+            data-inspect-label="Progress Bar — Step 1"
+            data-inspect-tokens='[{"prop":"background","figma":"color/actions/primary/rest","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"border-radius","figma":"style/radius/s","css":"--jui-style-radius-s","value":"4px"}]'>
+            <div class="progress-segment filled"></div>
+            <div class="progress-segment"></div>
+            <div class="progress-segment"></div>
+            <div class="progress-segment"></div>
+            <div class="progress-segment"></div>
+          </div>
+          <div class="header-spacer"></div>
+        </div>
+      </div>
+
+      <div class="shell-middle">
+        <div class="shell-working-area setup-centered-v">
+          <div class="content-container page-content">
+            <div class="page-intro">
+              <h1 class="page-title" data-inspect-phrase="onboarding.gb.title">Do you have a Google Business profile?</h1>
+              <p class="page-subtitle">Paste your link and we'll import your business details to personalise your site</p>
+            </div>
+
+            <div class="form-stack setup-form-narrow">
+              <div class="gb-card"
+                data-inspect-label="Google Business Card"
+                data-inspect-tokens='[{"prop":"background","figma":"color/background/gray/light","css":"--jui-color-background-gray-light","value":"#ffffff"},{"prop":"border","figma":"color/blue/10","css":"--jui-color-blue-10","value":"#eff0ff"},{"prop":"border-radius","figma":"style/radius/l","css":"--jui-style-radius-l","value":"12px"},{"prop":"box-shadow","figma":"—","css":"--jui-color-blue-focus","value":"0 4px 32px rgba(0,76,237,0.1)"},{"prop":"padding","figma":"24px","css":"--jui-layout-padding-l","value":"24px"},{"prop":"gap","figma":"16px","css":"--jui-layout-padding-m","value":"16px"}]'>
+
+                <div class="gb-card-header">
+                  <div class="gb-icon-wrap"
+                    data-inspect-label="Google Icon Container"
+                    data-inspect-tokens='[{"prop":"background","figma":"color/background/gray/canvas","css":"--jui-color-background-gray-canvas","value":"#f8f8f8"},{"prop":"border-radius","figma":"style/radius/m","css":"--jui-style-radius-m","value":"8px"},{"prop":"size","figma":"40×40","css":"—","value":"40px"}]'>
+                    <!-- Google "G" logo (simplified 4-color) -->
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+                      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                      <path d="M5.84 14.09A6.68 6.68 0 0 1 5.5 12c0-.72.12-1.43.35-2.09V7.07H2.18A11 11 0 0 0 1 12c0 1.78.42 3.46 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+                      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                    </svg>
+                  </div>
+                  <span class="gb-card-title">Google Business Profile</span>
+                </div>
+
+                <div class="gb-input-wrapper">
+                  <div class="gb-input-row">
+                    <input type="url" class="form-input" id="gb-url-input" placeholder="Paste your profile link"
+                      data-inspect-label="URL Input — Resting"
+                      data-inspect-tokens='[{"prop":"border","figma":"component/input/color/field/stroke/rest","css":"--jui-component-input-color-field-stroke-rest","value":"#b1b1b1"},{"prop":"border-radius","figma":"style/radius/m","css":"--jui-style-radius-m","value":"8px"},{"prop":"height","figma":"layout/dimension/m","css":"—","value":"auto (padding-based)"}]'>
+                    <div class="gb-input-check" aria-hidden="true">
+                      <svg viewBox="0 0 16 16" fill="none">
+                        <circle cx="8" cy="8" r="7" stroke="var(--jui-color-green-500)" stroke-width="1.5"/>
+                        <path d="M5 8L7 10L11 6" stroke="var(--jui-color-green-500)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="gb-loader" aria-live="polite">
+                    <div class="gb-loader-spinner" aria-hidden="true"></div>
+                    <span>Reading your profile…</span>
+                  </div>
+                  <div class="gb-error" id="gb-error-msg" role="alert"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="shell-footer">
+        <div class="footer-actions setup-centered">
+          <button class="btn btn-subtle"
+            data-inspect-label="Subtle Button — Skip"
+            data-inspect-tokens='[{"prop":"background","figma":"transparent","css":"—","value":"transparent"},{"prop":"color","figma":"color/typography/gray/on-light/default","css":"--jui-color-typography-gray-on-light-default","value":"#000000"},{"prop":"height","figma":"layout/dimension/m","css":"--jui-layout-dimension-m","value":"48px"},{"prop":"border-radius","figma":"style/radius/xs","css":"--jui-style-radius-xs","value":"2px"},{"prop":"hover background","figma":"—","css":"—","value":"rgba(0,0,0,0.02)"}]' data-inspect-phrase="onboarding.gb.cta.skip">I don't have one — skip</button>
+          <button class="btn btn-primary" id="gb-continue-btn"
+            data-inspect-label="Primary Button — Continue"
+            data-inspect-tokens='[{"prop":"background","figma":"color/actions/primary/rest","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"height","figma":"layout/dimension/m","css":"--jui-layout-dimension-m","value":"48px"},{"prop":"border-radius","figma":"component/button/radius","css":"--jui-component-button-radius","value":"8px"}' data-inspect-phrase="onboarding.gb.cta.continue">Continue</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ Variant: filled — URL pasted ═══ -->
+  <div class="variant" id="variant-filled">
+    <div class="app-shell app-shell-onboarding"
+      data-inspect-label="Page Background"
+      data-inspect-tokens='[{"prop":"background","figma":"color/background/gray/medium","css":"--jui-color-background-gray-medium","value":"#fdfdfd"}]'>
+
+      <div class="shell-header no-pad-y">
+        <div class="header-row">
+          <button class="icon-btn" aria-label="Back">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+          </button>
+          <div class="progress-bar"
+            data-inspect-label="Progress Bar — Step 1"
+            data-inspect-tokens='[{"prop":"background","figma":"color/actions/primary/rest","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"border-radius","figma":"style/radius/s","css":"--jui-style-radius-s","value":"4px"}]'>
+            <div class="progress-segment filled"></div>
+            <div class="progress-segment"></div>
+            <div class="progress-segment"></div>
+            <div class="progress-segment"></div>
+            <div class="progress-segment"></div>
+          </div>
+          <div class="header-spacer"></div>
+        </div>
+      </div>
+
+      <div class="shell-middle">
+        <div class="shell-working-area setup-centered-v">
+          <div class="content-container page-content">
+            <div class="page-intro">
+              <h1 class="page-title" data-inspect-phrase="onboarding.gb.title">Do you have a Google Business profile?</h1>
+              <p class="page-subtitle">Paste your link and we'll import your business details to personalise your site</p>
+            </div>
+
+            <div class="form-stack setup-form-narrow">
+              <div class="gb-card"
+                data-inspect-label="Google Business Card — Filled"
+                data-inspect-tokens='[{"prop":"background","figma":"color/background/gray/light","css":"--jui-color-background-gray-light","value":"#ffffff"},{"prop":"border","figma":"color/blue/10","css":"--jui-color-blue-10","value":"#eff0ff"},{"prop":"border-radius","figma":"style/radius/l","css":"--jui-style-radius-l","value":"12px"},{"prop":"box-shadow","figma":"—","css":"--jui-color-blue-focus","value":"0 4px 32px rgba(0,76,237,0.1)"},{"prop":"padding","figma":"24px","css":"--jui-layout-padding-l","value":"24px"},{"prop":"gap","figma":"16px","css":"--jui-layout-padding-m","value":"16px"}]'>
+
+                <div class="gb-card-header">
+                  <div class="gb-icon-wrap"
+                    data-inspect-label="Google Icon Container"
+                    data-inspect-tokens='[{"prop":"background","figma":"color/background/gray/canvas","css":"--jui-color-background-gray-canvas","value":"#f8f8f8"},{"prop":"border-radius","figma":"style/radius/m","css":"--jui-style-radius-m","value":"8px"},{"prop":"size","figma":"40×40","css":"—","value":"40px"}]'>
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+                      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                      <path d="M5.84 14.09A6.68 6.68 0 0 1 5.5 12c0-.72.12-1.43.35-2.09V7.07H2.18A11 11 0 0 0 1 12c0 1.78.42 3.46 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+                      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                    </svg>
+                  </div>
+                  <span class="gb-card-title">Google Business Profile</span>
+                </div>
+
+                <div class="gb-input-wrapper">
+                  <div class="gb-input-row">
+                    <input type="url" class="form-input focused" value="google.com/maps/place/Clara+%26+Stone"
+                      data-inspect-label="URL Input — Filled + Focused"
+                      data-inspect-tokens='[{"prop":"border","figma":"color/stroke/primary/actionable","css":"--jui-color-stroke-primary-actionable","value":"#004ced"},{"prop":"border-radius","figma":"style/radius/m","css":"--jui-style-radius-m","value":"8px"},{"prop":"box-shadow","figma":"focus ring","css":"—","value":"0 4px 24px blue-focus, 0 0 0 2px white, 0 0 0 3px blue-500"}]'>
+                    <div class="gb-input-check visible" aria-hidden="true">
+                      <svg viewBox="0 0 16 16" fill="none">
+                        <circle cx="8" cy="8" r="7" stroke="var(--jui-color-green-500)" stroke-width="1.5"/>
+                        <path d="M5 8L7 10L11 6" stroke="var(--jui-color-green-500)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="shell-footer">
+        <div class="footer-actions setup-centered">
+          <button class="btn btn-subtle"
+            data-inspect-label="Subtle Button — Skip"
+            data-inspect-tokens='[{"prop":"background","figma":"transparent","css":"—","value":"transparent"},{"prop":"color","figma":"color/typography/gray/on-light/default","css":"--jui-color-typography-gray-on-light-default","value":"#000000"},{"prop":"height","figma":"layout/dimension/m","css":"--jui-layout-dimension-m","value":"48px"},{"prop":"border-radius","figma":"style/radius/xs","css":"--jui-style-radius-xs","value":"2px"},{"prop":"hover background","figma":"—","css":"—","value":"rgba(0,0,0,0.02)"}]' data-inspect-phrase="onboarding.gb.cta.skip">I don't have one — skip</button>
+          <button class="btn btn-primary"
+            data-inspect-label="Primary Button — Continue"
+            data-inspect-tokens='[{"prop":"background","figma":"color/actions/primary/rest","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"height","figma":"layout/dimension/m","css":"--jui-layout-dimension-m","value":"48px"},{"prop":"border-radius","figma":"component/button/radius","css":"--jui-component-button-radius","value":"8px"}' data-inspect-phrase="onboarding.gb.cta.continue">Continue</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script type="module">
+    import { writeEntity } from '/flows-prototype/design-system/hifi-designs/shared/business-entity.js';
+
+    const AI_PROXY_BASE = 'http://localhost:8787';
+    const REVIEW_URL = './onboarding-google-business-review.html';
+
+    const variantEmpty = document.getElementById('variant-empty');
+    if (variantEmpty) {
+      const card = variantEmpty.querySelector('.gb-card');
+      const input = variantEmpty.querySelector('#gb-url-input');
+      const btn = variantEmpty.querySelector('#gb-continue-btn');
+      const errorEl = variantEmpty.querySelector('#gb-error-msg');
+
+      function showError(msg) {
+        errorEl.textContent = msg;
+        card.classList.add('has-error');
+        card.classList.remove('is-loading');
+        btn.disabled = false;
+      }
+      function clearError() {
+        errorEl.textContent = '';
+        card.classList.remove('has-error');
+      }
+
+      btn?.addEventListener('click', async () => {
+        const url = (input?.value || '').trim();
+        clearError();
+        if (!/^https?:\/\//i.test(url)) {
+          showError('Please paste a valid Google Business or Maps link.');
+          return;
+        }
+        card.classList.add('is-loading');
+        btn.disabled = true;
+        try {
+          const res = await fetch(`${AI_PROXY_BASE}/api/extract-business`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok || !data.entity) {
+            showError("Couldn't read this profile — try again or skip.");
+            return;
+          }
+          writeEntity(data.entity);
+          window.location.href = REVIEW_URL;
+        } catch (err) {
+          showError("Couldn't reach the AI proxy. Is it running? (npm run demo)");
+        }
+      });
+    }
+  </script>
+
+  <script>
+    var VARIANTS = {
+      'empty': 'variant-empty',
+      'filled': 'variant-filled'
+    };
+    function showVariant(key) {
+      document.querySelectorAll('.variant').forEach(function(v) { v.classList.remove('active'); });
+      var target = document.getElementById(VARIANTS[key]);
+      if (target) target.classList.add('active');
+    }
+    window.addEventListener('message', function(e) {
+      if (e.data && e.data.type === 'set-variant' && VARIANTS[e.data.variant]) {
+        showVariant(e.data.variant);
+      }
+    });
+  </script>
+
+</body>
+</html>

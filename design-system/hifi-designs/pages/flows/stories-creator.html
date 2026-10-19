@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Launch Plan</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+
+  /* ═══════════════════════════════════════════════════════════════
+     LAUNCH PLAN  (scr-032)
+     Reached from the Continue button on the Share screen (scr-030).
+
+     Shares the share-and-activate shell with scr-030 / scr-042 (same
+     .share-shell, phone preview, white panel card) so the post-publish
+     flow reads as one surface. Realises ins-024 (a structured day-by-day
+     plan replaces the static share screen) + ins-002 (promotion intensity
+     is the #1 success differentiator).
+
+       TOP BAR  → small "LAUNCH PLAN" label + Done (edit-links pattern,
+                  shared .page-header). No bottom action.
+       LEFT     → preview pane: an asset-name label, the phone showing a
+                  CAROUSEL of the 3 ready-made assets, dots below, and
+                  (desktop) prev/next arrows flanking the phone.
+       RIGHT    → panel card: one-line intro + 3 selectable plan steps
+                  (Today / In 3 days / In 5 days). Each carries its
+                  rationale + action. Selecting a step drives the carousel.
+     ═══════════════════════════════════════════════════════════════ */
+
+  [hidden] { display: none !important; }
+
+  html, body { height: 100%; }
+  body, .app-shell { background: var(--jui-color-gray-10); }
+
+  .app-shell { display: flex; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden; }
+
+  /* ── Two-pane shell (verbatim from scr-030) ── */
+  .share-shell {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    align-items: stretch;
+    gap: 32px;                                  /* Figma column gap — no 32px token */
+    padding: var(--jui-layout-padding-xs);      /* 8 */
+    overflow-x: clip;
+  }
+
+  /* LEFT preview pane — arrows | center column (label + phone + dots) */
+  .share-preview {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--jui-layout-gap-m);               /* 16 — arrow ↔ phone */
+    position: relative;
+    overflow-x: clip;
+  }
+  .lp-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--jui-layout-gap-m);               /* 16 — label / phone / dots */
+  }
+  .lp-asset-name {
+    font-size: var(--jui-typography-sub-headline-small-size);    /* 16 */
+    font-weight: var(--jui-typography-sub-headline-small-weight);
+    line-height: var(--jui-typography-sub-headline-small-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+    text-align: center;
+  }
+
+  /* Prev/next arrows — circular outlined buttons (scr-030 social-btn look),
+     desktop only. */
+  .lp-arrow {
+    flex-shrink: 0;
+    width: var(--jui-layout-dimension-m);       /* 48 */
+    height: var(--jui-layout-dimension-m);
+    border-radius: 50%;
+    background: var(--jui-color-background-gray-light);          /* white */
+    border: 1px solid var(--jui-color-stroke-primary-on-light);  /* blue-100 */
+    color: var(--jui-color-actions-primary-rest);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 150ms ease, border-color 150ms ease;
+  }
+  .lp-arrow:hover { background: var(--jui-color-background-primary-light); }
+  .lp-arrow:focus-visible { outline: 2px solid var(--jui-color-actions-primary-rest); outline-offset: 2px; }
+  .lp-arrow[disabled] { opacity: 0.4; pointer-events: none; }
+  .lp-arrow svg {
+    width: 24px; height: 24px;
+    stroke: currentColor; fill: none;
+    stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+  }
+
+  .phone-stage {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* Preview frame — same treatment as the edit-links / design-editor
+     pages: light surface, thin gray-100 border, radius, soft shadow.
+     No heavy black bezel. Sized to use most of the pane height so the
+     asset reads fully (content box 300×605.8 matches the 360×727 artifact
+     aspect at scale 0.8333). */
+  .phone-frame {
+    position: relative;
+    box-sizing: border-box;
+    width: 302px;
+    height: 607.8px;
+    background: var(--jui-color-background-gray-light);          /* white */
+    border: 1px solid var(--jui-color-gray-100);
+    border-radius: var(--jui-style-radius-20);                   /* 20 */
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .phone-inner {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    background: var(--jui-color-gray-black);
+  }
+
+  /* Carousel inside the phone — 3 full-bleed asset slides, translateX. */
+  .lp-track {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    transition: transform 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .lp-slide {
+    flex: 0 0 100%;
+    height: 100%;
+    position: relative;
+  }
+  /* Native 360-wide artifact scaled to fit the 221.2px inner (scr-030). */
+  .artifact-iframe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 360px;
+    height: 727px;
+    border: 0;
+    background: var(--jui-color-gray-black);
+    transform: scale(0.8333);                   /* 300 / 360 — fills the inner */
+    transform-origin: top left;
+  }
+
+  /* Dots under the phone */
+  .lp-dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--jui-layout-gap-xs);              /* 8 */
+  }
+  .lp-dot {
+    width: 8px; height: 8px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: var(--jui-color-gray-200);
+    cursor: pointer;
+    transition: background-color 200ms ease, width 200ms ease;
+  }
+  .lp-dot[aria-selected="true"] {
+    width: 20px;
+    background: var(--jui-color-actions-primary-rest);
+    border-radius: var(--jui-style-radius-xs);  /* 4 — pill */
+  }
+  .lp-dot:focus-visible { outline: 2px solid var(--jui-color-actions-primary-rest); outline-offset: 2px; }
+
+  /* ── RIGHT panel card (verbatim from scr-030) ── */
+  .share-panel {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--jui-color-background-gray-light);          /* white */
+    border: 1px solid var(--jui-color-stroke-gray-decorative);   /* #f8f8f8 */
+    border-radius: var(--jui-style-radius-16);
+    overflow: hidden;
+  }
+
+  /* Panel header — label + Done, inside the panel (edit-links .editor-header).
+     No divider line; the content below scrolls under it. */
+  .lp-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--jui-layout-gap-s);                                /* 12 */
+    padding: var(--jui-layout-padding-s) var(--jui-layout-padding-m); /* 12 16 */
+    flex-shrink: 0;
+  }
+
+  /* Intro — mid-size subheading, black; scrolls with the cards (not pinned). */
+  .lp-intro {
+    margin: 0 0 var(--jui-layout-gap-xs);       /* 8 below */
+    font-size: var(--jui-typography-sub-headline-medium-size);    /* 20 */
+    font-weight: var(--jui-typography-sub-headline-medium-weight);
+    line-height: var(--jui-typography-sub-headline-medium-lh);
+    color: var(--jui-color-typography-gray-on-light-default);      /* black */
+  }
+
+  .share-cards {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding: var(--jui-layout-padding-l);       /* 24 */
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-s);               /* 12 */
+    align-items: stretch;
+  }
+
+  /* ═══════════════════════════════════════════════
+     PLAN STEP — selectable card. Active = blue-500 2px border + tint.
+     ═══════════════════════════════════════════════ */
+  .plan-step {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-s);               /* 12 */
+    background: var(--jui-color-background-gray-light);          /* white */
+    border: 1px solid var(--jui-color-stroke-gray-default);      /* #e6e6e6 */
+    border-radius: var(--jui-style-radius-16);
+    padding: var(--jui-layout-padding-m);        /* 16 */
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 200ms ease, background-color 200ms ease, box-shadow 200ms ease;
+  }
+  .plan-step:hover { border-color: var(--jui-color-stroke-primary-on-light); } /* blue-100 */
+  .plan-step:focus-visible { outline: 2px solid var(--jui-color-actions-primary-rest); outline-offset: 2px; }
+  .plan-step[aria-pressed="true"] {
+    border: 2px solid var(--jui-color-actions-primary-rest);
+    padding: calc(var(--jui-layout-padding-m) - 1px);           /* offset +1px border */
+    box-shadow: var(--jui-effects-elevation-blue-sm);
+  }
+
+  /* Collapsed (non-active) steps show only the timeframe + title;
+     the rationale and actions are revealed when the step becomes active. */
+  .plan-step[aria-pressed="false"] .plan-step-why,
+  .plan-step[aria-pressed="false"] .plan-actions { display: none; }
+
+  .plan-step-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--jui-layout-gap-xs);              /* 8 */
+  }
+  .plan-step-title {
+    margin: 0;
+    font-size: var(--jui-typography-sub-headline-small-size);   /* 16 */
+    font-weight: var(--jui-typography-sub-headline-small-weight);
+    line-height: var(--jui-typography-sub-headline-small-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+  .plan-step-why {
+    margin: 0;
+    font-size: var(--jui-typography-body-small-regular-size);   /* 14 */
+    line-height: var(--jui-typography-body-small-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-subdued);
+  }
+
+  /* Actions row — canonical secondary/small buttons + the subtle
+     "Replace image" button, inline. Extra top margin separates them
+     from the explainer above. */
+  .plan-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--jui-layout-gap-xs);              /* 8 */
+    margin-top: var(--jui-layout-gap-s);        /* +12 → ~24 below the explainer */
+  }
+  /* Edit (pen) icon button — pushed to the card's bottom-right. */
+  .plan-edit { margin-left: auto; }
+
+  /* ── Toast ── */
+  .toast-container {
+    position: fixed;
+    top: var(--jui-layout-dimension-l);
+    left: var(--jui-layout-padding-m);
+    right: var(--jui-layout-padding-m);
+    z-index: 200;
+    pointer-events: none;
+  }
+  @media (min-width: 768px) {
+    .toast-container { left: auto; right: var(--jui-layout-padding-l); width: 280px; }
+  }
+
+  /* ═══════════════════════════════════════════════
+     MOBILE (<768px) — single scrolling column (scr-030 pattern).
+     Arrows hidden (swipe + dots drive the carousel).
+     ═══════════════════════════════════════════════ */
+  @media (max-width: 767px) {
+    .share-shell {
+      flex-direction: column;
+      gap: 0;
+      padding: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .lp-arrow { display: none; }
+    .share-preview { order: 2; padding: var(--jui-layout-padding-m) 0; } /* 16 */
+    .share-panel { display: contents; }
+
+    /* Header pinned to the top of the mobile column. */
+    .lp-panel-header {
+      order: 0;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--jui-color-gray-10);
+    }
+    .share-cards {
+      order: 3;
+      flex: 0 0 auto;
+      overflow: visible;
+      gap: var(--jui-layout-gap-s);             /* 12 */
+      padding-bottom: var(--jui-layout-padding-xl);
+    }
+
+    /* Smaller frame on mobile (content box 234×472.5 at scale 0.65). */
+    .phone-frame { width: 236px; height: 474.5px; border-radius: var(--jui-style-radius-l); }
+    .artifact-iframe { transform: scale(0.65); }     /* 234 / 360 */
+  }
+
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <div class="share-shell">
+
+    <!-- ─── LEFT: phone carousel of the 3 assets ─── -->
+    <div class="share-preview">
+
+      <button class="lp-arrow" id="lp-prev" aria-label="Previous asset" disabled>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M8.99996 16.9998L4 11.9997L9 6.99976"/><path d="M4 12H20"/>
+        </svg>
+      </button>
+
+      <div class="lp-center">
+        <span class="lp-asset-name" id="lp-asset-name"
+          data-inspect-label="Asset name — names the previewed asset"
+          data-inspect-phrase="launchPlan.preview.label">Instagram Story</span>
+
+        <div class="phone-stage">
+          <div class="phone-frame">
+            <div class="phone-inner">
+              <div class="lp-track" id="lp-track">
+                <div class="lp-slide">
+                  <iframe class="artifact-iframe" src="../artifacts/launch-instagram-story.html"
+                    title="Instagram Story asset" loading="eager"></iframe>
+                </div>
+                <div class="lp-slide">
+                  <iframe class="artifact-iframe" src="../artifacts/launch-whatsapp.html"
+                    title="WhatsApp message asset" loading="eager"></iframe>
+                </div>
+                <div class="lp-slide">
+                  <iframe class="artifact-iframe" src="../artifacts/launch-facebook.html"
+                    title="Facebook post asset" loading="eager"></iframe>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lp-dots" role="tablist" aria-label="Asset preview pager">
+          <button class="lp-dot" role="tab" aria-selected="true"  aria-label="Instagram Story" data-dot="0"></button>
+          <button class="lp-dot" role="tab" aria-selected="false" aria-label="WhatsApp message" data-dot="1"></button>
+          <button class="lp-dot" role="tab" aria-selected="false" aria-label="Facebook post" data-dot="2"></button>
+        </div>
+      </div>
+
+      <button class="lp-arrow" id="lp-next" aria-label="Next asset">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M15.0001 17L20 12L15 7"/><path d="M4 12H20"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- ─── RIGHT: the weekly plan ─── -->
+    <div class="share-panel">
+
+      <!-- Panel header — small label + Done (edit-links pattern) -->
+      <header class="lp-panel-header">
+        <span class="page-header-label" data-inspect-phrase="launchPlan.header.title">Launch Plan</span>
+        <button class="btn-primary btn-sm" id="done-btn"
+          data-inspect-label="Done — primary small button"
+          data-inspect-phrase="launchPlan.header.done"
+          data-nav-to="flows/home-dashboard-v2.html"
+          data-nav-screen-id="scr-131">Done</button>
+      </header>
+
+      <div class="share-cards">
+
+        <p class="lp-intro" data-inspect-phrase="launchPlan.subhead">3 ready-made posts for your week — just share.</p>
+
+        <!-- Step 1 · Today · Instagram Story -->
+        <div class="plan-step" role="button" tabindex="0" data-step="0" aria-pressed="true"
+          data-inspect-label="Plan step — selectable card (active = blue border)">
+          <div class="plan-step-head">
+            <span class="badge badge--primary" data-inspect-phrase="launchPlan.step.today.timing">Today</span>
+          </div>
+          <h2 class="plan-step-title" data-inspect-phrase="launchPlan.step.story.title">Show your new pieces</h2>
+          <p class="plan-step-why" data-inspect-phrase="launchPlan.step.story.why">A Story is low-pressure and disappears in 24h — the perfect way to tease this week's drop.</p>
+          <div class="plan-actions">
+            <button class="btn-secondary btn-sm" data-action="download"
+              data-inspect-label="Action — Download Story image"
+              data-inspect-phrase="launchPlan.step.story.action">Download image</button>
+            <button class="icon-btn-sm muted plan-edit" data-action="edit"
+              aria-label="Edit post"
+              data-inspect-label="Edit — icon-only subtle button (pencil)"
+              data-inspect-phrase="launchPlan.step.edit">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M15.7071 5.29289L17.5 3.5C17.8905 3.10948 18.5237 3.10948 18.9142 3.5L20.5 5.08579C20.8905 5.47631 20.8905 6.10947 20.5 6.5L18.7071 8.29289M15.7071 5.29289L9.59886 11.4012C9.34255 11.6575 9.16071 11.9787 9.07279 12.3303L8.20715 15.7929L11.6697 14.9272C12.0214 14.8393 12.3425 14.6575 12.5989 14.4012L18.7071 8.29289M15.7071 5.29289L18.7071 8.29289" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                <path d="M10.7071 4.79289H5.20715C4.10258 4.79289 3.20715 5.68832 3.20715 6.79289V18.7929C3.20715 19.8975 4.10258 20.7929 5.20715 20.7929H17.2071C18.3117 20.7929 19.2071 19.8975 19.2071 18.7929V13.2929" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 2 · In 3 days · WhatsApp -->
+        <div class="plan-step" role="button" tabindex="0" data-step="1" aria-pressed="false"
+          data-inspect-label="Plan step — selectable card">
+          <div class="plan-step-head">
+            <span class="badge badge--neutral" data-inspect-phrase="launchPlan.step.day3.timing">In 3 days</span>
+          </div>
+          <h2 class="plan-step-title" data-inspect-phrase="launchPlan.step.whatsapp.title">Invite your circle to the workshop</h2>
+          <p class="plan-step-why" data-inspect-phrase="launchPlan.step.whatsapp.why">A direct message reaches the people most likely to book a seat — the ones who already love your work.</p>
+          <div class="plan-actions">
+            <button class="btn-secondary btn-sm" data-action="copy"
+              data-inspect-label="Action — Copy WhatsApp message"
+              data-inspect-phrase="launchPlan.step.whatsapp.action">Copy message</button>
+          </div>
+        </div>
+
+        <!-- Step 3 · In 5 days · Facebook -->
+        <div class="plan-step" role="button" tabindex="0" data-step="2" aria-pressed="false"
+          data-inspect-label="Plan step — selectable card">
+          <div class="plan-step-head">
+            <span class="badge badge--neutral" data-inspect-phrase="launchPlan.step.day5.timing">In 5 days</span>
+          </div>
+          <h2 class="plan-step-title" data-inspect-phrase="launchPlan.step.facebook.title">Post your workshop dates</h2>
+          <p class="plan-step-why" data-inspect-phrase="launchPlan.step.facebook.why">A feed post stays visible and keeps filling seats for days — share it once a few spots are taken.</p>
+          <div class="plan-actions">
+            <button class="btn-secondary btn-sm" data-action="download"
+              data-inspect-label="Action — Download Facebook image"
+              data-inspect-phrase="launchPlan.step.facebook.actionImage">Download image</button>
+            <button class="btn-secondary btn-sm" data-action="copy"
+              data-inspect-label="Action — Copy Facebook caption"
+              data-inspect-phrase="launchPlan.step.facebook.actionCaption">Copy caption</button>
+            <button class="icon-btn-sm muted plan-edit" data-action="edit"
+              aria-label="Edit post"
+              data-inspect-label="Edit — icon-only subtle button (pencil)"
+              data-inspect-phrase="launchPlan.step.edit">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M15.7071 5.29289L17.5 3.5C17.8905 3.10948 18.5237 3.10948 18.9142 3.5L20.5 5.08579C20.8905 5.47631 20.8905 6.10947 20.5 6.5L18.7071 8.29289M15.7071 5.29289L9.59886 11.4012C9.34255 11.6575 9.16071 11.9787 9.07279 12.3303L8.20715 15.7929L11.6697 14.9272C12.0214 14.8393 12.3425 14.6575 12.5989 14.4012L18.7071 8.29289M15.7071 5.29289L18.7071 8.29289" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                <path d="M10.7071 4.79289H5.20715C4.10258 4.79289 3.20715 5.68832 3.20715 6.79289V18.7929C3.20715 19.8975 4.10258 20.7929 5.20715 20.7929H17.2071C18.3117 20.7929 19.2071 19.8975 19.2071 18.7929V13.2929" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+    <!-- /share-panel -->
+
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ─── Carousel ↔ plan sync + actions ─── -->
+<script>
+(function () {
+  var track = document.getElementById('lp-track');
+  if (!track) return;
+  var steps = Array.prototype.slice.call(document.querySelectorAll('.plan-step'));
+  var dots  = Array.prototype.slice.call(document.querySelectorAll('.lp-dot'));
+  var nameEl = document.getElementById('lp-asset-name');
+  var prev = document.getElementById('lp-prev');
+  var next = document.getElementById('lp-next');
+  var NAMES = ['Instagram Story', 'WhatsApp message', 'Facebook post'];
+  var COUNT = steps.length;
+  var current = 0;
+
+  function select(i) {
+    i = Math.max(0, Math.min(COUNT - 1, i));
+    current = i;
+    track.style.transform = 'translateX(-' + (i * 100) + '%)';
+    steps.forEach(function (s, idx) { s.setAttribute('aria-pressed', idx === i ? 'true' : 'false'); });
+    dots.forEach(function (d, idx) { d.setAttribute('aria-selected', idx === i ? 'true' : 'false'); });
+    nameEl.textContent = NAMES[i];
+    prev.disabled = i === 0;
+    next.disabled = i === COUNT - 1;
+  }
+
+  steps.forEach(function (s) {
+    var idx = parseInt(s.getAttribute('data-step'), 10);
+    s.addEventListener('click', function (e) { if (!e.target.closest('button')) select(idx); });
+    s.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(idx); }
+      else if (e.key === 'ArrowDown') { e.preventDefault(); select(current + 1); steps[current].focus(); }
+      else if (e.key === 'ArrowUp')   { e.preventDefault(); select(current - 1); steps[current].focus(); }
+    });
+  });
+
+  dots.forEach(function (d) {
+    d.addEventListener('click', function () { select(parseInt(d.getAttribute('data-dot'), 10)); });
+  });
+  prev.addEventListener('click', function () { select(current - 1); });
+  next.addEventListener('click', function () { select(current + 1); });
+
+  // Actions → toast
+  document.querySelectorAll('.plan-step [data-action]').forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var kind = btn.getAttribute('data-action');
+      showToast(kind === 'download' ? 'Image downloaded'
+        : kind === 'edit' ? 'Opening the editor…'
+        : 'Copied to clipboard');
+    });
+  });
+
+  function showToast(message) {
+    var c = document.getElementById('toast-container');
+    if (!c) return;
+    var t = document.createElement('div');
+    t.className = 'toast toast-success';
+    t.innerHTML = '<span class="toast-icon"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true" width="20" height="20">' +
+      '<path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>' +
+      '</svg></span><span class="toast-message">' + message + '</span>';
+    c.appendChild(t);
+    setTimeout(function () { t.classList.add('toast-hiding'); setTimeout(function () { t.remove(); }, 300); }, 2500);
+  }
+
+  select(0);
+})();
+</script>
+
+<script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js"></script>
+
+<!-- Design annotations — surfaced in the workbench inspect panel -->
+<script type="application/json" id="design-annotations">
+[
+  "scr-032 Launch Plan. Reached from the Continue button on the Share screen (scr-030). Shares the share-and-activate shell with scr-030 / scr-042 (.share-shell, phone preview, white panel card). Realises ins-024 (structured day-by-day plan replaces the static share screen) + ins-002 (promotion intensity is the #1 success differentiator).",
+  "Top bar uses the shared .page-header (edit-links pattern): small uppercase 'LAUNCH PLAN' label (label-small, subdued) + trailing Done (btn-primary.btn-sm → home-dashboard / scr-131). No bottom action button.",
+  "LEFT preview = an asset-name label ('Instagram Story' / 'WhatsApp message' / 'Facebook post'), the phone showing a carousel of the 3 ready-made assets (../artifacts/launch-instagram-story|whatsapp|facebook.html, each 360-wide scaled 0.6144 into the 221px phone inner), dots below, and prev/next arrows flanking the phone on desktop (48px circular, blue-100 border; disabled at the ends; hidden on mobile where swipe + dots drive it). No decorative blob.",
+  "RIGHT panel = one-line intro + 3 selectable plan steps (Today / In 3 days / In 5 days) styled like scr-030's cards. Active step = blue-500 2px border + elevation-blue-sm; selecting a step (click / Enter / ↑↓) drives the carousel, the dots, the asset-name label and the arrow disabled state. Each step has a blue-10 action pill (Download image / Copy message / Copy post).",
+  "Responsive: desktop ≥768 = two panes (preview | panel), 32px gap, arrows visible. Mobile <768 collapses to one scrolling column — panel unwraps (display:contents) so the phone sits between the intro and the plan steps; arrows hidden, phone scales to 75% (artifact scale 0.4569).",
+  "No phone/browser chrome on the screen itself — the workbench iframe holder supplies it. Buttons are inert prototype actions (toast feedback) except Done (data-nav)."
+]
+</script>
+
+</body>
+</html>

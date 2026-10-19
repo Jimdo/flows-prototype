@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your bio-link is live — Jimdo Flows lifecycle email</title>
+<style>
+  /* ═══════════════════════════════════════════════
+     ARTIFACT — LIFECYCLE EMAIL "Your bio-link is live"
+     Gmail UI mockup wrapping a Jimdo Flows
+     transactional/lifecycle email. Two responsive
+     surfaces share the SAME email content:
+
+       • Mobile  (< 1024px): 360-wide phone app —
+         sticky top bar + email sheet + bottom action
+         bar. Card-on-canvas above 768px.
+       • Desktop (≥ 1024px): full-bleed Gmail web
+         client — top utility bar, left rail with
+         Compose + nav, main pane with toolbar +
+         centered email column. Mirrors the real
+         Gmail desktop chrome (M3 Material).
+
+     The DOM is structured around a single email
+     payload (`.email-sheet`). Chrome elements have
+     `data-show` flags and hide via CSS media
+     queries so the shared payload renders inside
+     whichever frame is appropriate at the viewport.
+
+     Future lifecycle emails (Day 2 Story, Day 5
+     Feed, Day 7 check-in) clone this file and swap
+     only `.gmail-subject-text` + `.email-sheet`.
+     ═══════════════════════════════════════════════ */
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #f6f8fc;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: 'Google Sans', 'Roboto', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+    color: #202124;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Desktop chrome is hidden on mobile by default */
+  .gmail-utilbar,
+  .gmail-sidebar,
+  .gmail-desktop-toolbar { display: none; }
+
+  /* ═══════════════════════════════════════════════
+     MOBILE SHELL (default, < 1024px)
+     360-wide phone app. Sticky topbar + scrolling
+     email + sticky bottom action bar.
+     ═══════════════════════════════════════════════ */
+  .gmail-shell {
+    width: 100%;
+    max-width: 360px;
+    min-height: 100vh;
+    margin: 0 auto;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding-bottom: 56px;
+  }
+
+  /* ── Mobile top app bar (Material 56px) ── */
+  .gmail-topbar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 56px;
+    padding: 0 4px;
+    background: #ffffff;
+    border-bottom: 1px solid #e8eaed;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+  .gmail-iconbtn {
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #5f6368;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .gmail-iconbtn svg { width: 20px; height: 20px; }
+  .gmail-iconbtn:focus-visible {
+    outline: 2px solid #1a73e8;
+    outline-offset: -2px;
+  }
+  @media (hover: hover) {
+    .gmail-iconbtn:hover { background: rgba(60,64,67,0.08); }
+  }
+  .gmail-topbar-spacer { flex: 1 1 0; }
+
+  /* ── Subject row ── */
+  .gmail-subject {
+    padding: 12px 16px 8px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .gmail-subject-text {
+    flex: 1 1 0;
+    min-width: 0;
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: #202124;
+    letter-spacing: 0;
+    margin: 0;
+  }
+  .gmail-star {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    color: #5f6368;
+  }
+  .gmail-star svg { width: 24px; height: 24px; }
+
+  /* ── Subject inline external/label pills (desktop only — mobile keeps the chip row below) ── */
+  .gmail-subject-title {
+    display: inline;
+  }
+  .gmail-subject-pill,
+  .gmail-subject-divider,
+  .gmail-subject-inboxchip {
+    display: none; /* shown on desktop */
+  }
+
+  /* ── Label chip row (mobile) ── */
+  .gmail-labels {
+    padding: 0 16px 12px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .gmail-label {
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    padding: 0 8px;
+    border-radius: 4px;
+    border: 1px solid #dadce0;
+    background: transparent;
+    font-size: 12px;
+    font-weight: 500;
+    color: #5f6368;
+    letter-spacing: 0.2px;
+  }
+
+  /* ── Sender block ── */
+  .gmail-sender {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 4px 16px 16px;
+  }
+  .gmail-avatar {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    background: #001453;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: -0.2px;
+  }
+  .gmail-sender-body {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .gmail-sender-top {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+  }
+  .gmail-sender-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #202124;
+    line-height: 1.4;
+  }
+  .gmail-sender-date {
+    flex-shrink: 0;
+    font-size: 12px;
+    color: #5f6368;
+  }
+  .gmail-sender-email,
+  .gmail-sender-to {
+    font-size: 12px;
+    color: #5f6368;
+    line-height: 1.4;
+  }
+  /* Mobile: replace the long date with its compact data-mobile value */
+  .gmail-sender-date {
+    font-size: 12px;
+    color: #5f6368;
+    white-space: nowrap;
+    font-size: 0; /* hide actual text node */
+  }
+  .gmail-sender-date::before {
+    content: attr(data-mobile);
+    font-size: 12px;
+  }
+  .gmail-sender-to {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .gmail-sender-caret {
+    width: 14px;
+    height: 14px;
+    color: #5f6368;
+  }
+  .gmail-sender-meta {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+  .gmail-sender-actions {
+    display: flex;
+    gap: 0;
+    align-items: center;
+  }
+  .gmail-sender-actions .gmail-iconbtn { width: 32px; height: 32px; }
+  .gmail-sender-actions .gmail-iconbtn svg { width: 18px; height: 18px; }
+
+  /* ═══════════════════════════════════════════════
+     JIMDO EMAIL CONTENT — shared mobile + desktop.
+     Lives inside `.email-sheet`. Mobile and desktop
+     scope it via outer container max-width.
+     ═══════════════════════════════════════════════ */
+  .email-sheet {
+    background: #ffffff;
+    padding: 0 16px 24px;
+  }
+
+  .email-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 0;
+    border-top: 1px solid #e8eaed;
+  }
+  .email-brand-mark {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    background: #001453;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    flex-shrink: 0;
+  }
+  .email-brand-mark svg { width: 14px; height: 14px; }
+  .email-brand-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #001453;
+    letter-spacing: 0.2px;
+  }
+
+  .email-hero {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 12px;
+    background:
+      radial-gradient(circle at 25% 30%, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 40%),
+      linear-gradient(135deg, #2f5bea 0%, #001453 100%);
+    margin: 0 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    position: relative;
+    overflow: hidden;
+  }
+  .email-hero-emoji {
+    font-size: 48px;
+    line-height: 1;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2));
+  }
+
+  .email-greeting {
+    font-size: 14px;
+    color: #5f6368;
+    margin: 0 0 8px;
+    line-height: 1.5;
+  }
+  .email-headline {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.3;
+    color: #202124;
+    margin: 0 0 16px;
+    letter-spacing: -0.3px;
+  }
+  .email-body {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #3c4043;
+    margin: 0 0 20px;
+  }
+  .email-body strong { color: #202124; }
+  .email-body a {
+    color: #2f5bea;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .email-preview-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid #e8eaed;
+    border-radius: 12px;
+    margin: 0 0 24px;
+    background: #ffffff;
+    text-decoration: none;
+    color: inherit;
+  }
+  .email-preview-thumb {
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    border-radius: 8px;
+    background:
+      radial-gradient(circle at 30% 30%, #e8d5c4 0%, transparent 50%),
+      linear-gradient(135deg, #1a1015 0%, #2d1f26 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+  }
+  .email-preview-body {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .email-preview-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #202124;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .email-preview-url {
+    font-size: 12px;
+    color: #5f6368;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .email-preview-arrow {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    color: #5f6368;
+  }
+
+  .email-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 20px;
+    background: #2f5bea;
+    color: #ffffff;
+    border: 0;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: 0.2px;
+    text-decoration: none;
+    cursor: pointer;
+    margin: 0 0 24px;
+    transition: background-color 180ms ease-out, transform 150ms ease-out;
+  }
+  .email-cta:focus-visible {
+    outline: 2px solid #1a73e8;
+    outline-offset: 2px;
+  }
+  @media (hover: hover) {
+    .email-cta:hover { background: #1f48d6; }
+  }
+  .email-cta:active {
+    transform: scale(0.98);
+    transition-duration: 80ms;
+  }
+
+  .email-teaser {
+    padding: 16px;
+    background: #f6f8fc;
+    border-radius: 12px;
+    margin: 0 0 24px;
+  }
+  .email-teaser-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #5f6368;
+    margin: 0 0 8px;
+  }
+  .email-teaser-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #202124;
+    line-height: 1.4;
+    margin: 0 0 4px;
+  }
+  .email-teaser-body {
+    font-size: 13px;
+    color: #5f6368;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .email-signoff {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #3c4043;
+    margin: 0 0 4px;
+  }
+  .email-signature {
+    font-size: 15px;
+    font-weight: 600;
+    color: #202124;
+    margin: 0 0 32px;
+  }
+  .email-footer {
+    border-top: 1px solid #e8eaed;
+    padding: 20px 0 0;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #5f6368;
+  }
+  .email-footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    margin-bottom: 12px;
+  }
+  .email-footer-links a {
+    color: #5f6368;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .email-footer-address {
+    margin: 0;
+    color: #80868b;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  /* ── Mobile bottom action bar (Reply / Reply all / Forward) ── */
+  .gmail-actionbar {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 360px;
+    height: 56px;
+    background: #ffffff;
+    border-top: 1px solid #e8eaed;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 8px;
+    z-index: 3;
+  }
+  .gmail-actionbtn {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid #dadce0;
+    background: #ffffff;
+    border-radius: 20px;
+    color: #1f1f1f;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    margin: 0 4px;
+    transition: background-color 180ms ease-out;
+  }
+  .gmail-actionbtn svg {
+    width: 16px;
+    height: 16px;
+    color: #5f6368;
+    flex-shrink: 0;
+  }
+  .gmail-actionbtn:focus-visible {
+    outline: 2px solid #1a73e8;
+    outline-offset: -2px;
+  }
+  @media (hover: hover) {
+    .gmail-actionbtn:hover { background: #f1f3f4; }
+  }
+
+  /* ── Phone card lift between 768 and 1024 (tablet portrait) ── */
+  @media (min-width: 768px) and (max-width: 1023.98px) {
+    body { background: #e8eaed; padding: 40px 0; }
+    .gmail-shell {
+      min-height: 720px;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    }
+    .gmail-actionbar { position: absolute; }
+  }
+
+  /* ═══════════════════════════════════════════════
+     DESKTOP SHELL (≥ 1024px)
+     Full Gmail web client — full-bleed, no wrapper.
+       • Top utility bar (Gmail logo + search + apps)
+       • Left rail (Compose + nav)
+       • Main pane: toolbar + centered email column
+     The shared `.email-sheet` is the same payload
+     used on mobile; only the surrounding chrome
+     changes.
+     ═══════════════════════════════════════════════ */
+  @media (min-width: 1024px) {
+    body { background: #f6f8fc; }
+
+    .gmail-shell {
+      max-width: none;
+      width: 100%;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      display: grid;
+      grid-template-columns: 256px 1fr;
+      grid-template-rows: 64px 1fr;
+      grid-template-areas:
+        "utilbar utilbar"
+        "sidebar main";
+    }
+
+    /* Hide mobile-only chrome */
+    .gmail-topbar,
+    .gmail-actionbar,
+    .gmail-labels { display: none; }
+
+    /* Show desktop chrome */
+    .gmail-utilbar { display: flex; }
+    .gmail-sidebar { display: flex; }
+    .gmail-desktop-toolbar { display: flex; }
+
+    /* Subject pill + divider + inline Inbox chip appear inline next to subject on desktop */
+    .gmail-subject-pill,
+    .gmail-subject-inboxchip { display: inline-flex; }
+    .gmail-subject-divider { display: inline-flex; }
+    .gmail-subject-pill {
+      align-items: center;
+      height: 22px;
+      padding: 0 10px;
+      border-radius: 4px;
+      background: #fef7e0;
+      color: #5d4500;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.2px;
+      vertical-align: middle;
+      margin-left: 12px;
+    }
+    .gmail-subject-divider {
+      align-items: center;
+      justify-content: center;
+      color: #f9ab00;
+      width: 16px;
+      height: 16px;
+      vertical-align: middle;
+      margin: 0 2px;
+    }
+    .gmail-subject-divider svg { width: 14px; height: 14px; }
+    .gmail-subject-inboxchip {
+      align-items: center;
+      gap: 4px;
+      height: 22px;
+      padding: 0 4px 0 10px;
+      border-radius: 4px;
+      border: 1px solid #dadce0;
+      background: transparent;
+      color: #5f6368;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.2px;
+      vertical-align: middle;
+    }
+    .gmail-subject-inboxchip svg {
+      width: 12px;
+      height: 12px;
+      color: #5f6368;
+    }
+
+    /* ── Top utility bar ── */
+    .gmail-utilbar {
+      grid-area: utilbar;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: #f6f8fc;
+      position: sticky;
+      top: 0;
+      z-index: 4;
+    }
+    .gmail-utilbar-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: 232px;
+      flex-shrink: 0;
+      padding-left: 4px;
+    }
+    .gmail-utilbar-logo-mark {
+      width: 40px;
+      height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .gmail-utilbar-logo-mark svg { width: 36px; height: 24px; }
+    .gmail-utilbar-logo-text {
+      font-size: 22px;
+      font-weight: 400;
+      color: #5f6368;
+      letter-spacing: -0.5px;
+      font-family: 'Product Sans', 'Google Sans', 'Roboto', sans-serif;
+    }
+
+    .gmail-search {
+      flex: 1 1 0;
+      min-width: 0;
+      max-width: 720px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 16px;
+      background: #eaf1fb;
+      border-radius: 24px;
+      color: #5f6368;
+      transition: background-color 180ms ease-out;
+    }
+    .gmail-search:focus-within {
+      background: #ffffff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+    }
+    .gmail-search svg { width: 20px; height: 20px; color: #5f6368; flex-shrink: 0; }
+    .gmail-search-input {
+      flex: 1 1 0;
+      min-width: 0;
+      height: 100%;
+      border: 0;
+      background: transparent;
+      font-family: inherit;
+      font-size: 16px;
+      color: #202124;
+      outline: 0;
+    }
+    .gmail-search-input::placeholder { color: #5f6368; }
+    .gmail-search-iconbtn {
+      width: 32px;
+      height: 32px;
+      border-radius: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #5f6368;
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .gmail-search-iconbtn:hover { background: rgba(60,64,67,0.08); }
+
+    .gmail-utilbar-spacer { flex: 1 1 0; }
+    .gmail-utilbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .gmail-utilbar-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 32px;
+      padding: 0 12px 0 10px;
+      border-radius: 16px;
+      font-size: 13px;
+      color: #202124;
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+    }
+    .gmail-utilbar-status::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 4px;
+      background: #1e8e3e;
+    }
+    .gmail-utilbar-status svg { width: 14px; height: 14px; color: #5f6368; }
+    .gmail-utilbar-status:hover { background: rgba(60,64,67,0.08); }
+    .gmail-utilbar-profile {
+      width: 40px;
+      height: 40px;
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      border: 1px solid #dadce0;
+      font-size: 11px;
+      font-weight: 700;
+      color: #202124;
+      letter-spacing: 0.5px;
+      margin-left: 4px;
+      cursor: pointer;
+    }
+
+    /* ── Left sidebar ── */
+    .gmail-sidebar {
+      grid-area: sidebar;
+      flex-direction: column;
+      padding: 8px 0 24px;
+      background: #f6f8fc;
+      overflow-y: auto;
+    }
+    .gmail-compose {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      align-self: flex-start;
+      margin: 8px 8px 16px;
+      padding: 0 24px 0 16px;
+      height: 56px;
+      border: 0;
+      border-radius: 16px;
+      background: #c2e7ff;
+      color: #001d35;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+      transition: background-color 180ms ease-out, box-shadow 180ms ease-out;
+    }
+    .gmail-compose:hover {
+      background: #b1ddfa;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.12);
+    }
+    .gmail-compose svg { width: 24px; height: 24px; color: #001d35; }
+
+    .gmail-nav { display: flex; flex-direction: column; padding: 0 8px; gap: 0; }
+    .gmail-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      height: 32px;
+      padding: 0 12px 0 24px;
+      border-radius: 0 16px 16px 0;
+      margin-right: 8px;
+      color: #202124;
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background-color 180ms ease-out;
+    }
+    .gmail-nav-item svg {
+      width: 20px;
+      height: 20px;
+      color: #5f6368;
+      flex-shrink: 0;
+    }
+    .gmail-nav-item-label {
+      flex: 1 1 0;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .gmail-nav-item-count {
+      font-size: 12px;
+      color: #5f6368;
+      flex-shrink: 0;
+    }
+    .gmail-nav-item.is-active {
+      background: #d3e3fd;
+      color: #001d35;
+      font-weight: 700;
+    }
+    .gmail-nav-item.is-active svg { color: #001d35; }
+    .gmail-nav-item.is-active .gmail-nav-item-count { color: #001d35; }
+    .gmail-nav-item:hover:not(.is-active) {
+      background: rgba(60,64,67,0.08);
+    }
+    .gmail-nav-caret {
+      width: 16px;
+      height: 16px;
+      color: #5f6368;
+      flex-shrink: 0;
+    }
+    .gmail-nav-sub {
+      padding: 0 8px;
+      display: flex;
+      flex-direction: column;
+    }
+    .gmail-nav-sub .gmail-nav-item { padding-left: 56px; }
+    .gmail-nav-section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 12px 4px 24px;
+      margin-right: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #444746;
+    }
+    .gmail-nav-section-title-add {
+      width: 24px;
+      height: 24px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #5f6368;
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+    }
+    .gmail-nav-section-title-add:hover { background: rgba(60,64,67,0.08); }
+    .gmail-nav-section-title-add svg { width: 16px; height: 16px; }
+
+    /* ── Main pane ── */
+    .gmail-main {
+      grid-area: main;
+      background: #ffffff;
+      border-top-left-radius: 16px;
+      margin: 0 16px 16px 0;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    /* Desktop toolbar (replaces the mobile topbar) */
+    .gmail-desktop-toolbar {
+      align-items: center;
+      gap: 4px;
+      height: 48px;
+      padding: 0 8px;
+      border-bottom: 1px solid #e8eaed;
+      background: #ffffff;
+    }
+    .gmail-desktop-toolbar .gmail-iconbtn { width: 40px; height: 40px; }
+    .gmail-desktop-toolbar .gmail-iconbtn svg { width: 18px; height: 18px; }
+    .gmail-desktop-toolbar-divider {
+      width: 1px;
+      height: 24px;
+      background: #e8eaed;
+      margin: 0 4px;
+    }
+
+    /* Email pane — scrolls independently. Inner content centered. */
+    .gmail-email-pane {
+      flex: 1 1 0;
+      overflow-y: auto;
+      padding: 32px 48px 64px;
+    }
+    .gmail-email-pane > .gmail-subject,
+    .gmail-email-pane > .gmail-sender,
+    .gmail-email-pane > .email-sheet {
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .gmail-subject {
+      padding: 0 0 12px;
+      align-items: center;
+      gap: 0;
+    }
+    .gmail-subject-text {
+      font-size: 22px;
+      font-weight: 400;
+      color: #202124;
+      line-height: 1.4;
+    }
+    .gmail-sender {
+      padding: 16px 0 28px;
+      border-top: 1px solid #f1f3f4;
+      align-items: flex-start;
+    }
+    .gmail-sender-body { gap: 4px; }
+    .gmail-sender-top {
+      flex-direction: row;
+      align-items: baseline;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .gmail-sender-name { font-size: 14px; flex: 0 0 auto; }
+    .gmail-sender-email { font-size: 14px; color: #5f6368; }
+    .gmail-sender-to { font-size: 13px; }
+    .gmail-sender-to .gmail-sender-caret { width: 16px; height: 16px; }
+    .gmail-sender-meta {
+      flex-direction: row;
+      align-items: center;
+      gap: 4px;
+    }
+    .gmail-sender-date {
+      font-size: 13px;
+      color: #5f6368;
+      white-space: nowrap;
+      padding-right: 8px;
+    }
+    /* Desktop shows the long date text, not the compact data-mobile fallback */
+    .gmail-sender-date { font-size: 13px; }
+    .gmail-sender-date::before { content: none; }
+    .gmail-sender-actions .gmail-iconbtn { width: 36px; height: 36px; }
+    .gmail-sender-actions .gmail-iconbtn svg { width: 18px; height: 18px; }
+
+    /* Email payload — centered column inside main pane */
+    .email-sheet {
+      padding: 0;
+    }
+    .email-brand { border-top: 0; padding-top: 0; padding-bottom: 28px; }
+    .email-headline { font-size: 28px; }
+    .email-body { font-size: 16px; }
+    .email-cta-wrap { display: flex; }
+    .email-cta {
+      width: auto;
+      min-width: 240px;
+      align-self: flex-start;
+      margin: 0 auto 28px 0;
+    }
+  }
+
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .email-cta,
+    .gmail-actionbtn,
+    .gmail-iconbtn,
+    .gmail-compose,
+    .gmail-search { transition: none; }
+    .email-cta:active { transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="gmail-shell">
+
+  <!-- ═══════════════════════════════════════════════
+       DESKTOP — TOP UTILITY BAR (≥ 1024)
+       ═══════════════════════════════════════════════ -->
+  <header class="gmail-utilbar" role="banner">
+    <div class="gmail-utilbar-logo">
+      <span class="gmail-utilbar-logo-mark" aria-hidden="true">
+        <!-- Gmail M envelope mark — stylised, simplified -->
+        <svg viewBox="0 0 36 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M3 4h4l11 9 11-9h4v16h-4V10l-11 9-11-9v10H3z" fill="#5f6368"/>
+        </svg>
+      </span>
+      <span class="gmail-utilbar-logo-text">Gmail</span>
+    </div>
+
+    <label class="gmail-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input class="gmail-search-input" type="search" value="square" placeholder="Search mail" aria-label="Search mail">
+      <button type="button" class="gmail-search-iconbtn" aria-label="Clear search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+      <button type="button" class="gmail-search-iconbtn" aria-label="Search options">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="6" y1="12" x2="18" y2="12"/>
+          <line x1="9" y1="18" x2="15" y2="18"/>
+        </svg>
+      </button>
+    </label>
+
+    <span class="gmail-utilbar-spacer"></span>
+
+    <div class="gmail-utilbar-actions">
+      <button type="button" class="gmail-utilbar-status" aria-label="Status: active">
+        Active
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
+      <button type="button" class="gmail-iconbtn" aria-label="Support">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </button>
+      <button type="button" class="gmail-iconbtn" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
+      <button type="button" class="gmail-iconbtn" aria-label="Google apps">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <circle cx="5" cy="5" r="2"/>
+          <circle cx="12" cy="5" r="2"/>
+          <circle cx="19" cy="5" r="2"/>
+          <circle cx="5" cy="12" r="2"/>
+          <circle cx="12" cy="12" r="2"/>
+          <circle cx="19" cy="12" r="2"/>
+          <circle cx="5" cy="19" r="2"/>
+          <circle cx="12" cy="19" r="2"/>
+          <circle cx="19" cy="19" r="2"/>
+        </svg>
+      </button>
+      <button type="button" class="gmail-utilbar-profile" aria-label="Account: JIMDO">JIMDO</button>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════
+       DESKTOP — LEFT SIDEBAR (≥ 1024)
+       ═══════════════════════════════════════════════ -->
+  <nav class="gmail-sidebar" aria-label="Mailboxes">
+    <button type="button" class="gmail-compose">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+      </svg>
+      Compose
+    </button>
+
+    <div class="gmail-nav">
+      <a class="gmail-nav-item is-active" href="#">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 3H5c-1.11 0-2 .89-2 2v14c0 1.11.89 2 2 2h14c1.11 0 2-.89 2-2V5c0-1.11-.89-2-2-2zm0 12h-4c0 1.66-1.35 3-3 3s-3-1.34-3-3H5V5h14v10z"/></svg>
+        <span class="gmail-nav-item-label">Inbox</span>
+        <span class="gmail-nav-item-count">1,843</span>
+      </a>
+      <a class="gmail-nav-item" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+        <span class="gmail-nav-item-label">Starred</span>
+      </a>
+      <a class="gmail-nav-item" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <span class="gmail-nav-item-label">Snoozed</span>
+      </a>
+      <a class="gmail-nav-item" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+        <span class="gmail-nav-item-label">Sent</span>
+      </a>
+      <a class="gmail-nav-item" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+        </svg>
+        <span class="gmail-nav-item-label">Drafts</span>
+        <span class="gmail-nav-item-count">4</span>
+      </a>
+      <a class="gmail-nav-item" href="#">
+        <svg class="gmail-nav-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="7" y1="7" x2="7.01" y2="7"/>
+          <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+        </svg>
+        <span class="gmail-nav-item-label">Categories</span>
+      </a>
+      <div class="gmail-nav-sub">
+        <a class="gmail-nav-item" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          <span class="gmail-nav-item-label">Purchases</span>
+          <span class="gmail-nav-item-count">9</span>
+        </a>
+        <a class="gmail-nav-item" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          <span class="gmail-nav-item-label">Social</span>
+          <span class="gmail-nav-item-count">206</span>
+        </a>
+        <a class="gmail-nav-item" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="16" x2="12" y2="12"/>
+            <line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+          <span class="gmail-nav-item-label">Updates</span>
+          <span class="gmail-nav-item-count">12,091</span>
+        </a>
+      </div>
+      <a class="gmail-nav-item" href="#">
+        <svg class="gmail-nav-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+        <span class="gmail-nav-item-label">More</span>
+      </a>
+
+      <div class="gmail-nav-section-title">
+        <span>Labels</span>
+        <button type="button" class="gmail-nav-section-title-add" aria-label="Create new label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </button>
+      </div>
+      <a class="gmail-nav-item" href="#">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+        </svg>
+        <span class="gmail-nav-item-label">[Imap]/Drafts</span>
+      </a>
+      <a class="gmail-nav-item" href="#">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+        </svg>
+        <span class="gmail-nav-item-label">Benchmark Emails</span>
+        <span class="gmail-nav-item-count">4</span>
+      </a>
+      <a class="gmail-nav-item" href="#">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+        </svg>
+        <span class="gmail-nav-item-label">Dev</span>
+        <span class="gmail-nav-item-count">2,812</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════
+       MAIN PANE — wraps both mobile & desktop email view
+       ═══════════════════════════════════════════════ -->
+  <main class="gmail-main">
+
+    <!-- Mobile top app bar -->
+    <div class="gmail-topbar" role="toolbar" aria-label="Email actions">
+      <button type="button" class="gmail-iconbtn" aria-label="Back to inbox">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+      </button>
+      <span class="gmail-topbar-spacer"></span>
+      <button type="button" class="gmail-iconbtn" aria-label="Archive">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="21 8 21 21 3 21 3 8"/>
+          <rect x="1" y="3" width="22" height="5"/>
+          <line x1="10" y1="12" x2="14" y2="12"/>
+        </svg>
+      </button>
+      <button type="button" class="gmail-iconbtn" aria-label="Delete">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+          <path d="M10 11v6M14 11v6"/>
+        </svg>
+      </button>
+      <button type="button" class="gmail-iconbtn" aria-label="Mark as unread">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+          <polyline points="22,6 12,13 2,6"/>
+        </svg>
+      </button>
+      <button type="button" class="gmail-iconbtn" aria-label="More options">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="5" r="1"/>
+          <circle cx="12" cy="12" r="1"/>
+          <circle cx="12" cy="19" r="1"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Desktop toolbar — appears only ≥ 1024 -->
+    <div class="gmail-desktop-toolbar" role="toolbar" aria-label="Email actions">
+      <button type="button" class="gmail-iconbtn" aria-label="Back to inbox">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+      </button>
+      <span class="gmail-desktop-toolbar-divider" aria-hidden="true"></span>
+      <button type="button" class="gmail-iconbtn" aria-label="Archive">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="21 8 21 21 3 21 3 8"/>
+          <rect x="1" y="3" width="22" height="5"/>
+          <line x1="10" y1="12" x2="14" y2="12"/>
+        </svg>
+      </button>
+      <button type="button" class="gmail-iconbtn" aria-label="Report spam">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </button>
+      <button type="button" class="gmail-iconbtn" aria-label="Delete">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+          <path d="M10 11v6M14 11v6"/>
+        </svg>
+      </button>
+      <span class="gmail-desktop-toolbar-divider" aria-hidden="true"></span>
+      <button type="button" class="gmail-iconbtn" aria-label="Mark as unread">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+          <polyline points="22,6 12,13 2,6"/>
+        </svg>
+      </button>
+      <button type="button" class="gmail-iconbtn" aria-label="Snooze">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </button>
+      <button type="button" class="gmail-iconbtn" aria-label="Add to tasks">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="9 11 12 14 22 4"/>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        </svg>
+      </button>
+      <button type="button" class="gmail-iconbtn" aria-label="Move to">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+          <polyline points="12 11 12 17"/>
+          <polyline points="9 14 12 17 15 14"/>
+        </svg>
+      </button>
+      <button type="button" class="gmail-iconbtn" aria-label="Labels">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+          <line x1="7" y1="7" x2="7.01" y2="7"/>
+        </svg>
+      </button>
+      <button type="button" class="gmail-iconbtn" aria-label="More options">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="5" r="1"/>
+          <circle cx="12" cy="12" r="1"/>
+          <circle cx="12" cy="19" r="1"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Email content pane (column on desktop, full on mobile) -->
+    <div class="gmail-email-pane">
+
+      <!-- Subject row -->
+      <div class="gmail-subject">
+        <h1 class="gmail-subject-text">
+          <span class="gmail-subject-title">Your bio-link is live, Clara 🎉</span>
+          <span class="gmail-subject-pill">External</span>
+          <span class="gmail-subject-divider" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </span>
+          <span class="gmail-subject-inboxchip">Inbox
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </span>
+        </h1>
+        <span class="gmail-star" aria-label="Starred">
+          <svg viewBox="0 0 24 24" fill="#f9ab00" stroke="#f9ab00" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+        </span>
+      </div>
+
+      <!-- Label chip row (mobile only — desktop shows pills inline above) -->
+      <div class="gmail-labels" aria-label="Labels">
+        <span class="gmail-label">Inbox</span>
+      </div>
+
+      <!-- Sender block -->
+      <div class="gmail-sender">
+        <div class="gmail-avatar" aria-hidden="true">J</div>
+        <div class="gmail-sender-body">
+          <div class="gmail-sender-top">
+            <span class="gmail-sender-name">Jimdo Flows</span>
+            <span class="gmail-sender-email">&lt;hello@flows.jimdo.com&gt;</span>
+          </div>
+          <span class="gmail-sender-to">
+            to me
+            <svg class="gmail-sender-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </span>
+        </div>
+        <div class="gmail-sender-meta">
+          <span class="gmail-sender-date" data-mobile="10:32">Mon, May 11, 2026, 10:32 AM</span>
+          <div class="gmail-sender-actions">
+            <button type="button" class="gmail-iconbtn" aria-label="Reply">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="9 17 4 12 9 7"/>
+                <path d="M20 18v-2a4 4 0 0 0-4-4H4"/>
+              </svg>
+            </button>
+            <button type="button" class="gmail-iconbtn" aria-label="More options">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="5" r="1"/>
+                <circle cx="12" cy="12" r="1"/>
+                <circle cx="12" cy="19" r="1"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Email body sheet -->
+      <div class="email-sheet">
+
+        <div class="email-brand">
+          <span class="email-brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M15 5.5v9.5c0 2.2-1.8 3.5-4 3.5s-4-1.3-4-3.5" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none"/>
+              <circle cx="15" cy="6" r="1.4" fill="#fff"/>
+            </svg>
+          </span>
+          <span class="email-brand-name">JIMDO FLOWS</span>
+        </div>
+
+        <div class="email-hero" aria-hidden="true">
+          <span class="email-hero-emoji">🎉</span>
+        </div>
+
+        <p class="email-greeting">Hi Clara,</p>
+        <h2 class="email-headline">Your bio-link is live and ready to share.</h2>
+
+        <p class="email-body">
+          You just published <strong>clara-and-stone.jimdo.link/bio</strong>. Anyone who opens it will see your name, your photo, and the link to <strong>book a free trial session</strong> — exactly what you set up.
+        </p>
+
+        <a class="email-preview-card" href="#">
+          <span class="email-preview-thumb" aria-hidden="true">C&amp;S</span>
+          <div class="email-preview-body">
+            <span class="email-preview-title">Clara and Stone</span>
+            <span class="email-preview-url">jimdo.link/clara-and-stone</span>
+          </div>
+          <svg class="email-preview-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </a>
+
+        <div class="email-cta-wrap">
+          <a class="email-cta" href="#" role="button">Add it to your Instagram bio</a>
+        </div>
+
+        <div class="email-teaser">
+          <p class="email-teaser-eyebrow">Coming next</p>
+          <p class="email-teaser-title">In two days, a Story you can post.</p>
+          <p class="email-teaser-body">We're putting together a ready-to-share image that announces your bio-link to your followers. Look out for it on Wednesday.</p>
+        </div>
+
+        <p class="email-signoff">See you in your inbox,</p>
+        <p class="email-signature">The Jimdo team</p>
+
+        <div class="email-footer">
+          <div class="email-footer-links">
+            <a href="#">Manage email preferences</a>
+            <a href="#">Unsubscribe</a>
+            <a href="#">Help centre</a>
+          </div>
+          <p class="email-footer-address">
+            Jimdo GmbH · Stresemannstraße 375 · 22761 Hamburg · Germany
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Mobile bottom action bar -->
+    <div class="gmail-actionbar" role="toolbar" aria-label="Reply actions">
+      <button type="button" class="gmail-actionbtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="9 17 4 12 9 7"/>
+          <path d="M20 18v-2a4 4 0 0 0-4-4H4"/>
+        </svg>
+        Reply
+      </button>
+      <button type="button" class="gmail-actionbtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="7 17 2 12 7 7"/>
+          <polyline points="12 17 7 12 12 7"/>
+          <path d="M22 18v-2a4 4 0 0 0-4-4H7"/>
+        </svg>
+        Reply all
+      </button>
+      <button type="button" class="gmail-actionbtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="15 17 20 12 15 7"/>
+          <path d="M4 18v-2a4 4 0 0 1 4-4h12"/>
+        </svg>
+        Forward
+      </button>
+    </div>
+
+  </main>
+
+</div>
+
+</body>
+</html>

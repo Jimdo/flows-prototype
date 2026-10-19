@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Core — Companion Dashboard</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/management-shell.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+  button, input, select, textarea { font-family: inherit; }
+  body { background: var(--jui-color-background-gray-medium); }
+  .shell-working-area {
+    background: var(--jui-color-gray-white);
+    overflow-y: auto;
+  }
+
+  /* Custom element — transparent to flex layout */
+  flows-companion-input { display: contents; }
+
+  /* ─── Dashboard scroll container ─── */
+  .companion-dash {
+    max-width: 768px;
+    margin: 0 auto;
+    padding: 96px var(--jui-layout-padding-l) 64px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-padding-l);
+  }
+
+  /* ─── Top section ─── */
+  .dash-top {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-padding-m);
+  }
+
+  .dash-title {
+    font-size: 32px;
+    font-weight: normal;
+    line-height: 1.25;
+    letter-spacing: -0.64px;
+    color: var(--jui-color-gray-700);
+    margin: 0;
+  }
+
+  /* ─── Companion section — shared component CSS (mirrors ai-suggestions.html) ─── */
+  .companion-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-m);
+  }
+  .companion-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .companion-logo-group {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-xxs);
+  }
+  .companion-logo-img {
+    height: 18px;
+    width: auto;
+    flex-shrink: 0;
+  }
+  .companion-help-link {
+    padding: 0 var(--jui-layout-padding-s);
+    font-size: var(--jui-typography-body-small-medium-size, 14px);
+    font-weight: 500;
+    line-height: 1.57;
+    color: var(--jui-color-actions-primary-rest);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .companion-help-link:hover { text-decoration: underline; }
+  .companion-input-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-m);
+    width: 100%;
+    background: var(--jui-color-gray-white);
+    border: 1px solid var(--jui-color-actions-primary-rest);
+    border-radius: 9999px;
+    padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-xs) var(--jui-layout-padding-xs) 20px;
+    cursor: text;
+    transition: border-color 120ms ease, background-color 120ms ease;
+  }
+  .companion-input-bar:hover { background: var(--jui-color-gray-50); }
+  .companion-input-bar:focus-visible,
+  .companion-input-bar.focused {
+    outline: none;
+    border-color: var(--jui-color-stroke-primary-actionable);
+    box-shadow: 0 4px 24px 0 var(--jui-color-blue-focus), 0 0 0 2px var(--jui-color-gray-white), 0 0 0 3px var(--jui-color-actions-primary-rest);
+  }
+  .companion-input-bar:active { background: var(--jui-color-gray-100); }
+  .companion-input-placeholder {
+    flex: 1 0 0;
+    min-width: 0;
+    font-size: var(--jui-typography-body-medium-regular-size, 16px);
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--jui-color-gray-400);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    user-select: none;
+  }
+  .companion-send-btn {
+    flex-shrink: 0;
+    width: var(--jui-layout-dimension-s);
+    height: var(--jui-layout-dimension-s);
+    border-radius: var(--jui-style-radius-20);
+    background: var(--jui-color-gray-300);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--jui-color-gray-white);
+    transition: background-color 120ms ease;
+  }
+  .companion-send-btn:hover { background: var(--jui-color-gray-400); }
+
+  /* ─── Section labels ─── */
+  .dash-section-label {
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1.55;
+    color: var(--jui-color-gray-700);
+    margin: 0;
+    padding-top: 8px;
+  }
+
+  /* ─── Stats ticker ─── */
+  .stats-ticker {
+    display: flex;
+    gap: 16px;
+    height: 84px;
+    margin-top: var(--jui-layout-padding-m);
+  }
+
+  .stats-card {
+    flex: 1 0 0;
+    min-width: 0;
+    background: var(--jui-color-background-gray-canvas);
+    border-radius: var(--jui-style-radius-m);
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-xs);
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  .stats-card-label {
+    font-size: var(--jui-typography-body-small-regular-size);
+    font-weight: 500;
+    line-height: 1.57;
+    color: var(--jui-color-gray-700);
+    margin: 0;
+  }
+
+  .stats-card-number {
+    font-size: 24px;
+    font-weight: normal;
+    line-height: 1.25;
+    letter-spacing: -0.48px;
+    color: var(--jui-color-gray-700);
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ─── Plan card ─── */
+  .plan-card-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .plan-card {
+    background: var(--jui-color-gray-white);
+    border-radius: var(--jui-style-radius-m);
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding-bottom: var(--jui-layout-gap-xs);
+  }
+
+  .plan-card-top {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    padding: var(--jui-layout-padding-m) var(--jui-layout-padding-m) 0;
+  }
+
+  .plan-card-identity {
+    flex: 1 0 0;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .plan-card-text { display: flex; flex-direction: column; gap: 0; }
+
+  .plan-card-title {
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 1.33;
+    color: var(--jui-color-gray-700);
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  .plan-card-progress {
+    font-size: var(--jui-typography-body-small-regular-size);
+    font-weight: normal;
+    line-height: 1.57;
+    color: var(--jui-color-gray-700);
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  /* ─── Smart buttons ─── */
+  .smart-btn-outline {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--jui-layout-gap-xs);
+    height: 32px;
+    padding: 4px 12px;
+    background: var(--jui-color-gray-white);
+    border: 1px solid var(--jui-color-actions-primary-rest);
+    border-radius: 2px;
+    cursor: pointer;
+    font-size: var(--jui-typography-body-small-regular-size);
+    font-weight: 500;
+    line-height: 1.57;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .smart-btn-filled {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    padding: 4px 12px;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    font-size: var(--jui-typography-body-small-regular-size);
+    font-weight: 500;
+    line-height: 1.57;
+    white-space: nowrap;
+    color: var(--jui-color-gray-white);
+  }
+
+  .smart-btn-text-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--jui-layout-gap-s);
+    padding: 12px var(--jui-layout-padding-l);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: var(--jui-typography-body-medium-regular-size);
+    font-weight: 500;
+    line-height: 1.5;
+    letter-spacing: 0.16px;
+    color: var(--jui-color-gray-700);
+    text-align: center;
+  }
+  .smart-btn-text-link:hover { text-decoration: underline; }
+
+  /* ─── Plan steps ─── */
+  .plan-steps-block {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-padding-m);
+    padding: var(--jui-layout-padding-m) var(--jui-layout-padding-m) 0;
+  }
+
+  .plan-step {
+    background: var(--jui-color-gray-white);
+    border: 1px solid var(--jui-color-stroke-gray-default);
+    border-radius: var(--jui-style-radius-s);
+    padding: var(--jui-layout-padding-m);
+    display: flex;
+    gap: var(--jui-layout-padding-m);
+    align-items: flex-start;
+    overflow: hidden;
+  }
+
+  .plan-step-icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--jui-color-gray-700);
+  }
+
+  .plan-step-body {
+    flex: 1 0 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .plan-step-title {
+    font-size: var(--jui-typography-body-medium-regular-size);
+    font-weight: 500;
+    line-height: 1.5;
+    color: var(--jui-color-gray-700);
+    margin: 0;
+  }
+
+  .plan-step-desc {
+    font-size: var(--jui-typography-body-medium-regular-size);
+    font-weight: normal;
+    line-height: 1.5;
+    color: var(--jui-color-gray-700);
+    margin: 0;
+  }
+
+  .plan-step-cta { padding-top: var(--jui-layout-padding-m); }
+
+  .plan-step-check {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    align-self: stretch;
+    color: var(--jui-color-gray-300);
+  }
+
+  /* Stacked card decorative bars */
+  .plan-stack-bar {
+    height: 10px;
+    background: var(--jui-color-gray-white);
+    border-left: 1px solid var(--jui-color-stroke-gray-default);
+    border-right: 1px solid var(--jui-color-stroke-gray-default);
+    border-bottom: 1px solid var(--jui-color-stroke-gray-default);
+    border-radius: 0 0 var(--jui-style-radius-s) var(--jui-style-radius-s);
+  }
+
+  .plan-card-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  /* ─── Suggestions section ─── */
+  .suggestions-grid {
+    display: flex;
+    gap: 16px;
+    align-items: stretch;
+    margin-top: var(--jui-layout-padding-m);
+  }
+
+  .suggestion-card {
+    flex: 1 0 0;
+    min-width: 0;
+    background: var(--jui-color-gray-white);
+    border: 1px solid var(--jui-color-stroke-gray-default);
+    border-radius: var(--jui-style-radius-m);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: var(--jui-layout-padding-m);
+  }
+
+  .suggestion-card-inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-padding-s);
+  }
+
+  .suggestion-artwork {
+    height: 160px;
+    border-radius: var(--jui-style-radius-s);
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .suggestion-chat-preview {
+    position: absolute;
+    top: 33px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 176px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-end;
+  }
+
+  .suggestion-chat-bubble {
+    background: var(--jui-color-gray-white);
+    border-radius: 12px 12px 0 12px;
+    padding: var(--jui-layout-padding-s) var(--jui-layout-padding-s);
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--jui-color-gray-700);
+    letter-spacing: -0.22px;
+    width: 158px;
+  }
+
+  .suggestion-thinking-row {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-xs);
+    width: 100%;
+  }
+
+  .suggestion-thinking-dot {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+  }
+
+  .suggestion-thinking-text {
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--jui-color-gray-700);
+  }
+
+  .suggestion-card-title {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.25;
+    color: var(--jui-color-gray-700);
+    margin: 0;
+  }
+
+  .suggestion-card-desc {
+    font-size: var(--jui-typography-body-small-regular-size);
+    font-weight: normal;
+    line-height: 1.57;
+    color: var(--jui-color-gray-600);
+    margin: 4px 0 0;
+  }
+
+  .suggestion-card-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-top: auto;
+    padding-top: 8px;
+  }
+</style>
+<style>
+  /* lint-disable */
+  /* Companion brand-specific overrides — colors/shadows not in JUI palette */
+  /* Companion input blue glow — local Figma style "Local/Companion Input Blue" */
+  .companion-input-bar {
+    box-shadow: 0 8px 8px rgba(0, 76, 237, 0.08);
+  }
+
+  /* Gradient text utility — used on outlined smart buttons */
+  .companion-gradient-text {
+    background-image: linear-gradient(127.53deg, #004ced 4.04%, #ea6c68 109.59%, #ffc77b 162.12%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    font-size: var(--jui-typography-body-small-regular-size);
+    font-weight: 500;
+    line-height: 1.57;
+    letter-spacing: 0.14px;
+  }
+
+  /* Filled smart button — gradient background */
+  .smart-btn-filled {
+    background-image: linear-gradient(135.59deg, #004ced 4.04%, #ea6c68 109.59%, #ffc77b 162.12%);
+  }
+
+  /* Suggestion card artwork gradient — Local/Companion 10% tint */
+  .suggestion-artwork {
+    background-image: linear-gradient(123.53deg, rgb(239, 240, 255) 11.39%, rgb(255, 245, 245) 82.91%, rgb(255, 248, 245) 115.98%);
+  }
+
+  /* Companion thinking dot — AI activity indicator */
+  .suggestion-thinking-dot {
+    background-image: linear-gradient(107.13deg, #004ced 11.39%, #ea6c68 82.91%, #ffc77b 114.57%);
+    border-radius: 100px;
+  }
+
+  /* Chat bubble tail corner and thinking dot shape — Figma-spec exact values */
+  .suggestion-chat-bubble {
+    border-radius: 12px 12px 0 12px;
+  }
+</style>
+</head>
+<body class="app-shell management-shell">
+
+  <jimdo-topbar variant="extended"></jimdo-topbar>
+
+  <div class="shell-middle">
+    <jimdo-sidebar product="jimdo" active="dashboard"></jimdo-sidebar>
+
+    <main class="shell-working-area"
+      data-inspect-label="Companion Dashboard"
+      data-inspect-tokens='[{"prop":"background","figma":"color/background/gray/canvas","css":"--jui-color-background-gray-canvas","value":"#f8f8f8"}]'>
+
+      <div class="companion-dash">
+
+        <!-- ─── Top section: title + companion component ─── -->
+        <div class="dash-top">
+          <h1 class="dash-title"
+            data-inspect-phrase="companion.dashboard.title"
+            data-inspect-label="Dashboard Title"
+            data-inspect-tokens='[{"prop":"font-size","figma":"—","css":"—","value":"32px"},{"prop":"letter-spacing","figma":"—","css":"—","value":"-0.64px"}]'>
+            Dashboard
+          </h1>
+
+          <!-- Shared companion input component — opens companion-chat-full popup on click -->
+          <flows-companion-input
+            placeholder-phrase="companion.dashboard.inputPlaceholder"
+            help-phrase="companion.dashboard.learnLink">
+          </flows-companion-input>
+        </div>
+
+        <!-- ─── Metrics ─── -->
+        <div>
+          <p class="dash-section-label"
+            data-inspect-phrase="companion.dashboard.metrics.heading"
+            data-inspect-label="Metrics Section Label">Last 7 days</p>
+
+          <div class="stats-ticker"
+            data-inspect-label="Stats Ticker"
+            data-inspect-tokens='[{"prop":"height","figma":"—","css":"—","value":"84px"},{"prop":"gap","figma":"—","css":"—","value":"16px"}]'>
+
+            <div class="stats-card"
+              data-inspect-label="Stats — Visitors"
+              data-inspect-tokens='[{"prop":"background","figma":"color/background/gray/canvas","css":"--jui-color-background-gray-canvas","value":"#f8f8f8"},{"prop":"border-radius","figma":"style/radius/m","css":"--jui-style-radius-m","value":"12px"}]'>
+              <p class="stats-card-label"
+                data-inspect-phrase="companion.dashboard.metrics.visitors">Visitors</p>
+              <p class="stats-card-number">0</p>
+            </div>
+
+            <div class="stats-card"
+              data-inspect-label="Stats — Conversions"
+              data-inspect-tokens='[{"prop":"background","figma":"color/background/gray/canvas","css":"--jui-color-background-gray-canvas","value":"#f8f8f8"}]'>
+              <p class="stats-card-label"
+                data-inspect-phrase="companion.dashboard.metrics.conversions">Conversions</p>
+              <p class="stats-card-number">0</p>
+            </div>
+
+            <div class="stats-card"
+              data-inspect-label="Stats — Revenue"
+              data-inspect-tokens='[{"prop":"background","figma":"color/background/gray/canvas","css":"--jui-color-background-gray-canvas","value":"#f8f8f8"}]'>
+              <p class="stats-card-label"
+                data-inspect-phrase="companion.dashboard.metrics.revenue">Revenue</p>
+              <p class="stats-card-number">0</p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ─── Plan card ─── -->
+        <div class="plan-card-wrapper">
+          <div class="plan-card"
+            data-inspect-label="Companion Plan Card"
+            data-inspect-tokens='[{"prop":"background","figma":"color/gray/white","css":"--jui-color-gray-white","value":"#ffffff"},{"prop":"border-radius","figma":"style/radius/m","css":"--jui-style-radius-m","value":"12px"}]'>
+
+            <!-- Header row -->
+            <div class="plan-card-top">
+              <div class="plan-card-identity">
+                <!-- Progress ring -->
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none"
+                  aria-label="0 of 7 steps complete"
+                  data-inspect-label="Plan Progress Ring">
+                  <defs>
+                    <linearGradient id="progress-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="#004ced"/>
+                      <stop offset="100%" stop-color="#ea6c68"/>
+                    </linearGradient>
+                  </defs>
+                  <circle cx="16" cy="16" r="12" stroke="#e6e6e6" stroke-width="2.5"/>
+                  <circle cx="16" cy="16" r="12" stroke="url(#progress-grad)" stroke-width="2.5"
+                    stroke-dasharray="0 75.4" stroke-linecap="round"
+                    transform="rotate(-90 16 16)"/>
+                </svg>
+
+                <div class="plan-card-text">
+                  <p class="plan-card-title"
+                    data-inspect-phrase="companion.dashboard.plan.title">Launch my website</p>
+                  <p class="plan-card-progress"
+                    data-inspect-phrase="companion.dashboard.plan.progress">0/7 complete</p>
+                </div>
+              </div>
+
+              <button class="smart-btn-outline" type="button"
+                data-inspect-phrase="companion.dashboard.plan.editBtn"
+                data-inspect-label="Edit Plan Button"
+                data-inspect-tokens='[{"prop":"border-color","figma":"color/blue/500","css":"—","value":"#004ced"},{"prop":"height","figma":"—","css":"—","value":"32px"}]'>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 5C5.636 5 2 12 2 12s3.636 7 10 7 10-7 10-7-3.636-7-10-7Z" stroke="#004ced" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="12" cy="12" r="3" stroke="#004ced" stroke-width="1.5"/>
+                </svg>
+                <span class="companion-gradient-text">Edit plan</span>
+              </button>
+            </div>
+
+            <!-- Steps -->
+            <div class="plan-steps-block">
+
+              <!-- Step 1 — active (filled CTA) -->
+              <div class="plan-step"
+                data-inspect-label="Plan Step — Business Name">
+                <div class="plan-step-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 21h18M6 21V9l6-6 6 6v12M9 21v-6h6v6"/>
+                  </svg>
+                </div>
+                <div class="plan-step-body">
+                  <p class="plan-step-title"
+                    data-inspect-phrase="companion.dashboard.plan.step1.title">Add your business name and logo</p>
+                  <p class="plan-step-desc"
+                    data-inspect-phrase="companion.dashboard.plan.step1.desc">Your name and logo are the first things visitors see. Make sure they know who you are.</p>
+                  <div class="plan-step-cta">
+                    <button class="smart-btn-filled" type="button"
+                      data-inspect-phrase="companion.dashboard.plan.step1.cta"
+                      data-inspect-label="Edit Header (filled)">Edit header</button>
+                  </div>
+                </div>
+                <div class="plan-step-check"
+                  data-inspect-tokens='[{"prop":"color","figma":"color/gray/300","css":"--jui-color-gray-300","value":"#b1b1b1"}]'>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M8 12l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+
+              <!-- Step 2 -->
+              <div class="plan-step"
+                data-inspect-label="Plan Step — Custom Domain">
+                <div class="plan-step-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                  </svg>
+                </div>
+                <div class="plan-step-body">
+                  <p class="plan-step-title"
+                    data-inspect-phrase="companion.dashboard.plan.step2.title">Connect a custom domain</p>
+                  <p class="plan-step-desc"
+                    data-inspect-phrase="companion.dashboard.plan.step2.desc">A custom domain (like yourbusiness.com) looks professional and helps customers remember you.</p>
+                  <div class="plan-step-cta">
+                    <button class="smart-btn-outline" type="button"
+                      data-inspect-phrase="companion.dashboard.plan.step2.cta"
+                      data-inspect-label="Set up domain">
+                      <span class="companion-gradient-text">Set up domain</span>
+                    </button>
+                  </div>
+                </div>
+                <div class="plan-step-check"
+                  data-inspect-tokens='[{"prop":"color","figma":"color/gray/300","css":"--jui-color-gray-300","value":"#b1b1b1"}]'>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M8 12l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+
+              <!-- Step 3 -->
+              <div class="plan-step"
+                data-inspect-label="Plan Step — Contact">
+                <div class="plan-step-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  </svg>
+                </div>
+                <div class="plan-step-body">
+                  <p class="plan-step-title"
+                    data-inspect-phrase="companion.dashboard.plan.step3.title">Add a way for visitors to contact you</p>
+                  <p class="plan-step-desc"
+                    data-inspect-phrase="companion.dashboard.plan.step3.desc">Whether it's a form, phone number, or email — make it easy for people to reach you.</p>
+                  <div class="plan-step-cta">
+                    <button class="smart-btn-outline" type="button"
+                      data-inspect-phrase="companion.dashboard.plan.step3.cta"
+                      data-inspect-label="Add contact details">
+                      <span class="companion-gradient-text">Add contact details</span>
+                    </button>
+                  </div>
+                </div>
+                <div class="plan-step-check"
+                  data-inspect-tokens='[{"prop":"color","figma":"color/gray/300","css":"--jui-color-gray-300","value":"#b1b1b1"}]'>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M8 12l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+
+              <!-- Step 4 -->
+              <div class="plan-step"
+                data-inspect-label="Plan Step — Photos">
+                <div class="plan-step-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                    <path d="M21 15l-5-5L5 21"/>
+                  </svg>
+                </div>
+                <div class="plan-step-body">
+                  <p class="plan-step-title"
+                    data-inspect-phrase="companion.dashboard.plan.step4.title">Add photos of your work or business</p>
+                  <p class="plan-step-desc"
+                    data-inspect-phrase="companion.dashboard.plan.step4.desc">Real photos build trust. Replace placeholder images with 3–5 of your best.</p>
+                  <div class="plan-step-cta">
+                    <button class="smart-btn-outline" type="button"
+                      data-inspect-phrase="companion.dashboard.plan.step4.cta"
+                      data-inspect-label="Upload photos">
+                      <span class="companion-gradient-text">Upload photos</span>
+                    </button>
+                  </div>
+                </div>
+                <div class="plan-step-check"
+                  data-inspect-tokens='[{"prop":"color","figma":"color/gray/300","css":"--jui-color-gray-300","value":"#b1b1b1"}]'>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M8 12l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+
+              <!-- Step 5 -->
+              <div class="plan-step"
+                data-inspect-label="Plan Step — Headline">
+                <div class="plan-step-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M4 7V4h16v3M9 20h6M12 4v16"/>
+                  </svg>
+                </div>
+                <div class="plan-step-body">
+                  <p class="plan-step-title"
+                    data-inspect-phrase="companion.dashboard.plan.step5.title">Write a clear homepage headline</p>
+                  <p class="plan-step-desc"
+                    data-inspect-phrase="companion.dashboard.plan.step5.desc">Tell visitors what you do and who you help in one sentence. This is your first impression.</p>
+                  <div class="plan-step-cta">
+                    <button class="smart-btn-outline" type="button"
+                      data-inspect-phrase="companion.dashboard.plan.step5.cta"
+                      data-inspect-label="Edit homepage">
+                      <span class="companion-gradient-text">Edit homepage</span>
+                    </button>
+                  </div>
+                </div>
+                <div class="plan-step-check"
+                  data-inspect-tokens='[{"prop":"color","figma":"color/gray/300","css":"--jui-color-gray-300","value":"#b1b1b1"}]'>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M8 12l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+
+            </div><!-- /plan-steps-block -->
+
+            <!-- Show all steps -->
+            <div class="plan-card-footer">
+              <button class="smart-btn-text-link" type="button"
+                data-inspect-phrase="companion.dashboard.plan.showAllBtn"
+                data-inspect-label="Show All Plan Steps">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M9 18l6-6-6-6"/>
+                </svg>
+                Show all plan steps
+              </button>
+            </div>
+
+          </div><!-- /plan-card -->
+
+          <!-- Stacked card decorative effect -->
+          <div class="plan-stack-bar" style="width:calc(100% - 20px)" aria-hidden="true"></div>
+          <div class="plan-stack-bar" style="width:calc(100% - 40px)" aria-hidden="true"></div>
+        </div><!-- /plan-card-wrapper -->
+
+        <!-- ─── Suggestions ─── -->
+        <div>
+          <p class="dash-section-label"
+            data-inspect-phrase="companion.dashboard.suggestions.heading"
+            data-inspect-label="Suggestions Heading">
+            Here are some things you can try
+          </p>
+
+          <div class="suggestions-grid">
+
+            <!-- Card 1 -->
+            <div class="suggestion-card"
+              data-inspect-label="Suggestion — 30-day plan"
+              data-inspect-tokens='[{"prop":"border-radius","figma":"style/radius/m","css":"--jui-style-radius-m","value":"12px"}]'>
+              <div class="suggestion-card-inner">
+
+                <div class="suggestion-artwork"
+                  data-inspect-label="Card Artwork"
+                  data-inspect-tokens='[{"prop":"height","figma":"—","css":"—","value":"160px"},{"prop":"background","figma":"Local/Companion Gradient 10%","css":"—","value":"linear-gradient rgb(239,240,255)→rgb(255,248,245)"}]'>
+                  <div class="suggestion-chat-preview" aria-hidden="true">
+                    <div class="suggestion-chat-bubble">
+                      Create a 30-day marketing calendar for my business...
+                    </div>
+                    <div class="suggestion-thinking-row">
+                      <div class="suggestion-thinking-dot"></div>
+                      <span class="suggestion-thinking-text">Processing…</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <p class="suggestion-card-title"
+                    data-inspect-phrase="companion.dashboard.suggestions.card1.title">Plan your next 30 days</p>
+                  <p class="suggestion-card-desc"
+                    data-inspect-phrase="companion.dashboard.suggestions.card1.desc">Get a day-by-day marketing action plan.</p>
+                </div>
+
+                <div class="suggestion-card-footer">
+                  <button class="smart-btn-outline" type="button"
+                    data-inspect-phrase="companion.dashboard.suggestions.card1.cta"
+                    data-inspect-label="Create calendar">
+                    <span class="companion-gradient-text">Create calendar</span>
+                  </button>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="suggestion-card"
+              data-inspect-label="Suggestion — Competitors"
+              data-inspect-tokens='[{"prop":"border-radius","figma":"style/radius/m","css":"--jui-style-radius-m","value":"12px"}]'>
+              <div class="suggestion-card-inner">
+
+                <div class="suggestion-artwork"
+                  data-inspect-label="Card Artwork"
+                  data-inspect-tokens='[{"prop":"height","figma":"—","css":"—","value":"160px"}]'>
+                  <div class="suggestion-chat-preview" aria-hidden="true">
+                    <div class="suggestion-chat-bubble">
+                      Analyze my top 3 competitors in my market...
+                    </div>
+                    <div class="suggestion-thinking-row">
+                      <div class="suggestion-thinking-dot"></div>
+                      <span class="suggestion-thinking-text">Processing…</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <p class="suggestion-card-title"
+                    data-inspect-phrase="companion.dashboard.suggestions.card2.title">Outsmart your competitors</p>
+                  <p class="suggestion-card-desc"
+                    data-inspect-phrase="companion.dashboard.suggestions.card2.desc">Discover what makes you stand out in your market.</p>
+                </div>
+
+                <div class="suggestion-card-footer">
+                  <button class="smart-btn-outline" type="button"
+                    data-inspect-phrase="companion.dashboard.suggestions.card2.cta"
+                    data-inspect-label="Analyze competitors">
+                    <span class="companion-gradient-text">Analyze competitors</span>
+                  </button>
+                </div>
+
+              </div>
+            </div>
+
+          </div><!-- /suggestions-grid -->
+        </div>
+
+      </div><!-- /companion-dash -->
+    </main>
+  </div>
+
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/shell-components.js"></script>
+</body>
+</html>

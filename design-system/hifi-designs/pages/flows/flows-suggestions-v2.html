@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flows: Suggestions (v2)</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+
+  /* ─── Shell background: white (matches the two-pane reference scr-014) ─── */
+  body, .app-shell { background: var(--jui-color-background-gray-light); }
+
+  /* ═══════════════════════════════════
+     TWO-PANE LAYOUT  (reused from scr-014 onboarding-business-details)
+     Desktop: preview | suggestions side-by-side. Mobile: stacked.
+     ═══════════════════════════════════ */
+  .sg-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--jui-layout-gap-xl);
+    width: 100%;
+  }
+  @media (min-width: 768px) {
+    .sg-layout {
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: center;
+      gap: var(--jui-layout-gap-xl);
+    }
+  }
+  .sg-options-pane { width: 100%; max-width: 464px; }
+  .sg-preview-pane {
+    width: 100%;
+    max-width: 464px;
+    display: flex;
+    justify-content: center;
+  }
+  /* Desktop: keep the tall phone preview in view while the list scrolls */
+  @media (min-width: 768px) {
+    .sg-preview-pane { position: sticky; top: var(--jui-layout-dimension-m); }
+  }
+
+  /* ═══════════════════════════════════
+     PHONE PREVIEW  (reused from scr-014 — native 360 scaled to a 300 screen)
+     Embeds the animated abstracted flow page.
+     ═══════════════════════════════════ */
+  .sg-phone-screen {
+    width: 240px;
+    height: 448px;
+    overflow: hidden;
+    border-radius: var(--jui-style-radius-20);
+    background: var(--jui-color-gray-black);
+    box-shadow: 0 24px 48px 0 rgba(0, 0, 0, 0.18);
+    flex-shrink: 0;
+  }
+  .sg-phone-frame {
+    display: block;
+    width: 360px;                /* native flow-page width */
+    height: 672px;               /* 448 ÷ 0.6667 so the scaled height fills the screen */
+    border: 0;
+    background: var(--jui-color-gray-black);
+    transform: scale(0.66667);   /* 240 ÷ 360 — scale down, keep ratio */
+    transform-origin: top left;
+  }
+  .sg-phone-caption {
+    margin: var(--jui-layout-gap-s) 0 0;
+    font-size: var(--jui-typography-label-small-size);
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--jui-color-typography-gray-on-light-subdued);
+    text-align: center;
+  }
+
+  /* ═══════════════════════════════════
+     PAGE HEADING  (reused from scr-014 — left-aligned, gap 8)
+     ═══════════════════════════════════ */
+  .sg-heading-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--jui-layout-gap-xs);
+    width: 100%;
+    margin-bottom: var(--jui-layout-gap-l);
+  }
+  .sg-heading {
+    font-size: var(--jui-typography-sub-headline-large-size);
+    font-weight: var(--jui-typography-sub-headline-large-weight);
+    line-height: var(--jui-typography-sub-headline-large-lh);
+    color: var(--jui-color-gray-black);
+    margin: 0;
+  }
+  .sg-subtitle {
+    font-size: var(--jui-typography-body-small-medium-size);
+    font-weight: 400;
+    line-height: var(--jui-typography-body-small-medium-lh);
+    color: var(--jui-color-typography-gray-on-light-subdued);
+    margin: 0;
+  }
+
+  /* ═══════════════════════════════════
+     SUGGESTION STACK  (reused card styling from scr-046, stacked vertically)
+     ═══════════════════════════════════ */
+  .sg-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-m);   /* 16px between suggestion groups */
+    width: 100%;
+  }
+  .suggestion-group { display: flex; flex-direction: column; min-width: 0; }
+
+  /* Tag tab — above the card, top-rounded only (scr-046) */
+  .card-tag {
+    display: inline-flex; align-items: center; align-self: flex-start;
+    margin-left: var(--jui-layout-padding-m);   /* 16px offset from card left */
+    padding: 2px var(--jui-layout-padding-m);   /* 2px 16px */
+    border-radius: var(--jui-style-radius-m) var(--jui-style-radius-m) 0 0;  /* 12px top corners */
+    font-size: var(--jui-typography-label-small-size); font-weight: var(--jui-typography-label-small-weight);
+    letter-spacing: var(--jui-typography-label-small-ls); line-height: var(--jui-typography-label-small-lh);
+    text-transform: uppercase;
+  }
+  .card-tag.recommended {
+    background: var(--jui-color-background-positive-dark);   /* green-100 */
+    color: var(--jui-color-typography-positive-on-light);    /* green-800 */
+  }
+
+  /* Suggestion card — 20px radius, 8px outer padding (scr-046) */
+  .suggestion-card {
+    background: var(--jui-color-background-gray-light);       /* white */
+    border: 1px solid var(--jui-color-stroke-gray-default);   /* gray-100 */
+    border-radius: var(--jui-style-radius-xl);                /* 20px */
+    padding: var(--jui-layout-padding-xs);                    /* 8px outer */
+    cursor: pointer;
+    transition: border-color 150ms ease, box-shadow 150ms ease, outline-color 150ms ease, outline-offset 150ms ease;
+    display: flex; flex-direction: column;
+    box-shadow: 0 4px 8px var(--jui-color-blue-10);           /* subtle blue glow */
+    outline: 2px solid transparent;
+    outline-offset: -2px;
+  }
+  .suggestion-card:hover {
+    outline: 2px solid var(--jui-color-actions-primary-rest);  /* blue-500 */
+    outline-offset: -2px;
+  }
+  .suggestion-card.selected {
+    border-color: var(--jui-color-actions-primary-rest);
+    box-shadow: 0 4px 12px var(--jui-color-blue-50);
+  }
+  .suggestion-card:focus-visible {
+    outline: 2px solid var(--jui-color-actions-primary-rest);
+    outline-offset: 2px;
+  }
+
+  .card-content {
+    display: flex; flex-direction: column;
+    gap: var(--jui-layout-gap-xxs);                /* 4px title↔description */
+    padding: var(--jui-layout-padding-m);          /* 16px */
+  }
+  /* Title row — radio inline with the title */
+  .card-title-row {
+    display: flex; align-items: center;
+    gap: var(--jui-layout-gap-s);                  /* 12px radio↔title */
+  }
+  .card-title {
+    flex: 1; min-width: 0;
+    font-size: var(--jui-typography-sub-headline-medium-size);
+    font-weight: var(--jui-typography-sub-headline-medium-weight);
+    line-height: var(--jui-typography-sub-headline-medium-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+  /* Radio — single-select control (no dedicated DS component; built from tokens) */
+  .card-radio {
+    width: 20px; height: 20px; flex-shrink: 0;
+    border: 1.5px solid var(--jui-color-gray-300);
+    border-radius: 50%;
+    background: var(--jui-color-gray-white);
+    position: relative;
+    transition: border-color 150ms ease;
+  }
+  .card-radio::after {
+    content: '';
+    position: absolute; inset: 0; margin: auto;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--jui-color-actions-primary-rest);
+    transform: scale(0);
+    transition: transform 150ms ease;
+  }
+  .suggestion-card.selected .card-radio { border-color: var(--jui-color-actions-primary-rest); }
+  .suggestion-card.selected .card-radio::after { transform: scale(1); }
+
+  /* Two-action footer — Skip + Create, inline (reused from bio-page-preview-v2) */
+  .app-shell-onboarding .shell-footer .footer-actions-split { justify-content: space-between; }
+  .footer-actions-split .btn {
+    padding-left: var(--jui-layout-padding-l);    /* 24px */
+    padding-right: var(--jui-layout-padding-l);
+  }
+  /* layout.css `.footer-actions .btn { border: none }` outranks .btn-secondary
+     and strips its outline — restore it (blue-100 = Figma stroke/primary/on-light). */
+  /* primitive-override */
+  .footer-actions-split .btn-secondary { border: 1px solid var(--jui-color-blue-100); }
+  .card-description {
+    font-size: var(--jui-typography-body-small-medium-size);
+    font-weight: 400;
+    line-height: var(--jui-typography-body-small-medium-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+
+  /* ── Reveal-on-select "Why this fits" ──
+     Collapsed by default; only the .selected card expands its fit box.
+     Grid-rows 0fr→1fr animates height without a magic max-height. */
+  .card-fit-wrap {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 260ms ease;
+  }
+  .suggestion-card.selected .card-fit-wrap { grid-template-rows: 1fr; }
+  .card-fit-inner { overflow: hidden; min-height: 0; }
+
+  .card-fit {
+    display: flex; gap: var(--jui-layout-gap-s);    /* 12px text↔icon */
+    align-items: flex-start;
+    border-radius: var(--jui-style-radius-l);       /* 16px */
+    padding: var(--jui-layout-padding-s) var(--jui-layout-padding-m);  /* 12px 16px */
+    margin-top: var(--jui-layout-gap-xs);           /* 8px — appears only when revealed */
+  }
+  .card-fit.fit-positive { background: var(--jui-color-background-positive-light); }  /* green-10 */
+  .card-fit.fit-neutral  { background: var(--jui-color-background-gray-canvas); }     /* gray-50 */
+  .card-fit-text {
+    flex: 1; min-width: 0;
+    font-size: var(--jui-typography-body-small-medium-size);
+    font-weight: 400;
+    line-height: var(--jui-typography-body-small-medium-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+  .card-fit.fit-positive .card-fit-text { color: var(--jui-color-typography-positive-on-light); }  /* green-800 */
+  .card-fit-text strong { font-weight: 600; }
+  .card-fit-icon { flex-shrink: 0; line-height: 0; padding-top: 4px; color: currentColor; }
+  .card-fit-icon svg { width: 16px; height: 16px; }
+
+</style>
+</head>
+<body>
+
+  <div class="app-shell app-shell-onboarding"
+    data-inspect-label="Page Background"
+    data-inspect-tokens='[{"prop":"background","figma":"color/gray/white","css":"--jui-color-background-gray-light","value":"#ffffff"}]'>
+
+    <!-- ─── HEADER ─── -->
+    <div class="shell-header no-pad-y"
+      data-inspect-label="Screen Header — Setup anatomy"
+      data-inspect-tokens='[{"prop":"backdrop-filter","value":"blur(4px)"},{"prop":"padding","value":"0px (no-pad-y)"}]'>
+      <div class="header-row">
+        <button class="icon-btn" aria-label="Back" data-nav-to="flows/publish-celebration.html" data-inspect-phrase="">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+        </button>
+        <div class="progress-bar"
+          data-inspect-label="Progress Bar — 5/5 complete"
+          data-inspect-tokens='[{"prop":"segment-height","value":"2px"},{"prop":"gap","value":"4px"}]'>
+          <div class="progress-segment filled"></div>
+          <div class="progress-segment filled"></div>
+          <div class="progress-segment filled"></div>
+          <div class="progress-segment filled"></div>
+          <div class="progress-segment filled"></div>
+        </div>
+        <div class="header-spacer"></div>
+      </div>
+    </div>
+
+    <!-- ─── WORKING AREA ─── -->
+    <div class="shell-middle">
+      <div class="shell-working-area setup-centered-v">
+        <div class="content-container" style="padding-top:24px; padding-bottom:24px;">
+
+          <div class="sg-layout"
+            data-inspect-label="Suggestions Layout — preview + options"
+            data-inspect-tokens='[{"prop":"gap","value":"40px"},{"note":"Desktop: preview left, options right; mobile: stacked"}]'>
+
+            <!-- ═══════════════════════════════════
+                 LEFT PANE — ANIMATED ABSTRACT FLOW-PAGE PREVIEW
+                 Embeds the abstracted, self-playing flow-page artifact.
+                 ═══════════════════════════════════ -->
+            <div class="sg-preview-pane" data-no-phrase
+              data-inspect-label="Preview Pane — abstract flow-page artifact"
+              data-inspect-tokens='[{"note":"iframe src=../artifacts/flow-page-abstract.html; gradient hero + ghost text; auto-plays cursor → CTA → form drawer → 2-question fill"}]'>
+              <div>
+                <div class="sg-phone-screen"
+                  data-inspect-label="Flow page preview screen"
+                  data-inspect-tokens='[{"prop":"border-radius","value":"24px"},{"note":"iframe rendered at native 360px, scaled 0.833 → 300px screen; no bezel"}]'>
+                  <iframe class="sg-phone-frame" id="flow-preview"
+                    title="Preview of how the page works"
+                    src="../artifacts/flow-page-abstract.html"></iframe>
+                </div>
+                <p class="sg-phone-caption" data-no-phrase>Preview — how your page works</p>
+              </div>
+            </div>
+
+            <!-- ═══════════════════════════════════
+                 RIGHT PANE — STACKED SUGGESTIONS
+                 ═══════════════════════════════════ -->
+            <div class="sg-options-pane">
+
+              <div class="sg-heading-group"
+                data-inspect-label="Heading Group"
+                data-inspect-tokens='[{"prop":"gap","value":"8px"},{"prop":"align","value":"flex-start"}]'>
+                <h1 class="sg-heading"
+                  data-inspect-label="Page Title — Subheadline/Large"
+                  data-inspect-tokens='[{"prop":"font-size","value":"24px"},{"prop":"font-weight","value":"500"}]' data-inspect-phrase="">
+                  Give your bio page something to sell
+                </h1>
+                <p class="sg-subtitle"
+                  data-inspect-label="Page Subtitle — Body/Small/Regular"
+                  data-inspect-tokens='[{"prop":"font-size","value":"14px"},{"prop":"color","figma":"color/typography/gray/on-light/subdued","css":"--jui-color-typography-gray-on-light-subdued","value":"#6d6d6d"}]' data-inspect-phrase="">
+                  Pick your first action page to promote — you'll set it up or review it next.
+                </p>
+              </div>
+
+              <div class="sg-stack" role="radiogroup" aria-label="Choose a page to promote"
+                data-inspect-label="Suggestion Stack"
+                data-inspect-tokens='[{"prop":"gap","value":"16px"}]'>
+
+                <!-- CARD 1 — Best fit (no default selection) -->
+                <div class="suggestion-group">
+                  <span class="card-tag recommended" data-inspect-phrase="useCasePage.bestFitLabel">Best fit for you</span>
+                  <div class="suggestion-card selected" data-slide="0" tabindex="0" role="radio" aria-checked="true"
+                    data-inspect-label="Suggestion Card — Best Fit (preselected)"
+                    data-inspect-tokens='[{"prop":"background","figma":"color/background/gray/light","css":"--jui-color-background-gray-light","value":"#ffffff"},{"prop":"border","figma":"color/actions/primary/rest","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"border-radius","figma":"style/radius/xl","css":"--jui-style-radius-xl","value":"20px"}]'>
+                    <div class="card-content">
+                      <div class="card-title-row">
+                        <span class="card-radio" aria-hidden="true"
+                          data-inspect-label="Radio — single-select"
+                          data-inspect-tokens='[{"prop":"border (rest)","figma":"color/gray/300","css":"--jui-color-gray-300","value":"1.5px #b1b1b1"},{"prop":"dot (checked)","figma":"color/actions/primary/rest","css":"--jui-color-actions-primary-rest","value":"#004ced"}]'></span>
+                        <h3 class="card-title" data-inspect-phrase="">Free first session</h3>
+                      </div>
+                      <p class="card-description">Offer a free 30-minute first session. People who come once are the most likely to book more.</p>
+                    </div>
+                    <div class="card-fit-wrap">
+                      <div class="card-fit-inner">
+                        <div class="card-fit fit-positive"
+                          data-inspect-label="Why this fits — Best Fit"
+                          data-inspect-tokens='[{"prop":"background","figma":"color/background/positive/light","css":"--jui-color-background-positive-light","value":"#f0fff6"},{"prop":"border-radius","figma":"style/radius/l","css":"--jui-style-radius-l","value":"16px"}]'>
+                          <p class="card-fit-text"><strong>Why this fits:</strong> 1:1 services sell best when people experience them first. A free first session removes the risk for someone new.</p>
+                          <span class="card-fit-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8.5 12.5l2.5 2.5 5-5"/></svg>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- CARD 2 — no tag (fit hidden until selected) -->
+                <div class="suggestion-group">
+                  <div class="suggestion-card" data-slide="1" tabindex="0" role="radio" aria-checked="false"
+                    data-inspect-label="Suggestion Card — Alternative"
+                    data-inspect-tokens='[{"prop":"background","figma":"color/background/gray/light","css":"--jui-color-background-gray-light","value":"#ffffff"},{"prop":"border","figma":"color/stroke/gray/default","css":"--jui-color-stroke-gray-default","value":"#e6e6e6"},{"prop":"border-radius","figma":"style/radius/xl","css":"--jui-style-radius-xl","value":"20px"}]'>
+                    <div class="card-content">
+                      <div class="card-title-row">
+                        <span class="card-radio" aria-hidden="true"></span>
+                        <h3 class="card-title" data-inspect-phrase="">Openings this week</h3>
+                      </div>
+                      <p class="card-description">Show the spots you still have open this week. An honest, real number helps people decide.</p>
+                    </div>
+                    <div class="card-fit-wrap">
+                      <div class="card-fit-inner">
+                        <div class="card-fit fit-neutral"
+                          data-inspect-label="Why this fits — Alternative">
+                          <p class="card-fit-text"><strong>Why this fits:</strong> People already watching your content need a reason to act now — a real, finite number of spots is that reason.</p>
+                          <span class="card-fit-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8.5 12.5l2.5 2.5 5-5"/></svg>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- CARD 3 — no tag (fit hidden until selected) -->
+                <div class="suggestion-group">
+                  <div class="suggestion-card" data-slide="2" tabindex="0" role="radio" aria-checked="false"
+                    data-inspect-label="Suggestion Card — Alternative">
+                    <div class="card-content">
+                      <div class="card-title-row">
+                        <span class="card-radio" aria-hidden="true"></span>
+                        <h3 class="card-title" data-inspect-phrase="">Request a callback</h3>
+                      </div>
+                      <p class="card-description">Let people ask you to call them back. Low effort for anyone who isn't ready to book yet.</p>
+                    </div>
+                    <div class="card-fit-wrap">
+                      <div class="card-fit-inner">
+                        <div class="card-fit fit-neutral"
+                          data-inspect-label="Why this fits — Alternative">
+                          <p class="card-fit-text"><strong>Why this fits:</strong> A callback asks for less than a booking, so hesitant followers still raise their hand — and you start the conversation.</p>
+                          <span class="card-fit-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8.5 12.5l2.5 2.5 5-5"/></svg>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div><!-- /sg-stack -->
+            </div><!-- /sg-options-pane -->
+          </div><!-- /sg-layout -->
+
+        </div><!-- /content-container -->
+      </div><!-- /shell-working-area -->
+    </div><!-- /shell-middle -->
+
+    <!-- ─── FOOTER ─── -->
+    <div class="shell-footer"
+      data-inspect-label="Footer — gradient overlay (desktop)"
+      data-inspect-tokens='[{"note":"Desktop: white→transparent gradient overlay. Mobile: solid white card bottom."}]'>
+      <div class="footer-actions footer-actions-split setup-centered">
+        <button class="btn btn-secondary" id="skip-cta"
+          data-inspect-label="Skip Button — Secondary"
+          data-inspect-phrase=""
+          data-inspect-tokens='[{"prop":"border","figma":"color/stroke/primary/on-light","css":"--jui-color-blue-100","value":"1px #b4c4ff"},{"prop":"height","value":"48px"}]'
+          data-nav-to="flows/home-dashboard-v2.html">
+          Skip
+        </button>
+        <button class="btn btn-primary" id="create-cta"
+          data-inspect-label="Create Button — Primary CTA"
+          data-inspect-phrase="questionaire.cta"
+          data-inspect-tokens='[{"prop":"background","figma":"color/actions/primary/rest","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"height","value":"48px"},{"prop":"border-radius","figma":"component/button/radius","css":"--jui-component-button-radius","value":"8px"}]'
+          data-nav-to="flows/action-page-ready.html">
+          Create this page
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /app-shell -->
+
+  <!-- ═══════════════════════════════════
+       INTERACTION — single-select reveal
+       Clicking a card selects it. Only the selected card expands its
+       "Why this fits" box; all others collapse it. The abstract flow-page
+       preview plays its own animation loop independently.
+       ═══════════════════════════════════ -->
+  <script>
+    'use strict';
+    (function () {
+      var cards = document.querySelectorAll('.suggestion-card');
+      var frame = document.getElementById('flow-preview');
+
+      // The current selection's title drives the preview (bio link label +
+      // action-page title), so the abstraction always mirrors the right rail.
+      function selectedTitle() {
+        var sel = document.querySelector('.suggestion-card.selected .card-title');
+        return sel ? sel.textContent.trim() : '';
+      }
+      function postTitle() {
+        if (frame && frame.contentWindow) {
+          frame.contentWindow.postMessage({ type: 'suggestion', title: selectedTitle() }, '*');
+        }
+      }
+
+      function select(card) {
+        cards.forEach(function (c) {
+          var on = c === card;
+          c.classList.toggle('selected', on);
+          c.setAttribute('aria-checked', String(on));
+        });
+        postTitle();
+      }
+      cards.forEach(function (card) {
+        card.addEventListener('click', function () { select(card); });
+        card.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(card); }
+        });
+      });
+
+      // Push the initial selection once the preview is ready (handshake +
+      // load fallback), so the abstraction starts on the preselected card.
+      window.addEventListener('message', function (e) {
+        if (e.data && e.data.type === 'flow-abstract-ready') postTitle();
+      });
+      if (frame) frame.addEventListener('load', postTitle);
+    })();
+  </script>
+
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js"></script>
+</body>
+</html>

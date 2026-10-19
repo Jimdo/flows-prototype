@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bookings — Event created</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/management-shell.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+/* lint-disable */
+  body { background: var(--jui-color-background-gray-canvas); margin: 0; }
+
+  /* Wizard scaffolding — full-viewport, no topbar/sidebar.
+     Mirrors CreateEventScaffolding from bookings-management. */
+  .wizard-shell {
+    position: fixed;
+    inset: 0;
+    background: var(--jui-color-background-gray-canvas);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .wizard-header {
+    flex-shrink: 0;
+    height: 56px;
+    padding: 0 var(--jui-layout-padding-m, 16px);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    border-bottom: 1px solid var(--jui-color-stroke-gray-default);
+    background: var(--jui-color-background-gray-light);
+  }
+
+  .wizard-close {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    border-radius: var(--jui-style-radius-s, 6px);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+
+  .wizard-close:hover {
+    background: var(--jui-color-background-gray-canvas);
+  }
+
+  .wizard-body {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    justify-content: center;
+    padding: var(--jui-layout-padding-xl, 40px) var(--jui-layout-padding-m, 16px);
+  }
+
+  /* Success content — vertical center column. */
+  .success-content {
+    width: 100%;
+    max-width: 560px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--jui-layout-gap-l, 24px);
+  }
+
+  .success-heading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--jui-layout-gap-xxs, 4px);
+    text-align: center;
+  }
+
+  .success-title {
+    font-size: var(--jui-typography-headline-small-size, 28px);
+    font-weight: var(--jui-typography-headline-small-weight, 400);
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    color: var(--jui-color-typography-gray-on-light-default);
+    margin: 0;
+  }
+
+  .success-subtitle {
+    font-size: var(--jui-typography-body-medium-size, 16px);
+    line-height: 1.5;
+    color: var(--jui-color-typography-gray-on-light-subdued);
+    margin: 0;
+  }
+
+  /* Event card — reuses the styling from events-list.html EventListItem. */
+  .success-card-slot {
+    width: 100%;
+  }
+
+  .event-card {
+    position: relative;
+    background: var(--jui-color-background-gray-light);
+    border: 1px solid var(--jui-color-stroke-gray-default);
+    border-radius: var(--jui-style-radius-l, 12px);
+    padding: var(--jui-layout-padding-m, 16px);
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-xxs, 4px);
+  }
+
+  .event-card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--jui-layout-gap-s, 12px);
+  }
+
+  .event-card-title {
+    flex-grow: 1;
+    font-size: var(--jui-typography-body-large-size, 16px);
+    font-weight: var(--jui-typography-body-large-regular-weight, 400);
+    line-height: 1.5;
+    color: var(--jui-color-typography-gray-on-light-default);
+    margin: 0;
+  }
+
+  .event-card-tag {
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    padding: 0 var(--jui-layout-padding-xs, 8px);
+    background: var(--jui-color-background-gray-dark, #2c2c2c);
+    color: var(--jui-color-typography-gray-on-dark-default, #fff);
+    border-radius: var(--jui-style-radius-s, 6px);
+    font-size: var(--jui-typography-body-small-size, 14px);
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  .event-card-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--jui-layout-gap-s, 12px);
+  }
+
+  .event-card-location,
+  .event-card-description {
+    font-size: var(--jui-typography-body-small-size, 14px);
+    line-height: 1.5;
+    color: var(--jui-color-typography-gray-on-light-subdued);
+    margin: 0;
+  }
+
+  .event-card-description {
+    text-align: right;
+  }
+
+  /* Storefront preview illustration — gray-light frame with a stylised
+     website mockup inside. Replaces the storefrontPreview.svg from the
+     real app (which I can't access via the API). */
+  .storefront-frame {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: var(--jui-color-background-gray-light);
+    border-radius: var(--jui-style-radius-l, 12px);
+    padding: var(--jui-layout-padding-m, 16px) var(--jui-layout-padding-m, 16px) 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    overflow: hidden;
+  }
+
+  .storefront-mock {
+    width: 88%;
+    background: var(--jui-color-background-gray-canvas);
+    border: 1px solid var(--jui-color-stroke-gray-default);
+    border-radius: 8px 8px 0 0;
+    padding: var(--jui-layout-padding-s, 12px);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 -8px 24px rgba(0,0,0,0.06);
+  }
+
+  .sf-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 12px;
+  }
+
+  .sf-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--jui-color-stroke-gray-default); }
+  .sf-line { flex: 1; height: 6px; background: var(--jui-color-stroke-gray-default); border-radius: 3px; opacity: 0.6; }
+
+  .sf-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 4px 0;
+  }
+
+  .sf-headline { height: 12px; background: var(--jui-color-typography-gray-on-light-default); border-radius: 3px; width: 50%; opacity: 0.85; }
+  .sf-text { height: 6px; background: var(--jui-color-stroke-gray-default); border-radius: 3px; }
+  .sf-text--short { width: 80%; }
+  .sf-text--xshort { width: 60%; }
+
+  .sf-event-block {
+    margin-top: 6px;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid var(--jui-color-stroke-primary-on-light);
+    background: var(--jui-color-background-gray-light);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sf-event-block::before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    background: var(--jui-color-actions-primary-rest);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .sf-event-title { flex: 1; height: 8px; background: var(--jui-color-typography-gray-on-light-default); border-radius: 3px; opacity: 0.85; }
+
+  /* Action row — overrides .btn-primary/.btn-secondary default width:100%
+     so the two CTAs sit side-by-side instead of stretching across the column. */
+  .success-actions {
+    display: flex;
+    gap: var(--jui-layout-gap-s, 12px);
+    width: 100%;
+    justify-content: center;
+  }
+
+  .success-actions .btn-primary,
+  .success-actions .btn-secondary {
+    width: auto;
+    min-width: 160px;
+    flex: 0 1 auto;
+  }
+
+  @media (max-width: 600px) {
+    .success-actions { flex-direction: column; align-items: stretch; }
+    .success-actions .btn-primary,
+    .success-actions .btn-secondary { width: 100%; }
+    .event-card-description { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="wizard-shell" role="dialog" aria-labelledby="success-title">
+
+    <header class="wizard-header">
+      <button type="button" class="wizard-close" aria-label="Close" data-nav-to="bookings/events-list.html" data-inspect-phrase="">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M19 5L5 19M5 5L19 19" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+        </svg>
+      </button>
+    </header>
+
+    <div class="wizard-body">
+      <main class="success-content">
+
+        <div class="success-heading">
+          <h1 id="success-title" class="success-title" data-inspect-phrase="eventCreatedSuccessStep.heading">Your event is ready</h1>
+          <p class="success-subtitle" data-inspect-phrase="eventCreatedSuccessStep.subtitle">Add it to your website so customers can find and book it.</p>
+        </div>
+
+        <div class="success-card-slot">
+          <article class="event-card">
+            <div class="event-card-header">
+              <h2 class="event-card-title" data-no-phrase>Monday morning yoga</h2>
+              <span class="event-card-tag" data-inspect-phrase="event.type.fixedSessions.label">Fixed sessions</span>
+            </div>
+            <div class="event-card-meta">
+              <p class="event-card-location" data-no-phrase>studio-mitte.com</p>
+              <p class="event-card-description" data-no-phrase>Mon · 4 dates scheduled</p>
+            </div>
+          </article>
+        </div>
+
+        <div class="storefront-frame" aria-hidden="true">
+          <div class="storefront-mock">
+            <div class="sf-bar">
+              <span class="sf-dot"></span>
+              <span class="sf-dot"></span>
+              <span class="sf-dot"></span>
+              <span class="sf-line"></span>
+            </div>
+            <div class="sf-content">
+              <div class="sf-headline"></div>
+              <div class="sf-text sf-text--short"></div>
+              <div class="sf-text sf-text--xshort"></div>
+              <div class="sf-event-block">
+                <span class="sf-event-title"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="success-actions">
+          <a href="events-list.html" data-nav-to="bookings/events-list.html" class="btn-secondary" data-inspect-phrase="eventCreatedSuccessStep.seeDetailsCta">See details</a>
+          <a href="events-list.html" data-nav-to="bookings/events-list.html" class="btn-primary" data-inspect-phrase="eventCreatedSuccessStep.addToWebsiteCta">Add to website</a>
+        </div>
+
+      </main>
+    </div>
+
+  </div>
+
+</body>
+</html>

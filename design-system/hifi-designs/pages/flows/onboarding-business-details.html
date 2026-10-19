@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Onboarding — First links</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+  /* ─── Screen overrides ───
+     This step asks a question with three answers and then shows what the
+     answer lands next to, so it rests taller than a step holding one field:
+     the three offers and the first contact button are visible before any
+     scrolling.
+
+     The drawer also holds two views — the step itself, and the list of what
+     else can go on the page. The Add button swaps the view rather than
+     opening a sheet over it, so on a phone there is one surface, not one
+     stacked on another. */
+  .app-shell-setup-split { --setup-drawer-rest-h: 420px; }
+
+  #shell[data-view="step"] [data-view-only="add"],
+  #shell[data-view="add"] [data-view-only="step"] { display: none; }
+
+  /* Name and tag on one line: the tag is a qualifier on the name, not a
+     second fact under it, and three stacked tags cost a card's worth of
+     height in a panel that has to hold the fields too. */
+  .offer-head {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-xs);
+    flex-wrap: wrap;
+  }
+
+  /* Which piece an offer builds — a booking or a form. The names above are
+     the seller's words for what they sell; this says what it becomes. */
+  .offer-kind {
+    padding: 0 var(--jui-layout-padding-xxs);
+    border-radius: var(--jui-style-radius-4);
+    background: var(--jui-color-background-gray-canvas);
+    color: var(--jui-color-typography-gray-on-light-subdued);
+    font-size: var(--jui-typography-label-small-size);
+    font-weight: var(--jui-typography-label-small-weight);
+    line-height: var(--jui-typography-label-small-lh);
+    letter-spacing: var(--jui-typography-label-small-ls);
+    text-transform: uppercase;
+  }
+
+  /* One reason over both suggestions: they are two halves of the same
+     answer, not two offers competing, so the case is made once above them
+     rather than argued on each card. */
+  .offer-why {
+    margin: 0;
+    font-size: var(--jui-typography-body-small-regular-size);
+    font-weight: var(--jui-typography-body-small-regular-weight);
+    line-height: var(--jui-typography-body-small-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-subdued);
+  }
+
+  /* The offers and the plain link are the same kind of thing — one button on
+     the page — so they share a label and sit at one rhythm inside it. */
+  .field-group--mainlinks { gap: var(--jui-layout-gap-s); }
+
+  /* Already on the page. Kept in the list rather than removed: a list that
+     changes length while you read it is harder to come back to than one
+     that greys out what is done. */
+  .add-option:disabled {
+    background: var(--jui-color-background-gray-canvas);
+    border-color: var(--jui-color-stroke-gray-decorative);
+    cursor: default;
+  }
+  .add-option:disabled .add-option-title,
+  .add-option:disabled .add-option-detail,
+  .add-option:disabled .add-option-icon { color: var(--jui-color-typography-gray-on-light-subdued); }
+
+  .field-group[hidden], .field-row[hidden] { display: none; }
+</style>
+</head>
+<body>
+
+  <div class="app-shell app-shell-setup-split" id="shell" data-drawer="default" data-view="step">
+
+    <div class="setup-split-header">
+      <button class="setup-back-btn" aria-label="Back" data-no-phrase
+        data-nav-to="flows/onboarding-offer.html" data-nav-screen-id="scr-013">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+      </button>
+
+      <div class="progress-pill" role="progressbar" aria-valuemin="1" aria-valuemax="5" aria-valuenow="4" aria-label="Step 4 of 5">
+        <span class="progress-pill-step is-done"></span>
+        <span class="progress-pill-step is-done"></span>
+        <span class="progress-pill-step is-done"></span>
+        <span class="progress-pill-step is-current"></span>
+        <span class="progress-pill-step"></span>
+      </div>
+
+      <div class="header-spacer"></div>
+    </div>
+
+    <div class="setup-split-main">
+
+      <div class="setup-split-preview">
+        <div class="setup-preview-panel">
+          <span class="setup-preview-tag" data-no-phrase>Preview</span>
+          <div class="bp-stage">
+            <div class="bp-frame">
+              <iframe id="bioPreview" title="Bio page preview" tabindex="-1"
+                src="/flows-prototype/design-system/hifi-designs/pages/artifacts/bio-page-v2.html"></iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-split-form">
+
+        <button class="setup-drawer-grip" id="grip" aria-label="Resize the question panel" data-no-phrase>
+          <span class="setup-drawer-grip-shape"></span>
+        </button>
+
+        <!-- Phrase gaps (NOT IN PHRASE as of 2026-10-14). Two of these are
+             near-misses on a key that exists, so they are named here rather
+             than left to look unkeyed:
+               · step subtitle — businessinfo.QuickActions.subtitle holds
+                 "You can edit these or change the order later"
+               · main-links label — businessinfo.QuickActions.ActionsLabel
+                 holds "Your main link", singular
+             New strings with no key at all: the two offer names and their
+             BOOKING / FORM tags, the reason over the two, the add view's
+             subtitle, the social group title and its option, and Back.
+             Every other key here is reused verbatim, from the step this
+             replaces and from the edit-links add sheet (scr-120). -->
+        <div class="setup-split-fields setup-split-fields--scroll">
+
+          <!-- ── STEP VIEW ──────────────────────────────────────────── -->
+          <div class="setup-split-intro" data-view-only="step">
+            <h1 class="setup-split-title" data-inspect-phrase="businessinfo.QuickActions.title">Add your first links</h1>
+            <p class="setup-split-subtitle" data-inspect-phrase="">You can edit or add more later</p>
+          </div>
+
+          <!-- One link and one contact button to start with. Everything else
+               — the other ways to reach you, the map, the social profiles —
+               is behind Add, so the step asks for what it needs and the rest
+               is there when it is wanted. -->
+          <div class="field-group-list" data-view-only="step"
+            data-inspect-label="Field group"
+            data-inspect-tokens='[{"prop":"gap","figma":"$jui-layout-padding-s","css":"--jui-layout-gap-s","value":"12px"},{"prop":"border-radius","figma":"$jui-style-radius-m (Figma 12, ours 8)","css":"--jui-style-radius-12","value":"12px"},{"prop":"padding","figma":"16 / 12","css":"--jui-layout-padding-m","value":"12px 12px 12px 16px"}]'>
+
+            <!-- One label over both: an offer and a plain link are the same
+                 thing to a visitor — the button they came to press. Two
+                 suggestions, one of each piece, under one reason; the plain
+                 link is the way out if neither fits. -->
+            <div class="field-group field-group--mainlinks">
+              <h2 class="field-group-label" data-inspect-phrase="">Your main links</h2>
+              <p class="offer-why"
+                data-inspect-label="Why these two"
+                data-inspect-tokens='[{"prop":"color","figma":"color/typography/gray/on-light/subdued","css":"--jui-color-typography-gray-on-light-subdued","value":"#6d6d6d"}]'>You run workshops — one takes bookings, the other takes questions.</p>
+
+              <div class="select-card-list" role="radiogroup" aria-label="What to offer" id="offerList"
+                data-inspect-label="Select card list"
+                data-inspect-tokens='[{"prop":"gap","figma":"measurements/size/12","css":"--jui-layout-gap-s","value":"12px"},{"prop":"padding","figma":"$jui-layout-padding-m","css":"--jui-layout-padding-m","value":"16px"},{"prop":"border-radius","figma":"$jui-style-radius-l","css":"--jui-style-radius-16","value":"16px"}]'>
+
+                <button type="button" class="select-card" role="radio" aria-checked="true" data-offer="event"
+                  data-edits="offer" data-no-phrase
+                  data-title="A beginner workshop" data-meta="Sat 10 May · 14:00" data-cta="Book my session" data-price="€45" data-kind="book"
+                  data-inspect-label="Select card — selected"
+                  data-inspect-tokens='[{"prop":"border","figma":"color/blue/300","css":"--jui-color-blue-300","value":"#658aff"},{"prop":"background","figma":"color/gray/white","css":"--jui-color-gray-white","value":"#ffffff"}]'>
+                  <span class="select-card-copy">
+                    <span class="offer-head">
+                      <span class="select-card-label">A beginner workshop</span>
+                      <span class="offer-kind"
+                        data-inspect-label="Offer kind tag"
+                        data-inspect-tokens='[{"prop":"background","figma":"color/background/gray/canvas","css":"--jui-color-background-gray-canvas","value":"#f8f8f8"},{"prop":"border-radius","figma":"$jui-style-radius-xs","css":"--jui-style-radius-4","value":"4px"}]'>Booking</span>
+                    </span>
+                  </span>
+                  <span class="select-card-radio" aria-hidden="true"></span>
+                </button>
+
+                <button type="button" class="select-card" role="radio" aria-checked="false" data-offer="form"
+                  data-edits="offer" data-no-phrase
+                  data-title="Ask me about private classes" data-meta="" data-cta="Get in touch" data-price="" data-kind="promo"
+                  data-inspect-label="Select card — resting"
+                  data-inspect-tokens='[{"prop":"border","figma":"color/gray/100","css":"--jui-color-gray-100","value":"#e6e6e6"}]'>
+                  <span class="select-card-copy">
+                    <span class="offer-head">
+                      <span class="select-card-label">Ask me about private classes</span>
+                      <span class="offer-kind">Form</span>
+                    </span>
+                  </span>
+                  <span class="select-card-radio" aria-hidden="true"></span>
+                </button>
+              </div>
+
+              <label class="field-row" data-edits="mainlink"
+                data-inspect-label="Field row"
+                data-inspect-tokens='[{"prop":"border","figma":"color/gray/100","css":"--jui-color-gray-100","value":"#e6e6e6"},{"prop":"background","figma":"color/gray/white","css":"--jui-color-gray-white","value":"#ffffff"},{"prop":"height","figma":"12 + 22 + 12","css":"—","value":"46px"}]'>
+                <span class="field-row-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M7.5 12C7.5 18 12 22 12 22C12 22 16.5 18 16.5 12C16.5 6 12 2 12 2C12 2 7.5 6 7.5 12Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M22 12L2 12" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                </span>
+                <input type="text" class="field-row-value" id="fMain" placeholder="Website or link"
+                  data-inspect-phrase="businessinfo.QuickActions.mainLinkPlaceholder">
+              </label>
+            </div>
+
+            <div class="field-group" id="groupContact">
+              <h2 class="field-group-label" data-inspect-phrase="businessinfo.QuickActions.contactLabel">Contact buttons</h2>
+              <!-- Already filled in: the address the account was opened with.
+                   Nothing is asked for twice. -->
+              <label class="field-row" data-edits="contact-buttons" id="rowEmail">
+                <span class="field-row-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="m22 7-10 5L2 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <input type="text" class="field-row-value" id="fEmail" value="hello@claraandstone.com" placeholder="Email address"
+                  data-inspect-phrase="businessinfo.QuickActions.emailPlaceholder">
+              </label>
+              <label class="field-row" data-edits="contact-buttons" id="rowWhatsapp" hidden>
+                <span class="field-row-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M12 21a9 9 0 1 0-7.8-4.5L3 21l4.5-1.2A9 9 0 0 0 12 21Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                </span>
+                <input type="text" class="field-row-value" id="fWhatsapp" placeholder="WhatsApp"
+                  data-inspect-phrase="businessinfo.QuickActions.whatsappPlaceholder">
+              </label>
+              <label class="field-row" data-edits="contact-buttons" id="rowCall" hidden>
+                <span class="field-row-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1.1 1A16 16 0 0 1 4 5.1 1 1 0 0 1 5 4Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                </span>
+                <input type="text" class="field-row-value" id="fCall" placeholder="Phone number"
+                  data-inspect-phrase="">
+              </label>
+            </div>
+
+            <div class="field-group" id="groupSocial" hidden>
+              <h2 class="field-group-label" data-inspect-phrase="">Social profiles</h2>
+              <label class="field-row" data-edits="socials" id="rowSocial">
+                <span class="field-row-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M17.5 6.5h.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                </span>
+                <input type="text" class="field-row-value" id="fSocial" placeholder="instagram.com/claraandstone"
+                  data-inspect-phrase="">
+              </label>
+            </div>
+
+            <div class="field-group" id="groupPlace" hidden>
+              <h2 class="field-group-label" data-inspect-phrase="businessinfo.QuickActions.map">Location</h2>
+              <label class="field-row" data-edits="map" id="rowAddress">
+                <span class="field-row-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M8 3.5L8 18M15 21V6.00001" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M2 18.6126V6.61803C2 6.23926 2.214 5.893 2.55279 5.72361L7.58517 3.20742C7.84826 3.07587 8.15593 3.06683 8.4263 3.1827L15 6H21C21.5523 6 22 6.44772 22 7V20C22 20.5523 21.5523 21 21 21H15L8 18L3.31623 19.5613C2.6687 19.7771 2 19.2951 2 18.6126Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                </span>
+                <input type="text" class="field-row-value" id="fAddress" placeholder="Address"
+                  data-inspect-phrase="businessinfo.QuickActions.addressPlaceholder">
+              </label>
+            </div>
+          </div>
+
+          <button type="button" class="edit-add" id="addBtn" data-view-only="step"
+            data-inspect-label="Add"
+            data-inspect-tokens='[{"prop":"border","figma":"color/stroke/primary/actionable","css":"--jui-color-stroke-primary-actionable","value":"1px dashed #004ced"},{"prop":"height","figma":"$jui-layout-dimension-m","css":"--jui-layout-dimension-m","value":"48px"}]'
+            data-inspect-phrase="biopage.edit.add"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>Add</button>
+
+          <!-- ── ADD VIEW ───────────────────────────────────────────────
+               The same list as the edit-links add sheet, cut to what this
+               step can put on the page — the offer is being chosen above, so
+               it is not offered again here. On a phone it takes the drawer
+               over rather than opening on top of it. -->
+          <div class="setup-split-intro" data-view-only="add">
+            <h1 class="setup-split-title" data-inspect-phrase="biopage.add.title">Add to your page</h1>
+            <p class="setup-split-subtitle" data-inspect-phrase="">Pick what goes on next</p>
+          </div>
+
+          <div class="add-group" data-view-only="add"
+            data-inspect-label="Add option"
+            data-inspect-tokens='[{"prop":"gap","figma":"$jui-layout-gap-xs","css":"--jui-layout-gap-xs","value":"8px"},{"prop":"border","figma":"color/gray/100","css":"--jui-color-gray-100","value":"#e6e6e6"}]'>
+            <p class="add-group-title" data-inspect-phrase="biopage.add.group.contact">Ways to reach you</p>
+            <button type="button" class="add-option" data-add="whatsapp" data-no-phrase>
+              <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 21a9 9 0 1 0-7.8-4.5L3 21l4.5-1.2A9 9 0 0 0 12 21Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="add-option-copy">
+                <span class="add-option-title" data-inspect-phrase="biopage.add.whatsapp.title">WhatsApp</span>
+                <span class="add-option-detail" data-inspect-phrase="biopage.add.whatsapp.detail">Opens a chat with you</span>
+              </span>
+            </button>
+            <button type="button" class="add-option" data-add="email" data-no-phrase>
+              <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="m22 7-10 5L2 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="add-option-copy">
+                <span class="add-option-title" data-inspect-phrase="biopage.add.email.title">Email</span>
+                <span class="add-option-detail" data-inspect-phrase="biopage.add.email.detail">Opens a new message</span>
+              </span>
+            </button>
+            <button type="button" class="add-option" data-add="call" data-no-phrase>
+              <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1.1 1A16 16 0 0 1 4 5.1 1 1 0 0 1 5 4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="add-option-copy">
+                <span class="add-option-title" data-inspect-phrase="biopage.add.call.title">Call</span>
+                <span class="add-option-detail" data-inspect-phrase="biopage.add.call.detail">Dials your number</span>
+              </span>
+            </button>
+          </div>
+
+          <div class="add-group" data-view-only="add">
+            <p class="add-group-title" data-inspect-phrase="biopage.add.group.link">A link</p>
+            <button type="button" class="add-option" data-add="mainlink" data-no-phrase>
+              <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M10 14L15 9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M12.5 15.5C13.0523 16.0523 13.0523 16.9477 12.5 17.5L8.91422 21.0858C8.13317 21.8668 6.86684 21.8668 6.08579 21.0858L2.91422 17.9142C2.13317 17.1332 2.13317 15.8668 2.91422 15.0858L6.5 11.5C7.05229 10.9477 7.94772 10.9477 8.5 11.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M11.5 8.5C10.9477 7.94771 10.9477 7.05228 11.5 6.5L15.0858 2.91421C15.8668 2.13316 17.1331 2.13316 17.9142 2.91421L21.0858 6.08579C21.8668 6.86683 21.8668 8.13316 21.0858 8.91421L17.5 12.5C16.9477 13.0523 16.0523 13.0523 15.5 12.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></span>
+              <span class="add-option-copy">
+                <span class="add-option-title" data-inspect-phrase="biopage.add.link.title">A link to anything</span>
+                <span class="add-option-detail" data-inspect-phrase="biopage.add.link.detail">Your shop, a playlist, another page</span>
+              </span>
+            </button>
+          </div>
+
+          <div class="add-group" data-view-only="add">
+            <p class="add-group-title" data-inspect-phrase="">Where you post</p>
+            <button type="button" class="add-option" data-add="socials" data-no-phrase>
+              <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M17.5 6.5h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="add-option-copy">
+                <span class="add-option-title" data-inspect-phrase="">Your social profiles</span>
+                <span class="add-option-detail" data-inspect-phrase="">The accounts you already post on</span>
+              </span>
+            </button>
+          </div>
+
+          <div class="add-group" data-view-only="add">
+            <p class="add-group-title" data-inspect-phrase="biopage.add.group.place">Where to find you</p>
+            <button type="button" class="add-option" data-add="address" data-no-phrase>
+              <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/></svg></span>
+              <span class="add-option-copy">
+                <span class="add-option-title" data-inspect-phrase="biopage.add.map.title">Your address</span>
+                <span class="add-option-detail" data-inspect-phrase="biopage.add.map.detail">A map people can tap for directions</span>
+              </span>
+            </button>
+          </div>
+
+        </div>
+
+        <div class="setup-split-actions" data-view-only="step">
+          <button class="btn btn-secondary"
+            data-inspect-phrase="questionaire.skipCta"
+            data-nav-to="flows/flows-suggestions.html"
+            data-nav-screen-id="scr-046">Skip</button>
+          <button class="btn btn-primary"
+            data-inspect-label="Primary Button — Continue"
+            data-inspect-tokens='[{"prop":"background","figma":"color/actions/primary/rest","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"height","figma":"$jui-layout-dimension-m","css":"--jui-layout-dimension-m","value":"48px"}]'
+            data-inspect-phrase="questionaire.cta"
+            data-trigger="primary-cta"
+            data-nav-to="flows/onboarding-handoff.html"
+            data-nav-screen-id="scr-470">Continue</button>
+        </div>
+
+        <div class="setup-split-actions" data-view-only="add">
+          <button class="btn btn-secondary" id="addBack" data-inspect-phrase="">Back</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js"></script>
+  <script type="module">
+    import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
+
+    const shell   = document.getElementById('shell');
+    const list    = document.getElementById('offerList');
+    const cards   = Array.from(list.querySelectorAll('.select-card'));
+    const addBtn  = document.getElementById('addBtn');
+    const addBack = document.getElementById('addBack');
+
+    const fMain     = document.getElementById('fMain');
+    const fEmail    = document.getElementById('fEmail');
+    const fWhatsapp = document.getElementById('fWhatsapp');
+    const fCall     = document.getElementById('fCall');
+    const fSocial   = document.getElementById('fSocial');
+    const fAddress  = document.getElementById('fAddress');
+
+    // What each thing in the add list turns on: the row it reveals, the group
+    // that row lives in, and the field that then wants the cursor. The main
+    // link and the first contact button are on from the start, so adding them
+    // is only ever a way back to a field already there.
+    const ADDS = {
+      whatsapp: { row: 'rowWhatsapp', group: 'groupContact', field: fWhatsapp, on: false },
+      email:    { row: 'rowEmail',    group: 'groupContact', field: fEmail,    on: true  },
+      call:     { row: 'rowCall',     group: 'groupContact', field: fCall,     on: false },
+      mainlink: { row: null,          group: null,           field: fMain,     on: true  },
+      socials:  { row: 'rowSocial',   group: 'groupSocial',  field: fSocial,   on: false },
+      address:  { row: 'rowAddress',  group: 'groupPlace',   field: fAddress,  on: false },
+    };
+
+    const options = Array.from(document.querySelectorAll('.add-option[data-add]'));
+
+    const split = initSetupSplit({
+      state: () => {
+        const card = cards.find((c) => c.getAttribute('aria-checked') === 'true');
+        const main = fMain.value.trim();
+        const hasContact = !!(fEmail.value.trim() || fWhatsapp.value.trim() || fCall.value.trim());
+        const hasMap = ADDS.address.on && !!fAddress.value.trim();
+        const hasSocial = ADDS.socials.on && !!fSocial.value.trim();
+        return {
+          title: 'Clara and Stone',
+          subtitle: 'Yoga and mindfulness workshops for women',
+          image: 'photo',
+          // A contact button exists once there is something behind it, so the
+          // page shows what has been filled in rather than a row of buttons
+          // that do nothing.
+          contact: [
+            { id: 'whatsapp', on: !!fWhatsapp.value.trim() },
+            { id: 'email',    on: !!fEmail.value.trim() },
+            { id: 'call',     on: !!fCall.value.trim() },
+          ],
+          // Each piece puts a differently shaped card on the page: a dated
+          // booking carries a calendar and a date, a form carries neither.
+          offer: card ? {
+            on: true,
+            kind: card.getAttribute('data-kind'),
+            title: card.getAttribute('data-title'),
+            meta: card.getAttribute('data-meta'),
+            cta: card.getAttribute('data-cta'),
+            price: card.getAttribute('data-price'),
+          } : { on: false },
+          // Sent after the offer on purpose: the artifact clears the link
+          // block when an offer is on, and this step has both.
+          links: main ? 'default' : 'none',
+          mainlink: main,
+          address: { on: hasMap, value: fAddress.value.trim() },
+          // What is still empty keeps standing in as a shape, so the page is
+          // visibly answering the question rather than appearing afterwards.
+          ghost: [
+            ...(hasContact ? [] : ['contact']),
+            ...(main ? [] : ['mainlink']),
+            ...(ADDS.address.on && !hasMap ? ['map'] : []),
+            ...(hasSocial ? [] : ['socials']),
+          ],
+        };
+      },
+    });
+
+    /* ── The two views ──
+       Add swaps what the drawer holds. One surface on a phone: a sheet over
+       a sheet is two things to dismiss and hides the page they are both
+       about. */
+    function setView(name) {
+      shell.setAttribute('data-view', name);
+      const fields = shell.querySelector('.setup-split-fields');
+      if (fields) fields.scrollTop = 0;
+      if (name === 'add' && shell.getAttribute('data-drawer') === 'collapsed') split.setState('default');
+    }
+
+    function syncOptions() {
+      options.forEach((opt) => {
+        const added = ADDS[opt.getAttribute('data-add')].on;
+        opt.disabled = added;
+        const detail = opt.querySelector('.add-option-detail');
+        if (added) {
+          if (!opt.dataset.detail) opt.dataset.detail = detail.textContent;
+          detail.textContent = 'Already on your page';
+        } else if (opt.dataset.detail) {
+          detail.textContent = opt.dataset.detail;
+        }
+      });
+    }
+
+    function add(key) {
+      const item = ADDS[key];
+      item.on = true;
+      if (item.row) document.getElementById(item.row).hidden = false;
+      if (item.group) document.getElementById(item.group).hidden = false;
+      syncOptions();
+      setView('step');
+      // Land on the field that was just asked for, so the thing added is the
+      // thing being filled in — and the preview marks where it goes.
+      if (item.field) item.field.focus();
+      split.sync();
+    }
+
+    options.forEach((opt) => opt.addEventListener('click', () => add(opt.getAttribute('data-add'))));
+    addBtn.addEventListener('click', () => setView('add'));
+    addBack.addEventListener('click', () => setView('step'));
+
+    [fMain, fEmail, fWhatsapp, fCall, fSocial, fAddress]
+      .forEach((f) => f.addEventListener('input', split.sync));
+
+    cards.forEach((card) => {
+      card.addEventListener('click', () => {
+        cards.forEach((c) => c.setAttribute('aria-checked', String(c === card)));
+        card.focus();
+        split.sync();
+      });
+    });
+
+    const VARIANTS = {
+      'empty':           { view: 'step', drawer: 'default',   offer: 'event', adds: [],                       focus: null },
+      'form-offer':      { view: 'step', drawer: 'default',   offer: 'form',  adds: [],                       focus: null },
+      'add-open':        { view: 'add',  drawer: 'default',   offer: 'event', adds: [],                       focus: null },
+      'everything-on':   { view: 'step', drawer: 'expanded',  offer: 'event', adds: ['whatsapp', 'socials', 'address'], focus: null },
+      'preview-peek':    { view: 'step', drawer: 'collapsed', offer: 'event', adds: ['whatsapp'],             focus: null },
+    };
+
+    const SAMPLE = {
+      whatsapp: '+49 170 1234567',
+      call: '+49 211 4567890',
+      socials: 'instagram.com/claraandstone',
+      address: 'Oststraße 12, Düsseldorf',
+    };
+
+    window.addEventListener('message', (e) => {
+      if (!e.data || e.data.type !== 'set-variant') return;
+      const v = VARIANTS[e.data.variant];
+      if (!v) return;
+      fMain.value = 'claraandstone.com';
+      v.adds.forEach((key) => {
+        const item = ADDS[key];
+        item.on = true;
+        if (item.row) document.getElementById(item.row).hidden = false;
+        if (item.group) document.getElementById(item.group).hidden = false;
+        if (item.field && SAMPLE[key]) item.field.value = SAMPLE[key];
+      });
+      syncOptions();
+      cards.forEach((c) => c.setAttribute('aria-checked', String(c.getAttribute('data-offer') === v.offer)));
+      setView(v.view);
+      split.setState(v.drawer);
+      if (document.activeElement) document.activeElement.blur();
+      split.sync();
+    });
+
+    syncOptions();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=360, initial-scale=1">
+<title>Instagram Story — launch asset</title>
+<style>
+  /* Ready-made Instagram Story (9:16, 360×727) for Clara and Stone.
+     Promotes a specific drop — "The Ember Collection". The account name
+     shows in Instagram's own chrome, so the brand wordmark is dropped;
+     the gold "NEW COLLECTION" kicker sits at the top instead. The script
+     promo title drops to the lower third so the portrait stays visible.
+     Self-contained artifact; raw colors allowed in pages/artifacts/. */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 360px; height: 727px; }
+  body {
+    font-family: 'Familjen Grotesk', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    background: #000;
+    position: relative;
+    overflow: hidden;
+  }
+  .photo {
+    position: absolute; inset: 0;
+    background: #000 url('../images/clara-stone.jpg') center top / cover no-repeat;
+  }
+  /* Vertical fade — gentle top darken for the kicker, photo kept clear
+     through the middle so the face reads, strong black base for the title. */
+  .fade {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg,
+      rgba(0,0,0,0.34) 0%,
+      rgba(0,0,0,0) 17%,
+      rgba(0,0,0,0) 44%,
+      rgba(0,0,0,0.42) 62%,
+      rgba(0,0,0,0.85) 83%,
+      #000 100%);
+  }
+  .content {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; justify-content: space-between;
+    align-items: center; text-align: center;
+    padding: 46px 34px 50px;
+    color: #fff;
+  }
+
+  /* Top — gold kicker (where the brand label used to be) */
+  .eyebrow {
+    font-size: 13px; font-weight: 600; letter-spacing: 4px; text-transform: uppercase;
+    color: #e6c89a;
+    text-shadow: 0 1px 8px rgba(0,0,0,0.6);
+  }
+
+  /* Bottom — the promo title + detail + link sticker */
+  .promo-bottom { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  .promo-title {
+    font-family: 'Snell Roundhand', 'Apple Chancery', 'Segoe Script', 'Brush Script MT', cursive;
+    font-size: 64px; font-weight: 700; line-height: 0.98;
+    text-shadow: 0 2px 16px rgba(0,0,0,0.6);
+  }
+  .detail {
+    font-size: 14px; font-weight: 400; letter-spacing: 0.3px;
+    color: rgba(255,255,255,0.85);
+    text-shadow: 0 1px 8px rgba(0,0,0,0.55);
+  }
+  .link-sticker {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 9px 16px; border-radius: 999px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.55);
+    font-size: 14px; font-weight: 500; letter-spacing: 0.2px;
+    -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+  }
+  .link-sticker svg { width: 16px; height: 16px; }
+</style>
+</head>
+<body>
+  <div class="photo"></div>
+  <div class="fade"></div>
+  <div class="content">
+    <div class="eyebrow">New Collection</div>
+
+    <div class="promo-bottom">
+      <div class="promo-title">The Ember<br>Collection</div>
+      <div class="detail">Hand-forged gold — limited pieces</div>
+      <span class="link-sticker">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M10.5 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M11 13L20.35 3.65M21 9V3h-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        your link goes here
+      </span>
+    </div>
+  </div>
+</body>
+</html>

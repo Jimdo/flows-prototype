@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jimdo — Domain Paywall</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+  body {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--jui-color-background-gray-canvas);
+    color: var(--jui-color-typography-gray-on-light-subdued);
+  }
+  .placeholder {
+    text-align: center;
+    font-size: var(--jui-typography-body-small-medium-size);
+    font-weight: var(--jui-typography-body-small-medium-weight);
+    letter-spacing: .02em;
+  }
+  .placeholder span {
+    display: block;
+    font-size: var(--jui-typography-label-small-size);
+    margin-top: var(--jui-layout-gap-xxs);
+    opacity: .6;
+  }
+</style>
+</head>
+<body>
+  <div class="placeholder">Domain Paywall<span>Jimdo · Onboarding</span></div>
+</body>
+</html>

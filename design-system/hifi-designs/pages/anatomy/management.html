@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Management Layout</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+  /* lint-disable */
+  /* ─── Anatomy visualization styles (not part of framework) ─── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+
+  .region-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    opacity: .6;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  /* Region colors */
+  .shell-header { background: #BFDBFE; position: relative; }
+  .shell-header .region-label { color: #1e40af; }
+
+  .shell-side-menu { background: #E9D5FF; position: relative; border-right: 1px solid rgba(0,0,0,.08); }
+  .shell-side-menu .region-label { color: #6b21a8; }
+
+  .shell-working-area { background: #86EFAC; position: relative; }
+  .shell-working-area .region-label { color: #166534; }
+
+  .shell-companion { background: #FDE68A; position: relative; border-left: 1px solid rgba(0,0,0,.08); }
+  .shell-companion .region-label { color: #92400e; }
+
+  .shell-footer { background: #FECACA; position: relative; }
+  .shell-footer .region-label { color: #991b1b; }
+
+  .mobile-note {
+    background: #F3E8FF;
+    padding: 6px 12px;
+    font-size: 8px;
+    font-weight: 600;
+    color: #6b21a8;
+    text-align: center;
+    flex-shrink: 0;
+    letter-spacing: .02em;
+  }
+
+  @media (min-width: 768px) {
+    .mobile-note { display: none; }
+    .shell-companion.visible { display: block; }
+  }
+</style>
+</head>
+<body class="app-shell">
+
+  <div class="shell-header">
+    <span class="region-label">Jimdo Header</span>
+  </div>
+
+  <div class="mobile-note" id="mobileNote">
+    Side menu → "Menu" in header on mobile
+  </div>
+
+  <div class="shell-middle">
+    <div class="shell-side-menu">
+      <span class="region-label">Side Menu</span>
+    </div>
+
+    <div class="shell-working-area">
+      <span class="region-label">Working Area</span>
+    </div>
+
+    <div class="shell-companion visible" id="companion">
+      <span class="region-label">Companion</span>
+    </div>
+  </div>
+
+  <div class="shell-footer">
+    <span class="region-label">Footer</span>
+  </div>
+
+<script>
+  const companion = document.getElementById('companion');
+
+  window.addEventListener('message', (e) => {
+    if (e.data && e.data.type === 'set-variant') {
+      if (e.data.variant === 'no-companion') {
+        companion.classList.remove('visible');
+      } else {
+        companion.classList.add('visible');
+      }
+    }
+  });
+</script>
+
+</body>
+</html>

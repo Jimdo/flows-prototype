@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business Details — Connect (v2)</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+
+  [hidden] { display: none !important; }
+
+  /* Content stack inside the onboarding white card.
+     Figma 15841:75038 — card 992 wide; columns inset 40 (padding-xl) each side. */
+  .bd2-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-l);
+    padding-top: var(--jui-layout-padding-l);
+    padding-bottom: var(--jui-layout-padding-l);
+  }
+  @media (min-width: 768px) {
+    .bd2-content { padding-left: var(--jui-layout-padding-xl); padding-right: var(--jui-layout-padding-xl); }
+  }
+
+  /* Heading — Subheadline/Large, centered */
+  .bd2-heading-group { display: flex; flex-direction: column; align-items: center; text-align: center; gap: var(--jui-layout-gap-xs); }
+  .bd2-heading {
+    font-size: var(--jui-typography-sub-headline-large-size);
+    font-weight: var(--jui-typography-sub-headline-large-weight);
+    line-height: var(--jui-typography-sub-headline-large-lh);
+    color: var(--jui-color-gray-black);
+    margin: 0;
+  }
+  .bd2-subtitle {
+    font-size: var(--jui-typography-body-small-regular-size);
+    font-weight: var(--jui-typography-body-small-regular-weight);
+    line-height: var(--jui-typography-body-small-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-subdued);
+    margin: 0;
+  }
+
+  /* Two columns — 440 + 32 gap + 440 within the 912 inset area.
+     Equal-height: preview panel grows with the controls column. */
+  .bd2-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--jui-measurements-size-32);
+    align-items: stretch;
+  }
+  .bd2-controls { display: flex; flex-direction: column; gap: var(--jui-layout-gap-s); }
+
+  /* ─── Section card ───
+     Figma: 4px outer padding; header content inset 16 (4 + 12 header pad);
+     rows inset 8 (4 + 4 wrapper) so editable rows span 424 of the 440 card. */
+  .bd2-section {
+    background: var(--jui-color-background-gray-light);
+    border: 1px solid var(--jui-color-stroke-gray-default);
+    border-radius: var(--jui-style-radius-16);
+    padding: var(--jui-layout-padding-xxs);
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-xs);
+    transition: border-color 0.25s ease;
+  }
+  /* Card border stays gray in both states (Figma 16178:20989 keeps stroke-gray-default). */
+  /* Location & Reviews peek cards — Figma 16178:21008 / 21023: card padding 4,
+     header py-8, gap 4, then a gray-10 stage (h-108, radius-12) that clips the
+     map / review widget at the bottom. */
+  .bd2-section--peek { gap: var(--jui-layout-gap-xxs); }
+  .bd2-section--peek .bd2-sec-head { padding-top: var(--jui-layout-padding-xs); padding-bottom: var(--jui-layout-padding-xs); }
+
+  /* Stage — Figma 16178:21014/21029: gray-10 fill, radius-12, h-108, px-24 pt-24. */
+  .bd2-stage {
+    height: 108px;
+    overflow: hidden;
+    background: var(--jui-color-gray-10);
+    border-radius: var(--jui-style-radius-12);
+    padding: var(--jui-layout-padding-l) var(--jui-layout-padding-l) 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .bd2-sec-head { display: flex; align-items: center; gap: var(--jui-layout-gap-s); padding: var(--jui-layout-padding-s); }
+  .bd2-sec-icon { width: 24px; height: 24px; flex-shrink: 0; color: var(--jui-color-typography-gray-on-light-default); }
+  .bd2-sec-icon svg { width: 24px; height: 24px; display: block; }
+  .bd2-sec-label {
+    flex: 1 0 0; min-width: 0;
+    font-size: var(--jui-typography-sub-headline-small-size);
+    font-weight: var(--jui-typography-sub-headline-small-weight);
+    line-height: var(--jui-typography-sub-headline-small-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+
+  /* ─── Quick actions: chips (OFF) ─── */
+  .bd2-chips {
+    display: flex; flex-wrap: wrap; justify-content: center;
+    gap: var(--jui-layout-gap-xxs);
+    padding: var(--jui-layout-padding-l) 0;
+  }
+  .bd2-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-xs);
+    padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-s);
+    background: var(--jui-color-background-gray-light);
+    border: 1px solid var(--jui-color-stroke-gray-default);
+    border-radius: var(--jui-style-radius-20);
+    font-family: inherit;
+    font-size: var(--jui-typography-body-small-medium-size);
+    font-weight: var(--jui-typography-body-small-medium-weight);
+    line-height: var(--jui-typography-body-small-medium-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .bd2-chip svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+  /* ─── Quick actions: editable rows (ON) — Figma EditableButton 424×48, gap 8 ─── */
+  .bd2-rows { display: flex; flex-direction: column; gap: var(--jui-layout-gap-xs); padding: 0 var(--jui-layout-padding-xxs) var(--jui-layout-padding-xxs); }
+  /* Figma EditableButton 16178:21502 — 424×48, gap 12, pl-16 pr-8; suggested rows
+     render subdued (icon + label #b1b1b1 / gray-300, body-small regular). */
+  .bd2-row {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-s);
+    height: var(--jui-layout-dimension-m);
+    padding: 0 var(--jui-layout-padding-xs) 0 var(--jui-layout-padding-m);
+    border: 1px solid var(--jui-color-stroke-gray-default);
+    border-radius: var(--jui-style-radius-12);
+    background: var(--jui-color-background-gray-light);
+  }
+  .bd2-row-icon { width: 16px; height: 16px; flex-shrink: 0; color: var(--jui-color-gray-300); }
+  .bd2-row-icon svg { width: 16px; height: 16px; display: block; }
+  .bd2-row-label {
+    flex: 1 0 0; min-width: 0;
+    font-size: var(--jui-typography-body-small-regular-size);
+    font-weight: var(--jui-typography-body-small-regular-weight);
+    line-height: var(--jui-typography-body-small-regular-lh);
+    color: var(--jui-color-gray-300);
+  }
+  .bd2-row-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: var(--jui-layout-dimension-s); height: var(--jui-layout-dimension-s);
+    flex-shrink: 0; padding: 0; border: 0; background: none;
+    border-radius: var(--jui-style-radius-s);
+    color: var(--jui-color-actions-primary-rest);
+    cursor: pointer;
+    transition: background-color 0.12s ease;
+  }
+  .bd2-row-btn.muted { color: var(--jui-color-typography-gray-on-light-subdued); }
+  .bd2-row-btn:hover { background: var(--jui-color-background-gray-canvas); }
+  .bd2-row-btn:focus-visible { outline: var(--jui-effects-on-light-focus); outline-offset: 2px; }
+  .bd2-row-btn svg { width: 16px; height: 16px; display: block; }
+
+  /* ─── Location: address + map (centered promo card, ~232) ─── */
+  /* Map / review widget cards — Figma 16178:21015/21030: w-230, gray-50 fill,
+     radius ~9 → on-scale radius-8, soft drop shadow. */
+  .bd2-map {
+    width: 100%; max-width: 230px;
+    border: 1px solid var(--jui-color-stroke-gray-default);
+    border-radius: var(--jui-style-radius-8);
+    overflow: hidden;
+    background: var(--jui-color-background-gray-canvas);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+    cursor: pointer; text-align: left; font-family: inherit; padding: 0;
+    transition: border-color 0.18s ease;
+  }
+  .bd2-map:hover { border-color: var(--jui-color-gray-300); }
+  .bd2-map:focus-visible { outline: var(--jui-effects-on-light-focus); outline-offset: 2px; }
+  .bd2-map.is-selected { border-color: var(--jui-color-actions-primary-rest); }
+  .bd2-map-address {
+    font-size: var(--jui-typography-label-small-size);
+    line-height: var(--jui-typography-label-small-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+    padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-s);
+  }
+  .bd2-map-tile { display: block; }
+  .bd2-map-tile svg { display: block; width: 100%; height: 110px; }
+
+  /* ─── Reviews: promo card (centered, ~232) ─── */
+  .bd2-review {
+    width: 100%; max-width: 230px;
+    border: 1px solid var(--jui-color-stroke-gray-default);
+    border-radius: var(--jui-style-radius-8);
+    background: var(--jui-color-background-gray-canvas);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+    padding: var(--jui-layout-padding-m);
+    display: flex; flex-direction: column; align-items: center;
+    gap: var(--jui-layout-gap-s);
+  }
+  .bd2-review-label {
+    font-size: var(--jui-typography-body-small-regular-size);
+    line-height: var(--jui-typography-body-small-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+  .bd2-stars { display: flex; gap: var(--jui-layout-gap-xs); }
+  .bd2-star {
+    width: 24px; height: 24px;
+    background: none; border: 0; padding: 0;
+    color: var(--jui-color-gray-300);
+    cursor: pointer;
+    transition: color 0.15s ease, transform 0.15s ease;
+  }
+  .bd2-star svg { width: 24px; height: 24px; display: block; }
+  .bd2-star:hover { transform: scale(1.08); }
+  .bd2-star:focus-visible { outline: var(--jui-effects-on-light-focus); outline-offset: 2px; }
+  .bd2-star.is-rated { color: var(--jui-color-actions-primary-rest); }
+  .bd2-star.is-rated svg polygon { fill: currentColor; }
+  .bd2-review-submit {
+    background: none; border: 0; padding: var(--jui-layout-padding-xxs) 0;
+    font-family: inherit;
+    font-size: var(--jui-typography-body-small-medium-size);
+    font-weight: var(--jui-typography-body-small-medium-weight);
+    color: var(--jui-color-actions-primary-rest);
+    cursor: pointer;
+  }
+
+  /* ═══════════════════════════════════
+     RIGHT: phone preview (gray-50 panel + skeleton). Phone 180×345 (Figma).
+     ═══════════════════════════════════ */
+  /* Preview column — Figma 16178:21050: no fill (phone floats on the white card),
+     px-16 py-24, phone vertically centered. Column stretches to the controls height. */
+  .bd2-preview-col {
+    display: flex; align-items: center; justify-content: center;
+    padding: var(--jui-layout-padding-l) var(--jui-layout-padding-m);
+  }
+  /* Phone — Figma 16178:21051: white, blue-100 border, radius-20, soft blue glow. */
+  .bd2-phone {
+    width: 180px; height: 345px;
+    background: var(--jui-color-background-gray-light);
+    border: 1px solid var(--jui-color-blue-100);
+    border-radius: var(--jui-style-radius-20);
+    box-shadow: 0 5px 31px rgba(0, 0, 0, 0.08);
+    padding: 0 var(--jui-layout-padding-s);
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .pv-avatar { width: 62px; height: 62px; border-radius: var(--jui-style-radius-8); background: var(--jui-color-blue-10); margin-top: var(--jui-measurements-size-32); flex-shrink: 0; }
+
+  /* name-row = Quick actions (state-reflecting) */
+  .pv-namerow { display: flex; gap: var(--jui-layout-gap-xs); margin-top: var(--jui-measurements-size-32); }
+  .pv-namebar { width: 44px; height: 12px; border-radius: var(--jui-style-radius-8); background: var(--jui-color-blue-10); transition: background-color 0.3s ease; }
+  .pv-namerow[data-state="on"] .pv-namebar       { background: var(--jui-color-blue-100); }
+  .pv-namerow[data-state="complete"] .pv-namebar { background: var(--jui-color-blue-400); }
+
+  .pv-blocks { display: flex; flex-direction: column; align-items: center; gap: var(--jui-layout-gap-xs); width: 100%; margin-top: var(--jui-layout-gap-m); }
+  .pv-block {
+    width: 154px; border-radius: var(--jui-style-radius-8);
+    background: var(--jui-color-blue-10);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+  .pv-block.sm { height: var(--jui-measurements-size-32); }
+  .pv-block.lg { height: var(--jui-measurements-size-56); }
+  .pv-block[data-state="on"]       { background: var(--jui-color-blue-100); }
+  .pv-block[data-state="complete"] { background: var(--jui-color-blue-400); }
+
+  .pv-dots { margin-top: auto; margin-bottom: var(--jui-layout-gap-m); display: flex; gap: var(--jui-layout-gap-s); }
+  .pv-dot { width: 20px; height: 20px; border-radius: var(--jui-style-radius-20); background: var(--jui-color-blue-10); }
+
+  /* Graceful state-change pop */
+  .pv-pop { animation: pv-pop 0.3s ease; }
+  @keyframes pv-pop { 0% { transform: scale(1); } 45% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pv-block, .pv-namebar, .bd2-star, .bd2-section { transition: none; }
+    .pv-pop { animation: none; }
+  }
+
+  /* ═══════════════════════════════════
+     ITEM EDITOR — modal (desktop) / drawer (mobile).
+     Figma ButtonModal 16178:21579 — 576 wide, radius-20 ($jui-style-radius-l).
+     ═══════════════════════════════════ */
+  @media (min-width: 768px) {
+    #item-drawer .drawer-sheet { max-width: 576px; border-radius: var(--jui-style-radius-20); }
+  }
+  #item-drawer .drawer-header { gap: var(--jui-layout-gap-xs); padding: var(--jui-layout-padding-m); }
+  .item-drawer-icon { display: inline-flex; width: 16px; height: 16px; flex-shrink: 0; color: var(--jui-color-typography-gray-on-light-default); }
+  .item-drawer-icon svg { width: 16px; height: 16px; display: block; }
+  #item-drawer .drawer-title {
+    flex: 1 0 0; min-width: 0;
+    font-size: var(--jui-typography-sub-headline-small-size);
+    font-weight: var(--jui-typography-sub-headline-small-weight);
+    line-height: var(--jui-typography-sub-headline-small-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+  .bd2-modal-body { display: flex; flex-direction: column; gap: var(--jui-layout-gap-l); padding: 0 var(--jui-layout-padding-l); }
+  .bd2-field { display: flex; flex-direction: column; gap: var(--jui-layout-gap-xs); }
+  .bd2-field-label {
+    font-size: var(--jui-typography-body-small-medium-size);
+    font-weight: var(--jui-typography-body-small-medium-weight);
+    line-height: var(--jui-typography-body-small-medium-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+  .bd2-field-help {
+    font-size: var(--jui-typography-body-small-regular-size);
+    font-weight: var(--jui-typography-body-small-regular-weight);
+    line-height: var(--jui-typography-body-small-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-subdued);
+    margin: 0;
+  }
+  .bd2-modal-footer { display: flex; justify-content: flex-end; gap: var(--jui-layout-gap-m); padding: var(--jui-layout-padding-m); }
+  /* primitive-override: footer CTAs are content-width (Figma), not full-width */
+  .bd2-modal-footer .btn { width: auto; min-width: 0; padding-left: var(--jui-layout-padding-l); padding-right: var(--jui-layout-padding-l); }
+
+  /* ═══════════════════════════════════
+     MOBILE (<768) — no preview, single column
+     ═══════════════════════════════════ */
+  @media (max-width: 767px) {
+    .bd2-cols { grid-template-columns: 1fr; }
+    .bd2-preview-col { display: none; }
+  }
+
+</style>
+</head>
+<body>
+
+  <div class="app-shell app-shell-onboarding">
+
+    <!-- ─── HEADER ─── -->
+    <div class="shell-header no-pad-y">
+      <div class="header-row">
+        <button class="icon-btn" aria-label="Back" data-nav-to="flows/onboarding-offer.html" data-inspect-phrase="">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+          </svg>
+        </button>
+        <div class="progress-bar" aria-label="Step 4 of 4">
+          <div class="progress-segment filled"></div>
+          <div class="progress-segment filled"></div>
+          <div class="progress-segment filled"></div>
+          <div class="progress-segment filled"></div>
+        </div>
+        <div class="header-spacer"></div>
+      </div>
+    </div>
+
+    <!-- ─── WORKING AREA (white card) ─── -->
+    <div class="shell-middle">
+      <div class="shell-working-area setup-centered-v">
+        <div class="content-container bd2-content">
+
+          <!-- Heading -->
+          <div class="bd2-heading-group">
+            <h1 class="bd2-heading" data-inspect-phrase="">Add ways to connect with you</h1>
+            <p class="bd2-subtitle" data-inspect-phrase="">You can always edit and add more later</p>
+          </div>
+
+          <!-- Two columns -->
+          <div class="bd2-cols">
+
+            <!-- LEFT — controls -->
+            <div class="bd2-controls">
+
+              <!-- SECTION 1 — Quick actions -->
+              <section class="bd2-section" id="sec-quick">
+                <div class="bd2-sec-head">
+                  <span class="bd2-sec-icon" aria-hidden="true">
+                    <!-- Hugeicons Flash (StrokeStandard) -->
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M9.9996 12.9998H4.4996L13.9996 2V10.985M14.0004 11.0002H19.5004L10.0004 22V13.015" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                  </span>
+                  <span class="bd2-sec-label" data-inspect-phrase="">Quick actions</span>
+                  <button class="toggle" id="tg-quick" role="switch" aria-checked="false" aria-label="Toggle quick actions" onclick="toggleSection('quick')" data-inspect-phrase="">
+                    <span class="toggle-thumb" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                    </span>
+                  </button>
+                </div>
+
+                <!-- OFF: promo chips -->
+                <div class="bd2-chips" id="quick-chips">
+                  <button type="button" class="bd2-chip" data-inspect-phrase="">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+                    Book Me
+                  </button>
+                  <button type="button" class="bd2-chip" data-inspect-phrase="">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6175 12.4037L10.4966 10.5L10.0004 7H7C7.00036 10 8.58063 13.4407 11.6225 15.4209M11.6225 15.4209C13.1131 16.3912 14.9993 17 17 17V14L13.4982 13.5L11.6225 15.4209Z"/><path d="M12.0019 22.002C17.5259 22.002 22.0039 17.5239 22.0039 12C22.0039 6.47607 17.5259 1.99805 12.0019 1.99805C6.47802 1.99805 2 6.47607 2 12C2 13.8889 2.43396 15.4979 3.34399 17.005L2.00177 22L6.97239 20.666C8.48539 21.5862 10.1017 22.002 12.0019 22.002Z"/></svg>
+                    WhatsApp
+                  </button>
+                  <button type="button" class="bd2-chip" data-inspect-phrase="">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.5 12.5a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.41 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    Call Me
+                  </button>
+                </div>
+
+                <!-- ON: editable rows -->
+                <div class="bd2-rows" id="quick-rows" hidden>
+                  <div class="bd2-row">
+                    <span class="bd2-row-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg></span>
+                    <span class="bd2-row-label">Book Me</span>
+                    <button type="button" class="bd2-row-btn muted" aria-label="Hide Book Me" data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M22 8C22 8 18 14 12 14C6 14 2 8 2 8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M15 13.5L16.5 16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M20 11L22 13" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M2 13L4 11" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M9 13.5L7.5 16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+                    <button type="button" class="bd2-row-btn" aria-label="Edit Book Me" onclick="openItemModal('book')" data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15.7071 5.29289L17.5 3.5C17.8905 3.10948 18.5237 3.10948 18.9142 3.5L20.5 5.08579C20.8905 5.47631 20.8905 6.10947 20.5 6.5L18.7071 8.29289M15.7071 5.29289L9.59886 11.4012C9.34255 11.6575 9.16071 11.9787 9.07279 12.3303L8.20715 15.7929L11.6697 14.9272C12.0214 14.8393 12.3425 14.6575 12.5989 14.4012L18.7071 8.29289M15.7071 5.29289L18.7071 8.29289" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/><path d="M10.7071 4.79289H5.20715C4.10258 4.79289 3.20715 5.68832 3.20715 6.79289V18.7929C3.20715 19.8975 4.10258 20.7929 5.20715 20.7929H17.2071C18.3117 20.7929 19.2071 19.8975 19.2071 18.7929V13.2929" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+                  </div>
+                  <div class="bd2-row">
+                    <span class="bd2-row-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8.6175 12.4037L10.4966 10.5L10.0004 7H7C7.00036 10 8.58063 13.4407 11.6225 15.4209M11.6225 15.4209C13.1131 16.3912 14.9993 17 17 17V14L13.4982 13.5L11.6225 15.4209Z"/><path d="M12.0019 22.002C17.5259 22.002 22.0039 17.5239 22.0039 12C22.0039 6.47607 17.5259 1.99805 12.0019 1.99805C6.47802 1.99805 2 6.47607 2 12C2 13.8889 2.43396 15.4979 3.34399 17.005L2.00177 22L6.97239 20.666C8.48539 21.5862 10.1017 22.002 12.0019 22.002Z"/></svg></span>
+                    <span class="bd2-row-label">WhatsApp</span>
+                    <button type="button" class="bd2-row-btn muted" aria-label="Hide WhatsApp" data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M22 8C22 8 18 14 12 14C6 14 2 8 2 8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M15 13.5L16.5 16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M20 11L22 13" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M2 13L4 11" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M9 13.5L7.5 16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+                    <button type="button" class="bd2-row-btn" aria-label="Edit WhatsApp" onclick="openItemModal('whatsapp')" data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15.7071 5.29289L17.5 3.5C17.8905 3.10948 18.5237 3.10948 18.9142 3.5L20.5 5.08579C20.8905 5.47631 20.8905 6.10947 20.5 6.5L18.7071 8.29289M15.7071 5.29289L9.59886 11.4012C9.34255 11.6575 9.16071 11.9787 9.07279 12.3303L8.20715 15.7929L11.6697 14.9272C12.0214 14.8393 12.3425 14.6575 12.5989 14.4012L18.7071 8.29289M15.7071 5.29289L18.7071 8.29289" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/><path d="M10.7071 4.79289H5.20715C4.10258 4.79289 3.20715 5.68832 3.20715 6.79289V18.7929C3.20715 19.8975 4.10258 20.7929 5.20715 20.7929H17.2071C18.3117 20.7929 19.2071 19.8975 19.2071 18.7929V13.2929" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+                  </div>
+                  <div class="bd2-row">
+                    <span class="bd2-row-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.5 12.5a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.41 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
+                    <span class="bd2-row-label">Call Me</span>
+                    <button type="button" class="bd2-row-btn muted" aria-label="Hide Call Me" data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M22 8C22 8 18 14 12 14C6 14 2 8 2 8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M15 13.5L16.5 16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M20 11L22 13" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M2 13L4 11" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M9 13.5L7.5 16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+                    <button type="button" class="bd2-row-btn" aria-label="Edit Call Me" onclick="openItemModal('call')" data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15.7071 5.29289L17.5 3.5C17.8905 3.10948 18.5237 3.10948 18.9142 3.5L20.5 5.08579C20.8905 5.47631 20.8905 6.10947 20.5 6.5L18.7071 8.29289M15.7071 5.29289L9.59886 11.4012C9.34255 11.6575 9.16071 11.9787 9.07279 12.3303L8.20715 15.7929L11.6697 14.9272C12.0214 14.8393 12.3425 14.6575 12.5989 14.4012L18.7071 8.29289M15.7071 5.29289L18.7071 8.29289" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/><path d="M10.7071 4.79289H5.20715C4.10258 4.79289 3.20715 5.68832 3.20715 6.79289V18.7929C3.20715 19.8975 4.10258 20.7929 5.20715 20.7929H17.2071C18.3117 20.7929 19.2071 19.8975 19.2071 18.7929V13.2929" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+                  </div>
+                </div>
+              </section>
+
+              <!-- SECTION 2 — Location -->
+              <section class="bd2-section bd2-section--peek" id="sec-location">
+                <div class="bd2-sec-head">
+                  <span class="bd2-sec-icon" aria-hidden="true">
+                    <!-- Hugeicons Location01 (StrokeStandard) -->
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M15.5 11C15.5 12.933 13.933 14.5 12 14.5C10.067 14.5 8.5 12.933 8.5 11C8.5 9.067 10.067 7.5 12 7.5C13.933 7.5 15.5 9.067 15.5 11Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M21 11C21 18 12 22 12 22C12 22 3 18 3 11C3 6.02944 7.02944 2 12 2C16.9706 2 21 6.02944 21 11Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                  </span>
+                  <span class="bd2-sec-label" data-inspect-phrase="">Location</span>
+                  <button class="toggle" id="tg-location" role="switch" aria-checked="false" aria-label="Toggle location" onclick="toggleSection('location')" data-inspect-phrase="">
+                    <span class="toggle-thumb" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                    </span>
+                  </button>
+                </div>
+                <div class="bd2-stage">
+                <button type="button" class="bd2-map" id="map-location" onclick="completeSection('location', this)" aria-label="Set your location" data-inspect-phrase="">
+                  <div class="bd2-map-address">Musterstraße 12, 10115 Berlin, Deutschland</div>
+                  <div class="bd2-map-tile" aria-hidden="true">
+                    <svg viewBox="0 0 228 86" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect width="228" height="86" fill="#eaecdf"/>
+                      <rect x="158" y="0" width="70" height="86" fill="#c9d9a5"/>
+                      <rect x="8"  y="8"  width="28" height="20" rx="1" fill="#d3d5c7"/>
+                      <rect x="42" y="12" width="20" height="14" rx="1" fill="#d3d5c7"/>
+                      <rect x="8"  y="34" width="40" height="16" rx="1" fill="#d3d5c7"/>
+                      <rect x="72" y="8"  width="30" height="16" rx="1" fill="#d3d5c7"/>
+                      <rect x="72" y="30" width="30" height="18" rx="1" fill="#d3d5c7"/>
+                      <rect x="110" y="10" width="35" height="14" rx="1" fill="#d3d5c7"/>
+                      <rect x="0"  y="54" width="228" height="10" fill="#ffffff"/>
+                      <rect x="60" y="0"  width="8"  height="86" fill="#ffffff"/>
+                      <rect x="140" y="0" width="8"  height="86" fill="#ffffff"/>
+                      <circle cx="64" cy="59" r="9" fill="#004ced"/>
+                      <circle cx="64" cy="59" r="3.5" fill="#ffffff"/>
+                    </svg>
+                  </div>
+                </button>
+                </div>
+              </section>
+
+              <!-- SECTION 3 — Reviews -->
+              <section class="bd2-section bd2-section--peek" id="sec-reviews">
+                <div class="bd2-sec-head">
+                  <span class="bd2-sec-icon" aria-hidden="true">
+                    <!-- 5-point star (house style) -->
+                    <svg viewBox="0 0 24 24" fill="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <span class="bd2-sec-label" data-inspect-phrase="">Reviews</span>
+                  <button class="toggle" id="tg-reviews" role="switch" aria-checked="false" aria-label="Toggle reviews" onclick="toggleSection('reviews')" data-inspect-phrase="">
+                    <span class="toggle-thumb" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                    </span>
+                  </button>
+                </div>
+                <div class="bd2-stage">
+                <div class="bd2-review">
+                  <span class="bd2-review-label" data-inspect-phrase="">Tell us your opinion</span>
+                  <div class="bd2-stars" id="review-stars" role="radiogroup" aria-label="Rating">
+                    <button type="button" class="bd2-star" onclick="rateReviews(1)" aria-label="1 star" data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                    <button type="button" class="bd2-star" onclick="rateReviews(2)" aria-label="2 stars" data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                    <button type="button" class="bd2-star" onclick="rateReviews(3)" aria-label="3 stars" data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                    <button type="button" class="bd2-star" onclick="rateReviews(4)" aria-label="4 stars" data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                    <button type="button" class="bd2-star" onclick="rateReviews(5)" aria-label="5 stars" data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                  </div>
+                  <input class="form-input" type="text" placeholder="Write a review" aria-label="Review" data-inspect-phrase="">
+                </div>
+                </div>
+              </section>
+
+            </div>
+
+            <!-- RIGHT — phone preview -->
+            <div class="bd2-preview-col" aria-hidden="true">
+              <div class="bd2-phone">
+                <div class="pv-avatar"></div>
+                <!-- name-row = Quick actions -->
+                <div class="pv-namerow" id="pv-quick" data-state="off">
+                  <span class="pv-namebar"></span><span class="pv-namebar"></span><span class="pv-namebar"></span>
+                </div>
+                <div class="pv-blocks">
+                  <div class="pv-block sm" id="pv-location" data-state="off"></div>
+                  <div class="pv-block sm" id="pv-reviews" data-state="off"></div>
+                  <div class="pv-block lg"></div>
+                </div>
+                <div class="pv-dots"><span class="pv-dot"></span><span class="pv-dot"></span><span class="pv-dot"></span></div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── FOOTER (fixed, right-aligned Continue) ─── -->
+    <div class="shell-footer">
+      <div class="footer-actions">
+        <button class="btn btn-primary" data-inspect-phrase="questionaire.cta" data-nav-to="flows/bio-page-preview.html" data-nav-screen-id="scr-119">Continue</button>
+      </div>
+    </div>
+
+    <!-- ─── ITEM EDITOR — modal (desktop) / drawer (mobile). Figma ButtonModal 16178:21579 ─── -->
+    <div id="item-drawer" class="drawer drawer--desktop-modal" data-mode="add" role="dialog" aria-modal="true" aria-labelledby="item-drawer-title" aria-hidden="true">
+      <div class="drawer-backdrop" onclick="closeItemDrawer(false)"></div>
+      <div class="drawer-sheet">
+        <div class="drawer-header">
+          <span class="item-drawer-icon" id="item-drawer-icon" aria-hidden="true"></span>
+          <h2 class="drawer-title" id="item-drawer-title" data-inspect-phrase="" data-no-phrase>Book Me</h2>
+        </div>
+        <div class="drawer-body bd2-modal-body">
+          <div class="bd2-field">
+            <label class="bd2-field-label" for="item-label" data-inspect-phrase="">Label</label>
+            <input class="form-input" id="item-label" type="text" value="Book Me" autocomplete="off">
+          </div>
+          <div class="bd2-field">
+            <label class="bd2-field-label" for="item-value" id="item-value-label" data-inspect-phrase="">Your booking link</label>
+            <p class="bd2-field-help" id="item-value-help" data-inspect-phrase="">Add your Jimdo booking link, Calendly, and any booking tool</p>
+            <input class="form-input" id="item-value" type="text" placeholder="mybooking.link/example" autocomplete="off">
+          </div>
+        </div>
+        <div class="drawer-footer bd2-modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeItemDrawer(false)" data-inspect-phrase="">Cancel</button>
+          <button type="button" class="btn btn-primary" onclick="closeItemDrawer(true)" data-inspect-phrase="">Add</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js"></script>
+  <script>
+    /* ══════════════════════════════════════════
+       SECTION STATE MACHINE
+       off → (toggle) → on (preview blue/100) → (setup) → complete (blue/400)
+       Quick actions also swaps its promo chips for editable rows when ON.
+       ══════════════════════════════════════════ */
+    var SECTIONS = {
+      quick:    { toggle: 'tg-quick',    pv: 'pv-quick',    section: 'sec-quick' },
+      location: { toggle: 'tg-location', pv: 'pv-location', section: 'sec-location' },
+      reviews:  { toggle: 'tg-reviews',  pv: 'pv-reviews',  section: 'sec-reviews' }
+    };
+    var state = { quick: 'off', location: 'off', reviews: 'off' };
+
+    function pop(el) {
+      if (!el) return;
+      el.classList.remove('pv-pop'); void el.offsetWidth; el.classList.add('pv-pop');
+    }
+
+    function applyState(id) {
+      var cfg = SECTIONS[id];
+      var pv = document.getElementById(cfg.pv);
+      var tg = document.getElementById(cfg.toggle);
+      var sec = document.getElementById(cfg.section);
+      if (pv) { pv.setAttribute('data-state', state[id]); pop(pv); }
+      var on = state[id] !== 'off';
+      if (tg) tg.setAttribute('aria-checked', String(on));
+      if (sec) sec.classList.toggle('is-on', on);
+      // Quick actions: promo chips (off) ↔ editable rows (on)
+      if (id === 'quick') {
+        var chips = document.getElementById('quick-chips');
+        var rows = document.getElementById('quick-rows');
+        if (chips) chips.hidden = on;
+        if (rows) rows.hidden = !on;
+      }
+    }
+
+    function clearSetup(id) {
+      var sec = document.getElementById(SECTIONS[id].section);
+      if (!sec) return;
+      sec.querySelectorAll('.bd2-map.is-selected').forEach(function (m) { m.classList.remove('is-selected'); });
+      sec.querySelectorAll('.bd2-star.is-rated').forEach(function (s) { s.classList.remove('is-rated'); });
+    }
+
+    function toggleSection(id) {
+      state[id] = (state[id] === 'off') ? 'on' : 'off';
+      if (state[id] === 'off') clearSetup(id);
+      applyState(id);
+    }
+
+    function completeSection(id, el) {
+      if (state[id] === 'off') return; // enable first
+      state[id] = 'complete';
+      if (el && el.classList.contains('bd2-map')) el.classList.add('is-selected');
+      applyState(id);
+    }
+
+    function rateReviews(n) {
+      if (state.reviews === 'off') return;
+      document.querySelectorAll('#review-stars .bd2-star').forEach(function (s, i) { s.classList.toggle('is-rated', i < n); });
+      state.reviews = 'complete';
+      applyState('reviews');
+    }
+
+    /* ══════════════════════════════════════════
+       ITEM EDITOR — modal (desktop) / drawer (mobile), like the edit-links page.
+       Opened from a Quick-actions row's edit pencil; committing (Add) completes
+       the section (preview → blue/400).
+       ══════════════════════════════════════════ */
+    var ICON_CAL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>';
+    var ICON_WA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.6175 12.4037L10.4966 10.5L10.0004 7H7C7.00036 10 8.58063 13.4407 11.6225 15.4209M11.6225 15.4209C13.1131 16.3912 14.9993 17 17 17V14L13.4982 13.5L11.6225 15.4209Z"/><path d="M12.0019 22.002C17.5259 22.002 22.0039 17.5239 22.0039 12C22.0039 6.47607 17.5259 1.99805 12.0019 1.99805C6.47802 1.99805 2 6.47607 2 12C2 13.8889 2.43396 15.4979 3.34399 17.005L2.00177 22L6.97239 20.666C8.48539 21.5862 10.1017 22.002 12.0019 22.002Z"/></svg>';
+    var ICON_PHONE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.5 12.5a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.41 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>';
+    var ITEM_TYPES = {
+      book:     { title: 'Book Me',  icon: ICON_CAL,   label: 'Your booking link', help: 'Add your Jimdo booking link, Calendly, and any booking tool', placeholder: 'mybooking.link/example' },
+      whatsapp: { title: 'WhatsApp', icon: ICON_WA,    label: 'WhatsApp number',   help: '', placeholder: '+49…' },
+      call:     { title: 'Call Me',  icon: ICON_PHONE, label: 'Phone number',      help: '', placeholder: '+49…' }
+    };
+
+    function openItemModal(type) {
+      var t = ITEM_TYPES[type]; if (!t) return;
+      document.getElementById('item-drawer-icon').innerHTML = t.icon;
+      document.getElementById('item-drawer-title').textContent = t.title;
+      document.getElementById('item-label').value = t.title;
+      document.getElementById('item-value-label').textContent = t.label;
+      var help = document.getElementById('item-value-help');
+      help.textContent = t.help; help.hidden = !t.help;
+      var val = document.getElementById('item-value'); val.value = ''; val.placeholder = t.placeholder;
+      var d = document.getElementById('item-drawer');
+      d.setAttribute('aria-hidden', 'false');
+      requestAnimationFrame(function () { d.classList.add('is-open'); });
+    }
+
+    function closeItemDrawer(commit) {
+      var d = document.getElementById('item-drawer');
+      if (!d.classList.contains('is-open')) return;
+      if (commit) { state.quick = 'complete'; applyState('quick'); }
+      d.classList.remove('is-open');
+      setTimeout(function () { d.setAttribute('aria-hidden', 'true'); }, 220);
+    }
+  </script>
+
+</body>
+</html>

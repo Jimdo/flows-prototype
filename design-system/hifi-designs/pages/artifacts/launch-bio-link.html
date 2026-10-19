@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=360, initial-scale=1">
+<title>Instagram bio link — launch asset</title>
+<style>
+  /* Abstracted Instagram profile (360×727) for the "put your link in your
+     bio" artifact. Deliberately abstract: the shared .story-avatar and the
+     highlighted bio link are the only "real" elements — everything else is
+     a light skeleton so the eye lands on where the link goes. Tokens
+     inlined (artifacts don't link components.css); raw colors allowed. */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 360px; height: 727px; }
+  body {
+    font-family: 'Familjen Grotesk', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    background: #fff; color: #0a0a0a; overflow: hidden;
+  }
+
+  /* Skeleton primitive */
+  .sk { background: #efefef; border-radius: 6px; display: block; }
+
+  /* Top bar — chevron + handle only */
+  .ig-topbar { display: flex; align-items: center; gap: 12px; padding: 18px 16px 10px; }
+  .ig-topbar .back { font-size: 22px; line-height: 1; color: #0a0a0a; }
+  .ig-username { font-size: 17px; font-weight: 700; }
+
+  /* Profile row — avatar + skeleton stats */
+  .ig-profile { display: flex; align-items: center; gap: 28px; padding: 10px 20px 16px; }
+  .ig-stats { flex: 1; display: flex; justify-content: space-around; }
+  .ig-stat { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .sk-stat-num { width: 30px; height: 12px; }
+  .sk-stat-lbl { width: 42px; height: 8px; }
+
+  /* Bio — skeleton name/desc, real highlighted link */
+  .ig-bio { padding: 0 20px; display: flex; flex-direction: column; gap: 10px; }
+  .sk-name { width: 130px; height: 12px; }
+  .sk-desc { width: 210px; height: 10px; }
+
+  .ig-link-wrap { position: relative; align-self: flex-start; margin-top: 2px; }
+  /* Colors mirror the design tokens: blue-500 text, blue-10 fill, blue-100 border. */
+  .ig-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 600; color: #004ced;
+    background: #eff0ff; border: 1px solid #b4c4ff;
+    border-radius: 8px; padding: 8px 12px;
+  }
+  .ig-link svg { width: 15px; height: 15px; }
+  .ig-link-tag {
+    position: absolute; left: 0; top: calc(100% + 8px);
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600; color: #004ced; white-space: nowrap;
+  }
+  .ig-link-tag .arrow { font-size: 14px; }
+
+  /* Skeleton action buttons */
+  .ig-actions { display: flex; gap: 8px; padding: 60px 16px 0; }
+  .sk-btn { flex: 1; height: 32px; border-radius: 8px; }
+
+  /* Minimal tab bar (structure only) */
+  .ig-tabs { display: flex; border-top: 1px solid #efefef; margin-top: 24px; }
+  .ig-tab { flex: 1; display: flex; align-items: center; justify-content: center; padding: 12px 0; }
+  .ig-tab svg { width: 22px; height: 22px; }
+  .ig-tab.on { color: #0a0a0a; }
+  .ig-tab.off { color: #c7c7c7; }
+
+  /* Shared story-avatar (tokens inlined) */
+  .story-avatar {
+    width: 86px; height: 86px; border-radius: 50%; padding: 3px;
+    flex-shrink: 0; box-sizing: border-box; position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .story-avatar::before {
+    content: ''; position: absolute; inset: 0; border-radius: 50%;
+    background: conic-gradient(from 200deg, #FFC60A 0%, #EC8D36 18%, #D9154C 75%, #FFC60A 100%);
+  }
+  .story-avatar-inner {
+    position: relative; z-index: 1; width: 100%; height: 100%; border-radius: 50%;
+    border: 3px solid #fff; background: #dbe1ff; overflow: hidden; box-sizing: border-box;
+    display: flex; flex-direction: column; align-items: center; padding-top: 20%; gap: 4px;
+  }
+  .story-avatar-head { width: 25px; height: 25px; border-radius: 50%; background: #fff; flex-shrink: 0; }
+  .story-avatar-body { width: 46px; height: 46px; border-radius: 50%; background: #fff; flex-shrink: 0; }
+</style>
+</head>
+<body>
+  <div class="ig-topbar">
+    <span class="back">‹</span>
+    <span class="ig-username">claraandstone</span>
+  </div>
+
+  <div class="ig-profile">
+    <div class="story-avatar" aria-hidden="true">
+      <div class="story-avatar-inner">
+        <div class="story-avatar-head"></div>
+        <div class="story-avatar-body"></div>
+      </div>
+    </div>
+    <div class="ig-stats">
+      <div class="ig-stat"><span class="sk sk-stat-num"></span><span class="sk sk-stat-lbl"></span></div>
+      <div class="ig-stat"><span class="sk sk-stat-num"></span><span class="sk sk-stat-lbl"></span></div>
+      <div class="ig-stat"><span class="sk sk-stat-num"></span><span class="sk sk-stat-lbl"></span></div>
+    </div>
+  </div>
+
+  <div class="ig-bio">
+    <span class="sk sk-name"></span>
+    <span class="sk sk-desc"></span>
+    <span class="ig-link-wrap">
+      <span class="ig-link">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        claraandstone.jim.do
+      </span>
+      <span class="ig-link-tag"><span class="arrow">↑</span> your link goes here</span>
+    </span>
+  </div>
+
+  <div class="ig-actions">
+    <span class="sk sk-btn"></span>
+    <span class="sk sk-btn"></span>
+  </div>
+
+  <div class="ig-tabs">
+    <div class="ig-tab on">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M21.5 12L2.5 12M12 2.5V21.5" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M5.5 21.5H18.5C20.1569 21.5 21.5 20.1569 21.5 18.5V5.5C21.5 3.84315 20.1569 2.5 18.5 2.5H5.5C3.84315 2.5 2.5 3.84315 2.5 5.5V18.5C2.5 20.1569 3.84315 21.5 5.5 21.5Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/>
+      </svg>
+    </div>
+    <div class="ig-tab off">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+        <path d="M19 19C19 16.2386 16.7614 14 14 14H10C7.23858 14 5 16.2386 5 19V21H19V21Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+      </svg>
+    </div>
+  </div>
+</body>
+</html>

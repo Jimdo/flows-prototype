@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=360, initial-scale=1">
+<title>Clara and Stone — Jewellery creation workshop</title>
+<style>
+  /* ═══════════════════════════════════════════════
+     ARTIFACT — DARK BOOKING PAGE
+     Booking / appointments page. Header + hero consolidated
+     to match the sibling action page (flow-page.html): a
+     separate header bar above the hero, Jimdo promo pill, and
+     withdraw-contract button. Below-hero content (price, info
+     card) is from Figma 10956:45827 (01. Flows — Explorations).
+     Native 360px width, no iPhone chrome — the workbench
+     iframe holder supplies it.
+     ═══════════════════════════════════════════════ */
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #0a0a0a;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: 'Familjen Grotesk', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    color: #fff;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .flow-page {
+    width: 100%;
+    max-width: 360px;
+    min-height: 100vh;
+    margin: 0 auto;
+    background: #0a0a0a;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* ── Header bar — matches sibling action page (flow-page.html) ── */
+  .fp-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    width: 100%;
+  }
+  .fp-brand {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: #fff;
+    letter-spacing: 0;
+    text-transform: uppercase;
+  }
+  .fp-share {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 0;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .fp-share svg { width: 18px; height: 18px; stroke-width: 1.5; }
+
+  /* ── Hero image — matches sibling action page ── */
+  .fp-hero {
+    padding: 0 8px;
+    width: 100%;
+  }
+  .fp-hero-img-wrap {
+    width: 100%;
+    height: 344px;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #1a1015;
+    position: relative;
+  }
+  .fp-hero-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 30%;
+  }
+
+  /* ── Title block (Figma 10956:45834–45836) ── */
+  .fp-title-block {
+    padding: 12px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .fp-eyebrow {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.6);
+  }
+  .fp-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: #fff;
+    letter-spacing: 0;
+  }
+
+  /* ── Description (Figma 10956:45850–45851) ── */
+  .fp-desc-block { padding: 12px 20px; }
+  .fp-desc {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  /* ── Info card (Figma 10956:45837–45908) ──
+     Stacked rows on a 0.10-white fill with 2px gaps so the dark page bg
+     shows through as a hairline divider — the ribbon pattern from the
+     sibling flow-booking-page. Only the outer corners round (16). */
+  .fp-info-wrap { padding: 12px 20px; }
+  .fp-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    border-radius: 16px;
+  }
+  .fp-info-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.10);
+  }
+  .fp-info-row:first-child { border-radius: 16px 16px 4px 4px; }
+  .fp-info-row:last-child  { border-radius: 4px 4px 16px 16px; }
+  .fp-info-icon {
+    width: 16px;
+    height: 16px;
+    color: rgba(255, 255, 255, 0.85);
+    flex-shrink: 0;
+  }
+  .fp-info-icon svg { width: 100%; height: 100%; }
+  .fp-info-body {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.85);
+  }
+  .fp-info-body strong { font-weight: 700; }
+
+  /* ── Jimdo promo pill — matches sibling action page ── */
+  .fp-jimdo-promo-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 56px 16px 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .fp-jimdo-promo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 6px 16px;
+    background: #eff0ff;
+    border: 1px solid #b4c4ff;
+    border-radius: 100px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.57;
+    letter-spacing: 0.14px;
+    color: #001453;
+    white-space: nowrap;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .fp-jimdo-promo-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 2px;
+    background: #001453;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #fff;
+  }
+  .fp-jimdo-promo-icon svg { width: 14px; height: 14px; }
+
+  /* ── Legal — matches sibling action page ── */
+  .fp-legal {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 32px 20px 20px;
+    font-family: 'DM Sans', 'Faculty Glyphic', 'Familjen Grotesk', -apple-system, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #fff;
+    white-space: nowrap;
+  }
+  .fp-legal a {
+    color: #fff;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* ── Withdraw contract — matches sibling action page ── */
+  .fp-withdraw-section {
+    display: flex;
+    justify-content: center;
+    padding: 0 20px 32px;
+  }
+  .fp-withdraw-btn {
+    font-family: 'DM Sans', 'Faculty Glyphic', 'Familjen Grotesk', -apple-system, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #fff;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 100px;
+    padding: 6px 20px;
+    cursor: pointer;
+    transition: background-color 180ms ease-out,
+                border-color 180ms ease-out,
+                transform 150ms ease-out;
+  }
+  .fp-withdraw-btn:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.55);
+    outline-offset: 3px;
+  }
+  @media (hover: hover) {
+    .fp-withdraw-btn:hover {
+      border-color: rgba(255, 255, 255, 0.6);
+      background: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .fp-withdraw-btn:active {
+    transform: scale(0.97);
+    transition-duration: 80ms;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .fp-withdraw-btn { transition: none; }
+    .fp-withdraw-btn:active { transform: none; }
+  }
+
+  .fp-scroll-pad { display: none; }
+
+  /* ── Fixed CTA — sibling dark-theme convention: solid black bar,
+     off-white button with black label. ── */
+  .fp-fixed-cta {
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+    padding: 20px;
+    background: #0a0a0a;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  .fp-cta {
+    width: 100%;
+    min-height: 52px;
+    padding: 12px 16px;
+    border: 0;
+    border-radius: 16px;
+    background: #fdfdfd;
+    color: #000;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.3;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  /* ══════════════════════════════════════════════════════════════════════
+     Desktop presentation — matches sibling artifacts: a 360-wide card on a
+     #1a1a1a canvas, rounded 20 with a soft drop shadow.
+     ══════════════════════════════════════════════════════════════════════ */
+  @media (min-width: 768px) {
+    body {
+      background: #1a1a1a;
+      padding: 40px 0;
+    }
+    .flow-page {
+      min-height: auto;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+    }
+    .fp-fixed-cta {
+      border-radius: 0 0 20px 20px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="flow-page">
+
+  <!-- Zone A — Header -->
+  <header class="fp-header">
+    <div class="fp-brand">CLARA AND STONE</div>
+    <button class="fp-share" aria-label="Share">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+        <polyline points="16 6 12 2 8 6"/>
+        <line x1="12" y1="2" x2="12" y2="15"/>
+      </svg>
+    </button>
+  </header>
+
+  <!-- Zone B — Hero -->
+  <div class="fp-hero">
+    <div class="fp-hero-img-wrap" role="img" aria-label="Clara and Stone workshop">
+      <img class="fp-hero-img" alt="" src="../images/clara-stone.jpg" aria-hidden="true" />
+    </div>
+  </div>
+
+  <!-- Zone C — Title -->
+  <div class="fp-title-block">
+    <p class="fp-eyebrow">80&#8364;</p>
+    <h1 class="fp-title">Jewellery creation workshop for beginners</h1>
+  </div>
+
+  <!-- Zone C — Description -->
+  <div class="fp-desc-block">
+    <p class="fp-desc">Discover the art of jewelry making in a fun, hands-on workshop designed for beginners. Unleash your creativity and craft your own unique piece.</p>
+  </div>
+
+  <!-- Zone C — Info card -->
+  <div class="fp-info-wrap">
+    <div class="fp-info" role="group" aria-label="Booking details">
+
+      <div class="fp-info-row">
+        <span class="fp-info-icon" aria-hidden="true">
+          <!-- Calendar02 -->
+          <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 3v4M16 3v4M3 10h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <div class="fp-info-body"><span>3 available appointments</span></div>
+      </div>
+
+      <div class="fp-info-row">
+        <span class="fp-info-icon" aria-hidden="true">
+          <!-- Clock02 -->
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 8v4l2.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <div class="fp-info-body"><span>90 minutes</span></div>
+      </div>
+
+      <div class="fp-info-row">
+        <span class="fp-info-icon" aria-hidden="true">
+          <!-- Location01 -->
+          <svg viewBox="0 0 24 24" fill="none"><path d="M15.5 11C15.5 12.933 13.933 14.5 12 14.5C10.067 14.5 8.5 12.933 8.5 11C8.5 9.067 10.067 7.5 12 7.5C13.933 7.5 15.5 9.067 15.5 11Z" stroke="currentColor" stroke-width="1.5"/><path d="M21 11C21 18 12 22 12 22C12 22 3 18 3 11C3 6.02944 7.02944 2 12 2C16.9706 2 21 6.02944 21 11Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg>
+        </span>
+        <div class="fp-info-body"><span>My Studio</span></div>
+      </div>
+
+      <div class="fp-info-row">
+        <span class="fp-info-icon" aria-hidden="true">
+          <!-- Clock02 (registration deadline) -->
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 8v4l2.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <div class="fp-info-body">
+          <span>Registration closes</span>
+          <strong>24 hours before the event</strong>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Jimdo promo pill — sits above the legal links -->
+  <div class="fp-jimdo-promo-wrap">
+    <a class="fp-jimdo-promo" href="#">
+      <span class="fp-jimdo-promo-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Stylised "J" mark on dark square — placeholder for Jimdo favicon -->
+          <path d="M15 5.5v9.5c0 2.2-1.8 3.5-4 3.5s-4-1.3-4-3.5" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none"/>
+          <circle cx="15" cy="6" r="1.4" fill="#fff"/>
+        </svg>
+      </span>
+      Build your page with Jimdo
+    </a>
+  </div>
+
+  <!-- Zone D — Legal -->
+  <nav class="fp-legal" aria-label="Legal">
+    <a href="#">Imprint</a>
+    <a href="#">Cookie Settings</a>
+    <a href="#">Privacy Policy</a>
+  </nav>
+
+  <!-- Zone D2 — Withdraw contract -->
+  <div class="fp-withdraw-section">
+    <button class="fp-withdraw-btn">Withdraw contract</button>
+  </div>
+
+  <div class="fp-scroll-pad"></div>
+
+  <!-- Zone E — Fixed CTA -->
+  <div class="fp-fixed-cta">
+    <button class="fp-cta">Register</button>
+  </div>
+
+</div>
+
+</body>
+</html>

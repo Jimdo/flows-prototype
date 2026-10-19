@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Launch Plan</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+
+  /* ═══════════════════════════════════════════════════════════════
+     LAUNCH PLAN v2  (scr-435, iteration of scr-032)
+     Expands the launch plan: the left phone previews 5 ready-made
+     artifacts (Instagram bio link · Story · WhatsApp message · QR print ·
+     Facebook post); the right replaces the step-list with a minimal
+     CALENDAR — each artifact holds a spaced day. Selecting a day shows,
+     above the calendar, how to use that artifact + its download/copy CTAs
+     and an edit button. Reuses the scr-030 share shell + preview verbatim.
+     ═══════════════════════════════════════════════════════════════ */
+
+  [hidden] { display: none !important; }
+
+  html, body { height: 100%; }
+  body, .app-shell { background: var(--jui-color-gray-10); }
+
+  .app-shell { display: flex; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden; }
+
+  /* ── Two-pane shell (verbatim from scr-030) ── */
+  .share-shell {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    align-items: stretch;
+    gap: 32px;                                  /* Figma column gap — no 32px token */
+    padding: var(--jui-layout-padding-xs);      /* 8 */
+    overflow-x: clip;
+  }
+
+  /* LEFT preview pane — arrows | center column (label + phone + dots) */
+  .share-preview {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--jui-layout-gap-m);               /* 16 — arrow ↔ phone */
+    position: relative;
+    overflow-x: clip;
+  }
+  .lp-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--jui-layout-gap-m);               /* 16 — label / phone / dots */
+  }
+  .lp-asset-name {
+    font-size: var(--jui-typography-sub-headline-small-size);    /* 16 */
+    font-weight: var(--jui-typography-sub-headline-small-weight);
+    line-height: var(--jui-typography-sub-headline-small-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+    text-align: center;
+  }
+
+  /* Prev/next arrows — circular outlined buttons, desktop only. */
+  .lp-arrow {
+    flex-shrink: 0;
+    width: var(--jui-layout-dimension-m);       /* 48 */
+    height: var(--jui-layout-dimension-m);
+    border-radius: 50%;
+    background: var(--jui-color-background-gray-light);          /* white */
+    border: 1px solid var(--jui-color-stroke-primary-on-light);  /* blue-100 */
+    color: var(--jui-color-actions-primary-rest);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 150ms ease, border-color 150ms ease;
+  }
+  .lp-arrow:hover { background: var(--jui-color-background-primary-light); }
+  .lp-arrow:focus-visible { outline: 2px solid var(--jui-color-actions-primary-rest); outline-offset: 2px; }
+  .lp-arrow[disabled] { opacity: 0.4; pointer-events: none; }
+  .lp-arrow svg {
+    width: 24px; height: 24px;
+    stroke: currentColor; fill: none;
+    stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+  }
+
+  .phone-stage {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* Preview frame — edit-links / design-editor treatment: light surface,
+     thin gray-100 border, radius, soft shadow. Content box 300×605.8
+     matches the 360×727 artifact aspect at scale 0.8333. */
+  .phone-frame {
+    position: relative;
+    box-sizing: border-box;
+    width: 302px;
+    height: 607.8px;
+    background: var(--jui-color-background-gray-light);          /* white */
+    border: 1px solid var(--jui-color-gray-100);
+    border-radius: var(--jui-style-radius-20);                   /* 20 */
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .phone-inner {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    background: var(--jui-color-gray-black);
+  }
+
+  /* Carousel inside the phone — full-bleed asset slides, translateX. */
+  .lp-track {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    transition: transform 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .lp-slide {
+    flex: 0 0 100%;
+    height: 100%;
+    position: relative;
+  }
+  .artifact-iframe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 360px;
+    height: 727px;
+    border: 0;
+    background: var(--jui-color-gray-black);
+    transform: scale(0.8333);                   /* 300 / 360 — fills the inner */
+    transform-origin: top left;
+  }
+
+  /* Dots under the phone */
+  .lp-dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--jui-layout-gap-xs);              /* 8 */
+  }
+  .lp-dot {
+    width: 8px; height: 8px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: var(--jui-color-gray-200);
+    cursor: pointer;
+    transition: background-color 200ms ease, width 200ms ease;
+  }
+  .lp-dot[aria-selected="true"] {
+    width: 20px;
+    background: var(--jui-color-actions-primary-rest);
+    border-radius: var(--jui-style-radius-xs);  /* 4 — pill */
+  }
+  .lp-dot:focus-visible { outline: 2px solid var(--jui-color-actions-primary-rest); outline-offset: 2px; }
+
+  /* ── RIGHT panel card ── */
+  .share-panel {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--jui-color-background-gray-light);          /* white */
+    border: 1px solid var(--jui-color-stroke-gray-decorative);   /* #f8f8f8 */
+    border-radius: var(--jui-style-radius-16);
+    overflow: hidden;
+  }
+
+  /* Panel header — label + Done, inside the panel (edit-links pattern). */
+  .lp-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--jui-layout-gap-s);                                /* 12 */
+    padding: var(--jui-layout-padding-s) var(--jui-layout-padding-m); /* 12 16 */
+    flex-shrink: 0;
+  }
+
+  /* Scroll area holds the instruction block + the calendar. */
+  .share-cards {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding: var(--jui-layout-padding-l);       /* 24 */
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ═══════════════════════════════════════════════
+     INSTRUCTION — how to use the selected artifact (above the calendar).
+     ═══════════════════════════════════════════════ */
+  .lp-instruction {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-xs);              /* 8 */
+    margin-bottom: var(--jui-layout-gap-l);     /* 24 — space above the calendar */
+  }
+  .lp-instruction-label {
+    font-size: var(--jui-typography-sub-headline-medium-size);   /* 20 */
+    font-weight: var(--jui-typography-sub-headline-medium-weight);
+    line-height: var(--jui-typography-sub-headline-medium-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+  .lp-instruction-how {
+    margin: 0;
+    font-size: var(--jui-typography-body-small-regular-size);    /* 14 */
+    line-height: var(--jui-typography-body-small-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-subdued);
+  }
+  .lp-instruction-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--jui-layout-gap-xs);              /* 8 */
+    margin-top: var(--jui-layout-gap-s);        /* 12 */
+  }
+  .lp-edit { margin-left: auto; }               /* edit pinned right */
+
+  /* ═══════════════════════════════════════════════
+     CALENDAR — minimal month grid. Most days are empty; the "prepared"
+     days carry an artifact marker, spaced out so nothing feels crowded.
+     ═══════════════════════════════════════════════ */
+  .lp-cal-weekdays,
+  .lp-cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: var(--jui-layout-gap-xs);              /* 8 */
+  }
+  .lp-cal-weekdays { margin-bottom: var(--jui-layout-gap-xs); }  /* 8 */
+  .lp-cal-weekday {
+    text-align: center;
+    font-size: var(--jui-typography-label-small-size);           /* 12 */
+    font-weight: var(--jui-typography-label-small-weight);
+    letter-spacing: var(--jui-typography-label-small-ls);
+    text-transform: uppercase;
+    color: var(--jui-color-typography-gray-on-light-subdued);
+  }
+  .lp-cal-cell {
+    aspect-ratio: 1;
+    border-radius: var(--jui-style-radius-s);   /* 8 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .lp-cal-cell--empty { background: var(--jui-color-background-gray-dark); }  /* gray-50 */
+  .lp-cal-cell--art {
+    position: relative;
+    flex-direction: column;
+    gap: 2px;
+    background: var(--jui-color-background-primary-light);        /* blue-10 */
+    color: var(--jui-color-actions-primary-rest);
+    border: 1px solid transparent;
+    cursor: pointer;
+    padding: 0;
+    transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+  }
+  .lp-cal-cell--art:hover { background: var(--jui-color-background-primary-medium); }
+  .lp-cal-cell--art:focus-visible { outline: 2px solid var(--jui-color-actions-primary-rest); outline-offset: 2px; }
+  .lp-cal-cell--art[aria-selected="true"] {
+    border: 2px solid var(--jui-color-actions-primary-rest);
+    box-shadow: var(--jui-effects-elevation-blue-sm);
+  }
+  .lp-cal-cell--art svg { width: 18px; height: 18px; }
+
+  /* Today — the reference point: a persistent blue-100 ring + a small
+     "Today" label inside the cell (selected/ done treatments override). */
+  .lp-cal-cell--today { border-color: var(--jui-color-stroke-primary-on-light); }
+  .lp-cal-today-lbl {
+    font-size: 10px;                            /* on-scale; smaller than label-small to fit the cell */
+    font-weight: var(--jui-typography-label-small-weight);
+    line-height: 1;
+    color: currentColor;
+  }
+
+  /* Done — the platform icon stays (the day still shows what was posted);
+     a small green check badge is added in the top-right corner. */
+  .lp-cal-check {
+    position: absolute;
+    top: 2px; right: 3px;
+    color: var(--jui-color-green-500);          /* the check itself is green-500 */
+    display: none;
+  }
+  .lp-cal-check svg { width: 13px; height: 13px; display: block; }
+  .lp-cal-cell--done .lp-cal-check { display: block; }
+  /* Done keeps a green background (icon stays its original color). */
+  .lp-cal-cell--done,
+  .lp-cal-cell--done:hover { background: var(--jui-color-background-positive-light); }
+
+  /* Mark-as-done — a leading checkbox on the task label (a status control,
+     kept out of the get-the-asset actions row). Checking it greens the
+     day in the calendar. */
+  .lp-inst-headrow {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-s);               /* 12 */
+  }
+  .lp-done-check {
+    width: 24px; height: 24px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    border: 1.5px solid var(--jui-color-gray-200);
+    border-radius: var(--jui-style-radius-s);   /* 8 */
+    background: var(--jui-color-gray-white);
+    color: var(--jui-color-gray-white);
+    cursor: pointer;
+    transition: background-color 150ms ease, border-color 150ms ease;
+  }
+  .lp-done-check svg { width: 15px; height: 15px; opacity: 0; transition: opacity 150ms ease; }
+  .lp-done-check[aria-pressed="true"] {
+    background: var(--jui-color-green-500);
+    border-color: var(--jui-color-green-500);
+  }
+  .lp-done-check[aria-pressed="true"] svg { opacity: 1; }
+  .lp-done-check:focus-visible { outline: 2px solid var(--jui-color-actions-primary-rest); outline-offset: 2px; }
+  /* When the selected task is done, gently mute its label. */
+  .lp-done-check[aria-pressed="true"] + .lp-instruction-label { color: var(--jui-color-typography-gray-on-light-subdued); }
+
+  /* ── Toast ── */
+  .toast-container {
+    position: fixed;
+    top: var(--jui-layout-dimension-l);
+    left: var(--jui-layout-padding-m);
+    right: var(--jui-layout-padding-m);
+    z-index: 200;
+    pointer-events: none;
+  }
+  @media (min-width: 768px) {
+    .toast-container { left: auto; right: var(--jui-layout-padding-l); width: 280px; }
+  }
+
+  /* ═══════════════════════════════════════════════
+     MOBILE (<768px) — single scrolling column (scr-030 pattern).
+     ═══════════════════════════════════════════════ */
+  @media (max-width: 767px) {
+    .share-shell {
+      flex-direction: column;
+      gap: 0;
+      padding: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .lp-arrow { display: none; }
+    .share-preview { order: 2; padding: var(--jui-layout-padding-m) 0; } /* 16 */
+    .share-panel { display: contents; }
+
+    .lp-panel-header {
+      order: 0;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--jui-color-gray-10);
+    }
+    .share-cards {
+      order: 3;
+      flex: 0 0 auto;
+      overflow: visible;
+      padding-bottom: var(--jui-layout-padding-xl);
+    }
+
+    /* Smaller frame on mobile (content box 234×472.5 at scale 0.65). */
+    .phone-frame { width: 236px; height: 474.5px; border-radius: var(--jui-style-radius-l); }
+    .artifact-iframe { transform: scale(0.65); }     /* 234 / 360 */
+  }
+
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <div class="share-shell">
+
+    <!-- ─── LEFT: phone carousel of the 5 assets ─── -->
+    <div class="share-preview">
+
+      <button class="lp-arrow" id="lp-prev" aria-label="Previous asset" disabled>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M8.99996 16.9998L4 11.9997L9 6.99976"/><path d="M4 12H20"/>
+        </svg>
+      </button>
+
+      <div class="lp-center">
+        <span class="lp-asset-name" id="lp-asset-name"
+          data-inspect-label="Asset name — names the previewed asset"
+          data-inspect-phrase="launchPlan.preview.label">Instagram bio</span>
+
+        <div class="phone-stage">
+          <div class="phone-frame">
+            <div class="phone-inner">
+              <div class="lp-track" id="lp-track">
+                <div class="lp-slide">
+                  <iframe class="artifact-iframe" src="../artifacts/launch-bio-link.html"
+                    title="Instagram bio link asset" loading="eager"></iframe>
+                </div>
+                <div class="lp-slide">
+                  <iframe class="artifact-iframe" src="../artifacts/launch-instagram-story.html"
+                    title="Instagram Story asset" loading="eager"></iframe>
+                </div>
+                <div class="lp-slide">
+                  <iframe class="artifact-iframe" src="../artifacts/launch-whatsapp.html"
+                    title="WhatsApp message asset" loading="eager"></iframe>
+                </div>
+                <div class="lp-slide">
+                  <iframe class="artifact-iframe" src="../artifacts/launch-qr.html"
+                    title="QR code print asset" loading="eager"></iframe>
+                </div>
+                <div class="lp-slide">
+                  <iframe class="artifact-iframe" src="../artifacts/launch-facebook.html"
+                    title="Facebook post asset" loading="eager"></iframe>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lp-dots" id="lp-dots" role="tablist" aria-label="Asset preview pager"></div>
+      </div>
+
+      <button class="lp-arrow" id="lp-next" aria-label="Next asset">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M15.0001 17L20 12L15 7"/><path d="M4 12H20"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- ─── RIGHT: instruction + calendar ─── -->
+    <div class="share-panel">
+
+      <!-- Panel header — small label + Done (edit-links pattern) -->
+      <header class="lp-panel-header">
+        <span class="page-header-label" data-inspect-phrase="launchPlan.header.title">Launch Plan</span>
+        <button class="btn-primary btn-sm" id="done-btn"
+          data-inspect-label="Done — primary small button"
+          data-inspect-phrase="launchPlan.header.done"
+          data-nav-to="flows/home-dashboard-v2.html"
+          data-nav-screen-id="scr-131">Done</button>
+      </header>
+
+      <div class="share-cards">
+
+        <!-- Instruction — how to use the selected artifact -->
+        <div class="lp-instruction">
+          <div class="lp-inst-headrow">
+            <button class="lp-done-check" id="lp-done" aria-pressed="false" aria-label="Mark as done"
+              data-inspect-label="Mark as done — task checkbox"
+              data-inspect-phrase="launchPlan.v2.done">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="lp-instruction-label" id="lp-inst-label" data-inspect-phrase="launchPlan.v2.label">Put your link in your bio</div>
+          </div>
+          <p class="lp-instruction-how" id="lp-inst-how" data-inspect-phrase="launchPlan.v2.how">Paste your link so every visitor lands on your page.</p>
+          <div class="lp-instruction-actions">
+            <button class="btn-secondary btn-sm" id="lp-a1" data-action="copy"
+              data-inspect-label="Primary action for the selected artifact"
+              data-inspect-phrase="launchPlan.v2.action1">Copy link</button>
+            <button class="btn-secondary btn-sm" id="lp-a2" data-action="copy" hidden
+              data-inspect-label="Secondary action for the selected artifact"
+              data-inspect-phrase="launchPlan.v2.action2">Copy caption</button>
+            <button class="btn-subtle btn-sm lp-edit" id="lp-edit" data-action="edit"
+              data-inspect-label="Edit — subtle small button"
+              data-inspect-phrase="launchPlan.v2.edit">Edit</button>
+          </div>
+        </div>
+
+        <!-- Calendar -->
+        <div class="lp-cal-weekdays" aria-hidden="true">
+          <span class="lp-cal-weekday">S</span>
+          <span class="lp-cal-weekday">M</span>
+          <span class="lp-cal-weekday">T</span>
+          <span class="lp-cal-weekday">W</span>
+          <span class="lp-cal-weekday">T</span>
+          <span class="lp-cal-weekday">F</span>
+          <span class="lp-cal-weekday">S</span>
+        </div>
+        <div class="lp-cal-grid" id="lp-cal-grid" role="tablist" aria-label="Launch plan calendar"></div>
+
+      </div>
+
+    </div>
+    <!-- /share-panel -->
+
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ─── Carousel ↔ calendar sync + actions ─── -->
+<script>
+(function () {
+  var track = document.getElementById('lp-track');
+  if (!track) return;
+
+  // Artifact config (order matches the phone slides).
+  var ART = [
+    { name: 'Instagram bio',   label: 'Put your link in your bio', how: 'Paste your link so every visitor lands on your page.', a1: { t: 'Copy link', k: 'copy' } },
+    { name: 'Instagram Story', label: 'Post an Instagram story',   how: 'Share it to your Story — the fastest first nudge.',      a1: { t: 'Download image', k: 'download' } },
+    { name: 'WhatsApp message',label: 'Send a WhatsApp message',   how: 'Send it to the people who already know you.',           a1: { t: 'Copy message', k: 'copy' } },
+    { name: 'QR code',         label: 'Print a QR code',           how: 'Print it for your studio, stall, or packaging.',        a1: { t: 'Download QR', k: 'download' } },
+    { name: 'Facebook post',   label: 'Post on Facebook',          how: 'Post it so it keeps working for days.',                 a1: { t: 'Download image', k: 'download' }, a2: { t: 'Copy caption', k: 'copy' } }
+  ];
+  // Jimdo UI registry icons (design-system/icons): link-chain, instagram,
+  // whatsapp-02, qr-code, facebook-02 — inlined so the JS can inject them.
+  var ICONS = [
+    '<svg viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none"><path d="M20.52 3.449C18.24 1.245 15.24 0 12.045 0 5.463 0 .104 5.334.101 11.893c0 2.096.549 4.14 1.595 5.945L0 24l6.335-1.652a11.882 11.882 0 0 0 5.71 1.447h.006c6.585 0 11.946-5.335 11.949-11.896 0-3.176-1.24-6.165-3.495-8.411l.015-.039zm-8.47 18.297h-.004a9.86 9.86 0 0 1-5.031-1.378l-.36-.214-3.744.977 1-3.645-.235-.375a9.861 9.861 0 0 1-1.516-5.26c.003-5.45 4.437-9.884 9.893-9.884a9.81 9.81 0 0 1 6.993 2.899 9.824 9.824 0 0 1 2.891 6.993c-.002 5.45-4.437 9.884-9.893 9.884zm5.438-7.41c-.3-.15-1.767-.866-2.04-.963-.273-.1-.47-.15-.672.15-.2.3-.767.963-.94 1.16-.173.2-.347.223-.644.074-.297-.15-1.26-.463-2.4-1.48-.89-.79-1.49-1.76-1.66-2.06-.173-.3-.02-.46.13-.606.136-.135.3-.347.45-.52.149-.175.2-.3.3-.495.1-.2.05-.374-.025-.524-.075-.15-.675-1.623-.924-2.22-.242-.584-.487-.504-.672-.513l-.574-.008c-.2 0-.524.074-.8.374-.273.3-1.045 1.02-1.045 2.486 0 1.465 1.07 2.882 1.22 3.082.15.197 2.105 3.212 5.098 4.506.714.308 1.27.492 1.705.628.715.228 1.366.196 1.88.118.574-.086 1.767-.723 2.017-1.418.248-.697.248-1.29.174-1.42-.075-.127-.27-.202-.57-.35z" fill="currentColor"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 14H17M14 14V17M17.5 17.5H17.51M21 14V14.01M21 17.5V21H17.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+  ];
+  // cellIndex (0..34, 7×5) → artifact index. Spaced ~one per week.
+  var PLACES = { 1: 0, 11: 1, 16: 2, 26: 3, 31: 4 };
+
+  var CHECK = '<svg viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var TODAY = 0;                                 // first artifact day = today (the reference point)
+  var COUNT = ART.length;
+  var done = ART.map(function () { return false; });
+  var current = 0;
+
+  var nameEl = document.getElementById('lp-asset-name');
+  var prev = document.getElementById('lp-prev');
+  var next = document.getElementById('lp-next');
+  var labelEl = document.getElementById('lp-inst-label');
+  var howEl = document.getElementById('lp-inst-how');
+  var a1 = document.getElementById('lp-a1');
+  var a2 = document.getElementById('lp-a2');
+  var doneBtn = document.getElementById('lp-done');
+
+  // Build dots
+  var dotsWrap = document.getElementById('lp-dots');
+  var dots = ART.map(function (a, i) {
+    var b = document.createElement('button');
+    b.className = 'lp-dot'; b.setAttribute('role', 'tab');
+    b.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
+    b.setAttribute('aria-label', a.name);
+    b.addEventListener('click', function () { select(i); });
+    dotsWrap.appendChild(b);
+    return b;
+  });
+
+  // Build calendar
+  var grid = document.getElementById('lp-cal-grid');
+  var cellByArt = {};
+  for (var c = 0; c < 35; c++) {
+    if (PLACES.hasOwnProperty(c)) {
+      var ai = PLACES[c];
+      var btn = document.createElement('button');
+      btn.className = 'lp-cal-cell lp-cal-cell--art' + (ai === TODAY ? ' lp-cal-cell--today' : '');
+      btn.setAttribute('role', 'tab');
+      btn.setAttribute('aria-label', ART[ai].label + (ai === TODAY ? ' (today)' : ''));
+      btn.setAttribute('data-art', String(ai));
+      var glyph = document.createElement('span');
+      glyph.className = 'lp-cal-glyph';
+      glyph.innerHTML = ICONS[ai];
+      btn.appendChild(glyph);
+      var chk = document.createElement('span');
+      chk.className = 'lp-cal-check';
+      chk.innerHTML = CHECK;
+      btn.appendChild(chk);
+      if (ai === TODAY) {
+        var lbl = document.createElement('span');
+        lbl.className = 'lp-cal-today-lbl';
+        lbl.textContent = 'Today';
+        btn.appendChild(lbl);
+      }
+      btn.addEventListener('click', function () { select(parseInt(this.getAttribute('data-art'), 10)); });
+      grid.appendChild(btn);
+      cellByArt[ai] = { btn: btn };
+    } else {
+      var d = document.createElement('div');
+      d.className = 'lp-cal-cell lp-cal-cell--empty';
+      grid.appendChild(d);
+    }
+  }
+
+  function applyDone(i) {
+    var ref = cellByArt[i];
+    if (!ref) return;
+    if (done[i]) ref.btn.classList.add('lp-cal-cell--done');
+    else ref.btn.classList.remove('lp-cal-cell--done');
+  }
+  function updateDoneToggle() {
+    doneBtn.setAttribute('aria-pressed', done[current] ? 'true' : 'false');
+  }
+  doneBtn.addEventListener('click', function () {
+    done[current] = !done[current];
+    applyDone(current);
+    updateDoneToggle();
+    if (done[current]) showToast('Marked as done');
+  });
+
+  function select(i) {
+    i = Math.max(0, Math.min(COUNT - 1, i));
+    current = i;
+    var a = ART[i];
+    track.style.transform = 'translateX(-' + (i * 100) + '%)';
+    nameEl.textContent = a.name;
+    prev.disabled = i === 0;
+    next.disabled = i === COUNT - 1;
+    dots.forEach(function (d, idx) { d.setAttribute('aria-selected', idx === i ? 'true' : 'false'); });
+    Object.keys(cellByArt).forEach(function (k) {
+      cellByArt[k].btn.setAttribute('aria-selected', parseInt(k, 10) === i ? 'true' : 'false');
+    });
+    // instruction
+    labelEl.textContent = a.label;
+    howEl.textContent = a.how;
+    a1.textContent = a.a1.t; a1.setAttribute('data-action', a.a1.k);
+    if (a.a2) { a2.textContent = a.a2.t; a2.setAttribute('data-action', a.a2.k); a2.hidden = false; }
+    else { a2.hidden = true; }
+    updateDoneToggle();
+  }
+
+  prev.addEventListener('click', function () { select(current - 1); });
+  next.addEventListener('click', function () { select(current + 1); });
+
+  // Actions → toast
+  document.querySelector('.lp-instruction-actions').addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    var kind = btn.getAttribute('data-action');
+    showToast(kind === 'download' ? 'File downloaded'
+      : kind === 'edit' ? 'Opening the editor…'
+      : 'Copied to clipboard');
+  });
+
+  function showToast(message) {
+    var c = document.getElementById('toast-container');
+    if (!c) return;
+    var t = document.createElement('div');
+    t.className = 'toast toast-success';
+    t.innerHTML = '<span class="toast-icon"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true" width="20" height="20">' +
+      '<path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>' +
+      '</svg></span><span class="toast-message">' + message + '</span>';
+    c.appendChild(t);
+    setTimeout(function () { t.classList.add('toast-hiding'); setTimeout(function () { t.remove(); }, 300); }, 2500);
+  }
+
+  select(0);
+})();
+</script>
+
+<script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js"></script>
+
+<!-- Design annotations — surfaced in the workbench inspect panel -->
+<script type="application/json" id="design-annotations">
+[
+  "Launch Plan v2 (scr-435, iteration of scr-032). Expands the launch plan: the left phone previews 5 ready-made artifacts (Instagram bio link, Story, WhatsApp message, QR print, Facebook post); the right replaces the step-list with a minimal calendar. Reuses the scr-030 share shell + preview verbatim; only the right panel (instruction + calendar) and 2 artifacts (launch-bio-link, launch-qr) are net-new.",
+  "LEFT: asset-name label + phone carousel of the 5 artifacts (edit-page light frame, no black bezel), dots + prev/next arrows (desktop). New artifacts: launch-bio-link (abstracted IG profile with the highlighted bio link) and launch-qr (printable QR card).",
+  "RIGHT: an instruction block above a calendar. The calendar is a 7×5 month grid — most days are subtle empty cells (gray-50); the 5 'prepared' days carry an artifact marker (blue-10 + platform icon), spaced ~one per week so nothing feels crowded, no specific dates. Selecting a day (or a dot/arrow) drives the phone and updates the instruction above: a clear label ('Put your link in your bio' / 'Post an Instagram story' / 'Send a WhatsApp message' / 'Print a QR code' / 'Post on Facebook'), a one-line how-to, its download/copy CTA(s) and a pencil edit button (right-aligned).",
+  "Low cognitive load by design: one clear label + one line + one or two actions per artifact, generous spacing, and a calendar that conveys 'we've prepared things for you to promote yourself, spread over time'. Calendar cells and dots are built in JS.",
+  "Tokens throughout; buttons are canonical (.btn-secondary.btn-sm, .icon-btn-sm.muted). Buttons are inert prototype actions (toast) except Done (data-nav → home-dashboard / scr-131). Responsive: desktop two panes; mobile single scrolling column with sticky header, arrows hidden."
+]
+</script>
+
+</body>
+</html>

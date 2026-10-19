@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jimdo — Review Business Profile</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+  .page-intro { --page-intro-gap: var(--jui-layout-gap-xs); --page-intro-mb: var(--jui-layout-dimension-s); }
+  .page-title {
+    --page-title-size: var(--jui-typography-sub-headline-large-size);
+    --page-title-lh: var(--jui-typography-sub-headline-large-lh);
+    text-align: center;
+  }
+  .page-subtitle { text-align: center; }
+
+  .review-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-padding-m);
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+  }
+  .review-section {
+    background: var(--jui-color-background-gray-light);
+    border: 1px solid var(--jui-color-blue-10);
+    border-radius: var(--jui-style-radius-l);
+    padding: var(--jui-layout-padding-m);
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-s);
+  }
+  .review-section-title {
+    font-size: var(--jui-typography-body-small-medium-size, 14px);
+    font-weight: 600;
+    color: var(--jui-color-typography-gray-on-light-default);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .review-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-xxs);
+  }
+  .review-label {
+    font-size: var(--jui-typography-body-small-regular-size, 13px);
+    color: var(--jui-color-typography-gray-on-light-subdued);
+  }
+  .hours-row {
+    display: grid;
+    grid-template-columns: 48px 1fr 1fr;
+    gap: var(--jui-layout-gap-s);
+    align-items: center;
+    font-size: 14px;
+  }
+  .hours-day { color: var(--jui-color-typography-gray-on-light-subdued); }
+  .review-banner {
+    display: none;
+    background: var(--jui-color-background-notice-light);
+    border: 1px solid var(--jui-color-yellow-600);
+    border-radius: var(--jui-style-radius-m);
+    padding: var(--jui-layout-padding-s);
+    font-size: 14px;
+  }
+  .review-banner.visible { display: block; }
+  .review-empty {
+    text-align: center;
+    color: var(--jui-color-typography-gray-on-light-subdued);
+    padding: var(--jui-layout-dimension-l) 0;
+  }
+  .review-reviews { font-size: 14px; }
+  .review-review { padding: var(--jui-layout-gap-xs) 0; border-top: 1px solid var(--jui-color-blue-10); }
+  .review-review:first-child { border-top: 0; }
+  .review-review-meta { color: var(--jui-color-typography-gray-on-light-subdued); font-size: 13px; margin-bottom: 2px; }
+</style>
+</head>
+<body>
+  <div class="variant active">
+    <div class="app-shell app-shell-onboarding">
+      <div class="shell-header no-pad-y">
+        <div class="header-row">
+          <button class="icon-btn" aria-label="Back" onclick="history.back()">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+          </button>
+          <div class="progress-bar">
+            <div class="progress-segment filled"></div>
+            <div class="progress-segment filled"></div>
+            <div class="progress-segment"></div>
+            <div class="progress-segment"></div>
+            <div class="progress-segment"></div>
+          </div>
+          <div class="header-spacer"></div>
+        </div>
+      </div>
+
+      <div class="shell-middle">
+        <div class="shell-working-area setup-centered-v">
+          <div class="content-container page-content">
+            <div class="page-intro">
+              <h1 class="page-title" data-inspect-phrase="onboarding.gbReview.title">Here's what we found</h1>
+              <p class="page-subtitle">Edit anything that's not quite right.</p>
+            </div>
+
+            <div class="review-stack" id="review-root">
+              <div class="review-banner" id="review-banner">Some fields couldn't be read automatically. Fill in what you know.</div>
+              <div id="review-empty" class="review-empty" hidden>No business data found. <a href="onboarding-google-business.html">Go back</a>.</div>
+
+              <section class="review-section" data-section="identity">
+                <div class="review-section-title">Identity</div>
+                <div class="review-field">
+                  <label class="review-label" for="rv-name" data-inspect-phrase="onboarding.gbReview.field.businessName">Business name</label>
+                  <input class="form-input" id="rv-name" type="text">
+                </div>
+                <div class="review-field">
+                  <label class="review-label" for="rv-category" data-inspect-phrase="onboarding.gbReview.field.category">Category</label>
+                  <input class="form-input" id="rv-category" type="text">
+                </div>
+              </section>
+
+              <section class="review-section" data-section="description">
+                <div class="review-section-title">What you offer</div>
+                <textarea class="form-input" id="rv-description" rows="3"></textarea>
+              </section>
+
+              <section class="review-section" data-section="location">
+                <div class="review-section-title">Location & hours</div>
+                <div class="review-field">
+                  <label class="review-label" for="rv-address" data-inspect-phrase="onboarding.gbReview.field.address">Address</label>
+                  <input class="form-input" id="rv-address" type="text">
+                </div>
+                <div id="rv-hours"></div>
+              </section>
+
+              <section class="review-section" data-section="contact">
+                <div class="review-section-title">Contact</div>
+                <div class="review-field">
+                  <label class="review-label" for="rv-phone" data-inspect-phrase="onboarding.gbReview.field.phone">Phone</label>
+                  <input class="form-input" id="rv-phone" type="tel">
+                </div>
+                <div class="review-field">
+                  <label class="review-label" for="rv-website" data-inspect-phrase="onboarding.gbReview.field.website">Website</label>
+                  <input class="form-input" id="rv-website" type="url">
+                </div>
+                <div class="review-field">
+                  <label class="review-label" for="rv-email" data-inspect-phrase="onboarding.gbReview.field.email">Email</label>
+                  <input class="form-input" id="rv-email" type="email">
+                </div>
+              </section>
+
+              <section class="review-section" data-section="reviews">
+                <div class="review-section-title">Recent reviews</div>
+                <div class="review-reviews" id="rv-reviews"></div>
+              </section>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="shell-footer">
+        <div class="footer-actions setup-centered">
+          <button class="btn btn-subtle" id="rv-skip" data-inspect-phrase="onboarding.gbReview.cta.skip">Skip — start blank</button>
+          <button class="btn btn-primary" id="rv-continue" data-inspect-phrase="onboarding.gbReview.cta.continue">Looks good — continue</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { readEntity, writeEntity, clearEntity } from '/flows-prototype/design-system/hifi-designs/shared/business-entity.js';
+
+    const NEXT_URL = '/flows-prototype/design-system/hifi-designs/pages/flows/onboarding-name.html';
+    const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+    function getEl(id) { return document.getElementById(id); }
+
+    function renderHours(hours) {
+      const container = getEl('rv-hours');
+      container.innerHTML = '';
+      const padded = (hours && hours.length === 7) ? hours : DAYS.map((d) => ({ day: d, open: null, close: null }));
+      padded.forEach((row, idx) => {
+        const div = document.createElement('div');
+        div.className = 'hours-row';
+        div.innerHTML = `
+          <span class="hours-day">${row.day || DAYS[idx]}</span>
+          <input class="form-input" type="text" placeholder="closed" data-hour="${idx}-open" value="${row.open ?? ''}">
+          <input class="form-input" type="text" placeholder="closed" data-hour="${idx}-close" value="${row.close ?? ''}">
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function renderReviews(reviews) {
+      const container = getEl('rv-reviews');
+      container.innerHTML = '';
+      const list = (reviews || []).slice(0, 3);
+      if (list.length === 0) {
+        container.innerHTML = '<div class="review-label">No reviews available.</div>';
+        return;
+      }
+      list.forEach((r) => {
+        const stars = '★'.repeat(Math.max(0, Math.min(5, Math.round(Number(r.rating) || 0))));
+        const div = document.createElement('div');
+        div.className = 'review-review';
+        div.innerHTML = `
+          <div class="review-review-meta">${escapeHtml(r.author || 'Anonymous')} · ${stars}</div>
+          <div>${escapeHtml(r.text || '')}</div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    function fill(entity) {
+      if (!entity) {
+        getEl('review-empty').hidden = false;
+        document.querySelectorAll('.review-section').forEach((s) => s.hidden = true);
+        return;
+      }
+      const missing = !entity.name || !entity.description;
+      if (missing) getEl('review-banner').classList.add('visible');
+
+      getEl('rv-name').value = entity.name ?? '';
+      getEl('rv-category').value = entity.category ?? '';
+      getEl('rv-description').value = entity.description ?? '';
+      getEl('rv-address').value = entity.location?.address ?? '';
+      getEl('rv-phone').value = entity.phone ?? '';
+      getEl('rv-website').value = entity.website ?? '';
+      getEl('rv-email').value = entity.email ?? '';
+      renderHours(entity.hours);
+      renderReviews(entity.reviews);
+    }
+
+    function harvest(prev) {
+      const next = JSON.parse(JSON.stringify(prev || { source: { type: 'google-business', url: null } }));
+      next.name = getEl('rv-name').value.trim() || null;
+      next.category = getEl('rv-category').value.trim() || null;
+      next.description = getEl('rv-description').value.trim() || null;
+      next.location = next.location || { address: null, city: null, country: null, lat: null, lng: null };
+      next.location.address = getEl('rv-address').value.trim() || null;
+      next.phone = getEl('rv-phone').value.trim() || null;
+      next.website = getEl('rv-website').value.trim() || null;
+      next.email = getEl('rv-email').value.trim() || null;
+      next.hours = DAYS.map((day, idx) => ({
+        day,
+        open: (document.querySelector(`[data-hour="${idx}-open"]`)?.value || '').trim() || null,
+        close: (document.querySelector(`[data-hour="${idx}-close"]`)?.value || '').trim() || null,
+      }));
+      next.extractedAt = new Date().toISOString();
+      return next;
+    }
+
+    const initial = readEntity();
+    fill(initial);
+
+    getEl('rv-continue').addEventListener('click', () => {
+      const next = harvest(initial);
+      writeEntity(next);
+      window.location.href = NEXT_URL;
+    });
+
+    getEl('rv-skip').addEventListener('click', () => {
+      clearEntity();
+      window.location.href = NEXT_URL;
+    });
+  </script>
+</body>
+</html>

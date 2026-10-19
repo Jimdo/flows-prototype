@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=360, initial-scale=1">
+<title>Clara and Stone — Jewellery creation workshop</title>
+<style>
+  /* ═══════════════════════════════════════════════
+     ARTIFACT — DARK FLOW BOOKING PAGE
+     Booking variant of flow-page.html. Header + hero
+     match the sibling flow-page; below the image, the
+     content uses booking blocks from Figma 10715:25924
+     adapted to the dark theme + bio-rich-btn ribbon
+     styling (paired-corner card with 1px divider so
+     the dark page bg shows through as a thin gap).
+     Native mobile width: 360px. No iPhone chrome —
+     the workbench iframe holder supplies it.
+     Figma: 10715:25924 (01. Flows — Explorations)
+     ═══════════════════════════════════════════════ */
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #0a0a0a;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: 'Familjen Grotesk', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    color: #fff;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .flow-page {
+    width: 100%;
+    max-width: 360px;
+    min-height: 100vh;
+    margin: 0 auto;
+    background: #0a0a0a;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* ── Header bar — matches sibling flow-page.html ── */
+  .fp-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    width: 100%;
+  }
+  .fp-brand {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: #fff;
+    letter-spacing: 0;
+    text-transform: uppercase;
+  }
+  .fp-share {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 0;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .fp-share svg { width: 18px; height: 18px; stroke-width: 1.5; }
+
+  /* ── Hero image — matches sibling flow-page.html ── */
+  .fp-hero {
+    padding: 0 8px;
+    width: 100%;
+  }
+  .fp-hero-img-wrap {
+    width: 100%;
+    height: 344px;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #1a1015;
+    position: relative;
+  }
+  .fp-hero-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 30%;
+  }
+
+  /* ── Booking content container ──
+     Single padded column that holds every below-image block. 12px gap
+     mirrors bio-page bio-blocks rhythm so cards read as one group with
+     room to breathe. Inset 12px so corners align with the hero radius. */
+  .fp-booking {
+    padding: 16px 12px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* ── Title block (Figma 10715:25931–25933) ──
+     Eyebrow ("Free") above title to declare cost upfront. Title is the
+     offer itself. No internal background — content reads against page bg. */
+  .fp-title-block {
+    padding: 4px 8px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .fp-eyebrow {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.6);
+  }
+  .fp-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: #fff;
+    letter-spacing: 0;
+  }
+
+  /* ── Paired info card — schedule + registration deadline ──
+     (Figma 10715:25934–25943) — translates Figma's light-theme paired
+     card (bg 0.04 black on white) into the dark theme using the
+     bio-rich-btn ribbon pattern: two stacked rows with a 1px gap so the
+     page bg shows through as a thin divider. Top row gets bottom corners
+     tightened to 2; bottom row gets top corners tightened to 2 — the
+     paired-radius signature from Figma is preserved. */
+  .fp-paired-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    border-radius: 12px;
+  }
+  .fp-paired-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.10);
+  }
+  .fp-paired-row--top {
+    border-radius: 12px 12px 2px 2px;
+  }
+  .fp-paired-row--bottom {
+    border-radius: 2px 2px 12px 12px;
+  }
+  .fp-paired-icon {
+    width: 16px;
+    height: 16px;
+    color: rgba(255, 255, 255, 0.85);
+    flex-shrink: 0;
+  }
+  .fp-paired-icon svg { width: 100%; height: 100%; stroke-width: 1.5; }
+  .fp-paired-body {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.85);
+  }
+  .fp-paired-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.6);
+    flex-shrink: 0;
+  }
+  /* Bottom row stacks two lines (label + value), so override flex */
+  .fp-paired-row--bottom .fp-paired-body {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+  }
+  .fp-paired-row--bottom .fp-paired-body strong {
+    font-weight: 700;
+  }
+
+  /* ── Description block (Figma 10715:25944–25945) ──
+     Body copy at 14px to match Figma proportion. White at 85% so it
+     doesn't compete with the title's full white. */
+  .fp-desc-block {
+    padding: 0 8px;
+  }
+  .fp-desc {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  /* ── Location card with map (Figma 14169:13147) ──
+     Single rich-button: embedded map on top (320:120 aspect), icon + address
+     row beneath. bg 0.06, radius 16. Iframe darkened via CSS filter — Google
+     Maps Embed API has no dark-mode param, this is the standard zero-API-key
+     approach. */
+  .fp-loc-card {
+    display: flex;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .fp-loc-map-wrap {
+    width: 100%;
+    aspect-ratio: 320 / 120;
+    display: block;
+    background: #1b1e24;
+    position: relative;
+  }
+  .fp-loc-map-wrap iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+  .fp-loc-addr {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    min-height: 48px;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.3;
+    color: #fff;
+  }
+  .fp-loc-addr svg { width: 18px; height: 18px; color: #fff; flex-shrink: 0; }
+  .fp-loc-addr-text { flex: 1; }
+
+  /* ── Jimdo promo pill — matches sibling flow-page.html ── */
+  .fp-jimdo-promo-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 56px 16px 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .fp-jimdo-promo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 6px 16px;
+    background: #eff0ff;
+    border: 1px solid #b4c4ff;
+    border-radius: 9999px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.57;
+    letter-spacing: 0.14px;
+    color: #001453;
+    white-space: nowrap;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .fp-jimdo-promo-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 2px;
+    background: #001453;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #fff;
+  }
+  .fp-jimdo-promo-icon svg { width: 14px; height: 14px; }
+
+  /* ── Legal — matches sibling flow-page.html (KEEP) ── */
+  .fp-legal {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 32px 20px 20px;
+    font-family: 'DM Sans', 'Faculty Glyphic', 'Familjen Grotesk', -apple-system, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #fff;
+    white-space: nowrap;
+  }
+  .fp-legal a {
+    color: #fff;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* ── Withdraw contract (KEEP from flow-page) ── */
+  .fp-withdraw-section {
+    display: flex;
+    justify-content: center;
+    padding: 0 20px 32px;
+  }
+  .fp-withdraw-btn {
+    font-family: 'DM Sans', 'Faculty Glyphic', 'Familjen Grotesk', -apple-system, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #fff;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 9999px;
+    padding: 6px 20px;
+    cursor: pointer;
+    transition: background-color 180ms ease-out,
+                border-color 180ms ease-out,
+                transform 150ms ease-out;
+  }
+  .fp-withdraw-btn:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.55);
+    outline-offset: 3px;
+  }
+  @media (hover: hover) {
+    .fp-withdraw-btn:hover {
+      border-color: rgba(255, 255, 255, 0.6);
+      background: rgba(255, 255, 255, 0.06);
+    }
+  }
+  .fp-withdraw-btn:active {
+    transform: scale(0.97);
+    transition-duration: 80ms;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .fp-withdraw-btn { transition: none; }
+    .fp-withdraw-btn:active { transform: none; }
+  }
+
+  .fp-scroll-pad {
+    display: none;
+  }
+
+  /* ── Fixed CTA — matches sibling flow-page.html, with scarcity meta
+     ("Only 3 seats left" + alert icon) above the button per Figma
+     10715:25961. Button label updated to "Register" per Figma 10715:25964. */
+  .fp-fixed-cta {
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+    padding: 16px 20px 20px;
+    background: #0a0a0a;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    z-index: 10;
+  }
+  .fp-cta-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.85);
+  }
+  .fp-cta-meta svg {
+    width: 16px;
+    height: 16px;
+    stroke-width: 1.5;
+    color: rgba(255, 255, 255, 0.85);
+    flex-shrink: 0;
+  }
+  .fp-cta {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px;
+    border: 0;
+    border-radius: 16px;
+    background: #fdfdfd;
+    color: #000;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.3;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  /* ══════════════════════════════════════════════════════════════════════
+     Desktop presentation — matches sibling flow-page.html.
+     ══════════════════════════════════════════════════════════════════════ */
+  @media (min-width: 768px) {
+    body {
+      background: #1a1a1a;
+      padding: 40px 0;
+    }
+    .flow-page {
+      min-height: auto;
+      border-radius: 20px;
+      box-shadow: 0 20px 56px rgba(0, 0, 0, 0.5);
+    }
+    .fp-fixed-cta {
+      border-radius: 0 0 20px 20px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="flow-page">
+
+  <!-- Zone A — Header -->
+  <header class="fp-header">
+    <div class="fp-brand">CLARA AND STONE</div>
+    <button class="fp-share" aria-label="Share">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+        <polyline points="16 6 12 2 8 6"/>
+        <line x1="12" y1="2" x2="12" y2="15"/>
+      </svg>
+    </button>
+  </header>
+
+  <!-- Zone B — Hero -->
+  <div class="fp-hero">
+    <div class="fp-hero-img-wrap" role="img" aria-label="Clara and Stone portrait">
+      <img class="fp-hero-img"
+           alt=""
+           src="../images/clara-stone.jpg"
+           aria-hidden="true" />
+    </div>
+  </div>
+
+  <!-- Zone C — Booking content (Figma 10715:25931–25954) -->
+  <section class="fp-booking">
+
+    <!-- Title block -->
+    <div class="fp-title-block">
+      <p class="fp-eyebrow">Free</p>
+      <h1 class="fp-title">Jewellery creation workshop for beginners</h1>
+    </div>
+
+    <!-- Paired info card — schedule + registration deadline -->
+    <div class="fp-paired-card">
+      <div class="fp-paired-row fp-paired-row--top">
+        <span class="fp-paired-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+        </span>
+        <div class="fp-paired-body">
+          <span>Mon, 15 Feb</span>
+          <span class="fp-paired-dot" aria-hidden="true"></span>
+          <span>11:00&#8211;12:00</span>
+        </div>
+      </div>
+      <div class="fp-paired-row fp-paired-row--bottom">
+        <span class="fp-paired-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </span>
+        <div class="fp-paired-body">
+          <span>Registration closes</span>
+          <strong>24 hours before the event</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="fp-desc-block">
+      <p class="fp-desc">Discover the art of jewelry making in a fun, hands-on workshop designed for beginners. Unleash your creativity and craft your own unique piece.</p>
+    </div>
+
+    <!-- Location card with map -->
+    <div class="fp-loc-card" role="group" aria-label="Location">
+      <div class="fp-loc-map-wrap">
+        <iframe
+          title="Map preview: Susannenstraße 14, 20357 Hamburg"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          src="./_map-embed.html?lat=53.5618&amp;lng=9.9595&amp;z=15&amp;label=Susannenstra%C3%9Fe+14"
+          aria-label="Map preview: Susannenstraße 14, 20357 Hamburg"></iframe>
+      </div>
+      <div class="fp-loc-addr">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span class="fp-loc-addr-text">Susannenstra&szlig;e 14, 20357 Hamburg</span>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- Jimdo promo pill — sits above the legal links -->
+  <div class="fp-jimdo-promo-wrap">
+    <a class="fp-jimdo-promo" href="#">
+      <span class="fp-jimdo-promo-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Stylised "J" mark on dark square — placeholder for Jimdo favicon -->
+          <path d="M15 5.5v9.5c0 2.2-1.8 3.5-4 3.5s-4-1.3-4-3.5" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none"/>
+          <circle cx="15" cy="6" r="1.4" fill="#fff"/>
+        </svg>
+      </span>
+      Build your page with Jimdo
+    </a>
+  </div>
+
+  <!-- Zone D — Legal (KEEP from flow-page) -->
+  <nav class="fp-legal" aria-label="Legal">
+    <a href="#">Imprint</a>
+    <a href="#">Cookie Settings</a>
+    <a href="#">Privacy Policy</a>
+  </nav>
+
+  <!-- Zone D2 — Withdraw contract (KEEP from flow-page) -->
+  <div class="fp-withdraw-section">
+    <button class="fp-withdraw-btn">Withdraw contract</button>
+  </div>
+
+  <!-- Scroll buffer so last content clears the fixed CTA -->
+  <div class="fp-scroll-pad"></div>
+
+  <!-- Zone E — Fixed CTA (scarcity meta per Figma 10715:25961, button per 10715:25964) -->
+  <div class="fp-fixed-cta">
+    <div class="fp-cta-meta">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <span>Only 3 seats left</span>
+    </div>
+    <button class="fp-cta">Register</button>
+  </div>
+
+</div>
+
+</body>
+</html>

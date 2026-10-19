@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<!--
+  Dolphin shared placeholder screen.
+  Underscore-prefixed → exempt from lint:screens content/coverage/parity rules.
+  Used by the newer cms-frontend Dolphin screens in data/jimdo/layout-registry.json
+  that don't have hi-fi designs yet. The src is intentionally hashless (so the
+  lint stale-entry existsSync check passes while jimdo stays in REGISTRY_PATHS),
+  so this shows a generic card; the sidebar + right-rail context panel carry the
+  per-screen identity. Replace a screen with a real design and repoint its entry.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dolphin — Screen placeholder</title>
+  <style>
+    :root {
+      --ink: #1f2933;
+      --muted: #69727d;
+      --faint: #9aa3ad;
+      --line: #e4e7eb;
+      --accent: #0EA5E9;
+      --accent-bg: rgba(14, 165, 233, 0.10);
+      --bg: #f7f8fa;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+    }
+    .card {
+      width: 100%;
+      max-width: 520px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 36px 36px 32px;
+      text-align: center;
+      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-bg);
+      border-radius: 999px;
+      padding: 5px 11px;
+      margin-bottom: 20px;
+    }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+    .section {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--faint);
+      margin-bottom: 8px;
+    }
+    h1 { font-size: 24px; line-height: 1.25; margin: 0 0 14px; font-weight: 650; }
+    .scr-id {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      color: var(--faint);
+      margin-bottom: 22px;
+      min-height: 14px;
+    }
+    .notes {
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--muted);
+      text-align: left;
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin: 0 0 22px;
+    }
+    .footer {
+      font-size: 12.5px;
+      color: var(--faint);
+      border-top: 1px solid var(--line);
+      padding-top: 18px;
+    }
+    .footer strong { color: var(--muted); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <span class="badge"><span class="dot"></span> Dolphin</span>
+    <div class="section" id="section">Website builder</div>
+    <h1 id="label">Screen not yet designed</h1>
+    <div class="scr-id" id="scrid"></div>
+    <p class="notes" id="notes" hidden></p>
+    <div class="footer">
+      Documented from the <strong>Jimdo/cms-frontend</strong> Dolphin monorepo.
+      Pick the screen in the sidebar — its details are in the right-hand context panel.
+    </div>
+  </div>
+
+  <script>
+    // journey.json lives at repo-root data/jimdo/ — four levels up from
+    // design-system/hifi-designs/pages/jimdo/. Only used if a #scr-NNN hash is
+    // present (the shared entry is hashless, so this normally stays generic).
+    var JOURNEY_URL = '../../../../data/jimdo/journey.json';
+    var index = null;
+
+    function indexJourney(journey) {
+      var map = {};
+      (journey.sections || []).forEach(function (section) {
+        (section.subsections || []).forEach(function (sub) {
+          (sub.screens || []).forEach(function (scr) {
+            map[scr.id] = { label: scr.label, section: section.label, notes: scr.notes || '' };
+          });
+        });
+      });
+      return map;
+    }
+
+    function currentId() {
+      return (location.hash || '').replace(/^#/, '').trim();
+    }
+
+    function render() {
+      var id = currentId();
+      var sectionEl = document.getElementById('section');
+      var labelEl = document.getElementById('label');
+      var idEl = document.getElementById('scrid');
+      var notesEl = document.getElementById('notes');
+
+      idEl.textContent = id || '';
+      var info = index && id ? index[id] : null;
+      if (info) {
+        sectionEl.textContent = info.section || 'Website builder';
+        labelEl.textContent = info.label;
+        if (info.notes) { notesEl.textContent = info.notes; notesEl.hidden = false; }
+        else { notesEl.hidden = true; }
+        document.title = 'Dolphin — ' + info.label;
+      } else {
+        sectionEl.textContent = 'Website builder';
+        labelEl.textContent = 'Screen not yet designed';
+        notesEl.hidden = true;
+      }
+    }
+
+    fetch(JOURNEY_URL)
+      .then(function (r) { return r.json(); })
+      .then(function (j) { index = indexJourney(j); render(); })
+      .catch(function () { render(); });
+
+    window.addEventListener('hashchange', render);
+    render();
+  </script>
+</body>
+</html>

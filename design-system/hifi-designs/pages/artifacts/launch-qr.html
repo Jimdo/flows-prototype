@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=360, initial-scale=1">
+<title>QR code — print asset</title>
+<style>
+  /* Printable QR card (360×727) for Clara and Stone — the "print a QR
+     code" artifact. A paper card on a light print-preview ground: brand
+     wordmark, QR, scan prompt, url. QR canvas ported from scr-042
+     (non-scannable prototype visual). Raw colors allowed in artifacts. */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 360px; height: 727px; }
+  body {
+    font-family: 'Familjen Grotesk', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    background: #eceae5;
+    display: flex; align-items: center; justify-content: center;
+    padding: 40px 30px; overflow: hidden;
+  }
+  .card {
+    width: 100%;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+    padding: 40px 32px;
+    display: flex; flex-direction: column; align-items: center; gap: 20px;
+    text-align: center;
+  }
+  .wordmark {
+    font-family: 'Bodoni 72', 'Bodoni MT', 'Didot', 'Playfair Display', Georgia, serif;
+    font-size: 22px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+    color: #0a0a0a;
+  }
+  .rule { width: 36px; height: 1px; background: #d9d4ca; }
+  .scan { font-size: 15px; font-weight: 600; color: #0a0a0a; }
+  .qr-wrap { width: 190px; height: 190px; display: flex; align-items: center; justify-content: center; }
+  .qr-canvas { width: 190px; height: 190px; display: block; }
+  .url { font-size: 13px; font-weight: 500; letter-spacing: 0.4px; color: #555; }
+  .hint { font-size: 12px; color: #9a958c; margin-top: 4px; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="wordmark">Clara and Stone</div>
+    <div class="rule"></div>
+    <div class="scan">Scan to shop the collection</div>
+    <div class="qr-wrap">
+      <canvas class="qr-canvas" id="qr-canvas" role="img" aria-label="QR code to claraandstone.jim.do"></canvas>
+    </div>
+    <div class="url">claraandstone.jim.do</div>
+    <div class="hint">Print &amp; display in your studio or stall</div>
+  </div>
+
+  <script>
+  // Non-scannable QR visual (ported from scr-042 / loops Success).
+  (function () {
+    var canvas = document.getElementById('qr-canvas');
+    if (!canvas) return;
+    function render() {
+      var size = 190, dpr = window.devicePixelRatio || 1, px = Math.round(size * dpr);
+      canvas.width = px; canvas.height = px;
+      drawQR(canvas.getContext('2d'), px);
+    }
+    if (document.readyState === 'complete') render(); else window.addEventListener('load', render);
+  })();
+  function drawQR(ctx, px) {
+    var M = 29, pad = Math.round(px * 0.05), inner = px - pad * 2, cell = inner / M;
+    ctx.clearRect(0, 0, px, px); ctx.fillStyle = '#0a0a0a';
+    var s = 0xA5A5A5A5;
+    function rand() { s = Math.imul(s ^ (s >>> 15), s | 1); s ^= s + Math.imul(s ^ (s >>> 7), s | 61); return ((s ^ (s >>> 14)) >>> 0) / 0xFFFFFFFF; }
+    function reserved(x, y) { return (x < 9 && y < 9) || (x >= M - 9 && y < 9) || (x < 9 && y >= M - 9) || x === 6 || y === 6; }
+    for (var y = 0; y < M; y++) for (var x = 0; x < M; x++) { if (reserved(x, y)) continue; if (rand() > 0.48) ctx.fillRect(pad + x * cell, pad + y * cell, cell - 0.4, cell - 0.4); }
+    for (var i = 8; i < M - 8; i++) if (i % 2 === 0) { ctx.fillRect(pad + 6 * cell, pad + i * cell, cell, cell); ctx.fillRect(pad + i * cell, pad + 6 * cell, cell, cell); }
+    function finder(ox, oy) { for (var dy = 0; dy < 7; dy++) for (var dx = 0; dx < 7; dx++) { var ring = (dx === 0 || dx === 6 || dy === 0 || dy === 6), center = (dx >= 2 && dx <= 4 && dy >= 2 && dy <= 4); if (ring || center) ctx.fillRect(pad + (ox + dx) * cell, pad + (oy + dy) * cell, cell, cell); } }
+    finder(0, 0); finder(M - 7, 0); finder(0, M - 7);
+    [[7, 8], [8, 7], [8, 8]].forEach(function (p) { ctx.fillRect(pad + p[0] * cell, pad + p[1] * cell, cell, cell); });
+  }
+  </script>
+</body>
+</html>

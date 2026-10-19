@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flows: Suggestions + Bookings (paywalled)</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+
+  /* ─── Shell background: white (matches scr-439) ─── */
+  body, .app-shell { background: var(--jui-color-background-gray-light); }
+
+  /* ═══════════════════════════════════
+     TWO-PANE LAYOUT  (carried over from scr-439)
+     Desktop: preview | suggestions side-by-side. Mobile: stacked.
+     ═══════════════════════════════════ */
+  .sg-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--jui-layout-gap-xl);
+    width: 100%;
+  }
+  @media (min-width: 768px) {
+    .sg-layout {
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: center;
+      gap: var(--jui-layout-gap-xl);
+    }
+  }
+  .sg-options-pane { width: 100%; max-width: 464px; }
+  .sg-preview-pane {
+    width: 100%;
+    max-width: 464px;
+    display: flex;
+    justify-content: center;
+  }
+  @media (min-width: 768px) {
+    .sg-preview-pane { position: sticky; top: var(--jui-layout-dimension-m); }
+  }
+
+  /* ═══════════════════════════════════
+     PHONE PREVIEW  (carried over from scr-439)
+     ═══════════════════════════════════ */
+  .sg-phone-screen {
+    width: 240px;
+    height: 448px;
+    overflow: hidden;
+    border-radius: var(--jui-style-radius-20);
+    background: var(--jui-color-gray-black);
+    box-shadow: 0 24px 48px 0 rgba(0, 0, 0, 0.18);
+    flex-shrink: 0;
+  }
+  .sg-phone-frame {
+    display: block;
+    width: 360px;
+    height: 672px;
+    border: 0;
+    background: var(--jui-color-gray-black);
+    transform: scale(0.66667);
+    transform-origin: top left;
+  }
+  .sg-phone-caption {
+    margin: var(--jui-layout-gap-s) 0 0;
+    font-size: var(--jui-typography-label-small-size);
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--jui-color-typography-gray-on-light-subdued);
+    text-align: center;
+  }
+
+  /* ═══════════════════════════════════
+     PAGE HEADING — Figma 11805:71713, gap 8, heading→stack 24
+     ═══════════════════════════════════ */
+  .sg-heading-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--jui-layout-gap-xs);
+    width: 100%;
+    margin-bottom: var(--jui-layout-padding-l);
+  }
+  .sg-heading {
+    font-size: var(--jui-typography-sub-headline-large-size);
+    font-weight: var(--jui-typography-sub-headline-large-weight);
+    line-height: var(--jui-typography-sub-headline-large-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+    margin: 0;
+  }
+  .sg-subtitle {
+    font-size: var(--jui-typography-body-small-regular-size);
+    font-weight: var(--jui-typography-body-small-regular-weight);
+    line-height: var(--jui-typography-body-small-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+    letter-spacing: 0;
+    margin: 0;
+  }
+
+  /* ═══════════════════════════════════
+     SUGGESTION STACK — Figma 11805:71743, gap 12
+     ═══════════════════════════════════ */
+  .sg-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-s);
+    width: 100%;
+  }
+
+  /* ── SelectCard — Figma 11805:71763 ──
+     radius-l (16 in this frame), padding-m, internal gap padding-s.
+     Selected swaps the 1px gray border for a 2px blue-300 one; the border is
+     kept at 1px and thickened with an inset shadow so selecting a card never
+     shifts its content by a pixel. */
+  .suggestion-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-padding-s);
+    padding: var(--jui-layout-padding-m);
+    background: var(--jui-color-background-gray-light);
+    border: 1px solid var(--jui-color-stroke-gray-default);
+    border-radius: var(--jui-style-radius-l);
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    font-family: inherit;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+  }
+  .suggestion-card:hover { border-color: var(--jui-color-blue-300); }
+  .suggestion-card.selected {
+    border-color: var(--jui-color-blue-300);
+    box-shadow: inset 0 0 0 1px var(--jui-color-blue-300);
+  }
+  .suggestion-card:focus-visible {
+    outline: 2px solid var(--jui-color-actions-primary-rest);
+    outline-offset: 2px;
+  }
+
+  /* Row 1 — leading badge (booking only) + title + radio. Figma gap layout/base. */
+  .card-head {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-xs);
+    width: 100%;
+  }
+  .card-lock-badge {
+    flex-shrink: 0;
+    line-height: 0;
+    color: var(--jui-color-decorative-upgrade);
+  }
+  .card-lock-badge svg { width: 24px; height: 24px; }
+  .card-title {
+    flex: 1;
+    min-width: 0;
+    font-size: var(--jui-typography-sub-headline-medium-size);
+    font-weight: var(--jui-typography-sub-headline-medium-weight);
+    line-height: var(--jui-typography-sub-headline-medium-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+    margin: 0;
+  }
+  /* Radio — no dedicated DS component; built from tokens. */
+  .card-radio {
+    width: 20px; height: 20px; flex-shrink: 0;
+    border: 1.5px solid var(--jui-color-gray-300);
+    border-radius: 50%;
+    background: var(--jui-color-gray-white);
+    position: relative;
+    transition: border-color 150ms ease;
+  }
+  .card-radio::after {
+    content: '';
+    position: absolute; inset: 0; margin: auto;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--jui-color-actions-primary-rest);
+    transform: scale(0);
+    transition: transform 150ms ease;
+  }
+  .suggestion-card.selected .card-radio { border-color: var(--jui-color-actions-primary-rest); }
+  .suggestion-card.selected .card-radio::after { transform: scale(1); }
+
+  /* Tag row — BEST FIT sits inside the card in this frame, sharing the row
+     with the radio (scr-439 had it as a tab above the card). */
+  .card-tag-row { display: flex; align-items: center; gap: var(--jui-layout-gap-xs); width: 100%; }
+  .card-tag {
+    display: inline-flex; align-items: center;
+    flex: 0 0 auto;
+    white-space: nowrap;
+    padding: 0 var(--jui-layout-padding-xs);
+    border-radius: var(--jui-style-radius-xs);
+    background: var(--jui-color-background-positive-dark);
+    color: var(--jui-color-typography-positive-on-light);
+    font-size: var(--jui-typography-label-small-size);
+    font-weight: var(--jui-typography-label-small-weight);
+    letter-spacing: var(--jui-typography-label-small-ls);
+    line-height: var(--jui-typography-label-small-lh);
+    text-transform: uppercase;
+  }
+  .card-tag-row .card-radio { margin-left: auto; }
+
+  .card-description {
+    font-size: var(--jui-typography-body-small-regular-size);
+    font-weight: var(--jui-typography-body-small-regular-weight);
+    line-height: var(--jui-typography-body-small-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-subdued);
+    letter-spacing: 0;
+    margin: 0;
+  }
+
+  /* ── Reveal-on-select body ──
+     AI suggestions carry a description, a fit reason and (for bookings) the
+     limit note. All three are collapsed until the card is selected, so the
+     stack stays scannable. Grid-rows 0fr→1fr animates height with no magic
+     max-height. The blank "create your own" options are always expanded, so
+     they don't use this wrapper. */
+  .card-reveal {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 260ms ease;
+  }
+  .suggestion-card.selected .card-reveal { grid-template-rows: 1fr; }
+  .card-reveal-inner { overflow: hidden; min-height: 0; }
+  .card-reveal-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-padding-s);
+    padding-top: var(--jui-layout-padding-s);
+  }
+
+  /* ── "Why this fits" — the @jimdo/ui compact Callout (Figma 11805:71338) ──
+     background-primary-medium, radius-8, padding-s. No icon in this variant. */
+  .card-fit {
+    border-radius: var(--jui-style-radius-8);
+    padding: var(--jui-layout-padding-s);
+    background: var(--jui-color-background-primary-medium);
+    font-size: var(--jui-typography-body-small-regular-size);
+    font-weight: var(--jui-typography-body-small-regular-weight);
+    line-height: var(--jui-typography-body-small-regular-lh);
+    color: var(--jui-color-typography-primary-on-light);
+    letter-spacing: 0;
+    margin: 0;
+  }
+  .card-fit strong { font-weight: var(--jui-typography-label-small-weight); }
+
+  /* ── Create your own ── */
+  .sg-create-own {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    text-align: left;
+    font-family: inherit;
+    cursor: pointer;
+    font-size: var(--jui-typography-body-small-medium-size);
+    font-weight: var(--jui-typography-body-small-medium-weight);
+    line-height: var(--jui-typography-body-small-medium-lh);
+    letter-spacing: var(--jui-typography-link-small-ls);
+    color: var(--jui-color-actions-primary-rest);
+  }
+  .sg-create-own:hover { text-decoration: underline; }
+  .sg-create-own:focus-visible { outline: 2px solid var(--jui-color-actions-primary-rest); outline-offset: 2px; }
+  .sg-blank-options {
+    display: none;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-s);
+    width: 100%;
+  }
+  .sg-blank-options.open { display: flex; }
+
+  /* Footer — single right-aligned CTA (the Figma hides the secondary). */
+  .app-shell-onboarding .shell-footer .footer-actions-end { justify-content: flex-end; }
+  .footer-actions-end .btn {
+    width: auto;
+    padding-left: var(--jui-layout-padding-l);
+    padding-right: var(--jui-layout-padding-l);
+  }
+
+</style>
+</head>
+<body>
+
+  <div class="app-shell app-shell-onboarding"
+    data-inspect-label="Page Background"
+    data-inspect-tokens='[{"prop":"background","figma":"color/gray/white","css":"--jui-color-background-gray-light","value":"#ffffff"}]'>
+
+    <!-- ─── HEADER — back + close. No progress bar in this frame
+         (Figma 11805:71165 Progress Bar is hidden; the 4/4 label is opacity 0). ─── -->
+    <div class="shell-header no-pad-y"
+      data-inspect-label="Screen Header — Setup anatomy, no progress"
+      data-inspect-tokens='[{"prop":"backdrop-filter","value":"blur(4px)"},{"note":"Progress bar hidden in Figma 11805:71162 — this step is not counted"}]'>
+      <div class="header-row">
+        <button class="icon-btn" aria-label="Back" data-nav-to="flows/publish-celebration.html" data-inspect-phrase="">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+        </button>
+        <div class="header-spacer"></div>
+        <button class="icon-btn" aria-label="Close" data-nav-to="flows/home-dashboard-v2.html" data-inspect-phrase="">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5.00049 4.99988L19.0005 18.9999" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M19.0005 4.99988L5.00049 18.9999" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ─── WORKING AREA ─── -->
+    <div class="shell-middle">
+      <div class="shell-working-area setup-centered-v">
+        <div class="content-container" style="padding-top:24px; padding-bottom:24px;">
+
+          <div class="sg-layout"
+            data-inspect-label="Suggestions Layout — preview + options"
+            data-inspect-tokens='[{"prop":"gap","value":"40px"},{"note":"Desktop: preview left, options right; mobile: stacked"}]'>
+
+            <!-- ═══════════════════════════════════
+                 LEFT PANE — ABSTRACT FLOW-PAGE PREVIEW
+                 ═══════════════════════════════════ -->
+            <div class="sg-preview-pane" data-no-phrase
+              data-inspect-label="Preview Pane — abstract flow-page artifact"
+              data-inspect-tokens='[{"note":"iframe src=../artifacts/flow-page-abstract.html; mirrors the selected suggestion title"}]'>
+              <div>
+                <div class="sg-phone-screen"
+                  data-inspect-label="Flow page preview screen"
+                  data-inspect-tokens='[{"prop":"border-radius","value":"20px"},{"note":"iframe rendered at native 360px, scaled 0.667 → 240px screen; no bezel"}]'>
+                  <iframe class="sg-phone-frame" id="flow-preview"
+                    title="Preview of how the page works"
+                    src="../artifacts/flow-page-abstract.html"></iframe>
+                </div>
+                <p class="sg-phone-caption" data-no-phrase>Preview — how your page works</p>
+              </div>
+            </div>
+
+            <!-- ═══════════════════════════════════
+                 RIGHT PANE — SUGGESTIONS
+                 ═══════════════════════════════════ -->
+            <div class="sg-options-pane">
+
+              <div class="sg-heading-group"
+                data-inspect-label="Heading Group"
+                data-inspect-tokens='[{"prop":"gap","value":"8px"},{"prop":"margin-bottom","figma":"$jui-layout-padding-l","value":"24px"}]'>
+                <h1 class="sg-heading"
+                  data-inspect-label="Page Title — Subheadline/Large"
+                  data-inspect-tokens='[{"prop":"font-size","value":"24px"},{"prop":"font-weight","value":"500"},{"prop":"line-height","value":"1.33"}]'
+                  data-inspect-phrase="flowSuggestions.title">
+                  Pick an action page suggestion to start
+                </h1>
+                <p class="sg-subtitle"
+                  data-inspect-label="Page Subtitle — Body/Small/Regular"
+                  data-inspect-tokens='[{"prop":"font-size","value":"14px"},{"prop":"font-weight","value":"400"}]'
+                  data-inspect-phrase="flowSuggestions.subtitle">
+                  You'll get a solid starting point to get clients. You can edit later.
+                </p>
+              </div>
+
+              <div class="sg-stack" role="radiogroup" aria-label="Choose an action page to start"
+                data-inspect-label="Suggestion Stack"
+                data-inspect-tokens='[{"prop":"gap","figma":"measurements/size/12","value":"12px"}]'>
+
+                <!-- ═══ CARD 1 — Fixed-date booking · BEST FIT · paywalled ═══ -->
+                <div class="suggestion-card selected" role="radio" aria-checked="true" tabindex="0"
+                  data-kind="booking" data-slide="0"
+                  data-inspect-label="Suggestion — fixed-date booking (best fit, paywalled)"
+                  data-inspect-tokens='[{"prop":"border-radius","figma":"$jui-style-radius-l","css":"--jui-style-radius-l","value":"16px"},{"prop":"padding","figma":"$jui-layout-padding-m","value":"16px"},{"prop":"gap","figma":"$jui-layout-padding-s","value":"12px"},{"prop":"border (selected)","figma":"color/blue/300","css":"--jui-color-blue-300","value":"2px #658aff"}]'>
+
+                  <div class="card-tag-row">
+                    <span class="card-tag" data-inspect-phrase="useCasePage.bestFitLabel"
+                      data-inspect-label="Best-fit tag — inside the card in this frame"
+                      data-inspect-tokens='[{"prop":"background","figma":"badge/status/positive/background","css":"--jui-color-background-positive-dark","value":"#b5f2ce"},{"prop":"color","figma":"$jui-color-typography-positive-on-light","value":"#00260d"}]'>Best fit for you</span>
+                    <span class="card-radio" aria-hidden="true"></span>
+                  </div>
+
+                  <div class="card-head">
+                    <span class="card-lock-badge" aria-hidden="true" data-lock-badge hidden
+                      data-inspect-label="Limit badge — collapsed booking card"
+                      data-inspect-tokens='[{"prop":"color","figma":"$jui-color-decorative-upgrade","css":"--jui-color-decorative-upgrade","value":"#a350d9"},{"prop":"size","value":"24px"}]'>
+                      <svg viewBox="0 0 24 24" fill="none"><path d="M12 8.5V12.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M12 15.5H12.009" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M11.3598 2.53349L9 4.5L5.5 4.5C4.94772 4.5 4.5 4.94772 4.5 5.5L4.5 9L2.53349 11.3598C2.22445 11.7307 2.22445 12.2693 2.53349 12.6402L4.5 15L4.5 18.5C4.5 19.0523 4.94772 19.5 5.5 19.5L9 19.5L11.3598 21.4665C11.7307 21.7756 12.2693 21.7756 12.6402 21.4665L15 19.5H18.5C19.0523 19.5 19.5 19.0523 19.5 18.5L19.5 15L21.4665 12.6402C21.7756 12.2693 21.7756 11.7307 21.4665 11.3598L19.5 9L19.5 5.5C19.5 4.94772 19.0523 4.5 18.5 4.5L15 4.5L12.6402 2.53349C12.2693 2.22445 11.7307 2.22445 11.3598 2.53349Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                    </span>
+                    <h3 class="card-title" data-inspect-phrase=""
+                      data-inspect-label="Suggestion title — Subheadline/Medium (AI content)"
+                      data-inspect-tokens='[{"prop":"font-size","value":"20px"},{"prop":"font-weight","value":"500"},{"prop":"line-height","value":"1.4"}]'>Jewellery making for beginners</h3>
+                  </div>
+
+                  <div class="card-reveal">
+                    <div class="card-reveal-inner">
+                      <div class="card-reveal-body">
+                        <p class="card-description">A dated two-hour workshop people sign up for. You set the date, the price and how many seats.</p>
+                        <p class="card-fit"
+                          data-inspect-label="Why this fits — compact Callout"
+                          data-inspect-tokens='[{"prop":"background","figma":"$jui-color-background-primary-medium","css":"--jui-color-background-primary-medium","value":"#dbe1ff"},{"prop":"border-radius","figma":"style/radius/8","value":"8px"},{"prop":"padding","figma":"$jui-layout-padding-s","value":"12px"},{"prop":"color","figma":"$jui-color-typography-primary-on-light","value":"#001453"}]'><strong>Why this fits:</strong> You teach in small groups. A date on the calendar gives people something to decide about now, instead of one day.</p>
+                        <div class="inline-alert inline-alert--upgrade" data-limit-note
+                          data-inspect-label="Free-bookings limit note"
+                          data-inspect-tokens='[{"prop":"gap","figma":"layout/base","value":"8px"},{"prop":"color","figma":"$jui-color-actions-upgrade-rest","css":"--jui-color-actions-upgrade-rest","value":"#8733be"},{"prop":"font","figma":"Body/Small/Medium","value":"14px / 500 / 1.57"}]'>
+                          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 8.5V12.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M12 15.5H12.009" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M11.3598 2.53349L9 4.5L5.5 4.5C4.94772 4.5 4.5 4.94772 4.5 5.5L4.5 9L2.53349 11.3598C2.22445 11.7307 2.22445 12.2693 2.53349 12.6402L4.5 15L4.5 18.5C4.5 19.0523 4.94772 19.5 5.5 19.5L9 19.5L11.3598 21.4665C11.7307 21.7756 12.2693 21.7756 12.6402 21.4665L15 19.5H18.5C19.0523 19.5 19.5 19.0523 19.5 18.5L19.5 15L21.4665 12.6402C21.7756 12.2693 21.7756 11.7307 21.4665 11.3598L19.5 9L19.5 5.5C19.5 4.94772 19.0523 4.5 18.5 4.5L15 4.5L12.6402 2.53349C12.2693 2.22445 11.7307 2.22445 11.3598 2.53349Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                          <span class="inline-alert-text" data-inspect-phrase="upgrade.trigger.flowlimit.action">You've reached your free bookings limit</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ═══ CARD 2 — Open-slot booking · paywalled ═══ -->
+                <div class="suggestion-card" role="radio" aria-checked="false" tabindex="0"
+                  data-kind="booking" data-slide="1"
+                  data-inspect-label="Suggestion — open-slot booking (paywalled)">
+
+                  <div class="card-head">
+                    <span class="card-lock-badge" aria-hidden="true" data-lock-badge>
+                      <svg viewBox="0 0 24 24" fill="none"><path d="M12 8.5V12.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M12 15.5H12.009" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M11.3598 2.53349L9 4.5L5.5 4.5C4.94772 4.5 4.5 4.94772 4.5 5.5L4.5 9L2.53349 11.3598C2.22445 11.7307 2.22445 12.2693 2.53349 12.6402L4.5 15L4.5 18.5C4.5 19.0523 4.94772 19.5 5.5 19.5L9 19.5L11.3598 21.4665C11.7307 21.7756 12.2693 21.7756 12.6402 21.4665L15 19.5H18.5C19.0523 19.5 19.5 19.0523 19.5 18.5L19.5 15L21.4665 12.6402C21.7756 12.2693 21.7756 11.7307 21.4665 11.3598L19.5 9L19.5 5.5C19.5 4.94772 19.0523 4.5 18.5 4.5L15 4.5L12.6402 2.53349C12.2693 2.22445 11.7307 2.22445 11.3598 2.53349Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                    </span>
+                    <h3 class="card-title" data-inspect-phrase="">One-to-one bench time</h3>
+                    <span class="card-radio" aria-hidden="true"></span>
+                  </div>
+
+                  <div class="card-reveal">
+                    <div class="card-reveal-inner">
+                      <div class="card-reveal-body">
+                        <p class="card-description">Open your calendar and let people pick a time that suits them. Good for custom pieces and repairs.</p>
+                        <p class="card-fit"><strong>Why this fits:</strong> Custom work starts with a conversation. Letting people choose their own slot saves you the back-and-forth in messages.</p>
+                        <div class="inline-alert inline-alert--upgrade" data-limit-note>
+                          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 8.5V12.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M12 15.5H12.009" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M11.3598 2.53349L9 4.5L5.5 4.5C4.94772 4.5 4.5 4.94772 4.5 5.5L4.5 9L2.53349 11.3598C2.22445 11.7307 2.22445 12.2693 2.53349 12.6402L4.5 15L4.5 18.5C4.5 19.0523 4.94772 19.5 5.5 19.5L9 19.5L11.3598 21.4665C11.7307 21.7756 12.2693 21.7756 12.6402 21.4665L15 19.5H18.5C19.0523 19.5 19.5 19.0523 19.5 18.5L19.5 15L21.4665 12.6402C21.7756 12.2693 21.7756 11.7307 21.4665 11.3598L19.5 9L19.5 5.5C19.5 4.94772 19.0523 4.5 18.5 4.5L15 4.5L12.6402 2.53349C12.2693 2.22445 11.7307 2.22445 11.3598 2.53349Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                          <span class="inline-alert-text" data-inspect-phrase="upgrade.trigger.flowlimit.action">You've reached your free bookings limit</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ═══ CARD 3 — Form · still free ═══ -->
+                <div class="suggestion-card" role="radio" aria-checked="false" tabindex="0"
+                  data-kind="form" data-slide="2"
+                  data-inspect-label="Suggestion — form (within the free allowance)">
+
+                  <div class="card-head">
+                    <h3 class="card-title" data-inspect-phrase="">Get the next workshop date first</h3>
+                    <span class="card-radio" aria-hidden="true"></span>
+                  </div>
+
+                  <div class="card-reveal">
+                    <div class="card-reveal-inner">
+                      <div class="card-reveal-body">
+                        <p class="card-description">Collect email addresses so you can tell people the moment a new date goes up.</p>
+                        <p class="card-fit"><strong>Why this fits:</strong> Your workshops fill by word of mouth. A list means whoever missed the last date hears about the next one first.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ═══ CREATE YOUR OWN ═══ -->
+                <button type="button" class="sg-create-own" id="create-own-toggle"
+                  aria-expanded="false" aria-controls="blank-options"
+                  data-inspect-phrase="flowSuggestions.createYourOwnCta"
+                  data-inspect-label="Create your own — reveals the two blank options"
+                  data-inspect-tokens='[{"prop":"color","figma":"$jui-color-actions-primary-rest","value":"#004ced"},{"prop":"font","figma":"Link/Small","value":"14px / 500 / 1.57"}]'>
+                  Create your own
+                </button>
+
+                <div class="sg-blank-options" id="blank-options"
+                  data-inspect-label="Blank options — always expanded, no fit reason">
+
+                  <!-- Form action page — free -->
+                  <div class="suggestion-card" role="radio" aria-checked="false" tabindex="0"
+                    data-kind="form" data-slide="2"
+                    data-inspect-label="Blank option — form action page (free)">
+                    <div class="card-head">
+                      <h3 class="card-title" data-inspect-phrase="flowSuggestions.formActionPageTitle">Form action page</h3>
+                      <span class="card-radio" aria-hidden="true"></span>
+                    </div>
+                    <p class="card-description" data-inspect-phrase="flowSuggestions.formActionPageDescription">Customize a contact form with the questions you need to ask.</p>
+                  </div>
+
+                  <!-- Booking action page — paywalled -->
+                  <div class="suggestion-card" role="radio" aria-checked="false" tabindex="0"
+                    data-kind="booking" data-slide="0"
+                    data-inspect-label="Blank option — booking action page (paywalled)">
+                    <div class="card-head">
+                      <h3 class="card-title" data-inspect-phrase="flowSuggestions.bookingActionPageTitle">Booking action page</h3>
+                      <span class="card-radio" aria-hidden="true"></span>
+                    </div>
+                    <p class="card-description" data-inspect-phrase="flowSuggestions.bookingActionPageDescription">Create an event or open your calendar for people to book you.</p>
+                    <div class="inline-alert inline-alert--upgrade">
+                      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 8.5V12.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M12 15.5H12.009" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M11.3598 2.53349L9 4.5L5.5 4.5C4.94772 4.5 4.5 4.94772 4.5 5.5L4.5 9L2.53349 11.3598C2.22445 11.7307 2.22445 12.2693 2.53349 12.6402L4.5 15L4.5 18.5C4.5 19.0523 4.94772 19.5 5.5 19.5L9 19.5L11.3598 21.4665C11.7307 21.7756 12.2693 21.7756 12.6402 21.4665L15 19.5H18.5C19.0523 19.5 19.5 19.0523 19.5 18.5L19.5 15L21.4665 12.6402C21.7756 12.2693 21.7756 11.7307 21.4665 11.3598L19.5 9L19.5 5.5C19.5 4.94772 19.0523 4.5 18.5 4.5L15 4.5L12.6402 2.53349C12.2693 2.22445 11.7307 2.22445 11.3598 2.53349Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                      <span class="inline-alert-text" data-inspect-phrase="upgrade.trigger.flowlimit.action">You've reached your free bookings limit</span>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div><!-- /sg-stack -->
+            </div><!-- /sg-options-pane -->
+          </div><!-- /sg-layout -->
+
+        </div><!-- /content-container -->
+      </div><!-- /shell-working-area -->
+    </div><!-- /shell-middle -->
+
+    <!-- ─── FOOTER — one CTA, right-aligned. Label and style follow the
+         selection: a booking needs an upgrade first, a form does not. ─── -->
+    <div class="shell-footer"
+      data-inspect-label="Footer — gradient overlay (desktop)"
+      data-inspect-tokens='[{"note":"Figma hides the Maybe Later secondary (node 11805:71447) in both states"}]'>
+      <div class="footer-actions footer-actions-end setup-centered">
+        <button class="btn btn-upgrade" id="create-cta"
+          data-inspect-label="Primary CTA — swaps to upgrade when a booking is selected"
+          data-inspect-phrase=""
+          data-inspect-tokens='[{"prop":"background (upgrade)","figma":"$jui-color-actions-upgrade-rest","css":"--jui-color-actions-upgrade-rest","value":"#8733be"},{"prop":"color (upgrade)","figma":"$jui-color-typography-upgrade-on-dark","value":"#fcecff"},{"prop":"background (primary)","figma":"$jui-color-actions-primary-rest","value":"#004ced"},{"prop":"height","value":"48px"},{"prop":"border-radius","figma":"button/radius","value":"8px"}]'
+          data-nav-to="flows/paywall-domain.html">
+          Upgrade and Create
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /app-shell -->
+
+  <!-- ═══════════════════════════════════
+       INTERACTION
+       1. Single-select across every card, including the blank options.
+       2. A selected card reveals its description, fit reason and limit note;
+          a collapsed booking card carries the badge instead, so the same
+          icon never appears twice on one card.
+       3. The CTA follows the selection: bookings are spent, so they need an
+          upgrade before anything is created; the form is still within the
+          free allowance and creates directly.
+       ═══════════════════════════════════ -->
+  <script>
+    'use strict';
+    (function () {
+      var cards = Array.prototype.slice.call(document.querySelectorAll('.suggestion-card'));
+      var cta = document.getElementById('create-cta');
+      var toggle = document.getElementById('create-own-toggle');
+      var blanks = document.getElementById('blank-options');
+      var frame = document.getElementById('flow-preview');
+
+      var CTA = {
+        booking: { label: 'Upgrade and Create', cls: 'btn-upgrade', nav: 'flows/paywall-domain.html' },
+        form:    { label: 'Create Action Page', cls: 'btn-primary', nav: 'flows/action-page-ready.html' }
+      };
+
+      function selectedCard() { return document.querySelector('.suggestion-card.selected'); }
+
+      function postTitle() {
+        var sel = selectedCard();
+        var title = sel ? sel.querySelector('.card-title').textContent.trim() : '';
+        if (frame && frame.contentWindow) {
+          frame.contentWindow.postMessage({ type: 'suggestion', title: title }, '*');
+        }
+      }
+
+      function renderCta() {
+        var sel = selectedCard();
+        var kind = sel ? sel.getAttribute('data-kind') : 'form';
+        var next = CTA[kind] || CTA.form;
+        cta.classList.remove('btn-upgrade', 'btn-primary');
+        cta.classList.add(next.cls);
+        cta.textContent = next.label;
+        cta.setAttribute('data-nav-to', next.nav);
+      }
+
+      function select(card) {
+        cards.forEach(function (c) {
+          var on = c === card;
+          c.classList.toggle('selected', on);
+          c.setAttribute('aria-checked', String(on));
+          // Collapsed booking cards show the badge; the selected one shows the
+          // full note inside its revealed body, so the badge stands down.
+          var badge = c.querySelector('[data-lock-badge]');
+          if (badge) badge.hidden = on;
+        });
+        renderCta();
+        postTitle();
+      }
+
+      cards.forEach(function (card) {
+        card.addEventListener('click', function () { select(card); });
+        card.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(card); }
+        });
+      });
+
+      toggle.addEventListener('click', function () {
+        var open = blanks.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', String(open));
+      });
+
+      // Push the initial selection once the preview is ready (handshake +
+      // load fallback), so the abstraction starts on the preselected card.
+      window.addEventListener('message', function (e) {
+        if (e.data && e.data.type === 'flow-abstract-ready') postTitle();
+      });
+      if (frame) frame.addEventListener('load', postTitle);
+
+      select(selectedCard() || cards[0]);
+    })();
+  </script>
+
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js"></script>
+
+  <!-- Design annotations — read by workbench chrome -->
+  <script type="application/json" id="design-annotations">
+  [
+    {
+      "title": "Bookings are spent, the form is not",
+      "body": "The seller has used their one free booking event, so both booking suggestions carry the limit and the form does not. The cards are not locked or greyed: selecting one is free, and the ask lands on the CTA after the choice is made."
+    },
+    {
+      "title": "The CTA follows the selection",
+      "body": "Booking selected → purple Upgrade and Create. Form selected → blue Create Action Page. This is what produces a select event on a rung the seller cannot yet buy, followed by a paywall show — desire and conversion measured apart."
+    },
+    {
+      "title": "Why there is an X and no Maybe Later",
+      "body": "Maybe Later only appears during onboarding. From the second action page onward the secondary is dropped and an X is added top-right to leave the flow — which is the cohort this screen shows. Product rule confirmed 2026-09-10; loops-frontend renders the secondary only when onSkip is passed, but the code does not say when that is."
+    }
+  ]
+  </script>
+
+</body>
+</html>

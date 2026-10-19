@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Setup Layout</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+  /* lint-disable */
+  /* ─── Anatomy visualization styles (not part of framework) ─── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+
+  .region-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    opacity: .6;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .wa-label {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: #166534;
+    opacity: .3;
+    pointer-events: none;
+  }
+
+  /* Region colors */
+  .shell-header { background: #BFDBFE; position: relative; }
+  .shell-header .region-label { color: #1e40af; }
+
+  .shell-working-area { background: #D1FAE5; position: relative; }
+
+  .content-container { background: #86EFAC; position: relative; min-height: 100%; }
+  .content-container .region-label { color: #166534; }
+
+  .shell-footer { background: #FECACA; }
+
+  /* split-preview variant — preview column + edit column */
+  .split-main { flex: 1; display: flex; gap: 8px; min-height: 0; padding: 12px 0 0 16px; }
+  .split-preview { flex: 1; background: #D1FAE5; position: relative; border-radius: 12px; }
+  .split-preview .region-label { color: #166534; }
+  .split-artifact {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 86px; height: 164px; background: #86EFAC; border-radius: 6px;
+  }
+  .split-form { width: 360px; flex-shrink: 0; display: flex; flex-direction: column; background: #86EFAC; }
+  .split-form .region-label { color: #166534; position: static; transform: none; padding: 24px 24px 0 16px; }
+  .split-actions { margin-top: auto; display: flex; justify-content: flex-end; padding: 0 24px 0 16px; }
+  .split-actions .btn { width: 120px; height: 48px; }
+
+  .btn { display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; opacity: .5; }
+  .btn-primary { background: rgba(153,27,27,.12); color: #991b1b; }
+  .btn-secondary { background: rgba(153,27,27,.06); border: 1px dashed rgba(153,27,27,.2) !important; color: #991b1b; }
+</style>
+</head>
+<body class="app-shell">
+
+  <div class="shell-header">
+    <span class="region-label">Header</span>
+  </div>
+
+  <div class="shell-middle" id="stacked">
+    <div class="shell-working-area">
+      <span class="wa-label">Working Area</span>
+      <div class="content-container">
+        <span class="region-label">Content Container</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="shell-footer" id="footer">
+    <div class="footer-actions" id="footerInner">
+      <button class="btn btn-primary">Primary</button>
+    </div>
+  </div>
+
+  <!-- split-preview variant: preview column + 360px edit column, actions
+       at the foot of the edit column rather than in a page-wide footer -->
+  <div class="split-main" id="split" hidden>
+    <div class="split-preview">
+      <span class="region-label">Preview</span>
+      <div class="split-artifact"></div>
+    </div>
+    <div class="split-form">
+      <span class="region-label">Edit Column · 360</span>
+      <div class="split-actions"><button class="btn btn-primary">Primary</button></div>
+    </div>
+  </div>
+
+<script>
+  window.addEventListener('message', (e) => {
+    if (e.data && e.data.type === 'set-variant') {
+      const inner = document.getElementById('footerInner');
+      const stacked = document.getElementById('stacked');
+      const footer = document.getElementById('footer');
+      const split = document.getElementById('split');
+      const isSplit = e.data.variant === 'split-preview';
+      stacked.hidden = isSplit;
+      footer.hidden = isSplit;
+      split.hidden = !isSplit;
+      if (e.data.variant === 'double') {
+        inner.innerHTML = '<button class="btn btn-primary">Primary</button><button class="btn btn-secondary">Secondary</button>';
+      } else {
+        inner.innerHTML = '<button class="btn btn-primary">Primary</button>';
+      }
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Map embed — dark</title>
+<!-- Leaflet (open-source, no API key). CARTO Dark Matter tiles served free
+     for non-commercial / hi-fi prototype use. Standard tile attribution stays
+     visible per CARTO + OpenStreetMap license terms. -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #0e1116; }
+  #map {
+    width: 100%;
+    height: 100%;
+    background: #0e1116;
+  }
+  /* Hide Leaflet zoom controls — this is a non-interactive preview card. */
+  .leaflet-control-zoom { display: none !important; }
+  /* Compact attribution — required by CARTO/OSM, but minimal footprint. */
+  .leaflet-control-attribution {
+    background: rgba(0, 0, 0, 0.4);
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 9px;
+    padding: 1px 4px;
+  }
+  .leaflet-control-attribution a { color: rgba(255, 255, 255, 0.75); }
+</style>
+</head>
+<body>
+<div id="map" aria-hidden="true"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+  (function () {
+    // Read center + zoom from the URL so the same embed serves multiple
+    // artifact screens.  ?lat=53.5618&lng=9.9595&z=15&label=Susannenstraße+14
+    var params = new URLSearchParams(window.location.search);
+    var lat   = parseFloat(params.get('lat')) || 53.5618;
+    var lng   = parseFloat(params.get('lng')) || 9.9595;
+    var zoom  = parseInt(params.get('z'), 10) || 15;
+    var label = params.get('label') || '';
+
+    var map = L.map('map', {
+      center: [lat, lng],
+      zoom: zoom,
+      zoomControl: false,
+      attributionControl: true,
+      dragging: false,
+      scrollWheelZoom: false,
+      doubleClickZoom: false,
+      touchZoom: false,
+      keyboard: false,
+      tap: false,
+    });
+
+    // CARTO Dark Matter — proper dark-mode tile set, native (no CSS filter).
+    L.tileLayer(
+      'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+      {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 19,
+      }
+    ).addTo(map);
+
+    // Marker — Jimdo brand purple ring + dot.  SVG, no image dep.
+    var pinHtml = ''
+      + '<svg viewBox="0 0 36 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'
+      +   '<defs>'
+      +     '<filter id="s" x="-50%" y="-50%" width="200%" height="200%">'
+      +       '<feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity="0.45"/>'
+      +     '</filter>'
+      +   '</defs>'
+      +   '<path filter="url(#s)" d="M18 2 C26.8 2 34 9.2 34 18 C34 30 18 46 18 46 C18 46 2 30 2 18 C2 9.2 9.2 2 18 2 Z" fill="#6a3eff"/>'
+      +   '<circle cx="18" cy="18" r="6" fill="#ffffff"/>'
+      + '</svg>';
+    var icon = L.divIcon({
+      className: 'jimdo-map-pin',
+      html: pinHtml,
+      iconSize: [28, 36],
+      iconAnchor: [14, 36],
+    });
+    L.marker([lat, lng], { icon: icon, alt: label || 'Location' }).addTo(map);
+
+    // Re-render tiles after layout settles (iframes occasionally start at 0×0).
+    setTimeout(function () { map.invalidateSize(); }, 50);
+    window.addEventListener('resize', function () { map.invalidateSize(); });
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flow Details — Flows</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/management-shell.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<script type="module" src="/flows-prototype/design-system/hifi-designs/shared/shell-components.js"></script>
+<style>
+
+  /* ═══════════════════════════════════════
+     MAIN COLUMN — Centered 768px container
+     Figma node 9682:84626.
+     All management screens use 768px for consistent content width.
+     ═══════════════════════════════════════ */
+  .detail-container {
+    width: 100%;
+    max-width: 768px;
+    padding: 0 var(--jui-layout-padding-m);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* ═══════════════════════════════════════
+     TOP SECTION — Back + actions row
+     Figma node 9682:84627.
+     Back arrow left, Edit Flow + More right-aligned.
+     ═══════════════════════════════════════ */
+  .detail-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--jui-layout-padding-m) 0;
+  }
+  .detail-top-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-xs);
+  }
+
+  /* ═══════════════════════════════════════
+     FLOW DETAIL CARD — Figma node 9682:84630
+     Border card with image + info + link row.
+     12px radius, 1px gray-100 border.
+     ═══════════════════════════════════════ */
+  .flow-detail-card {
+    border: 1px solid var(--jui-color-gray-100);
+    border-radius: var(--jui-style-radius-l);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .flow-detail-hero {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--jui-layout-gap-xxs);
+    padding: var(--jui-layout-padding-xs);
+  }
+  .flow-detail-image {
+    width: 80px;
+    height: 100px;
+    border-radius: var(--jui-style-radius-m);
+    background: var(--jui-color-gray-100);
+    flex-shrink: 0;
+    object-fit: cover;
+  }
+  .flow-detail-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-xxs);
+    justify-content: center;
+    padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-xs) var(--jui-layout-padding-xs) var(--jui-layout-padding-s);
+    align-self: stretch;
+  }
+  .flow-detail-title {
+    font-size: var(--jui-typography-sub-headline-medium-size);
+    font-weight: var(--jui-typography-sub-headline-medium-weight);
+    line-height: var(--jui-typography-sub-headline-medium-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+  .flow-detail-desc {
+    font-size: var(--jui-typography-body-small-regular-size);
+    font-weight: var(--jui-typography-body-small-regular-weight);
+    line-height: var(--jui-typography-body-small-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-subdued);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Link row — URL + Share button */
+  .flow-detail-link-row {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-s);
+    padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-xs) var(--jui-layout-padding-xs) var(--jui-layout-padding-s);
+    border-top: 1px solid var(--jui-color-gray-50);
+  }
+  .flow-detail-url {
+    flex: 1;
+    min-width: 0;
+    font-size: var(--jui-typography-body-small-medium-size);
+    font-weight: var(--jui-typography-body-small-medium-weight);
+    line-height: var(--jui-typography-body-small-medium-lh);
+    letter-spacing: var(--jui-typography-link-small-ls);
+    color: var(--jui-color-typography-gray-on-light-default);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  /* .btn-share → migrated to .btn-primary.btn-sm from components.css (2026-05-13) */
+
+  /* ═══════════════════════════════════════
+     STATS COUNTER — Figma node 9682:84642
+     48px pill with icon + label pairs.
+     ═══════════════════════════════════════ */
+  .stats-counter {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-l);
+    height: var(--jui-layout-dimension-m);
+    padding: var(--jui-layout-padding-s);
+    border: 1px solid var(--jui-color-gray-100);
+    border-radius: var(--jui-style-radius-l);
+    background: var(--jui-color-background-gray-light);
+  }
+  .stat-item {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-xs);
+  }
+  .stat-item svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    color: var(--jui-color-typography-gray-on-light-subdued);
+  }
+  .stat-label {
+    font-size: var(--jui-typography-body-small-regular-size);
+    font-weight: var(--jui-typography-body-small-regular-weight);
+    line-height: var(--jui-typography-body-small-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-subdued);
+  }
+  .stat-value {
+    font-size: var(--jui-typography-body-medium-regular-size);
+    font-weight: var(--jui-typography-body-medium-regular-weight);
+    line-height: var(--jui-typography-body-medium-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+  .stat-count {
+    display: flex;
+    align-items: baseline;
+    gap: var(--jui-layout-gap-xxs);
+  }
+
+  /* Upgrade banner — uses .upgrade-banner from components.css (tinted variant) */
+
+  /* ═══════════════════════════════════════
+     CONTENT STACK — vertical gap between
+     flow detail, stats, upgrade, contact list.
+     ═══════════════════════════════════════ */
+  .detail-content-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-s);
+  }
+
+  /* ═══════════════════════════════════════
+     CONTACT LIST — Figma node 9682:84668
+     List of contacts with name + email + action.
+     ═══════════════════════════════════════ */
+  .contact-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-m);
+    padding: var(--jui-layout-padding-m) 0;
+  }
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-s);
+  }
+  .contact-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .contact-name {
+    font-size: var(--jui-typography-body-medium-regular-size);
+    font-weight: var(--jui-typography-body-medium-regular-weight);
+    line-height: var(--jui-typography-body-medium-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+  .contact-email {
+    font-size: var(--jui-typography-body-small-regular-size);
+    font-weight: var(--jui-typography-body-small-regular-weight);
+    line-height: var(--jui-typography-body-small-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-subdued);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ═══════════════════════════════════════
+     MOBILE ADJUSTMENTS
+     On mobile (<768px), sidebar is hidden (by layout.css).
+     Content takes full width with tighter padding.
+     ═══════════════════════════════════════ */
+  @media (max-width: 767px) {
+    .detail-container {
+      max-width: 100%;
+      padding: 0 var(--jui-layout-padding-m);
+    }
+  }
+</style>
+</head>
+<body class="app-shell management-shell">
+
+  <!-- ─── Jimdo Topbar + Sidebar ─── -->
+  <jimdo-topbar></jimdo-topbar>
+
+  <div class="shell-middle">
+    <jimdo-sidebar product="flows" active="flows"></jimdo-sidebar>
+
+    <!-- ─── Working Area ─── -->
+    <main class="shell-working-area">
+      <div class="detail-container">
+
+        <!-- ─── Top Section: Back + Actions (Figma 9682:84627) ─── -->
+        <div class="detail-top">
+          <button class="icon-btn-sm muted" aria-label="Back to Flows" data-nav-to="flows/home-dashboard.html">
+            <!-- Hugeicons ArrowLeft02 -->
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M15 6L9 12L15 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+            </svg>
+          </button>
+          <div class="detail-top-actions">
+            <button class="btn-secondary btn-sm" data-nav-to="flows/flow-preview.html" data-inspect-phrase="flowDetail.edit">Edit Flow</button>
+            <button class="icon-btn-sm bordered" aria-label="More options">
+              <!-- Hugeicons MoreVertical -->
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M12 6H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                <path d="M12 12H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                <path d="M12 18H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- ─── Content Stack ─── -->
+        <div class="detail-content-stack">
+
+          <!-- Flow Detail Card (Figma 9682:84630) -->
+          <div class="flow-detail-card">
+            <div class="flow-detail-hero">
+              <img class="flow-detail-image" src="../images/clara-stone.jpg" alt="">
+              <div class="flow-detail-info">
+                <div class="flow-detail-title">Free trial session</div>
+                <div class="flow-detail-desc">Perfect for beginners, design custom jewellery. Materials are included</div>
+              </div>
+            </div>
+            <div class="flow-detail-link-row">
+              <span class="flow-detail-url">claranstone.jimdosite.com/flow</span>
+              <button class="btn-primary btn-sm" data-inspect-phrase="flowCard.ctaShare">Share</button>
+            </div>
+          </div>
+
+          <!-- Stats Counter (Figma 9682:84642) -->
+          <div class="stats-counter">
+            <div class="stat-item">
+              <div class="stat-item" style="gap: var(--jui-layout-gap-xs);">
+                <!-- Hugeicons View -->
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M2 12C2 12 5.5 5 12 5C18.5 5 22 12 22 12C22 12 18.5 19 12 19C5.5 19 2 12 2 12Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                </svg>
+                <span class="stat-label">Page Views</span>
+              </div>
+              <!-- Lock icon (upgrade required) -->
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <rect x="4" y="11" width="16" height="10" rx="2" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/>
+                <path d="M7 11V7C7 4.23858 9.23858 2 12 2C14.7614 2 17 4.23858 17 7V11" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+              </svg>
+            </div>
+            <div class="stat-item" style="flex: 1;">
+              <!-- Hugeicons UserLove01 -->
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                <path d="M2 19C2 16.2386 4.23858 14 7 14H11C13.7614 14 16 16.2386 16 19V21H2V19Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+              </svg>
+              <div class="stat-count">
+                <span class="stat-value">13</span>
+                <span class="stat-value" data-inspect-phrase="flowCard.leadsPlural">Customers</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Upgrade Banner (Figma 9682:84660) -->
+          <div class="upgrade-banner">
+            <div class="upgrade-banner-header">
+              <!-- Hugeicons Crown -->
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+                <path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/>
+                <path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/>
+              </svg>
+              <span class="upgrade-banner-eyebrow">Upgrade to get statistics</span>
+            </div>
+            <div class="upgrade-banner-body--tinted">
+              <span class="upgrade-banner-text">Stop guessing. Track visits, spot missed chances, and convert more.</span>
+              <button class="icon-btn-sm muted" aria-label="Learn more">
+                <!-- Hugeicons ArrowRight02 -->
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M9 6L15 12L9 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ─── Contact List (Figma 9682:84668) ─── -->
+        <div class="contact-list" aria-label="Customer contacts">
+
+          <div class="contact-item">
+            <div class="contact-info">
+              <span class="contact-name">Jordan Lee</span>
+              <span class="contact-email">jordan.lee@hotmail.com</span>
+            </div>
+            <button class="icon-btn-sm muted" aria-label="More options for Jordan Lee">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M12 6H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                <path d="M12 12H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                <path d="M12 18H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="contact-item">
+            <div class="contact-info">
+              <span class="contact-name">Jane Doe</span>
+              <span class="contact-email">contact@email.com</span>
+            </div>
+            <button class="icon-btn-sm muted" aria-label="More options for Jane Doe">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M12 6H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                <path d="M12 12H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                <path d="M12 18H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="contact-item">
+            <div class="contact-info">
+              <span class="contact-name">Tina Wang</span>
+              <span class="contact-email">tina.wang@yahoo.com</span>
+            </div>
+            <button class="icon-btn-sm muted" aria-label="More options for Tina Wang">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M12 6H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                <path d="M12 12H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                <path d="M12 18H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="contact-item">
+            <div class="contact-info">
+              <span class="contact-name">Michael Brown</span>
+              <span class="contact-email">michael.brown@outlook.com</span>
+            </div>
+            <button class="icon-btn-sm muted" aria-label="More options for Michael Brown">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M12 6H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                <path d="M12 12H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                <path d="M12 18H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="contact-item">
+            <div class="contact-info">
+              <span class="contact-name">Emily Chen</span>
+              <span class="contact-email">emily.chen@gmail.com</span>
+            </div>
+            <button class="icon-btn-sm muted" aria-label="More options for Emily Chen">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M12 6H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                <path d="M12 12H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                <path d="M12 18H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="contact-item">
+            <div class="contact-info">
+              <span class="contact-name">Sophie Taylor</span>
+              <span class="contact-email">sophie.taylor@gmail.com</span>
+            </div>
+            <button class="icon-btn-sm muted" aria-label="More options for Sophie Taylor">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M12 6H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                <path d="M12 12H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                <path d="M12 18H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="contact-item">
+            <div class="contact-info">
+              <span class="contact-name">Daniel Kim</span>
+              <span class="contact-email">daniel.kim@icloud.com</span>
+            </div>
+            <button class="icon-btn-sm muted" aria-label="More options for Daniel Kim">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M12 6H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                <path d="M12 12H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                <path d="M12 18H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="contact-item">
+            <div class="contact-info">
+              <span class="contact-name">Olivia Martinez</span>
+              <span class="contact-email">olivia.martinez@live.com</span>
+            </div>
+            <button class="icon-btn-sm muted" aria-label="More options for Olivia Martinez">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M12 6H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                <path d="M12 12H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                <path d="M12 18H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="contact-item">
+            <div class="contact-info">
+              <span class="contact-name">James Wilson</span>
+              <span class="contact-email">james.wilson@business.com</span>
+            </div>
+            <button class="icon-btn-sm muted" aria-label="More options for James Wilson">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M12 6H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                <path d="M12 12H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                <path d="M12 18H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+              </svg>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+<script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js"></script>
+</body>
+</html>

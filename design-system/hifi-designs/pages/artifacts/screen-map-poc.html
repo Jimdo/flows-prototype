@@ -1,0 +1,2334 @@
+<!DOCTYPE html>
+<!--
+  ═══════════════════════════════════════════════════════════
+  JOURNEY MAP CANVAS
+  ═══════════════════════════════════════════════════════════
+
+  Interactive infinite-canvas visualization of the product
+  screen inventory. Shows screens as cards organized in
+  product swim lanes (Flows, Website) grouped by
+  lifecycle phase, with SVG connection lines between
+  cross-product touchpoints.
+
+  STATUS: POC — data-driven from journey.json + layout-registry.json
+  DATA SOURCE: Fetches from /data/ (Flows) and /data/jimdo/ (Website)
+
+  DATA:
+    PRODUCT_CONFIG[] — static: which products to load
+    PRODUCTS[]  — dynamic: built from journey + registry at init
+    CONNECTIONS[] — hardcoded cross-product links (to be formalized)
+
+  INTERACTIONS:
+    Pan ............. drag canvas / scroll (trackpad)
+    Zoom ............ pinch / ctrl+scroll / HUD buttons
+    Fit to view ..... HUD "Fit" button
+    View toggle ..... Mobile / Desktop (top-right bar)
+    Expand states ... click a screen card with states
+    Connection info . hover over a connection line
+    Expand/collapse . HUD "Expand all" / "Collapse all"
+
+  VIEW MODES:
+    Mobile .......... 375×812 iframes scaled into 160px cards
+    Desktop ......... 1280×800 iframes scaled into 280px cards
+    Switching re-fits the canvas and redraws connections.
+
+  COMPONENTS:
+    .lane ........... product swim lane (colored border/bg)
+    .phase .......... lifecycle group within a lane
+    .screen-card .... individual screen with frame + info
+    .screen-frame ... iframe preview (or fallback icon)
+    .states-panel ... expandable state list below a card
+    .connections-svg  SVG overlay for cross-product paths
+    .ctx-panel ...... context panel (right side, collapsible)
+    .minimap ........ viewport indicator (bottom-right)
+    .hud ............ zoom controls + bulk actions (top-left)
+    .view-toggle .... mobile/desktop switcher (top-right)
+    .hud-legend ..... color key (bottom-left)
+
+  DASHBOARD INTEGRATION:
+    Loaded as an iframe in the "Journey Map" tab of the
+    Intelligence Dashboard (dashboard/index.html).
+    Registered as a lazy renderer in dashboard/main.js.
+
+  KB: kb/state/explorations.md → "Journey Map Canvas" entry
+  ═══════════════════════════════════════════════════════════
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Journey Map Canvas</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #18181b;
+    --surface: #27272a;
+    --surface-hover: #3f3f46;
+    --border: #3f3f46;
+    --text-primary: #fafafa;
+    --text-secondary: #a1a1aa;
+    --text-tertiary: #71717a;
+    --flows-color: #6C5CE7;
+    --flows-bg: rgba(108, 92, 231, 0.08);
+    --flows-border: rgba(108, 92, 231, 0.25);
+    --website-color: #00B894;
+    --website-bg: rgba(0, 184, 148, 0.08);
+    --website-border: rgba(0, 184, 148, 0.25);
+    --core-color: #ec4899;
+    --core-bg: rgba(236, 72, 153, 0.08);
+    --core-border: rgba(236, 72, 153, 0.25);
+    --payments-color: #3b82f6;
+    --payments-bg: rgba(59, 130, 246, 0.08);
+    --payments-border: rgba(59, 130, 246, 0.25);
+    --creator-color: #E17055;
+    --creator-bg: rgba(225, 112, 85, 0.08);
+    --creator-border: rgba(225, 112, 85, 0.25);
+    --connection-color: #f39c12;
+    --radius: 8px;
+    --radius-sm: 5px;
+    --ctx-panel-w: 340px;
+
+    /* View-mode dimensions (mobile default — matches Design tab 360×620) */
+    --card-w: 160px;
+    --frame-h: 276px;
+    --iframe-w: 360px;
+    --iframe-h: 620px;
+    --iframe-scale: 0.4444;
+  }
+
+  body.view-desktop {
+    --card-w: 280px;
+    --frame-h: 180px;
+    --iframe-w: 1280px;
+    --iframe-h: 800px;
+    --iframe-scale: 0.2188;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    cursor: default;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* ── HUD ── */
+  .hud {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 8px 14px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    pointer-events: auto;
+  }
+  .hud-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 14px;
+  }
+  .hud-sep { width: 1px; height: 18px; background: var(--border); }
+  .hud-zoom { font-variant-numeric: tabular-nums; min-width: 42px; text-align: center; }
+  .hud-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    border-radius: var(--radius-sm);
+    padding: 3px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .hud-btn:hover { background: var(--surface-hover); color: var(--text-primary); }
+
+  .hud-legend {
+    position: fixed;
+    bottom: 16px;
+    left: 16px;
+    z-index: 100;
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+  .hud-legend-item { display: flex; align-items: center; gap: 6px; }
+  .hud-legend-swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  .hud-legend-line {
+    width: 24px;
+    height: 1.5px;
+    background: var(--connection-color);
+    opacity: 0.5;
+  }
+
+  /* ── Canvas viewport ── */
+  .viewport {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: var(--ctx-panel-w);
+    overflow: hidden;
+  }
+  body.panel-closed .viewport { right: 0; }
+
+  .canvas {
+    position: absolute;
+    transform-origin: 0 0;
+    will-change: transform;
+    padding: 80px 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+    min-width: max-content;
+  }
+
+  /* ── SVG overlay ── */
+  .connections-svg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: var(--ctx-panel-w);
+    z-index: 50;
+    overflow: visible;
+    pointer-events: none;
+  }
+  body.panel-closed .connections-svg { right: 0; }
+  .connections-svg path,
+  .connections-svg circle {
+    pointer-events: none;
+  }
+  .connections-svg path {
+    fill: none;
+    stroke: var(--connection-color);
+    stroke-width: 1.5;
+    stroke-opacity: 0.3;
+    transition: stroke-opacity 0.2s, stroke-width 0.2s;
+  }
+  .connections-svg circle,
+  .connections-svg .conn-arrow {
+    opacity: 0.4;
+    transition: opacity 0.2s;
+  }
+  .connections-svg circle {
+    fill: var(--connection-color);
+  }
+  .connection-label {
+    position: fixed;
+    z-index: 60;
+    background: rgba(243, 156, 18, 0.15);
+    border: 1px solid rgba(243, 156, 18, 0.35);
+    color: var(--connection-color);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 4px;
+    pointer-events: none;
+    white-space: nowrap;
+    display: none;
+  }
+  .connection-label.visible { display: block; }
+
+  /* ── Product lane ── */
+  .lane {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: visible;
+    min-width: max-content;
+  }
+
+  .lane-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px 12px;
+  }
+  .lane-accent {
+    width: 4px;
+    height: 22px;
+    border-radius: 2px;
+  }
+  .lane-name {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+  .lane-badge {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 10px;
+    opacity: 0.8;
+  }
+
+  .lane-body {
+    display: flex;
+    gap: 0;
+    padding: 0 20px 20px;
+  }
+
+  /* ── Phase group ── */
+  .phase {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-right: 40px;
+    position: relative;
+  }
+  .phase:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 18px;
+    top: 28px;
+    bottom: 8px;
+    width: 1px;
+    background: var(--border);
+  }
+  .phase-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-tertiary);
+    padding-left: 2px;
+  }
+  .phase-screens {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+
+  /* ── Subsection divider ── */
+  .subsection-divider {
+    display: flex;
+    align-items: center;
+    align-self: stretch;
+    padding: 0 4px;
+    flex-shrink: 0;
+  }
+  .subsection-label {
+    writing-mode: vertical-lr;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-tertiary);
+    opacity: 0.5;
+    white-space: nowrap;
+    border-left: 1px solid var(--border);
+    padding-left: 6px;
+  }
+
+  /* ── Screen card wrapper ── */
+  .screen-card-wrap {
+    display: flex;
+    flex-direction: column;
+    width: var(--card-w);
+    flex-shrink: 0;
+    position: relative;
+  }
+  /* Flow arrow between sequential cards (injected as .flow-arrow span) */
+  .flow-arrow {
+    position: absolute;
+    right: -14px;
+    top: calc(var(--frame-h) / 2);
+    font-size: 13px;
+    color: var(--text-tertiary);
+    opacity: 0.4;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  /* ── Screen card ── */
+  .screen-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    cursor: pointer;
+    transition: border-color 0.15s;
+    position: relative;
+  }
+  .screen-card:hover { border-color: var(--text-tertiary); }
+  .screen-card.selected-card { border-color: var(--text-secondary); box-shadow: 0 0 0 1px var(--text-secondary); }
+  .screen-card.expanded {
+    border-color: var(--text-tertiary);
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom-color: var(--border);
+  }
+
+  /* ── Screen frame (iframe preview or fallback) ── */
+  .screen-frame {
+    height: var(--frame-h);
+    background: #fff;
+    border-radius: var(--radius) var(--radius) 0 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .screen-frame iframe {
+    width: var(--iframe-w);
+    height: var(--iframe-h);
+    border: none;
+    transform: scale(var(--iframe-scale));
+    transform-origin: top left;
+    pointer-events: none;
+    display: block;
+  }
+  .screen-frame.no-preview {
+    background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .screen-thumb-icon {
+    width: 28px;
+    height: 40px;
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    position: relative;
+    opacity: 0.5;
+  }
+  .screen-thumb-icon::before {
+    content: '';
+    position: absolute;
+    top: 4px; left: 4px; right: 4px;
+    height: 2px;
+    background: var(--border);
+    border-radius: 1px;
+  }
+  .screen-thumb-icon::after {
+    content: '';
+    position: absolute;
+    top: 10px; left: 4px;
+    width: 10px; height: 2px;
+    background: var(--border);
+    border-radius: 1px;
+  }
+
+  .screen-info {
+    padding: 8px 10px;
+    border-top: 1px solid var(--border);
+  }
+  .screen-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .screen-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 3px;
+  }
+  .screen-id {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+  .screen-states-badge {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0 4px;
+    line-height: 16px;
+  }
+  .screen-card.connection-target .screen-states-badge,
+  .screen-card.has-connection-source .screen-states-badge {
+    color: var(--connection-color);
+    border-color: rgba(243, 156, 18, 0.3);
+  }
+
+  /* ── Expanded states (inside card border) ── */
+  .states-panel {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.25s ease;
+    background: var(--bg);
+    border: 1px solid var(--text-tertiary);
+    border-top: 1px solid var(--border);
+    border-radius: 0 0 var(--radius) var(--radius);
+    opacity: 0;
+    transition: max-height 0.25s ease, opacity 0.15s ease;
+  }
+  .states-panel.open { max-height: 300px; opacity: 1; }
+
+  .states-panel-header {
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-tertiary);
+    padding: 6px 10px 2px;
+  }
+  .states-list {
+    padding: 2px 6px 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .state-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    border-radius: 4px;
+    cursor: default;
+    transition: background 0.12s;
+    position: relative;
+  }
+  .state-chip:hover { background: var(--surface-hover); }
+  .state-chip::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .state-chip.connection-source,
+  .state-chip.connection-target-chip {
+    color: var(--connection-color);
+  }
+  .state-chip.connection-source::before,
+  .state-chip.connection-target-chip::before {
+    background: var(--connection-color);
+    box-shadow: 0 0 4px rgba(243, 156, 18, 0.4);
+  }
+  .state-chip:not(.connection-source):not(.connection-target-chip)::before {
+    background: var(--text-tertiary);
+    opacity: 0.4;
+  }
+
+  /* Incoming connection indicator at top of target card's states */
+  .connection-incoming {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--connection-color);
+    opacity: 0.7;
+    border-bottom: 1px solid var(--border);
+    margin: 0 6px 2px;
+  }
+  .connection-incoming::before {
+    content: '↓';
+    font-size: 11px;
+  }
+
+  /* ── Phase-to-phase chevron ── */
+  .lane-body .phase:not(:last-child) .phase-screens::after {
+    content: '';
+    position: absolute;
+    right: -28px;
+    top: calc(var(--frame-h) / 2);
+    width: 8px;
+    height: 8px;
+    border-right: 1.5px solid var(--text-tertiary);
+    border-bottom: 1.5px solid var(--text-tertiary);
+    transform: rotate(-45deg);
+    opacity: 0.3;
+  }
+
+  /* ── Minimap ── */
+  .minimap {
+    position: fixed;
+    bottom: 16px;
+    right: calc(var(--ctx-panel-w) + 16px);
+    z-index: 100;
+    width: 180px;
+    height: 100px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+  }
+  .minimap:hover { opacity: 1; }
+  .minimap-content {
+    position: absolute;
+    inset: 4px;
+  }
+  .minimap-lane {
+    border-radius: 2px;
+    position: absolute;
+    opacity: 0.6;
+  }
+  .minimap-viewport {
+    position: absolute;
+    border: 1.5px solid var(--text-primary);
+    border-radius: 2px;
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  /* ── Keyboard hints ── */
+  .hints {
+    position: fixed;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    display: flex;
+    gap: 16px;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .hints.visible { opacity: 1; }
+  .hints kbd {
+    display: inline-block;
+    padding: 1px 5px;
+    font-size: 10px;
+    font-family: inherit;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    margin: 0 2px;
+  }
+
+  /* ── View toggle (top-right, outside panel) ── */
+  .view-toggle {
+    position: fixed;
+    top: 16px;
+    right: calc(var(--ctx-panel-w) + 16px);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 4px;
+  }
+  .view-toggle-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 5px 14px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .view-toggle-btn:hover { color: var(--text-primary); }
+  .view-toggle-btn.active {
+    background: var(--surface-hover);
+    color: var(--text-primary);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  .view-toggle-label {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-right: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+  }
+  body.panel-closed .view-toggle { right: 16px; }
+
+  /* ── Status filter toggle (left of view toggle) ── */
+  .status-filter-toggle {
+    position: fixed;
+    top: 16px;
+    right: calc(var(--ctx-panel-w) + 200px);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 4px;
+  }
+  .status-filter-label {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-right: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+  }
+  .status-filter-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 5px 14px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .status-filter-btn:hover { color: var(--text-primary); }
+  .status-filter-btn.active {
+    background: var(--surface-hover);
+    color: var(--text-primary);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  .status-filter-dot {
+    width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+  }
+  .status-filter-dot.live { background: #22c55e; }
+  .status-filter-dot.vision { background: #a855f7; }
+  body.panel-closed .status-filter-toggle { right: 200px; }
+
+  /* ── Status accent on screen cards ── */
+  .screen-card-wrap[data-status="vision"] .screen-card {
+    border-color: rgba(168,85,247,0.35);
+  }
+  .screen-card-wrap[data-status="vision"] .screen-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: #a855f7;
+    border-radius: 3px 3px 0 0;
+  }
+  .screen-card-wrap[data-status="vision"] .screen-card { position: relative; }
+
+  /* ── Filter hide rules ── */
+  body.filter-live   .screen-card-wrap[data-status="vision"]     { display: none; }
+  body.filter-vision .screen-card-wrap:not([data-status="vision"]) { display: none; }
+  /* hide phase headers with no visible cards */
+  body.filter-live   .phase-screens:not(:has(.screen-card-wrap:not([style*="display: none"]))):not(:has(.screen-card-wrap:not([data-status="vision"]))) { display: none; }
+
+  /* ── Context panel ── */
+  .ctx-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: var(--ctx-panel-w);
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    z-index: 90;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: width 200ms ease, border-color 200ms ease;
+  }
+  body.panel-closed .ctx-panel { width: 0; border-left-color: transparent; }
+
+  .ctx-panel-toggle {
+    position: absolute;
+    top: 50%;
+    left: -13px;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 40px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-right: none;
+    border-radius: 4px 0 0 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    color: var(--text-tertiary);
+    padding: 0;
+    transition: color 120ms ease;
+  }
+  .ctx-panel-toggle:hover { color: var(--text-primary); }
+  .ctx-panel-toggle svg { width: 12px; height: 12px; flex-shrink: 0; }
+
+  .ctx-panel-inner {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-width: var(--ctx-panel-w);
+    padding: 0;
+  }
+
+  .ctx-section {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ctx-section-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .ctx-screen-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .ctx-meta-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+
+  .ctx-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .ctx-tag--product { background: rgba(255,255,255,0.06); color: var(--text-secondary); }
+  .ctx-tag--phase { background: rgba(255,255,255,0.04); color: var(--text-tertiary); }
+  .ctx-tag--id {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 10px;
+    color: var(--text-tertiary);
+    background: rgba(255,255,255,0.03);
+  }
+
+  .ctx-states-list {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .ctx-state-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+  .ctx-state-item::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--text-tertiary);
+    opacity: 0.5;
+    flex-shrink: 0;
+  }
+  .ctx-state-item.is-connection::before {
+    background: var(--connection-color);
+    opacity: 1;
+    box-shadow: 0 0 4px rgba(243, 156, 18, 0.4);
+  }
+  .ctx-state-item.is-connection { color: var(--connection-color); }
+
+  .ctx-connection-item {
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .ctx-connection-item:last-child { border-bottom: none; }
+
+  .ctx-conn-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--connection-color);
+    margin-bottom: 3px;
+  }
+  .ctx-conn-detail {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    line-height: 1.4;
+  }
+
+  .ctx-empty {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-style: italic;
+    padding: 4px 0;
+  }
+
+  .ctx-screen-card.selected {
+    border-color: var(--text-secondary);
+    box-shadow: 0 0 0 1px var(--text-secondary);
+  }
+
+  /* ── Workflow Filter ── */
+  .screen-card.wf-dimmed {
+    opacity: 0.15;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+
+  /* ── Workflow editor ── */
+  .ctx-wf-section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .ctx-wf-new-btn {
+    font-size: 10px;
+    padding: 3px 8px;
+    background: var(--flows-color, #6366f1);
+    color: #fff;
+    border: 0;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .ctx-wf-new-btn:hover { filter: brightness(1.1); }
+
+  .ctx-workflow-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 11px;
+    color: var(--text-secondary);
+    transition: background 0.15s;
+    margin-bottom: 6px;
+    border: 1px solid transparent;
+    position: relative;
+  }
+  .ctx-workflow-item:hover { background: var(--surface-hover); color: var(--text-primary); }
+  .ctx-workflow-item--active { background: var(--surface-hover); color: var(--text-primary); border-color: var(--border); }
+
+  .ctx-wf-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .ctx-wf-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; color: var(--text-primary); }
+  .ctx-wf-desc { font-size: 10px; color: var(--text-tertiary); line-height: 1.4; }
+
+  .ctx-wf-meta { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+
+  .ctx-wf-badge {
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    background: var(--surface-hover);
+    color: var(--text-tertiary);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .ctx-wf-tag {
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    color: #fff;
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-weight: 600;
+  }
+  .ctx-wf-tag--exclusive { background: #7c3aed; }
+  .ctx-wf-tag--shareable { background: #0ea5e9; }
+
+  .ctx-wf-actions { display: flex; gap: 2px; }
+  .ctx-wf-icon-btn {
+    width: 22px;
+    height: 22px;
+    border: 0;
+    background: transparent;
+    color: var(--text-tertiary);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 11px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ctx-wf-icon-btn:hover { background: var(--border); color: var(--text-primary); }
+
+  /* Settings popover */
+  .ctx-wf-settings {
+    margin-top: 8px;
+    padding: 10px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .ctx-wf-settings-row { display: flex; flex-direction: column; gap: 3px; }
+  .ctx-wf-settings-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); font-weight: 600; }
+  .ctx-wf-settings-input {
+    background: var(--surface-hover);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 5px 7px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-family: inherit;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .ctx-wf-settings-input:focus { outline: none; border-color: var(--text-secondary); }
+  .ctx-wf-settings-check { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-primary); cursor: pointer; }
+  .ctx-wf-settings-actions { display: flex; justify-content: space-between; gap: 6px; margin-top: 2px; }
+  .ctx-wf-settings-delete {
+    font-size: 10px;
+    padding: 4px 8px;
+    background: transparent;
+    color: #ef4444;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .ctx-wf-settings-delete:hover { border-color: #ef4444; }
+  .ctx-wf-settings-close {
+    font-size: 10px;
+    padding: 4px 10px;
+    background: var(--text-primary);
+    color: var(--bg);
+    border: 0;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  /* Step editor */
+  .ctx-wf-steps {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .ctx-wf-steps-head { font-size: 10px; font-weight: 700; color: var(--text-tertiary); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 2px; }
+  .ctx-wf-step {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 6px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .ctx-wf-step[draggable="true"] { cursor: grab; }
+  .ctx-wf-step.dragging { opacity: 0.4; }
+  .ctx-wf-step-line { display: flex; align-items: center; gap: 6px; }
+  .ctx-wf-step-handle { color: var(--text-tertiary); font-size: 11px; cursor: grab; }
+  .ctx-wf-step-num {
+    font-size: 9px;
+    background: var(--surface-hover);
+    color: var(--text-secondary);
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .ctx-wf-step-screen, .ctx-wf-step-next {
+    flex: 1;
+    min-width: 0;
+    background: var(--surface-hover);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 3px 5px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-family: inherit;
+  }
+  .ctx-wf-step-next-label { font-size: 9px; color: var(--text-tertiary); flex-shrink: 0; min-width: 78px; }
+  .ctx-wf-step-remove {
+    background: transparent;
+    border: 0;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    font-size: 11px;
+    padding: 0 4px;
+  }
+  .ctx-wf-step-remove:hover { color: #ef4444; }
+  .ctx-wf-step-add {
+    display: flex;
+    gap: 5px;
+    margin-top: 2px;
+  }
+  .ctx-wf-step-add-btn {
+    font-size: 10px;
+    padding: 4px 8px;
+    background: var(--text-primary);
+    color: var(--bg);
+    border: 0;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .ctx-wf-clear {
+    margin-top: 6px;
+    width: 100%;
+    padding: 4px 8px;
+    font-size: 10px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text-tertiary);
+    cursor: pointer;
+  }
+  .ctx-wf-clear:hover { border-color: var(--text-secondary); color: var(--text-primary); }
+</style>
+</head>
+<body>
+
+<div class="hud">
+  <span class="hud-title">Journey Map</span>
+  <div class="hud-sep"></div>
+  <span class="hud-zoom" id="zoomDisplay">100%</span>
+  <button class="hud-btn" id="zoomOut">−</button>
+  <button class="hud-btn" id="zoomIn">+</button>
+  <button class="hud-btn" id="zoomFit">Fit</button>
+  <div class="hud-sep"></div>
+  <button class="hud-btn" id="expandAll">Expand all</button>
+  <button class="hud-btn" id="collapseAll">Collapse all</button>
+</div>
+
+<div class="status-filter-toggle" id="statusFilterToggle">
+  <span class="status-filter-label">Status</span>
+  <button class="status-filter-btn active" data-filter="all">All</button>
+  <button class="status-filter-btn" data-filter="live"><span class="status-filter-dot live"></span>Live / Planned</button>
+  <button class="status-filter-btn" data-filter="vision"><span class="status-filter-dot vision"></span>Vision</button>
+</div>
+
+<div class="view-toggle" id="viewToggle">
+  <span class="view-toggle-label">View</span>
+  <button class="view-toggle-btn active" data-view="mobile">Mobile</button>
+  <button class="view-toggle-btn" data-view="desktop">Desktop</button>
+</div>
+
+<div class="hud-legend" id="hudLegend">
+  <!-- Per-product swatches injected by populateLegend() once PRODUCTS resolves -->
+  <div class="hud-legend-item">
+    <div class="hud-legend-line"></div>
+    Cross-product connection
+  </div>
+</div>
+
+<div class="hints" id="hints">
+  <span><kbd>Scroll</kbd> to pan</span>
+  <span><kbd>Pinch</kbd> to zoom</span>
+  <span><kbd>Click</kbd> cards to expand states</span>
+</div>
+
+<div class="viewport" id="viewport">
+  <div class="canvas" id="canvas"></div>
+</div>
+
+<svg class="connections-svg" id="connectionsSvg"></svg>
+
+<div class="connection-label" id="connectionLabel"></div>
+
+<!-- Context Panel -->
+<div class="ctx-panel" id="ctxPanel">
+  <button class="ctx-panel-toggle" id="ctxPanelToggle" title="Toggle panel">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline id="ctxToggleIcon" points="15 18 9 12 15 6"></polyline>
+    </svg>
+  </button>
+  <div class="ctx-panel-inner">
+
+    <div class="ctx-section" id="ctxWorkflowsSection">
+      <div class="ctx-wf-section-head">
+        <div class="ctx-section-title" style="margin:0">Workflows</div>
+        <button class="ctx-wf-new-btn" id="ctxWfNewBtn" title="Create a new workflow">+ New</button>
+      </div>
+      <div id="ctxWorkflowsList"></div>
+    </div>
+
+    <div class="ctx-section">
+      <div class="ctx-section-title">Screen</div>
+      <div class="ctx-screen-name" id="ctxScreenName">Select a screen</div>
+      <div class="ctx-meta-row" id="ctxMeta"></div>
+    </div>
+
+    <div class="ctx-section" id="ctxStatesSection" style="display:none">
+      <div class="ctx-section-title">States</div>
+      <div class="ctx-states-list" id="ctxStatesList"></div>
+    </div>
+
+    <div class="ctx-section">
+      <div class="ctx-section-title">Connections</div>
+      <div id="ctxConnectionsList">
+        <div class="ctx-empty">Select a screen to view connections.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── Product config (sourced from data/products.json registry) ──
+// Registry shape (PR #1 of federation plan): { products: [{ slug, label, dataRoot, ... }] }
+// dataRoot is workbench-relative ('../../data/...') — converted to root-absolute here.
+// Fallback list mirrors the previous hardcoded defaults so the map keeps working
+// when the registry is unreachable (offline / file://) etc.
+const REGISTRY_FALLBACK = { products: [
+  { slug: 'flows', label: 'Flows', dataRoot: '../../data/' },
+  { slug: 'jimdo', label: 'Dolphin', dataRoot: '../../data/jimdo/' }
+] };
+
+// jimdo is shown as "Website" in the screen map UI and uses the legacy
+// '--website-*' CSS variable family. Other products default to slug.
+const LEGACY_CSS_PREFIX = { jimdo: 'website' };
+const LEGACY_LABEL = { jimdo: 'Dolphin' };
+
+// '../../data/core/' (workbench-relative) → '/data/core' (root-absolute, no trailing /)
+function resolveRegistryDataRoot(dataRoot) {
+  return dataRoot.replace(/^\.\.\/\.\.\//, '/').replace(/\/$/, '');
+}
+
+async function loadProductConfig() {
+  const reg = await fetch('../../../../data/products.json')
+    .then(r => r.ok ? r.json() : REGISTRY_FALLBACK)
+    .catch(() => REGISTRY_FALLBACK);
+  return reg.products.map(p => ({
+    id: p.slug,
+    label: LEGACY_LABEL[p.slug] || p.label,
+    cssPrefix: LEGACY_CSS_PREFIX[p.slug] || p.slug,
+    dataRoot: resolveRegistryDataRoot(p.dataRoot)
+  }));
+}
+
+// ── Cross-product connections (hardcoded for now) ──
+const CONNECTIONS = [
+  {
+    from: { product: 'flows', screen: 'scr-042', state: 'upgrade-prompt' },
+    to:   { product: 'jimdo', screen: 'scr-001' },
+    label: 'Upsell to website'
+  },
+  {
+    from: { product: 'jimdo', screen: 'scr-009', state: 'add-section' },
+    to:   { product: 'flows', screen: 'scr-120' },
+    label: 'Add bio link section'
+  }
+];
+
+let PRODUCTS = [];
+let WORKFLOWS = [];
+
+// ── Data loading ──
+async function loadScreenMapData() {
+  const productConfig = await loadProductConfig();
+  const [products, workflowsData] = await Promise.all([
+    Promise.all(
+      productConfig.map(async cfg => {
+        const [journey, registry] = await Promise.all([
+          fetch(`${cfg.dataRoot}/journey.json`).then(r => r.json()),
+          fetch(`${cfg.dataRoot}/layout-registry.json`).then(r => r.json()),
+        ]);
+        return buildProductFromJourney(cfg, journey, registry);
+      })
+    ),
+    fetch('/data/workflows.json').then(r => r.json()).catch(() => ({ workflows: [] })),
+  ]);
+  WORKFLOWS = workflowsData.workflows || [];
+  return products;
+}
+
+function buildProductFromJourney(cfg, journey, registry) {
+  return {
+    id: cfg.id,
+    label: cfg.label,
+    cssPrefix: cfg.cssPrefix,
+    phases: (journey.sections || []).map(section => ({
+      label: section.label,
+      screens: (section.subsections || []).flatMap(sub =>
+        (sub.screens || []).map(scr => ({
+          id: scr.id,
+          label: scr.label,
+          status: scr.status,
+          states: (scr.states || []).map(s => s.label),
+          html: resolveHtml(scr.id, registry),
+          subsection: sub.label || null,
+        }))
+      ),
+    })),
+  };
+}
+
+function resolveHtml(screenId, registry) {
+  const entry = registry[screenId];
+  if (!entry?.prototype?.src) return null;
+  const src = entry.prototype.src;
+  if (!src.startsWith('design-system/hifi-designs/')) return null;
+  return '/' + src;
+}
+
+// ── State ──
+let scale = 1;
+let panX = 0;
+let panY = 0;
+let isDragging = false;
+let dragStartX = 0;
+let dragStartY = 0;
+let panStartX = 0;
+let panStartY = 0;
+
+const ZOOM_MIN = 0.25;
+const ZOOM_MAX = 2.5;
+const ZOOM_STEP = 0.02;
+
+const canvas = document.getElementById('canvas');
+const viewport = document.getElementById('viewport');
+const svg = document.getElementById('connectionsSvg');
+const zoomDisplay = document.getElementById('zoomDisplay');
+const connectionLabel = document.getElementById('connectionLabel');
+const hints = document.getElementById('hints');
+
+// ── Build DOM ──
+function buildCanvas() {
+  let html = '';
+
+  PRODUCTS.forEach(prod => {
+    const bgVar = `var(--${prod.cssPrefix}-bg)`;
+    const borderVar = `var(--${prod.cssPrefix}-border)`;
+    const colorVar = `var(--${prod.cssPrefix}-color)`;
+
+    html += `<div class="lane" style="background:${bgVar};border-color:${borderVar}" data-product="${prod.id}">`;
+    html += `<div class="lane-header">`;
+    html += `<div class="lane-accent" style="background:${colorVar}"></div>`;
+    html += `<div class="lane-name">${prod.label}</div>`;
+    const screenCount = prod.phases.reduce((n, p) => n + p.screens.length, 0);
+    html += `<div class="lane-badge" style="background:${bgVar};border:1px solid ${borderVar};color:${colorVar}">${screenCount} screens</div>`;
+    html += `</div>`;
+
+    html += `<div class="lane-body">`;
+    prod.phases.forEach(phase => {
+      html += `<div class="phase">`;
+      html += `<div class="phase-label">${phase.label}</div>`;
+      html += `<div class="phase-screens">`;
+
+      let lastSubsection = null;
+      phase.screens.forEach((scr, scrIdx) => {
+        // Subsection divider when group changes
+        if (scr.subsection && scr.subsection !== lastSubsection && lastSubsection !== null) {
+          html += `<div class="subsection-divider"><span class="subsection-label">${scr.subsection}</span></div>`;
+        }
+        lastSubsection = scr.subsection;
+
+        const hasStates = scr.states.length > 0;
+        const isConnSource = CONNECTIONS.some(c => c.from.product === prod.id && c.from.screen === scr.id);
+        const isConnTarget = CONNECTIONS.some(c => c.to.product === prod.id && c.to.screen === scr.id);
+        const isLast = scrIdx === phase.screens.length - 1;
+
+        const wrapClass = isConnSource ? 'has-connection' : '';
+        const cardClass = [
+          hasStates ? 'has-states' : '',
+          isConnTarget ? 'connection-target' : '',
+          isConnSource ? 'has-connection-source' : '',
+        ].filter(Boolean).join(' ');
+
+        html += `<div class="screen-card-wrap ${wrapClass}" data-status="${scr.status || 'live'}">`;
+        html += `<div class="screen-card ${cardClass}" data-screen-id="${scr.id}" data-product="${prod.id}">`;
+        if (scr.html) {
+          html += `<div class="screen-frame"><iframe src="${scr.html}" loading="lazy" scrolling="no" tabindex="-1"></iframe></div>`;
+        } else {
+          html += `<div class="screen-frame no-preview"><div class="screen-thumb-icon"></div></div>`;
+        }
+        html += `<div class="screen-info">`;
+        html += `<div class="screen-label">${scr.label}</div>`;
+        html += `<div class="screen-meta">`;
+        html += `<span class="screen-id">${scr.id}</span>`;
+        if (hasStates) {
+          html += `<span class="screen-states-badge">${scr.states.length} states</span>`;
+        }
+        html += `</div></div>`;
+        if (!isLast) html += `<span class="flow-arrow">→</span>`;
+        html += `</div>`;
+
+        if (hasStates) {
+          const incomingConns = CONNECTIONS.filter(c => c.to.product === prod.id && c.to.screen === scr.id);
+          html += `<div class="states-panel" data-for="${prod.id}:${scr.id}">`;
+          if (incomingConns.length) {
+            incomingConns.forEach(c => {
+              const fromProd = PRODUCTS.find(p => p.id === c.from.product);
+              html += `<div class="connection-incoming">from ${fromProd?.label || c.from.product}: ${c.label}</div>`;
+            });
+          }
+          html += `<div class="states-panel-header">States</div>`;
+          html += `<div class="states-list">`;
+          scr.states.forEach(st => {
+            const isSource = CONNECTIONS.some(c => c.from.product === prod.id && c.from.screen === scr.id && c.from.state === st);
+            const isTarget = CONNECTIONS.some(c => c.to.product === prod.id && c.to.screen === scr.id && c.to.state === st);
+            const chipClass = isSource ? 'connection-source' : isTarget ? 'connection-target-chip' : '';
+            html += `<div class="state-chip ${chipClass}" data-screen-id="${scr.id}" data-product="${prod.id}" data-state="${st}">${st}</div>`;
+          });
+          html += `</div></div>`;
+        }
+        html += `</div>`;
+      });
+
+      html += `</div></div>`;
+    });
+    html += `</div></div>`;
+  });
+
+  canvas.innerHTML = html;
+}
+
+// ── Transform ──
+function applyTransform() {
+  canvas.style.transform = `scale(${scale}) translate(${panX}px, ${panY}px)`;
+  zoomDisplay.textContent = Math.round(scale * 100) + '%';
+  drawConnections();
+}
+
+// ── Pan ──
+viewport.addEventListener('pointerdown', e => {
+  if (e.target.closest('.screen-card') || e.target.closest('.state-chip') || e.target.closest('.hud') || e.target.closest('.hud-legend') || e.target.closest('.view-toggle')) return;
+  isDragging = true;
+  dragStartX = e.clientX;
+  dragStartY = e.clientY;
+  panStartX = panX;
+  panStartY = panY;
+  document.body.classList.add('grabbing');
+  e.preventDefault();
+});
+
+window.addEventListener('pointermove', e => {
+  if (!isDragging) return;
+  const dx = (e.clientX - dragStartX) / scale;
+  const dy = (e.clientY - dragStartY) / scale;
+  panX = panStartX + dx;
+  panY = panStartY + dy;
+  targetPanX = panX;
+  targetPanY = panY;
+  applyTransform();
+});
+
+window.addEventListener('pointerup', () => {
+  isDragging = false;
+});
+
+// ── Smooth scroll to pan, pinch to zoom ──
+let targetPanX = 0, targetPanY = 0, targetScale = 1;
+let smoothing = false;
+
+function smoothApply() {
+  const ease = 0.25;
+  const dx = targetPanX - panX;
+  const dy = targetPanY - panY;
+  const ds = targetScale - scale;
+
+  panX += dx * ease;
+  panY += dy * ease;
+  scale += ds * ease;
+
+  applyTransform();
+
+  if (Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1 || Math.abs(ds) > 0.0005) {
+    requestAnimationFrame(smoothApply);
+  } else {
+    panX = targetPanX;
+    panY = targetPanY;
+    scale = targetScale;
+    applyTransform();
+    smoothing = false;
+  }
+}
+
+function startSmoothing() {
+  if (!smoothing) {
+    smoothing = true;
+    requestAnimationFrame(smoothApply);
+  }
+}
+
+// Sync targets to current state on init
+function syncTargets() {
+  targetPanX = panX;
+  targetPanY = panY;
+  targetScale = scale;
+}
+
+viewport.addEventListener('wheel', e => {
+  e.preventDefault();
+
+  if (e.ctrlKey) {
+    const rect = viewport.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+
+    const worldX = mx / targetScale - targetPanX;
+    const worldY = my / targetScale - targetPanY;
+
+    const zoomDelta = -e.deltaY * 0.005;
+    const newScale = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, targetScale * (1 + zoomDelta)));
+
+    targetPanX = mx / newScale - worldX;
+    targetPanY = my / newScale - worldY;
+    targetScale = newScale;
+  } else {
+    targetPanX -= e.deltaX / targetScale;
+    targetPanY -= e.deltaY / targetScale;
+  }
+
+  startSmoothing();
+}, { passive: false });
+
+document.getElementById('zoomIn').addEventListener('click', () => {
+  targetScale = Math.min(ZOOM_MAX, targetScale * 1.2);
+  startSmoothing();
+});
+
+document.getElementById('zoomOut').addEventListener('click', () => {
+  targetScale = Math.max(ZOOM_MIN, targetScale / 1.2);
+  startSmoothing();
+});
+
+document.getElementById('zoomFit').addEventListener('click', fitToView);
+
+function fitToView(instant) {
+  const vw = viewport.clientWidth;
+  const vh = viewport.clientHeight;
+  const cw = canvas.scrollWidth;
+  const ch = canvas.scrollHeight;
+  const padding = 40;
+
+  const s = Math.min((vw - padding * 2) / cw, (vh - padding * 2) / ch, 1.5);
+  const px = (vw / s - cw) / 2;
+  const py = (vh / s - ch) / 2;
+
+  if (instant) {
+    scale = s; panX = px; panY = py;
+    targetScale = s; targetPanX = px; targetPanY = py;
+    applyTransform();
+  } else {
+    targetScale = s; targetPanX = px; targetPanY = py;
+    startSmoothing();
+  }
+}
+
+// ── Expand / Collapse States ──
+canvas.addEventListener('click', e => {
+  const card = e.target.closest('.screen-card');
+  if (!card) return;
+  if (!card.classList.contains('has-states')) return;
+
+  const panelKey = `${card.dataset.product}:${card.dataset.screenId}`;
+  const panel = card.parentElement.querySelector(`.states-panel[data-for="${panelKey}"]`);
+  if (!panel) return;
+
+  panel.classList.toggle('open');
+  card.classList.toggle('expanded');
+  animateConnections();
+});
+
+document.getElementById('expandAll').addEventListener('click', () => {
+  document.querySelectorAll('.states-panel').forEach(p => p.classList.add('open'));
+  document.querySelectorAll('.has-states').forEach(c => c.classList.add('expanded'));
+  animateConnections();
+});
+
+document.getElementById('collapseAll').addEventListener('click', () => {
+  document.querySelectorAll('.states-panel').forEach(p => p.classList.remove('open'));
+  document.querySelectorAll('.has-states').forEach(c => c.classList.remove('expanded'));
+  animateConnections();
+});
+
+// Continuously redraw connections during CSS transitions
+let animFrame = 0;
+function animateConnections() {
+  const start = performance.now();
+  const duration = 280;
+  function tick() {
+    drawConnections();
+    if (performance.now() - start < duration) {
+      animFrame = requestAnimationFrame(tick);
+    }
+  }
+  cancelAnimationFrame(animFrame);
+  animFrame = requestAnimationFrame(tick);
+}
+
+// ── SVG Connections (vertical orthogonal with rounded corners) ──
+// midY is the Y position of the horizontal segment (passed in, staggered per connection)
+function orthoPathVertical(sx, sy, tx, ty, midY, r) {
+  const dx = tx - sx;
+
+  r = Math.min(r, Math.abs(midY - sy), Math.abs(ty - midY));
+  if (Math.abs(dx) > 0) r = Math.min(r, Math.abs(dx) / 2);
+  if (r < 1) r = 0;
+
+  if (Math.abs(dx) < 2) {
+    return `M ${sx} ${sy} L ${tx} ${ty}`;
+  }
+
+  const goesDown = ty > sy;
+  const ry1 = goesDown ? r : -r;
+  const ry2 = goesDown ? r : -r;
+  const rx = dx > 0 ? r : -r;
+
+  return [
+    `M ${sx} ${sy}`,
+    `L ${sx} ${midY - ry1}`,
+    `Q ${sx} ${midY} ${sx + rx} ${midY}`,
+    `L ${tx - rx} ${midY}`,
+    `Q ${tx} ${midY} ${tx} ${midY + ry2}`,
+    `L ${tx} ${ty}`
+  ].join(' ');
+}
+
+function drawConnections() {
+  while (svg.firstChild) {
+    svg.removeChild(svg.firstChild);
+  }
+  connectionLabel.classList.remove('visible');
+
+  const CORNER_RADIUS = 12;
+  const PADDING = 8;
+
+  // Pre-compute all connection geometries to stagger shared gaps
+  const connData = CONNECTIONS.map(conn => {
+    const sourceCard = document.querySelector(`.screen-card[data-product="${conn.from.product}"][data-screen-id="${conn.from.screen}"]`);
+    const targetCard = document.querySelector(`.screen-card[data-product="${conn.to.product}"][data-screen-id="${conn.to.screen}"]`);
+    if (!sourceCard || !targetCard) return null;
+
+    const sourceWrap = sourceCard.closest('.screen-card-wrap');
+    const targetWrap = targetCard.closest('.screen-card-wrap');
+    const sourceLane = sourceCard.closest('.lane');
+    const targetLane = targetCard.closest('.lane');
+
+    const sLaneRect = sourceLane.getBoundingClientRect();
+    const tLaneRect = targetLane.getBoundingClientRect();
+    const goesDown = sLaneRect.top < tLaneRect.top;
+
+    const sRect = sourceWrap.getBoundingClientRect();
+    const tRect = targetWrap.getBoundingClientRect();
+
+    // Gap between lanes where horizontal segments live
+    const gapTop = goesDown ? sLaneRect.bottom : tLaneRect.bottom;
+    const gapBottom = goesDown ? tLaneRect.top : sLaneRect.top;
+
+    // Lane-pair key for grouping connections in the same gap
+    const laneKey = [sourceLane.dataset.product, targetLane.dataset.product].sort().join(':');
+
+    return {
+      conn,
+      goesDown,
+      sx: sRect.left + sRect.width / 2,
+      sy: goesDown ? sRect.bottom + 1 : sRect.top - 1,
+      tx: tRect.left + tRect.width / 2,
+      ty: goesDown ? tRect.top - 1 : tRect.bottom + 1,
+      gapTop, gapBottom, laneKey
+    };
+  }).filter(Boolean);
+
+  // Group by lane-pair and assign staggered midY
+  const groups = {};
+  connData.forEach(cd => {
+    if (!groups[cd.laneKey]) groups[cd.laneKey] = [];
+    groups[cd.laneKey].push(cd);
+  });
+
+  connData.forEach(cd => {
+    const group = groups[cd.laneKey];
+    const idx = group.indexOf(cd);
+    const total = group.length;
+    const usableGap = cd.gapBottom - cd.gapTop - PADDING * 2;
+    const midY = cd.gapTop + PADDING + (usableGap * (idx + 1)) / (total + 1);
+
+    const d = orthoPathVertical(cd.sx, cd.sy, cd.tx, cd.ty, midY, CORNER_RADIUS);
+    const conn = cd.conn;
+
+    const visiblePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    visiblePath.setAttribute('d', d);
+
+    const startDot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    startDot.setAttribute('cx', cd.sx);
+    startDot.setAttribute('cy', cd.sy);
+    startDot.setAttribute('r', 3.5);
+
+    // Arrowhead triangle at target
+    const arrowSize = 7;
+    const arrowDir = cd.goesDown ? 1 : -1;
+    const ax = cd.tx, ay = cd.ty;
+    const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    arrow.setAttribute('points', [
+      `${ax},${ay}`,
+      `${ax - arrowSize},${ay - arrowSize * arrowDir}`,
+      `${ax + arrowSize},${ay - arrowSize * arrowDir}`
+    ].join(' '));
+    arrow.setAttribute('fill', '#f39c12');
+    arrow.classList.add('conn-arrow');
+
+    const hitPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    hitPath.setAttribute('d', d);
+    hitPath.style.fill = 'none';
+    hitPath.style.stroke = 'transparent';
+    hitPath.style.strokeWidth = '28';
+    hitPath.style.pointerEvents = 'stroke';
+    hitPath.style.cursor = 'default';
+
+    hitPath.addEventListener('mouseenter', e => {
+      connectionLabel.textContent = conn.label;
+      connectionLabel.style.left = e.clientX + 12 + 'px';
+      connectionLabel.style.top = e.clientY - 8 + 'px';
+      connectionLabel.classList.add('visible');
+      visiblePath.style.strokeOpacity = '1';
+      visiblePath.style.strokeWidth = '2.5';
+      startDot.style.opacity = '1';
+      arrow.style.opacity = '1';
+    });
+    hitPath.addEventListener('mousemove', e => {
+      connectionLabel.style.left = e.clientX + 12 + 'px';
+      connectionLabel.style.top = e.clientY - 8 + 'px';
+    });
+    hitPath.addEventListener('mouseleave', () => {
+      connectionLabel.classList.remove('visible');
+      visiblePath.style.strokeOpacity = '';
+      visiblePath.style.strokeWidth = '';
+      startDot.style.opacity = '';
+      arrow.style.opacity = '';
+    });
+
+    svg.appendChild(visiblePath);
+    svg.appendChild(startDot);
+    svg.appendChild(arrow);
+    svg.appendChild(hitPath);
+  });
+}
+
+// ── Workflow Filter + Editor ──
+let activeWorkflow = null;
+let editingWfId = null;       // id whose settings popover is open
+let draggingStepIdx = null;   // { workflowId, idx } during drag
+
+function escAttr(s) { return String(s ?? '').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+function escHtml(s) { return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function todayISO() { return new Date().toISOString().slice(0, 10); }
+
+function nextWorkflowId() {
+  const used = new Set(WORKFLOWS.map(w => w.id));
+  for (let i = 1; i < 1000; i++) {
+    const id = 'wf-' + String(i).padStart(3, '0');
+    if (!used.has(id)) return id;
+  }
+  return 'wf-999';
+}
+
+async function persistWorkflows() {
+  try {
+    const res = await fetch('/__save-workflows', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ workflows: WORKFLOWS }),
+    });
+    if (!res.ok) {
+      console.error('[journey-map] workflow save failed', await res.text());
+      return false;
+    }
+    try { window.parent.postMessage({ type: 'workflows-changed' }, '*'); } catch (_) {}
+    return true;
+  } catch (e) {
+    console.error('[journey-map] workflow save error', e);
+    return false;
+  }
+}
+
+function touchWf(wf) { wf.updatedAt = todayISO(); }
+
+function findScreenInfo(screenId) {
+  for (const prod of PRODUCTS) {
+    for (const phase of prod.phases) {
+      const scr = phase.screens.find(s => s.id === screenId);
+      if (scr) return { product: prod.id, screen: scr };
+    }
+  }
+  return null;
+}
+
+function buildScreenOptionsHtml() {
+  let html = '';
+  for (const prod of PRODUCTS) {
+    html += `<optgroup label="${escAttr(prod.label)}">`;
+    for (const phase of prod.phases) {
+      for (const scr of phase.screens) {
+        html += `<option value="${escAttr(scr.id)}">${escHtml(scr.id)} · ${escHtml(scr.label)}</option>`;
+      }
+    }
+    html += '</optgroup>';
+  }
+  return html;
+}
+
+function renderScreenSelect(selectedId, extraAttrs = '', includeBlank = false) {
+  let html = `<select ${extraAttrs}>`;
+  if (includeBlank) html += '<option value="">(use screen default)</option>';
+  html += buildScreenOptionsHtml();
+  html += '</select>';
+  if (selectedId) {
+    html = html.replace(`<option value="${escAttr(selectedId)}"`, `<option value="${escAttr(selectedId)}" selected`);
+  }
+  return html;
+}
+
+function buildWorkflowSection() {
+  const list = document.getElementById('ctxWorkflowsList');
+  if (!list) return;
+  if (!WORKFLOWS.length) {
+    list.innerHTML = '<div class="ctx-empty">No workflows yet. Click + New to create one.</div>';
+    return;
+  }
+
+  list.innerHTML = WORKFLOWS.map(wf => {
+    const isActive = activeWorkflow?.id === wf.id;
+    const scopeTag = wf.scope === 'exclusive' ? '<span class="ctx-wf-tag ctx-wf-tag--exclusive">exclusive</span>' : '';
+    return `
+      <div class="ctx-workflow-item${isActive ? ' ctx-workflow-item--active' : ''}" data-wf-id="${escAttr(wf.id)}">
+        <div class="ctx-wf-row">
+          <span class="ctx-wf-label">${escHtml(wf.label)}</span>
+          <div class="ctx-wf-actions" data-stop>
+            <button class="ctx-wf-icon-btn" data-act="copy-link" data-id="${escAttr(wf.id)}" title="Copy runner link (paste into a new tab)">🔗</button>
+            <button class="ctx-wf-icon-btn" data-act="settings" data-id="${escAttr(wf.id)}" title="Workflow settings">⚙</button>
+          </div>
+        </div>
+        ${wf.description ? `<div class="ctx-wf-desc">${escHtml(wf.description)}</div>` : ''}
+        <div class="ctx-wf-meta">
+          <span class="ctx-wf-badge">${wf.steps.length} screens</span>
+          ${scopeTag}
+        </div>
+        ${editingWfId === wf.id ? renderSettingsPopover(wf) : ''}
+        ${isActive ? renderStepEditor(wf) : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function renderSettingsPopover(wf) {
+  const scope = wf.scope || '';
+  return `
+    <div class="ctx-wf-settings" data-stop>
+      <div class="ctx-wf-settings-row">
+        <label class="ctx-wf-settings-label">Label</label>
+        <input class="ctx-wf-settings-input" type="text" value="${escAttr(wf.label)}" data-act="field" data-id="${escAttr(wf.id)}" data-field="label">
+      </div>
+      <div class="ctx-wf-settings-row">
+        <label class="ctx-wf-settings-label">Description</label>
+        <textarea class="ctx-wf-settings-input" rows="2" data-act="field" data-id="${escAttr(wf.id)}" data-field="description">${escHtml(wf.description || '')}</textarea>
+      </div>
+      <div class="ctx-wf-settings-row">
+        <label class="ctx-wf-settings-label">Scope</label>
+        <select class="ctx-wf-settings-input" data-act="field" data-id="${escAttr(wf.id)}" data-field="scope">
+          <option value="">inclusive (dim others)</option>
+          <option value="exclusive" ${scope === 'exclusive' ? 'selected' : ''}>exclusive (filter others out)</option>
+        </select>
+      </div>
+      <div class="ctx-wf-settings-actions">
+        <button class="ctx-wf-settings-delete" data-act="delete" data-id="${escAttr(wf.id)}">Delete</button>
+        <button class="ctx-wf-settings-close" data-act="settings" data-id="${escAttr(wf.id)}">Done</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderStepEditor(wf) {
+  let html = '<div class="ctx-wf-steps" data-stop>';
+  html += '<div class="ctx-wf-steps-head">Steps</div>';
+  wf.steps.forEach((step, i) => {
+    const nextPrimary = step.next?.['primary-cta'] || '';
+    html += `
+      <div class="ctx-wf-step" draggable="true" data-step-idx="${i}" data-wf-id="${escAttr(wf.id)}">
+        <div class="ctx-wf-step-line">
+          <span class="ctx-wf-step-handle" title="Drag to reorder">⋮⋮</span>
+          <span class="ctx-wf-step-num">${i + 1}</span>
+          ${renderScreenSelect(step.screenId, `class="ctx-wf-step-screen" data-act="step-screen" data-id="${escAttr(wf.id)}" data-idx="${i}"`)}
+          <button class="ctx-wf-step-remove" data-act="step-remove" data-id="${escAttr(wf.id)}" data-idx="${i}" title="Remove step">✕</button>
+        </div>
+        <div class="ctx-wf-step-line">
+          <span class="ctx-wf-step-next-label" title="When primary CTA fires, advance to…">on primary-cta →</span>
+          ${renderScreenSelect(nextPrimary, `class="ctx-wf-step-next" data-act="step-next" data-id="${escAttr(wf.id)}" data-idx="${i}"`, true)}
+        </div>
+      </div>
+    `;
+  });
+  html += `
+    <div class="ctx-wf-step-add">
+      ${renderScreenSelect('', `class="ctx-wf-step-screen" id="ctxWfAddPicker-${escAttr(wf.id)}"`, true)}
+      <button class="ctx-wf-step-add-btn" data-act="step-add" data-id="${escAttr(wf.id)}">+ Add</button>
+    </div>
+    <button class="ctx-wf-clear" data-act="clear">Clear filter</button>
+  </div>`;
+  return html;
+}
+
+function selectWorkflow(wf) {
+  activeWorkflow = wf;
+  applyWorkflowFilter(wf);
+  buildWorkflowSection();
+}
+
+function clearWorkflow() {
+  activeWorkflow = null;
+  applyWorkflowFilter(null);
+  buildWorkflowSection();
+}
+
+// ── Mutations ──
+async function createWorkflow() {
+  const today = todayISO();
+  const wf = {
+    id: nextWorkflowId(),
+    label: 'New workflow',
+    description: 'Describe the user scenario this captures.',
+    entryProduct: 'flows',
+    steps: [],
+    createdAt: today,
+    updatedAt: today,
+  };
+  WORKFLOWS.push(wf);
+  editingWfId = wf.id;
+  activeWorkflow = wf;
+  await persistWorkflows();
+  buildWorkflowSection();
+  applyWorkflowFilter(wf);
+}
+
+async function deleteWorkflow(id) {
+  if (!confirm('Delete this workflow? This cannot be undone.')) return;
+  const idx = WORKFLOWS.findIndex(w => w.id === id);
+  if (idx < 0) return;
+  WORKFLOWS.splice(idx, 1);
+  if (activeWorkflow?.id === id) activeWorkflow = null;
+  if (editingWfId === id) editingWfId = null;
+  await persistWorkflows();
+  buildWorkflowSection();
+  applyWorkflowFilter(activeWorkflow);
+}
+
+async function updateWorkflowField(id, field, value) {
+  const wf = WORKFLOWS.find(w => w.id === id);
+  if (!wf) return;
+  if (field === 'scope') {
+    if (value) wf.scope = value; else delete wf.scope;
+  } else if (field === 'shareable') {
+    if (value) wf.shareable = true; else delete wf.shareable;
+  } else {
+    wf[field] = value;
+  }
+  touchWf(wf);
+  await persistWorkflows();
+  buildWorkflowSection();
+}
+
+async function addStep(workflowId, screenId) {
+  const wf = WORKFLOWS.find(w => w.id === workflowId);
+  if (!wf || !screenId) return;
+  const info = findScreenInfo(screenId);
+  const product = info?.product || 'flows';
+  wf.steps.push({ product, screenId });
+  if (wf.steps.length >= 2) {
+    const prev = wf.steps[wf.steps.length - 2];
+    if (!prev.next) prev.next = { 'primary-cta': screenId };
+    else if (!prev.next['primary-cta']) prev.next['primary-cta'] = screenId;
+  }
+  touchWf(wf);
+  await persistWorkflows();
+  buildWorkflowSection();
+  if (activeWorkflow?.id === wf.id) applyWorkflowFilter(wf);
+}
+
+async function removeStep(workflowId, idx) {
+  const wf = WORKFLOWS.find(w => w.id === workflowId);
+  if (!wf || !wf.steps[idx]) return;
+  wf.steps.splice(idx, 1);
+  touchWf(wf);
+  await persistWorkflows();
+  buildWorkflowSection();
+  if (activeWorkflow?.id === wf.id) applyWorkflowFilter(wf);
+}
+
+async function moveStep(workflowId, fromIdx, toIdx) {
+  const wf = WORKFLOWS.find(w => w.id === workflowId);
+  if (!wf || fromIdx === toIdx || toIdx < 0 || toIdx >= wf.steps.length) return;
+  const [s] = wf.steps.splice(fromIdx, 1);
+  wf.steps.splice(toIdx, 0, s);
+  touchWf(wf);
+  await persistWorkflows();
+  buildWorkflowSection();
+}
+
+async function updateStepScreen(workflowId, idx, screenId) {
+  const wf = WORKFLOWS.find(w => w.id === workflowId);
+  if (!wf || !wf.steps[idx] || !screenId) return;
+  const info = findScreenInfo(screenId);
+  wf.steps[idx].screenId = screenId;
+  wf.steps[idx].product = info?.product || 'flows';
+  touchWf(wf);
+  await persistWorkflows();
+  buildWorkflowSection();
+  if (activeWorkflow?.id === wf.id) applyWorkflowFilter(wf);
+}
+
+async function updateStepNext(workflowId, idx, trigger, target) {
+  const wf = WORKFLOWS.find(w => w.id === workflowId);
+  if (!wf || !wf.steps[idx]) return;
+  const step = wf.steps[idx];
+  if (!target) {
+    if (step.next) {
+      delete step.next[trigger];
+      if (Object.keys(step.next).length === 0) delete step.next;
+    }
+  } else {
+    step.next = step.next || {};
+    step.next[trigger] = target;
+    // UX: picking a primary-cta target also builds the next step in the
+    // sequence — append step idx+1 with that screen when one isn't there yet.
+    if (trigger === 'primary-cta' && !wf.steps[idx + 1]) {
+      const info = findScreenInfo(target);
+      const product = info?.product || step.product || 'flows';
+      wf.steps.splice(idx + 1, 0, { product, screenId: target });
+    }
+  }
+  touchWf(wf);
+  await persistWorkflows();
+  buildWorkflowSection();
+  if (activeWorkflow?.id === wf.id) applyWorkflowFilter(wf);
+}
+
+function toggleSettings(id) {
+  editingWfId = editingWfId === id ? null : id;
+  buildWorkflowSection();
+}
+
+function copyRunnerLink(id) {
+  try {
+    // Always-on link to the standalone runner. User pastes it into a new
+    // tab themselves — no popup-blocker / about:blank issues from
+    // iframe-initiated window.open.
+    const origin = (window.parent && window.parent !== window)
+      ? window.parent.location.origin
+      : window.location.origin;
+    const link = origin + '/dashboard/runner.html?workflow=' + encodeURIComponent(id);
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(link).catch(() => window.prompt('Copy link', link));
+    } else {
+      window.prompt('Copy link', link);
+    }
+  } catch (e) {
+    console.error('[journey-map] copy link failed', e);
+  }
+}
+
+// ── Workflow event delegation ──
+function wireWorkflowEvents() {
+  const newBtn = document.getElementById('ctxWfNewBtn');
+  if (newBtn) newBtn.addEventListener('click', createWorkflow);
+
+  const root = document.getElementById('ctxWorkflowsSection');
+  if (!root) return;
+
+  root.addEventListener('click', e => {
+    const stop = e.target.closest('[data-stop]');
+    const btn = e.target.closest('[data-act]');
+    const item = e.target.closest('.ctx-workflow-item');
+
+    // Action buttons take priority
+    if (btn) {
+      const act = btn.dataset.act;
+      const id = btn.dataset.id;
+      const idx = btn.dataset.idx ? parseInt(btn.dataset.idx, 10) : null;
+      if (act === 'copy-link') { e.stopPropagation(); copyRunnerLink(id); return; }
+      if (act === 'settings') { e.stopPropagation(); toggleSettings(id); return; }
+      if (act === 'delete')   { e.stopPropagation(); deleteWorkflow(id); return; }
+      if (act === 'step-remove') { e.stopPropagation(); removeStep(id, idx); return; }
+      if (act === 'step-add') {
+        e.stopPropagation();
+        const picker = document.getElementById(`ctxWfAddPicker-${id}`);
+        if (picker?.value) { addStep(id, picker.value); picker.value = ''; }
+        return;
+      }
+      if (act === 'clear') { e.stopPropagation(); clearWorkflow(); return; }
+    }
+    if (stop) return; // clicks inside the editor/popover never select
+
+    if (item) {
+      const wfId = item.dataset.wfId;
+      const wf = WORKFLOWS.find(w => w.id === wfId);
+      if (!wf) return;
+      if (activeWorkflow?.id === wfId) clearWorkflow();
+      else selectWorkflow(wf);
+    }
+  });
+
+  root.addEventListener('change', e => {
+    const el = e.target.closest('[data-act]');
+    if (!el) return;
+    const act = el.dataset.act;
+    const id = el.dataset.id;
+    const idx = el.dataset.idx ? parseInt(el.dataset.idx, 10) : null;
+    if (act === 'field') {
+      const field = el.dataset.field;
+      const value = el.type === 'checkbox' ? el.checked : el.value;
+      updateWorkflowField(id, field, value);
+    } else if (act === 'step-screen') {
+      updateStepScreen(id, idx, el.value);
+    } else if (act === 'step-next') {
+      updateStepNext(id, idx, 'primary-cta', el.value);
+    }
+  });
+
+  // Drag-to-reorder
+  root.addEventListener('dragstart', e => {
+    const step = e.target.closest('.ctx-wf-step');
+    if (!step) return;
+    draggingStepIdx = { workflowId: step.dataset.wfId, idx: parseInt(step.dataset.stepIdx, 10) };
+    step.classList.add('dragging');
+  });
+  root.addEventListener('dragover', e => {
+    if (e.target.closest('.ctx-wf-step')) e.preventDefault();
+  });
+  root.addEventListener('drop', e => {
+    const step = e.target.closest('.ctx-wf-step');
+    if (!step || !draggingStepIdx) return;
+    e.preventDefault();
+    const targetIdx = parseInt(step.dataset.stepIdx, 10);
+    if (draggingStepIdx.workflowId === step.dataset.wfId) {
+      moveStep(draggingStepIdx.workflowId, draggingStepIdx.idx, targetIdx);
+    }
+    draggingStepIdx = null;
+  });
+  root.addEventListener('dragend', () => {
+    document.querySelectorAll('.ctx-wf-step.dragging').forEach(el => el.classList.remove('dragging'));
+    draggingStepIdx = null;
+  });
+}
+
+function applyWorkflowFilter(wf) {
+  const cards = document.querySelectorAll('.screen-card[data-screen-id]');
+  if (!wf) {
+    cards.forEach(c => c.classList.remove('wf-dimmed'));
+    return;
+  }
+  const keys = new Set(wf.steps.map(s => `${s.product}:${s.screenId}`));
+  cards.forEach(c => {
+    c.classList.toggle('wf-dimmed', !keys.has(`${c.dataset.product}:${c.dataset.screenId}`));
+  });
+}
+
+// ── Context Panel ──
+const ctxPanel = document.getElementById('ctxPanel');
+const ctxPanelToggle = document.getElementById('ctxPanelToggle');
+const ctxToggleIcon = document.getElementById('ctxToggleIcon');
+const ctxScreenName = document.getElementById('ctxScreenName');
+const ctxMeta = document.getElementById('ctxMeta');
+const ctxStatesSection = document.getElementById('ctxStatesSection');
+const ctxStatesList = document.getElementById('ctxStatesList');
+const ctxConnectionsList = document.getElementById('ctxConnectionsList');
+
+let panelOpen = true;
+let selectedScreenId = null;
+let selectedProductId = null;
+
+ctxPanelToggle.addEventListener('click', () => {
+  panelOpen = !panelOpen;
+  document.body.classList.toggle('panel-closed', !panelOpen);
+  ctxToggleIcon.setAttribute('points', panelOpen ? '15 18 9 12 15 6' : '9 18 15 12 9 6');
+  setTimeout(() => {
+    fitToView(false);
+    drawConnections();
+  }, 220);
+});
+
+function findScreen(productId, screenId) {
+  const scope = productId ? PRODUCTS.filter(p => p.id === productId) : PRODUCTS;
+  for (const prod of scope) {
+    for (const phase of prod.phases) {
+      for (const scr of phase.screens) {
+        if (scr.id === screenId) return { product: prod, phase, screen: scr };
+      }
+    }
+  }
+  return null;
+}
+
+function selectScreen(productId, screenId) {
+  document.querySelectorAll('.screen-card.selected-card').forEach(c => c.classList.remove('selected-card'));
+
+  selectedScreenId = screenId;
+  selectedProductId = productId;
+  const info = findScreen(productId, screenId);
+  if (!info) return;
+
+  const card = document.querySelector(`.screen-card[data-product="${productId}"][data-screen-id="${screenId}"]`);
+  if (card) card.classList.add('selected-card');
+
+  ctxScreenName.textContent = info.screen.label;
+  ctxMeta.innerHTML = `
+    <span class="ctx-tag ctx-tag--product" style="border-left:3px solid var(--${info.product.cssPrefix}-color)">${info.product.label}</span>
+    <span class="ctx-tag ctx-tag--phase">${info.phase.label}</span>
+    <span class="ctx-tag ctx-tag--id">${info.screen.id}</span>
+  `;
+
+  const states = info.screen.states || [];
+  if (states.length) {
+    ctxStatesSection.style.display = '';
+    ctxStatesList.innerHTML = states.map(st => {
+      const isConn = CONNECTIONS.some(c =>
+        (c.from.product === productId && c.from.screen === screenId && c.from.state === st) ||
+        (c.to.product === productId && c.to.screen === screenId && c.to.state === st)
+      );
+      return `<div class="ctx-state-item ${isConn ? 'is-connection' : ''}">${st}</div>`;
+    }).join('');
+  } else {
+    ctxStatesSection.style.display = 'none';
+  }
+
+  const related = CONNECTIONS.filter(c =>
+    (c.from.product === productId && c.from.screen === screenId) ||
+    (c.to.product === productId && c.to.screen === screenId)
+  );
+  if (related.length) {
+    ctxConnectionsList.innerHTML = related.map(c => {
+      const isSource = c.from.product === productId && c.from.screen === screenId;
+      const otherProd = isSource ? c.to.product : c.from.product;
+      const otherScr = isSource ? c.to.screen : c.from.screen;
+      const otherInfo = findScreen(otherProd, otherScr);
+      const direction = isSource ? '→' : '←';
+      const otherLabel = otherInfo ? `${otherInfo.product.label} · ${otherInfo.screen.label}` : `${otherProd} · ${otherScr}`;
+      return `<div class="ctx-connection-item">
+        <div class="ctx-conn-label">${c.label}</div>
+        <div class="ctx-conn-detail">${direction} ${otherLabel}${c.from.state ? ` (${c.from.state})` : ''}</div>
+      </div>`;
+    }).join('');
+  } else {
+    ctxConnectionsList.innerHTML = '<div class="ctx-empty">No cross-product connections.</div>';
+  }
+}
+
+canvas.addEventListener('click', e => {
+  const card = e.target.closest('.screen-card');
+  if (!card) return;
+  selectScreen(card.dataset.product, card.dataset.screenId);
+}, true);
+
+// ── Status Filter Toggle ──
+const statusFilterToggle = document.getElementById('statusFilterToggle');
+let currentStatusFilter = 'all';
+
+statusFilterToggle.addEventListener('click', e => {
+  const btn = e.target.closest('.status-filter-btn');
+  if (!btn) return;
+  const filter = btn.dataset.filter;
+  if (filter === currentStatusFilter) return;
+
+  currentStatusFilter = filter;
+  statusFilterToggle.querySelectorAll('.status-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  document.body.classList.remove('filter-live', 'filter-vision');
+  if (filter === 'live') document.body.classList.add('filter-live');
+  if (filter === 'vision') document.body.classList.add('filter-vision');
+
+  requestAnimationFrame(() => { fitToView(false); drawConnections(); });
+});
+
+// ── View Toggle (Mobile / Desktop) ──
+const viewToggle = document.getElementById('viewToggle');
+let currentView = 'mobile';
+
+viewToggle.addEventListener('click', e => {
+  const btn = e.target.closest('.view-toggle-btn');
+  if (!btn) return;
+  const view = btn.dataset.view;
+  if (view === currentView) return;
+
+  currentView = view;
+  viewToggle.querySelectorAll('.view-toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  if (view === 'desktop') {
+    document.body.classList.add('view-desktop');
+  } else {
+    document.body.classList.remove('view-desktop');
+  }
+
+  requestAnimationFrame(() => {
+    fitToView(false);
+    drawConnections();
+  });
+});
+
+// ── Init ──
+function populateLegend() {
+  const legend = document.getElementById('hudLegend');
+  if (!legend) return;
+  // Insert one swatch per product before the existing 'Cross-product connection' item.
+  const insertBefore = legend.firstElementChild;
+  PRODUCTS.forEach(prod => {
+    const item = document.createElement('div');
+    item.className = 'hud-legend-item';
+    const swatch = document.createElement('div');
+    swatch.className = 'hud-legend-swatch';
+    swatch.style.background = `var(--${prod.cssPrefix}-color)`;
+    item.appendChild(swatch);
+    item.appendChild(document.createTextNode(prod.label));
+    legend.insertBefore(item, insertBefore);
+  });
+}
+
+async function init() {
+  canvas.innerHTML = '<div style="color:var(--text-tertiary);font-size:14px;padding:80px 60px">Loading journey map data…</div>';
+  try {
+    PRODUCTS = await loadScreenMapData();
+  } catch (err) {
+    canvas.innerHTML = `<div style="color:#ef4444;font-size:14px;padding:80px 60px">Failed to load data. Run <code>npm run dev</code> and open via localhost.<br><small>${err.message}</small></div>`;
+    return;
+  }
+  populateLegend();
+  buildCanvas();
+  buildWorkflowSection();
+  wireWorkflowEvents();
+  requestAnimationFrame(() => {
+    fitToView(true);
+    hints.classList.add('visible');
+    setTimeout(() => hints.classList.remove('visible'), 4000);
+  });
+}
+
+init();
+
+window.addEventListener('resize', () => drawConnections());
+</script>
+
+</body>
+</html>

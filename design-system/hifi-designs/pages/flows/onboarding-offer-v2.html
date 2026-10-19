@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Onboarding — Offer (Sentence Builder)</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+  /* ─── Screen overrides ─── */
+  .page-intro { --page-intro-gap: var(--jui-layout-gap-xs); --page-intro-mb: 0; }
+  .page-title { --page-title-size: var(--jui-typography-sub-headline-large-size); --page-title-lh: var(--jui-typography-sub-headline-large-lh); }
+
+  /* One centred column: title, subtitle, sentence lines and chips all
+     centre on the same axis. */
+  .page-content { max-width: 480px; }
+
+  /* ─── Offer builder (net-new) ─────────────────────────────────────
+     Three-line sentence. Figma 10868:12403.
+       .stem-sentence — label and slot flow inline so each line reads as a
+                        sentence rather than a form row. Centred per line,
+                        matching Figma. min-width on the slot stops an
+                        emptied field collapsing to nothing.
+       .stem-chips    — suggestions for THIS line only, directly beneath
+                        the field they fill. Collapsed unless active.
+     No painted caret rail — caret-color renders the real text cursor.
+     ------------------------------------------------------------------ */
+  .offer-builder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: var(--jui-layout-padding-xl);
+  }
+
+  /* min-height pins the group at its settled height so the working area
+     never re-centres while a chip row animates. All three active states
+     measure the same at rest (160 desktop / 200 mobile: 3 sentence rows +
+     2 gaps + the open line's block margins + one open chip row) — the
+     shift was purely transient, mid-transition. A floor, not a cap: a
+     wrapped answer still grows the block. */
+  .stem {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-m);
+    width: 100%;
+    min-height: 160px;
+  }
+
+  .stem-line {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-block: 0;
+    transition: margin-block 180ms ease;
+  }
+
+  /* Only the open line pushes its neighbours away — collapsed lines sit at
+     the base 16px so they read as one continuous sentence. */
+  .stem-line.is-active {
+    margin-block: var(--jui-layout-gap-xs);
+  }
+
+  .stem-sentence {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: center;
+    gap: var(--jui-layout-gap-xxs);
+    max-width: 100%;
+  }
+
+  .stem-label {
+    font-size: var(--jui-typography-sub-headline-small-size);
+    font-weight: var(--jui-typography-sub-headline-small-weight);
+    line-height: var(--jui-typography-sub-headline-small-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+
+  .stem-slot {
+    display: inline-block;
+    min-width: 8ch;
+    max-width: 100%;
+    overflow-wrap: break-word;
+    font-size: var(--jui-typography-body-medium-regular-size);
+    font-weight: var(--jui-typography-body-medium-regular-weight);
+    line-height: var(--jui-typography-body-medium-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+    padding-left: var(--jui-layout-padding-xxs);
+    padding-right: var(--jui-layout-padding-xxs);
+    background: transparent;
+    outline: none;
+    cursor: text;
+    white-space: pre-wrap;
+    caret-color: var(--jui-color-actions-primary-rest);
+  }
+
+  .stem-slot:empty::before {
+    content: attr(data-placeholder);
+    color: var(--jui-color-gray-300);
+    pointer-events: none;
+  }
+
+  .stem-line.is-active .stem-slot:empty::before {
+    color: var(--jui-color-blue-100);
+  }
+
+  /* ─── Chips (net-new) ─────────────────────────────────────────────
+     Slim, centred under their own field. The top padding is applied
+     ONLY while the row is open: padding floors a box's used height under
+     either box-sizing, so max-height:0 with a standing 8px padding still
+     rendered 8px and pushed the three lines apart. Gating the padding
+     makes a closed row exactly 0 high, so the questions read as one
+     sentence and only the open row takes space.
+     ------------------------------------------------------------------ */
+  .stem-chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--jui-layout-gap-xs);
+    padding-top: 0;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transform: translateY(-4px);
+    pointer-events: none;
+    transition: opacity 140ms ease, max-height 180ms ease,
+                padding-top 180ms ease, transform 140ms ease;
+  }
+
+  .stem-line.is-active .stem-chips {
+    padding-top: var(--jui-layout-padding-xs);
+    max-height: 120px;
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 32px;
+    padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-s);
+    border: 1px solid transparent;
+    border-radius: var(--jui-style-radius-12);
+    background: var(--jui-color-background-primary-light);
+    color: var(--jui-color-actions-primary-rest);
+    font-family: inherit;
+    font-size: var(--jui-typography-body-small-medium-size);
+    font-weight: var(--jui-typography-body-small-medium-weight);
+    line-height: var(--jui-typography-body-small-medium-lh);
+    letter-spacing: var(--jui-typography-link-small-ls);
+    cursor: pointer;
+    transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease, transform 140ms ease;
+  }
+
+  .chip:hover { background: var(--jui-color-blue-50); }
+  .chip:active { transform: scale(0.97); }
+  .chip:focus-visible {
+    outline: 2px solid var(--jui-color-actions-primary-rest);
+    outline-offset: 2px;
+  }
+
+  /* Selected: one step darker on the blue ramp plus a primary outline.
+     blue-50 keeps blue-500 label text at 4.98:1 — blue-100 would drop
+     it to 3.7:1 and fail AA. */
+  .chip.is-selected {
+    background: var(--jui-color-blue-50);
+    border-color: var(--jui-color-actions-primary-rest);
+  }
+
+  /* Mobile: tighter top padding and rhythm so the block clears the
+     footer inside the clipped shell. Four-chip sets wrap to two rows at
+     this width, so the open row needs the extra headroom. */
+  @media (max-width: 767px) {
+    .offer-builder { padding-top: var(--jui-layout-padding-l); }
+    /* Chip sets wrap to two rows at this width, so the settled group is taller. */
+    .stem { min-height: 200px; }
+    .stem-line.is-active .stem-chips { max-height: 160px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="variant active" id="variant-empty">
+    <div class="app-shell app-shell-onboarding"
+      data-inspect-label="Page Background"
+      data-inspect-tokens='[{"prop":"background","figma":"color/gray/10","css":"--jui-color-background-gray-medium","value":"#fdfdfd"}]'>
+
+      <div class="shell-header no-pad-y">
+        <div class="header-row">
+          <button class="icon-btn" aria-label="Back"
+            data-nav-to="flows/onboarding-business-details.html">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+          </button>
+          <div class="progress-bar">
+            <div class="progress-segment filled"></div>
+            <div class="progress-segment filled"></div>
+            <div class="progress-segment filled"></div>
+            <div class="progress-segment filled"></div>
+            <div class="progress-segment"></div>
+          </div>
+          <div class="header-spacer"></div>
+        </div>
+      </div>
+
+      <div class="shell-middle">
+        <div class="shell-working-area setup-centered-v">
+          <div class="content-container page-content">
+            <div class="page-intro">
+              <h1 class="page-title" data-inspect-phrase="businessInfo.promote.title">What do you want to promote?</h1>
+              <p class="page-subtitle" data-inspect-phrase="businessInfo.promote.subtitle">We'll help you optimize your page and suggestions to get clients.</p>
+            </div>
+
+            <div class="offer-builder">
+              <div class="stem" id="stem">
+
+                <div class="stem-line is-active" data-slot="0"
+                  data-inspect-label="Sentence Slot — Active"
+                  data-inspect-tokens='[{"prop":"placeholder-color","figma":"badge/status/primary/background","css":"--jui-color-blue-100","value":"#b4c4ff"},{"prop":"caret-color","figma":"color/blue/500","css":"--jui-color-actions-primary-rest","value":"#004ced"}]'>
+                  <p class="stem-sentence">
+                    <span class="stem-label" data-inspect-phrase="businessInfo.promote.stemCraft">I'm a</span>
+                  <span class="stem-slot" contenteditable="true" role="textbox" spellcheck="false"
+                    aria-label="What you do"
+                    data-placeholder="music teacher"
+                    data-no-phrase></span>
+                  </p>
+                  <div class="stem-chips" role="group" aria-label="Suggestions"></div>
+                </div>
+
+                <div class="stem-line" data-slot="1"
+                  data-inspect-label="Sentence Slot — Idle"
+                  data-inspect-tokens='[{"prop":"placeholder-color","figma":"color/gray/300","css":"--jui-color-gray-300","value":"#b1b1b1"},{"prop":"font-size","figma":"typography/fontsize/body/medium","css":"--jui-typography-body-medium-regular-size","value":"16px"}]'>
+                  <p class="stem-sentence">
+                    <span class="stem-label" data-inspect-phrase="businessInfo.promote.stemOffer">I want to promote</span>
+                  <span class="stem-slot" contenteditable="true" role="textbox" spellcheck="false"
+                    aria-label="What you want to promote"
+                    data-placeholder="weekend workshops"
+                    data-no-phrase></span>
+                  </p>
+                  <div class="stem-chips" role="group" aria-label="Suggestions"></div>
+                </div>
+
+                <div class="stem-line" data-slot="2"
+                  data-inspect-label="Chip — Rest / Selected"
+                  data-inspect-tokens='[{"prop":"background","figma":"color/gray/50","css":"--jui-color-gray-50","value":"#f8f8f8"},{"prop":"border","figma":"color/gray/100","css":"--jui-color-stroke-gray-default","value":"#e6e6e6"},{"prop":"border-radius","figma":"style/radius/12","css":"--jui-style-radius-12","value":"12px"},{"prop":"selected-background","figma":"color/blue/10","css":"--jui-color-background-primary-light","value":"#eff0ff"},{"prop":"selected-border","figma":"color/blue/300","css":"--jui-color-blue-300","value":"#658aff"},{"prop":"selected-color","figma":"color/blue/400","css":"--jui-color-blue-400","value":"#336bff"}]'>
+                  <p class="stem-sentence">
+                    <span class="stem-label" data-inspect-phrase="businessInfo.promote.stemAudience">For</span>
+                  <span class="stem-slot" contenteditable="true" role="textbox" spellcheck="false"
+                    aria-label="Who it is for"
+                    data-placeholder="people new to it"
+                    data-no-phrase></span>
+                  </p>
+                  <div class="stem-chips" role="group" aria-label="Suggestions"></div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="shell-footer">
+        <div class="footer-actions setup-centered">
+          <button class="btn btn-primary"
+            data-inspect-label="Primary Button — Continue"
+            data-inspect-tokens='[{"prop":"background","figma":"$jui-color-actions-primary-rest","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"height","figma":"$jui-layout-dimension-m","css":"--jui-layout-dimension-m","value":"48px"},{"prop":"border-radius","figma":"button/radius","css":"--jui-component-button-radius","value":"8px"}]'
+            data-inspect-phrase="questionaire.cta"
+            data-trigger="primary-cta"
+            data-nav-to="flows/bio-page-links-edit.html"
+            data-nav-screen-id="scr-120">Continue</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+/* ─── Sentence builder ──────────────────────────────────────────────
+   Line 0 = craft, line 1 = what this page promotes, line 2 = who it's
+   for. Each line carries its own suggestions directly beneath the field.
+   Line 2's set is keyed off the chip chosen on line 1, so suggestions
+   stay in the user's world instead of one generic list. Chips are a
+   shortcut — every line stays free text.
+
+   Localisation: the workbench toggle rewrites textContent of every
+   [data-inspect-phrase], which covers the title, subtitle, stem labels
+   and CTA. It cannot reach data-placeholder attributes, and it runs once
+   on load so it never sees chips re-rendered afterwards. The screen
+   therefore owns those two, and learns the active locale by watching the
+   subtitle — an element the parent writes and this script never does.
+   ------------------------------------------------------------------ */
+
+var STRINGS = {
+  en: {
+    subtitle: "We'll help you optimize your page and suggestions to get clients.",
+    placeholders: ['music teacher', 'weekend workshops', 'people new to it'],
+    craft:    [['Yoga teacher','yoga teacher'], ['Photographer','photographer'],
+               ['Coach','coach'], ['Therapist','therapist']],
+    offering: [['Events','events'], ['Products','products'],
+               ['Workshops','workshops'], ['Classes','classes']],
+    audience: {
+      events:    ['first-timers', 'regulars', 'people nearby', 'celebrations'],
+      products:  ['gifts', 'everyday use', 'collectors', 'something special'],
+      workshops: ['beginners', 'small groups', 'teams', 'learning a skill'],
+      classes:   ['beginners', 'all levels', 'kids', 'building a routine'],
+      _default:  ['beginners', 'first-timers', 'people nearby', 'regulars']
+    }
+  },
+  de: {
+    subtitle: 'Wir helfen dir, deine Seite und Vorschläge zu optimieren, damit du Kunden gewinnst.',
+    placeholders: ['Musiklehrer', 'Wochenend-Workshops', 'Leute, die neu dabei sind'],
+    craft:    [['Yogalehrer','Yogalehrer'], ['Fotograf','Fotograf'],
+               ['Coach','Coach'], ['Therapeut','Therapeut']],
+    offering: [['Events','Events'], ['Produkte','Produkte'],
+               ['Workshops','Workshops'], ['Kurse','Kurse']],
+    audience: {
+      events:    ['Erstbesucher', 'Stammgäste', 'Leute aus der Nähe', 'Feiern'],
+      products:  ['Geschenke', 'den Alltag', 'Sammler', 'etwas Besonderes'],
+      workshops: ['Anfänger', 'kleine Gruppen', 'Teams', 'Neugierige'],
+      classes:   ['Anfänger', 'alle Level', 'Kinder', 'eine feste Routine'],
+      _default:  ['Anfänger', 'Erstbesucher', 'Leute aus der Nähe', 'Stammgäste']
+    }
+  }
+};
+
+var CRAFT_KEYS    = ['yogaTeacher', 'photographer', 'coach', 'therapist'];
+var OFFERING_KEYS = ['events', 'products', 'workshops', 'classes'];
+
+var lines     = [].slice.call(document.querySelectorAll('.stem-line'));
+var slots     = lines.map(function (l) { return l.querySelector('.stem-slot'); });
+var chipBoxes = lines.map(function (l) { return l.querySelector('.stem-chips'); });
+var subtitleEl = document.querySelector('.page-subtitle');
+
+var locale = 'en';
+var active = 0;
+// Which offering chip is selected — drives line 2's suggestions. Tracked as
+// a stable key rather than matched on text, so it survives a locale switch.
+var offeringKey = null;
+
+function t() { return STRINGS[locale]; }
+
+function slug(s) {
+  return s.replace(/[^a-z0-9]+/gi, '-').toLowerCase();
+}
+
+function chipsFor(index) {
+  if (index === 0) {
+    return t().craft.map(function (pair, i) {
+      return { label: pair[0], value: pair[1], key: CRAFT_KEYS[i] };
+    });
+  }
+  if (index === 1) {
+    return t().offering.map(function (pair, i) {
+      return { label: pair[0], value: pair[1], key: OFFERING_KEYS[i] };
+    });
+  }
+  var set = t().audience[offeringKey] || t().audience._default;
+  return set.map(function (label) {
+    return { label: label, value: label, key: slug(label) };
+  });
+}
+
+function renderChips(index) {
+  var box = chipBoxes[index];
+  var current = slots[index].textContent.trim().toLowerCase();
+  box.innerHTML = '';
+  chipsFor(index).forEach(function (item) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'chip' + (current === item.value.toLowerCase() ? ' is-selected' : '');
+    b.textContent = item.label;
+    b.setAttribute('data-value', item.value);
+    b.setAttribute('data-inspect-phrase', 'businessInfo.promote.chip.' + item.key);
+    b.addEventListener('mousedown', function (e) { e.preventDefault(); });
+    b.addEventListener('click', function () { applyChip(index, item); });
+    box.appendChild(b);
+  });
+}
+
+function renderAll() {
+  lines.forEach(function (_, i) { renderChips(i); });
+}
+
+function setActive(index) {
+  active = index;
+  lines.forEach(function (line, i) { line.classList.toggle('is-active', i === index); });
+}
+
+function focusSlot(index) {
+  var el = slots[index];
+  el.focus({ preventScroll: true });
+  var range = document.createRange();
+  range.selectNodeContents(el);
+  range.collapse(false);
+  var sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+
+function applyChip(index, item) {
+  var wasEmpty = slots[index].textContent.trim() === '';
+  var isSame = slots[index].textContent.trim().toLowerCase() === item.value.toLowerCase();
+
+  slots[index].textContent = isSame ? '' : item.value;
+
+  // Line 1 decides which suggestions line 2 offers.
+  if (index === 1) {
+    offeringKey = isSame ? null : item.key;
+    renderChips(2);
+  }
+  renderChips(index);
+
+  // Advance to the next unanswered line — one tap per line fills the
+  // sentence top-down.
+  var next = -1;
+  if (!isSame && wasEmpty) {
+    for (var i = index + 1; i < slots.length; i++) {
+      if (slots[i].textContent.trim() === '') { next = i; break; }
+    }
+  }
+
+  if (next !== -1) { setActive(next); focusSlot(next); }
+  else { focusSlot(index); }
+}
+
+lines.forEach(function (line, i) {
+  slots[i].addEventListener('focus', function () {
+    if (active !== i) setActive(i);
+  });
+  slots[i].addEventListener('input', function () {
+    // A manual edit on line 1 detaches it from any chip, so line 2 falls
+    // back to the generic set.
+    if (i === 1) { offeringKey = null; renderChips(2); }
+    renderChips(i);
+  });
+  slots[i].addEventListener('keydown', function (e) {
+    if ((e.key === 'Enter' || e.key === 'Tab') && !e.shiftKey && i < slots.length - 1) {
+      e.preventDefault();
+      setActive(i + 1);
+      focusSlot(i + 1);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+    }
+  });
+  // contenteditable accepts pasted markup — force plain text.
+  slots[i].addEventListener('paste', function (e) {
+    e.preventDefault();
+    var text = (e.clipboardData || window.clipboardData).getData('text');
+    document.execCommand('insertText', false, text.replace(/\s+/g, ' '));
+  });
+});
+
+/* ─── Locale ─── */
+function setLocale(next) {
+  if (next === locale) return;
+  var prev = STRINGS[locale];
+  locale = next;
+  slots.forEach(function (slot, i) {
+    slot.setAttribute('data-placeholder', t().placeholders[i]);
+    // Carry a chip-sourced answer across; leave anything hand-typed alone.
+    var current = slot.textContent.trim();
+    if (!current) return;
+    var was = prev.craft.concat(prev.offering).map(function (pair) { return pair[1]; })
+      .concat(Object.keys(prev.audience).reduce(function (acc, k) {
+        return acc.concat(prev.audience[k]);
+      }, []));
+    var idx = was.map(function (v) { return v.toLowerCase(); }).indexOf(current.toLowerCase());
+    if (idx === -1) return;
+    var now = t().craft.concat(t().offering).map(function (pair) { return pair[1]; })
+      .concat(Object.keys(t().audience).reduce(function (acc, k) {
+        return acc.concat(t().audience[k]);
+      }, []));
+    if (now[idx]) slot.textContent = now[idx];
+  });
+  renderAll();
+}
+
+// The parent workbench swaps the subtitle on locale change; this script
+// never writes it, so watching it is a safe, loop-free signal.
+if (subtitleEl && window.MutationObserver) {
+  new MutationObserver(function () {
+    var text = subtitleEl.textContent.trim();
+    if (text === STRINGS.de.subtitle) setLocale('de');
+    else if (text === STRINGS.en.subtitle) setLocale('en');
+  }).observe(subtitleEl, { childList: true, characterData: true, subtree: true });
+}
+
+/* ─── Workbench variant hooks ─── */
+function showVariant(key) {
+  var c = t().craft, o = t().offering;
+  var presets = {
+    empty:   ['', '', ''],
+    partial: [c[1][1], '', ''],
+    filled:  [c[1][1], o[2][1], t().audience.workshops[0]]
+  };
+  var preset = presets[key] || presets.empty;
+  offeringKey = (key === 'filled') ? 'workshops' : null;
+  slots.forEach(function (s, i) { s.textContent = preset[i]; });
+  var firstEmpty = preset.indexOf('');
+  setActive(firstEmpty === -1 ? slots.length - 1 : firstEmpty);
+  renderAll();
+}
+
+window.addEventListener('message', function (e) {
+  if (e.data && e.data.type === 'set-variant') showVariant(e.data.variant);
+  if (e.data && e.data.type === 'set-locale' && STRINGS[e.data.locale]) setLocale(e.data.locale);
+});
+
+renderAll();
+focusSlot(0);
+</script>
+
+<script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js"></script>
+<script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js"></script>
+
+</body>
+</html>

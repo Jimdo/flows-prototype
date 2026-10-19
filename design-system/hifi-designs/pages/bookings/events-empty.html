@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bookings — Events</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/management-shell.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<script type="module" src="/flows-prototype/design-system/hifi-designs/shared/shell-components.js"></script>
+<style>
+/* lint-disable */
+  body { background: var(--jui-color-background-gray-canvas); }
+
+  /* ── Events empty state ── */
+  .events-page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-l, 24px);
+    padding: var(--jui-layout-padding-xl, 40px);
+    max-width: 808px; /* 768px content + padding */
+  }
+
+  .events-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .events-title {
+    font-size: var(--jui-typography-headline-medium-size, 40px);
+    font-weight: var(--jui-typography-headline-medium-weight, 400);
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+    color: var(--jui-color-typography-gray-on-light-default);
+    margin: 0;
+  }
+
+  .events-empty-card {
+    background: var(--jui-color-background-gray-light, #fff);
+    border: 1px solid var(--jui-color-stroke-gray-default, #e6e6e6);
+    border-radius: var(--jui-style-radius-l, 12px);
+    padding: var(--jui-layout-padding-xl, 40px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--jui-layout-gap-l, 24px);
+  }
+
+  /* ── Calendar illustration — three stacked "sheets" ── */
+  .calendar-illustration {
+    position: relative;
+    width: 268px;
+    height: 137px;
+  }
+
+  .cal-sheet {
+    position: absolute;
+    background: var(--jui-color-background-gray-light, #fff);
+    border-radius: 5px;
+    box-shadow: 0 5px 5px rgba(0,0,0,0.14);
+    display: flex;
+    align-items: stretch;
+    gap: 7px;
+    padding: 7px;
+  }
+
+  .cal-sheet--back   { width: 217px; height: 103px; left: 26px; top: 34px; }
+  .cal-sheet--mid    { width: 239px; height: 113px; left: 15px; top: 19px; }
+  .cal-sheet--front  { width: 268px; height: 127px; left: 0;    top: 0;    }
+
+  .cal-col-left {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    width: 60px;
+    flex-shrink: 0;
+  }
+
+  .cal-label {
+    height: 12px;
+    background: var(--jui-color-gray-100, #e6e6e6);
+    border-radius: 3px;
+    width: 80%;
+  }
+
+  .cal-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+  }
+
+  .cal-line {
+    height: 6px;
+    background: var(--jui-color-gray-100, #e6e6e6);
+    border-radius: 5px;
+  }
+
+  .cal-line--short { width: 75%; }
+  .cal-line--xshort { width: 50%; }
+
+  .cal-col-center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .cal-month-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .cal-month-label {
+    height: 12px;
+    background: var(--jui-color-gray-100, #e6e6e6);
+    border-radius: 3px;
+    width: 55px;
+  }
+
+  .cal-month-nav {
+    width: 12px;
+    height: 12px;
+    background: var(--jui-color-gray-100, #e6e6e6);
+    border-radius: 3px;
+  }
+
+  .cal-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    flex: 1;
+    align-content: flex-start;
+  }
+
+  .cal-day {
+    width: 12px;
+    height: 12px;
+    background: var(--jui-color-gray-100, #e6e6e6);
+    border-radius: 3px;
+  }
+
+  .cal-day--empty { background: transparent; }
+  .cal-day--booked { background: var(--jui-color-background-positive-dark, #b5f2ce); }
+
+  .cal-col-right {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    width: 60px;
+    flex-shrink: 0;
+  }
+
+  /* ── Empty state text + CTA ── */
+  .events-empty-text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-xxs, 4px);
+    align-items: center;
+    text-align: center;
+    max-width: 650px;
+  }
+
+  .events-empty-heading {
+    font-size: var(--jui-typography-subheadline-medium-size, 20px);
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--jui-color-typography-gray-on-light-default);
+    margin: 0;
+  }
+
+  .events-empty-desc {
+    font-size: var(--jui-typography-body-medium-size, 16px);
+    line-height: 1.5;
+    color: var(--jui-color-typography-gray-on-light-subdued, #6d6d6d);
+    margin: 0;
+  }
+</style>
+</head>
+<body class="app-shell management-shell">
+
+  <jimdo-topbar></jimdo-topbar>
+
+  <div class="shell-middle">
+    <jimdo-sidebar
+      product="bookings"
+      active="events"
+      variant="contextual"
+      back-label="Back to Dashboard"
+      back-product="core"
+      back-screen="main-navigation.html"
+      title="Bookings">
+    </jimdo-sidebar>
+
+    <main class="shell-working-area">
+      <div class="events-page">
+
+        <div class="events-title-row">
+          <h1 class="events-title" data-inspect-phrase="">Events</h1>
+          <button class="btn-secondary btn-sm" data-nav-to="bookings/event-created-success.html" data-inspect-phrase="events.page.cta">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 4V20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+            Create event
+          </button>
+        </div>
+
+        <div class="events-empty-card">
+
+          <!-- Calendar illustration -->
+          <div class="calendar-illustration" aria-hidden="true">
+            <!-- back sheet -->
+            <div class="cal-sheet cal-sheet--back">
+              <div class="cal-col-left">
+                <div class="cal-label"></div>
+                <div class="cal-lines">
+                  <div class="cal-line"></div>
+                  <div class="cal-line cal-line--short"></div>
+                  <div class="cal-line cal-line--short"></div>
+                  <div class="cal-line cal-line--xshort"></div>
+                </div>
+              </div>
+              <div class="cal-col-center">
+                <div class="cal-month-row">
+                  <div class="cal-month-nav"></div>
+                  <div class="cal-month-label"></div>
+                  <div class="cal-month-nav"></div>
+                </div>
+                <div class="cal-grid">
+                  <div class="cal-day cal-day--empty"></div><div class="cal-day cal-day--empty"></div><div class="cal-day cal-day--empty"></div>
+                  <div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div>
+                  <div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div>
+                  <div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div>
+                  <div class="cal-day"></div><div class="cal-day"></div><div class="cal-day cal-day--booked"></div><div class="cal-day"></div>
+                  <div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div>
+                  <div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div>
+                </div>
+              </div>
+              <div class="cal-col-right">
+                <div class="cal-label"></div>
+                <div class="cal-lines">
+                  <div class="cal-line"></div><div class="cal-line"></div><div class="cal-line"></div><div class="cal-line"></div><div class="cal-line"></div>
+                </div>
+              </div>
+            </div>
+            <!-- mid sheet -->
+            <div class="cal-sheet cal-sheet--mid">
+              <div class="cal-col-left">
+                <div class="cal-label"></div>
+                <div class="cal-lines">
+                  <div class="cal-line"></div>
+                  <div class="cal-line cal-line--short"></div>
+                  <div class="cal-line cal-line--short"></div>
+                  <div class="cal-line cal-line--xshort"></div>
+                </div>
+              </div>
+              <div class="cal-col-center">
+                <div class="cal-month-row">
+                  <div class="cal-month-nav"></div>
+                  <div class="cal-month-label"></div>
+                  <div class="cal-month-nav"></div>
+                </div>
+                <div class="cal-grid">
+                  <div class="cal-day cal-day--empty"></div><div class="cal-day cal-day--empty"></div><div class="cal-day cal-day--empty"></div>
+                  <div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div>
+                  <div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div>
+                  <div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div>
+                  <div class="cal-day"></div><div class="cal-day"></div><div class="cal-day cal-day--booked"></div><div class="cal-day"></div>
+                  <div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div>
+                  <div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div>
+                </div>
+              </div>
+              <div class="cal-col-right">
+                <div class="cal-label"></div>
+                <div class="cal-lines">
+                  <div class="cal-line"></div><div class="cal-line"></div><div class="cal-line"></div><div class="cal-line"></div><div class="cal-line"></div>
+                </div>
+              </div>
+            </div>
+            <!-- front sheet (most prominent) -->
+            <div class="cal-sheet cal-sheet--front">
+              <div class="cal-col-left">
+                <div class="cal-label"></div>
+                <div class="cal-lines">
+                  <div class="cal-line"></div>
+                  <div class="cal-line cal-line--short"></div>
+                  <div class="cal-line cal-line--short"></div>
+                  <div class="cal-line cal-line--xshort"></div>
+                </div>
+              </div>
+              <div class="cal-col-center">
+                <div class="cal-month-row">
+                  <div class="cal-month-nav"></div>
+                  <div class="cal-month-label"></div>
+                  <div class="cal-month-nav"></div>
+                </div>
+                <div class="cal-grid">
+                  <div class="cal-day cal-day--empty"></div><div class="cal-day cal-day--empty"></div><div class="cal-day cal-day--empty"></div>
+                  <div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div>
+                  <div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div>
+                  <div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div>
+                  <div class="cal-day"></div><div class="cal-day"></div><div class="cal-day cal-day--booked"></div><div class="cal-day"></div>
+                  <div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div>
+                  <div class="cal-day"></div><div class="cal-day"></div><div class="cal-day"></div>
+                </div>
+              </div>
+              <div class="cal-col-right">
+                <div class="cal-label"></div>
+                <div class="cal-lines">
+                  <div class="cal-line"></div><div class="cal-line"></div><div class="cal-line"></div><div class="cal-line"></div>
+                  <div class="cal-line"></div><div class="cal-line"></div><div class="cal-line"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="events-empty-text">
+            <h2 class="events-empty-heading" data-inspect-phrase="">Setup your first event</h2>
+            <p class="events-empty-desc">Make bookings easy with automatic reminders. Less stress for you, more customers.</p>
+          </div>
+
+          <button class="btn btn-primary" data-nav-to="bookings/event-created-success.html" data-inspect-phrase="">Create your first event</button>
+
+        </div>
+      </div>
+    </main>
+  </div>
+
+</body>
+</html>

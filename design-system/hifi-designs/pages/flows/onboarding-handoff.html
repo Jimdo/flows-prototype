@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Onboarding — Finish Now or Later</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+  /* ─── Screen overrides ───
+     Only the resting drawer height is local: a line of title and two lines
+     of body, with no field under them. Everything else — the column widths,
+     the preview scale, the action row — is the setup split exactly as the
+     five steps before it, which is the point. */
+  .app-shell-setup-split { --setup-drawer-rest-h: 236px; }
+</style>
+</head>
+<body>
+
+  <div class="app-shell app-shell-setup-split" id="shell" data-drawer="default" data-mode="celebrate">
+
+    <div class="setup-split-header">
+      <button class="setup-back-btn" aria-label="Back" data-no-phrase
+        data-nav-to="flows/flows-suggestions.html" data-nav-screen-id="scr-046">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+      </button>
+
+      <!-- No progress bar. The five steps are done; this is the result of
+           them, and a bar at 5 of 5 would make it read as a sixth. -->
+      <div class="header-spacer"></div>
+    </div>
+
+    <div class="setup-split-main">
+
+      <div class="setup-split-preview">
+        <div class="setup-preview-panel">
+          <span class="setup-preview-tag" data-no-phrase>Preview</span>
+          <div class="celebrate-stage-wrap">
+            <!-- Figma 12270:23186 — rounded star at color/purple/10, turned 15 degrees. -->
+            <div class="celebrate-blob" aria-hidden="true">
+              <svg viewBox="0 0 410.068 406.552" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+                <path d="M175.859 19.7533C186.393 -6.58444 223.675 -6.58445 234.209 19.7533V19.7533C241.77 38.6578 265.038 45.4899 281.62 33.6743V33.6743C304.721 17.2127 336.085 37.369 330.707 65.221V65.221C326.847 85.2122 342.728 103.539 363.065 102.564V102.564C391.399 101.205 406.886 135.118 387.305 155.641V155.641C373.25 170.372 376.701 194.376 394.337 204.55V204.55C418.907 218.726 413.602 255.628 386.033 262.307V262.307C366.245 267.101 356.171 289.16 365.506 307.254V307.254C378.513 332.462 354.098 360.638 327.295 351.352V351.352C308.056 344.686 287.656 357.797 285.727 378.066V378.066C283.04 406.305 247.268 416.808 229.74 394.505V394.505C217.159 378.497 192.909 378.497 180.328 394.505V394.505C162.8 416.808 127.028 406.305 124.341 378.066V378.066C122.412 357.797 102.012 344.686 82.7732 351.352V351.352C55.9701 360.638 31.5553 332.462 44.5618 307.254V307.254C53.8974 289.16 43.8234 267.101 24.0353 262.307V262.307C-3.53354 255.628 -8.83937 218.726 15.7312 204.55V204.55C33.3672 194.376 36.8184 170.372 22.7632 155.641V155.641C3.18154 135.118 18.6692 101.205 47.0029 102.564V102.564C67.34 103.539 83.2206 85.2122 79.3608 65.221V65.221C73.9833 37.369 105.347 17.2127 128.448 33.6743V33.6743C145.03 45.4899 168.298 38.6578 175.859 19.7533V19.7533Z" fill="var(--jui-color-purple-10)"/>
+              </svg>
+            </div>
+            <div class="confetti" id="confetti" aria-hidden="true"></div>
+            <div class="bp-stage">
+              <div class="bp-frame">
+                <iframe id="bioPreview" title="Bio page preview" tabindex="-1"
+                  src="/flows-prototype/design-system/hifi-designs/pages/artifacts/bio-page-v2.html"></iframe>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-split-form">
+
+        <button class="setup-drawer-grip" id="grip" aria-label="Resize the panel" data-no-phrase>
+          <span class="setup-drawer-grip-shape"></span>
+        </button>
+
+        <div class="setup-split-fields">
+          <div class="setup-split-intro">
+            <h1 class="setup-split-title" data-inspect-phrase="onboarding.handoff.title">Your page is ready</h1>
+
+            <p class="setup-split-subtitle" data-inspect-phrase="onboarding.handoff.bodyPending">Your <span class="setup-emphasis">booking button</span> is on it already. It needs a date, a place and a price before anyone can book it.</p>
+          </div>
+
+          <!-- A choice the person sets, not an action that fires. Two buttons
+               would make this an event they might miss; two options with one
+               of them selected is a state that stays on the screen, visibly
+               theirs and visibly reversible. -->
+          <div class="select-card-list" role="radiogroup" aria-label="When to set up your booking" id="whenList"
+            data-inspect-label="Select card list"
+            data-inspect-tokens='[{"prop":"gap","figma":"measurements/size/12","css":"--jui-layout-gap-s","value":"12px"},{"prop":"padding","figma":"$jui-layout-padding-m","css":"--jui-layout-padding-m","value":"16px"},{"prop":"border-radius","figma":"$jui-style-radius-l","css":"--jui-style-radius-16","value":"16px"}]'>
+
+            <button type="button" class="select-card" role="radio" aria-checked="true" data-when="now" data-no-phrase
+              data-inspect-label="Select card — selected">
+              <span class="select-card-copy">
+                <span class="select-card-label">Set it up now</span>
+              </span>
+              <span class="select-card-radio" aria-hidden="true"></span>
+            </button>
+
+            <button type="button" class="select-card" role="radio" aria-checked="false" data-when="later" data-no-phrase>
+              <span class="select-card-copy">
+                <span class="select-card-label">Not right now</span>
+              </span>
+              <span class="select-card-radio" aria-hidden="true"></span>
+            </button>
+          </div>
+
+          <!-- Said before the page changes, not after: it is what makes the
+               change in the preview something the person is expecting rather
+               than something they have to catch. -->
+          <p class="setup-note" id="consequence" data-shown="false"
+            data-inspect-phrase="onboarding.handoff.bodyLater"><span>Your <span class="setup-emphasis">booking button</span> stays hidden until it's ready, so nobody lands on something half-finished.</span></p>
+        </div>
+
+        <div class="setup-split-actions">
+          <div class="setup-action-set" data-state="now" data-on="true">
+            <button class="btn btn-primary"
+              data-inspect-label="Primary Button — Finish the booking"
+              data-inspect-tokens='[{"prop":"background","figma":"color/actions/primary/rest","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"height","figma":"$jui-layout-dimension-m","css":"--jui-layout-dimension-m","value":"48px"}]'
+              data-inspect-phrase="onboarding.handoff.ctaSetup"
+              data-trigger="primary-cta"
+              data-nav-to="flows/flows-suggestions-bookings.html"
+              data-nav-screen-id="scr-459">Set up my booking</button>
+          </div>
+          <div class="setup-action-set" data-state="later" data-on="false">
+            <button class="btn btn-primary"
+              data-inspect-phrase="onboarding.handoff.ctaDone"
+              data-trigger="primary-cta"
+              data-nav-to="flows/home-dashboard-v2.html"
+              data-nav-screen-id="scr-131">Go to Home</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js"></script>
+  <script type="module">
+    import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
+    import { initConfetti } from '/flows-prototype/design-system/hifi-designs/shared/confetti.js';
+
+    initConfetti(document.getElementById('confetti'));
+
+    // The choice is reversible and never leaves this screen: picking "later"
+    // shows what later costs, on the page itself, and picking again takes it
+    // back. A fork that navigates away cannot show its own consequence.
+    let later = false;
+
+    const split = initSetupSplit({
+      state: () => ({
+        // Everything the five steps put on the page, carried forward
+        // unchanged — this is the same page they have been watching, not a
+        // dressed one. The only new thing is the offer they just chose.
+        title: 'Clara and Stone',
+        subtitle: 'Yoga and mindfulness workshops for women',
+        image: 'photo',
+        contact: [
+          { id: 'whatsapp', on: true },
+          { id: 'email', on: true },
+        ],
+        links: 'default',
+        mainlink: 'My website',
+        address: { on: true, value: 'Elbe Einkaufszentrum' },
+        // Onboarding never asked for these, so they are still standing in.
+        ghost: ['socials'],
+        // Held on rather than following focus: there is nothing to focus
+        // here, and the copy beside it is about this one block.
+        highlight: 'offer',
+        // Chosen on the previous step and not yet set up, so on the page and
+        // — once they defer it — dimmed and marked there too.
+        offer: {
+          on: true,
+          kind: 'book',
+          title: 'Beginner workshop',
+          meta: 'Sat 10 May · 14:00',
+          cta: 'Book my session',
+          price: '€45',
+          pending: later,
+        },
+      }),
+    });
+
+    const whenList = document.getElementById('whenList');
+    const consequence = document.getElementById('consequence');
+    const cards = Array.from(whenList.querySelectorAll('.select-card'));
+
+    // Staged on purpose. Two things change when the choice is made and they
+    // are 500px apart, so firing them together means one of them is missed —
+    // the eye is on the option that was just tapped and does not get a second
+    // chance at the preview. So: the option marks itself where the finger
+    // already is, the line underneath says what it means, and only then does
+    // the page change. By the time the preview moves, the person has been
+    // told to expect it and the motion in the corner of their eye is the
+    // confirmation rather than the announcement.
+    const SAY_AFTER = 120;
+    const SHOW_AFTER = 480;
+    let stageTimers = [];
+
+    function choose(next, animate) {
+      later = next;
+      cards.forEach((c) => c.setAttribute('aria-checked', String(c.getAttribute('data-when') === (next ? 'later' : 'now'))));
+      document.querySelectorAll('.setup-action-set').forEach((el) => {
+        el.setAttribute('data-on', el.getAttribute('data-state') === (next ? 'later' : 'now') ? 'true' : 'false');
+      });
+
+      stageTimers.forEach(window.clearTimeout);
+      stageTimers = [];
+      if (!animate) {
+        consequence.setAttribute('data-shown', next ? 'true' : 'false');
+        split.sync();
+        return;
+      }
+      stageTimers.push(window.setTimeout(() => {
+        consequence.setAttribute('data-shown', next ? 'true' : 'false');
+      }, SAY_AFTER));
+      stageTimers.push(window.setTimeout(() => split.sync(), SHOW_AFTER));
+    }
+
+    cards.forEach((c) => c.addEventListener('click', () => {
+      const next = c.getAttribute('data-when') === 'later';
+      if (next === later) return;
+      choose(next, true);
+    }));
+
+    const VARIANTS = {
+      'ready':        { later: false, drawer: 'default' },
+      'deferred':     { later: true,  drawer: 'default' },
+      'preview-peek': { later: false, drawer: 'collapsed' },
+    };
+
+    window.addEventListener('message', (e) => {
+      if (!e.data || e.data.type !== 'set-variant') return;
+      const v = VARIANTS[e.data.variant];
+      if (!v) return;
+      split.setState(v.drawer);
+      choose(v.later, false);
+    });
+  </script>
+
+</body>
+</html>

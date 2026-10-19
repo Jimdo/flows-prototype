@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bookings — Events</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/management-shell.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<script type="module" src="/flows-prototype/design-system/hifi-designs/shared/shell-components.js"></script>
+<style>
+/* lint-disable */
+  body { background: var(--jui-color-background-gray-canvas); }
+
+  /* ── Events page (shared with events-empty.html) ── */
+  .events-page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-l, 24px);
+    padding: var(--jui-layout-padding-xl, 40px);
+    max-width: 808px; /* 768px content + padding */
+  }
+
+  .events-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .events-title {
+    font-size: var(--jui-typography-headline-medium-size, 40px);
+    font-weight: var(--jui-typography-headline-medium-weight, 400);
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+    color: var(--jui-color-typography-gray-on-light-default);
+    margin: 0;
+  }
+
+  /* ── Events list ── */
+  .events-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-m, 16px);
+  }
+
+  /* Event card — mirrors EventListItem.module.scss from bookings-management.
+     Hover/focus/selected map to the same token roles. */
+  .event-card {
+    position: relative;
+    background: var(--jui-color-background-gray-light, #fff);
+    border: 1px solid var(--jui-color-stroke-gray-default, #e6e6e6);
+    border-radius: var(--jui-style-radius-l, 12px);
+    padding: var(--jui-layout-padding-m, 16px);
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-xxs, 4px);
+    transition: border-color 0.1s ease-in, box-shadow 0.1s ease-in;
+    cursor: pointer;
+  }
+
+  .event-card:hover,
+  .event-card:focus-within {
+    border-color: var(--jui-color-stroke-primary-on-light);
+  }
+
+  .event-card.is-selected {
+    border-color: var(--jui-color-stroke-primary-actionable);
+    box-shadow: var(--jui-effects-on-light-shadow-lvl-1);
+  }
+
+  /* Top row: title + type tag */
+  .event-card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--jui-layout-gap-s, 12px);
+  }
+
+  .event-card-title-group {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-xs, 8px);
+    min-width: 0;
+  }
+
+  .event-card-title {
+    font-size: var(--jui-typography-body-large-size, 16px);
+    font-weight: var(--jui-typography-body-large-regular-weight, 400);
+    line-height: 1.5;
+    color: var(--jui-color-typography-gray-on-light-default);
+    margin: 0;
+    word-break: break-word;
+  }
+
+  /* Type tag — dark/grey variant from @jimdo/ui Tag */
+  .event-card-tag {
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    padding: 0 var(--jui-layout-padding-xs, 8px);
+    background: var(--jui-color-background-gray-dark, #2c2c2c);
+    color: var(--jui-color-typography-gray-on-dark-default, #fff);
+    border-radius: var(--jui-style-radius-s, 6px);
+    font-size: var(--jui-typography-body-small-size, 14px);
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* Bottom row: location + description (right-aligned) */
+  .event-card-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--jui-layout-gap-s, 12px);
+  }
+
+  .event-card-location,
+  .event-card-description {
+    font-size: var(--jui-typography-body-small-size, 14px);
+    line-height: 1.5;
+    color: var(--jui-color-typography-gray-on-light-subdued, #6d6d6d);
+    margin: 0;
+    word-break: break-word;
+  }
+
+  .event-card-description {
+    flex-grow: 1;
+    white-space: nowrap;
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: var(--jui-layout-padding-xxs, 4px);
+  }
+
+  /* Payment-alert icon (warning or error variant) — shown left of the title
+     when paymentIntegrationAlert is PayinDisabled or Disconnected. */
+  .event-card-payment-alert {
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .event-card-payment-alert--warning svg {
+    fill: var(--jui-color-actions-notice-rest);
+  }
+
+  .event-card-payment-alert--error svg {
+    fill: var(--jui-color-actions-negative-rest);
+  }
+
+  /* Mobile collapse: tag uses short label below the sm breakpoint. */
+  @media (max-width: 600px) {
+    .event-card-tag-long { display: none; }
+    .event-card-tag-short { display: inline; }
+    .event-card-description { white-space: normal; text-align: left; }
+  }
+  @media (min-width: 601px) {
+    .event-card-tag-long { display: inline; }
+    .event-card-tag-short { display: none; }
+  }
+</style>
+</head>
+<body class="app-shell management-shell">
+
+  <jimdo-topbar></jimdo-topbar>
+
+  <div class="shell-middle">
+    <jimdo-sidebar
+      product="bookings"
+      active="events"
+      variant="contextual"
+      back-label="Back to Dashboard"
+      back-product="core"
+      back-screen="main-navigation.html"
+      title="Bookings">
+    </jimdo-sidebar>
+
+    <main class="shell-working-area">
+      <div class="events-page">
+
+        <div class="events-title-row">
+          <h1 class="events-title" data-inspect-phrase="events.page.title">Events</h1>
+          <button class="btn-primary btn-sm" data-nav-to="bookings/event-created-success.html" data-inspect-phrase="events.page.cta">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 4V20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+            Create event
+          </button>
+        </div>
+
+        <ul class="events-list">
+          <!-- Event: fixed-sessions, with location, selected state for demo -->
+          <li>
+            <article class="event-card is-selected" tabindex="0" aria-current="true">
+              <div class="event-card-header">
+                <div class="event-card-title-group">
+                  <h2 class="event-card-title" data-no-phrase>Monday morning yoga</h2>
+                </div>
+                <span class="event-card-tag">
+                  <span class="event-card-tag-long" data-inspect-phrase="event.type.fixedSessions.label">Fixed sessions</span>
+                  <span class="event-card-tag-short" data-inspect-phrase="event.type.fixedSessions.shortLabel">Fixed</span>
+                </span>
+              </div>
+              <div class="event-card-meta">
+                <p class="event-card-location" data-no-phrase>studio-mitte.com</p>
+                <p class="event-card-description" data-no-phrase>Mon · 4 dates scheduled</p>
+              </div>
+            </article>
+          </li>
+
+          <!-- Event: open-slots, payment-disconnected alert -->
+          <li>
+            <article class="event-card" tabindex="0">
+              <div class="event-card-header">
+                <div class="event-card-title-group">
+                  <span class="event-card-payment-alert event-card-payment-alert--error" aria-label="Payment integration disconnected" data-inspect-phrase="events.page.card.paymentAlert.disconnected">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 7v6M12 16v.5" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+                  </span>
+                  <h2 class="event-card-title" data-no-phrase>Portrait photography session</h2>
+                </div>
+                <span class="event-card-tag">
+                  <span class="event-card-tag-long" data-inspect-phrase="event.type.openSlots.label">Open slots</span>
+                  <span class="event-card-tag-short" data-inspect-phrase="event.type.openSlots.shortLabel">Open</span>
+                </span>
+              </div>
+              <div class="event-card-meta">
+                <p class="event-card-location" data-no-phrase>lena-photo.com</p>
+                <p class="event-card-description" data-no-phrase>45 min · from €90</p>
+              </div>
+            </article>
+          </li>
+
+          <!-- Event: fixed-sessions, physical location, payment-warning alert -->
+          <li>
+            <article class="event-card" tabindex="0">
+              <div class="event-card-header">
+                <div class="event-card-title-group">
+                  <span class="event-card-payment-alert event-card-payment-alert--warning" aria-label="Online payments not yet enabled" data-inspect-phrase="events.page.card.paymentAlert.payInDisabled">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 7v6M12 16v.5" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+                  </span>
+                  <h2 class="event-card-title" data-no-phrase>Pasta-making workshop</h2>
+                </div>
+                <span class="event-card-tag">
+                  <span class="event-card-tag-long" data-inspect-phrase="event.type.fixedSessions.label">Fixed sessions</span>
+                  <span class="event-card-tag-short" data-inspect-phrase="event.type.fixedSessions.shortLabel">Fixed</span>
+                </span>
+              </div>
+              <div class="event-card-meta">
+                <p class="event-card-location" data-no-phrase>Friedrichstraße 22, Berlin</p>
+                <p class="event-card-description" data-no-phrase>Sat · 2 dates scheduled</p>
+              </div>
+            </article>
+          </li>
+
+          <!-- Event: open-slots, no payment alert (PayinEnabled) -->
+          <li>
+            <article class="event-card" tabindex="0">
+              <div class="event-card-header">
+                <div class="event-card-title-group">
+                  <h2 class="event-card-title" data-no-phrase>Hair color consultation</h2>
+                </div>
+                <span class="event-card-tag">
+                  <span class="event-card-tag-long" data-inspect-phrase="event.type.openSlots.label">Open slots</span>
+                  <span class="event-card-tag-short" data-inspect-phrase="event.type.openSlots.shortLabel">Open</span>
+                </span>
+              </div>
+              <div class="event-card-meta">
+                <p class="event-card-location" data-no-phrase>salon-nord.de</p>
+                <p class="event-card-description" data-no-phrase>30 min · free</p>
+              </div>
+            </article>
+          </li>
+
+          <!-- Event: open-slots, minimal (no location, no description) -->
+          <li>
+            <article class="event-card" tabindex="0">
+              <div class="event-card-header">
+                <div class="event-card-title-group">
+                  <h2 class="event-card-title" data-no-phrase>Personal training intro</h2>
+                </div>
+                <span class="event-card-tag">
+                  <span class="event-card-tag-long" data-inspect-phrase="event.type.openSlots.label">Open slots</span>
+                  <span class="event-card-tag-short" data-inspect-phrase="event.type.openSlots.shortLabel">Open</span>
+                </span>
+              </div>
+            </article>
+          </li>
+        </ul>
+
+      </div>
+    </main>
+  </div>
+
+</body>
+</html>

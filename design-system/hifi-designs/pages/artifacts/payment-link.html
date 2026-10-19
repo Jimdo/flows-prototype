@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=360, initial-scale=1">
+<title>Payment Link — placeholder</title>
+<style>
+  /* ═══════════════════════════════════════════════
+     ARTIFACT — PAYMENT LINK (PLACEHOLDER)
+     Stub for the visitor-facing payment-link page. The real
+     design lives in the remote Jimdo Payments prototype
+     (https://jimdo.github.io/payments-prototype/); duplicate
+     it into this file when ready. Themed to match the artifact
+     family (#0a0a0a, white, Familjen Grotesk) so the
+     intent-picker preview reads consistently in the meantime.
+     ═══════════════════════════════════════════════ */
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #0a0a0a; -webkit-font-smoothing: antialiased; }
+  body {
+    font-family: 'Familjen Grotesk', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    color: #fff;
+    min-height: 100vh;
+  }
+  .pl-page {
+    width: 100%;
+    max-width: 360px;
+    min-height: 100vh;
+    margin: 0 auto;
+    background: #0a0a0a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 40px 24px;
+    text-align: center;
+  }
+  .pl-title { margin: 0; font-size: 16px; font-weight: 600; color: #fff; }
+  .pl-note { margin: 0; font-size: 14px; font-weight: 400; line-height: 1.5; color: rgba(255,255,255,0.55); }
+
+  @media (min-width: 768px) {
+    body { background: #1a1a1a; padding: 40px 0; }
+    .pl-page { min-height: auto; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+  }
+</style>
+</head>
+<body>
+  <div class="pl-page">
+    <p class="pl-title">Payment link</p>
+    <p class="pl-note">Placeholder — duplicate the remote Jimdo Payments prototype page into this file.</p>
+  </div>
+</body>
+</html>

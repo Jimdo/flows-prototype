@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jimdo Flows — A bio page that helps you promote and sell</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+/* lint-disable */
+
+/* ═══════════════════════════════════════════════════════
+   PUBLIC LANDING PAGE — FLOWS (v6: hierarchy pass)
+   ─────────────────────────────────────────────────────
+   Apple-style hierarchy. No header — Jimdo logo lives
+   inside the hero. Single CTA in hero, repeated in footer.
+   Mixed alignment: centered intros for broad beats;
+   left-aligned for narrative beats (Why Jimdo) and lists (FAQ).
+   CTAs (.btn-primary) are the only coloured surfaces.
+   ═══════════════════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+body {
+  font-family: 'Euclid Circular A', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--jui-color-typography-gray-on-light-default);
+  background: var(--jui-color-gray-white);
+  line-height: 1.5;
+}
+
+/* ─── PAGE FRAME ─── */
+
+.lp-page {
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 120px;
+  padding-bottom: 32px;
+}
+.lp-container { width: 100%; max-width: 1080px; margin: 0 auto; }
+.lp-container--narrow { max-width: 760px; }
+
+/* primitive-override: marketing CTAs hug their label */
+.lp-cta-group .btn-primary { width: auto; padding-inline: var(--jui-measurements-size-32); }
+
+.lp-cta-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.lp-cta-caption {
+  font-size: var(--jui-typography-body-small-regular-size);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
+/* ─── HERO (Figma 15071:9937 — gradient card, card fan, floating 3D) ─── */
+
+.lp-hero {
+  position: relative;
+  /* Consistent 12px white border on all sides (matches Figma's frame inset).
+     The hero is a flex item in .lp-page (24px side padding); negative side
+     margins pull it out to a uniform 12px from the viewport at any width,
+     while top margin adds the matching 12px the page never gave it. */
+  margin: 12px -12px 0;
+  overflow: hidden;
+  border-radius: 20px;
+  /* Figma: light-blue → pink wash over brand blue */
+  background:
+    linear-gradient(173.39deg, rgba(207, 238, 255, 0.7) 4.45%, rgba(255, 181, 234, 0.7) 92.52%),
+    var(--jui-color-blue-500);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 56px;
+  padding: 56px 24px 0;     /* generous top, tight sides; bottom 0 — fan cut by card edge */
+  text-align: center;
+  isolation: isolate;
+}
+
+/* logo lockup — jimdo mark + FLOWS wordmark */
+.lp-hero__top { display: flex; flex-direction: column; align-items: center; gap: 40px; }
+.lp-hero__brand { display: inline-flex; align-items: center; gap: 6px; }
+/* explicit width — these SVGs declare width:100% + preserveAspectRatio:none,
+   so width:auto would stretch them. Ratios match each viewBox. */
+.lp-hero__brand-mark  { height: 22px; width: 63px; display: block; }
+.lp-hero__brand-flows { height: 10px; width: 44px; display: block; }
+
+.lp-hero__content { display: flex; flex-direction: column; align-items: center; gap: 32px; }
+
+.lp-hero__head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  max-width: 920px;
+  text-transform: uppercase;
+}
+.lp-hero__eyebrow {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.08em;
+  color: var(--jui-color-gray-white);
+}
+.lp-hero__title {
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(40px, 6.4vw, 68px);
+  line-height: 1;
+  letter-spacing: -0.06em;
+  color: var(--jui-color-gray-white);
+}
+
+/* CTA + trust */
+.lp-hero__cta-group { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+.lp-hero__cta-wrap { position: relative; display: inline-flex; }
+.lp-hero__cta {
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.4;
+  padding: 12px 24px;
+  border-radius: 8px;
+  background: var(--jui-color-blue-500);
+  color: var(--jui-color-gray-white);
+  width: auto;
+}
+.lp-hero__trust {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+.lp-hero__trust-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 1.57;
+  color: var(--jui-color-gray-white);
+}
+.lp-hero__trust-icon { flex-shrink: 0; }
+
+/* ─── CARD FAN (graduated from landing-playground H1 · Subtle fan) ─── */
+/* 5 bio-page cards: center upright + tallest, outer pairs scaled down + tilted.
+   Bottoms all sit below the card edge and are cut by overflow:hidden. */
+.lp-hero__fan {
+  position: relative;
+  width: 100%;
+  max-width: 920px;
+  height: 300px;
+  align-self: center;
+}
+.lp-hero__fan-card {
+  position: absolute;
+  bottom: calc(-14% - var(--drop, 0%));
+  left: calc(50% + var(--i, 0) * 17%);
+  height: 122%;
+  width: auto;
+  aspect-ratio: 360 / 700;
+  background-color: var(--jui-color-gray-200);
+  background-size: cover;
+  background-position: top center;
+  background-repeat: no-repeat;
+  border-radius: 14px;
+  box-shadow: 0 18px 44px 0 rgba(0, 0, 0, 0.20);
+  outline: 1px solid rgba(255, 255, 255, 0.35);
+  outline-offset: -1px;
+  transform-origin: 50% 100%;
+  transform: translateX(-50%) scale(var(--scale, 1)) rotate(var(--rot, 0deg));
+  transition: transform 600ms cubic-bezier(0.2, 0.8, 0.2, 1),
+              bottom 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+/* DOM order: -2, +2, -1, +1, 0 — center painted last, sits on top.
+   Outer pair tucked closer to the cluster (1.55 vs a full 2 step). */
+.lp-hero__fan-card:nth-child(1) { --i: -1.55; --rot: -7deg; --scale: 0.835; --drop: 8%; }
+.lp-hero__fan-card:nth-child(2) { --i:  1.55; --rot:  7deg; --scale: 0.835; --drop: 8%; }
+.lp-hero__fan-card:nth-child(3) { --i: -1; --rot: -3deg; --scale: 0.886; --drop:  4%; }
+.lp-hero__fan-card:nth-child(4) { --i:  1; --rot:  3deg; --scale: 0.886; --drop:  4%; }
+.lp-hero__fan-card:nth-child(5) { --i:  0; --rot:  0deg; --scale: 1;     --drop:  0%; }
+/* hover: more rotation + slight rise — only --rot (transform) and --drop (bottom)
+   change, both of which are transitioned, so the spread glides like the playground.
+   Never animate --i here: `left` isn't transitioned and would jump. */
+.lp-hero__fan:hover .lp-hero__fan-card:nth-child(1) { --rot: -11deg; --drop: 6%; }
+.lp-hero__fan:hover .lp-hero__fan-card:nth-child(2) { --rot:  11deg; --drop: 6%; }
+.lp-hero__fan:hover .lp-hero__fan-card:nth-child(3) { --rot:  -5deg; --drop: 3%; }
+.lp-hero__fan:hover .lp-hero__fan-card:nth-child(4) { --rot:   5deg; --drop: 3%; }
+
+/* ─── FLOATING 3D ILLUSTRATIONS ─── */
+.lp-hero__float {
+  position: absolute;
+  pointer-events: none;
+  z-index: 3;
+  animation: lp-hero-float 6s ease-in-out infinite;
+}
+.lp-hero__float--blob   { width: 64px; left: 22%;  top: 31%; transform: rotate(-12deg); }
+.lp-hero__float--camera { width: 86px; right: 13%; top: 21%; transform: rotate(-19deg); animation-delay: -2s; }
+/* anchored to the CTA wrap — sits just off the button's right edge and points
+   up-left at it, so the aim holds at any viewport width */
+.lp-hero__float--arrow  { width: 62px; left: calc(100% + 18px); top: 50%; transform: translateY(-38%) rotate(146deg) scaleY(-1); animation-delay: -4s; }
+
+@keyframes lp-hero-float {
+  0%, 100% { translate: 0 0; }
+  50%      { translate: 0 -12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lp-hero__float { animation: none; }
+  .lp-hero__fan-card { transition: none; }
+  .lp-craft__card { animation: none; }
+  .lp-craft__card, .lp-craft__flipper { transition: none; }
+}
+
+/* ─── SECTION SHELL ─── */
+
+.lp-section { display: flex; flex-direction: column; gap: 56px; }
+.lp-section--center { align-items: center; text-align: center; }
+.lp-section__head {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 720px;
+}
+.lp-section--center .lp-section__head { align-items: center; margin-inline: auto; }
+
+.lp-section__eyebrow {
+  font-size: var(--jui-typography-body-small-medium-size);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+.lp-section__title {
+  font-size: clamp(28px, 3.8vw, 40px);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  font-weight: 700;
+}
+.lp-section__lede {
+  font-size: var(--jui-typography-body-large-regular-size);
+  line-height: var(--jui-typography-body-large-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+  max-width: 560px;
+}
+.lp-section--center .lp-section__lede { margin-inline: auto; }
+
+/* ─── IMAGE PLACEHOLDER ─── */
+
+.lp-img {
+  border: 1px dashed var(--jui-color-strokes-onlight-subdued);
+  border-radius: 16px;
+  padding: 32px;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-align: center;
+}
+.lp-img__label {
+  font-size: var(--jui-typography-body-medium-medium-size);
+  font-weight: var(--jui-typography-body-medium-medium-weight);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+.lp-img__hint {
+  font-size: var(--jui-typography-body-small-regular-size);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+.lp-img--hero { min-height: 360px; border-radius: 24px; }
+.lp-img--wide { min-height: 160px; }
+.lp-img--tall { min-height: 520px; }
+.lp-img-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+
+/* ─── QUICK PROOF ─── */
+
+.lp-proof { padding: 0 16px; }
+
+/* ─── TWO ARTIFACTS ─── */
+
+.lp-pages-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; width: 100%; }
+.lp-page-item { display: flex; flex-direction: column; gap: 24px; text-align: left; }
+.lp-page-text { display: flex; flex-direction: column; gap: 8px; }
+.lp-page-name {
+  font-size: var(--jui-typography-sub-headline-large-size);
+  line-height: var(--jui-typography-sub-headline-large-lh);
+  font-weight: var(--jui-typography-sub-headline-large-weight);
+}
+.lp-page-desc {
+  font-size: var(--jui-typography-body-medium-regular-size);
+  line-height: var(--jui-typography-body-medium-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
+/* ─── READY IN MINUTES (centered intro, steps left-aligned in a centered block) ─── */
+
+.lp-steps {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 560px;
+  width: 100%;
+  margin: 0 auto;
+  text-align: left;
+}
+.lp-steps li { display: flex; align-items: flex-start; gap: 16px; }
+.lp-step-number {
+  flex-shrink: 0;
+  width: 32px; height: 32px;
+  border-radius: 9999px;
+  background: var(--jui-color-background-gray-medium);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: var(--jui-typography-body-small-medium-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+}
+.lp-step-text {
+  font-size: var(--jui-typography-body-medium-regular-size);
+  line-height: var(--jui-typography-body-medium-regular-lh);
+  padding-top: 4px;
+}
+.lp-step-text strong { font-weight: 600; }
+
+/* ─── SURFACES ─── */
+
+.lp-surface-item { display: flex; flex-direction: column; gap: 16px; text-align: left; }
+.lp-surface-name {
+  font-size: var(--jui-typography-body-large-medium-size);
+  font-weight: var(--jui-typography-body-large-medium-weight);
+}
+.lp-surface-desc {
+  font-size: var(--jui-typography-body-small-regular-size);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
+/* ─── WINS (big centered punchline) ─── */
+
+.lp-wins {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 24px 0;
+}
+.lp-wins__eyebrow {
+  font-size: var(--jui-typography-body-small-medium-size);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+.lp-wins__line {
+  font-size: clamp(24px, 3.2vw, 36px);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  font-weight: 700;
+}
+
+/* ─── PEER VOICE (centered quotes) ─── */
+
+.lp-quotes { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; width: 100%; }
+.lp-quote {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+}
+.lp-quote__text {
+  font-size: var(--jui-typography-sub-headline-medium-size);
+  line-height: var(--jui-typography-sub-headline-medium-lh);
+  font-weight: 500;
+}
+.lp-quote__person { display: flex; align-items: center; gap: 12px; }
+.lp-quote__avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: 1px dashed var(--jui-color-strokes-onlight-subdued);
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--jui-typography-body-small-regular-size);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+.lp-quote__meta {
+  font-size: var(--jui-typography-body-small-regular-size);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
+/* ─── WHY JIMDO (narrative beat — left head + benefits grid below) ─── */
+
+.lp-benefits {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  width: 100%;
+}
+.lp-benefit { display: flex; flex-direction: column; gap: 12px; text-align: left; }
+.lp-benefit__icon { color: var(--jui-color-typography-gray-on-light-subdued); }
+.lp-benefit__icon svg { width: 28px; height: 28px; display: block; }
+.lp-benefit__name {
+  font-size: var(--jui-typography-body-large-medium-size);
+  font-weight: var(--jui-typography-body-large-medium-weight);
+}
+.lp-benefit__desc {
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+.lp-benefits-more {
+  font-size: var(--jui-typography-body-small-regular-size);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+  text-align: left;
+}
+
+/* ─── FAQ (centered H2, left-aligned list) ─── */
+
+.lp-faq {
+  border-top: 1px solid var(--jui-color-strokes-onlight-subdued);
+  max-width: 760px;
+  width: 100%;
+  margin: 0 auto;
+  text-align: left;
+}
+.lp-faq__item {
+  padding: 24px 0;
+  border-bottom: 1px solid var(--jui-color-strokes-onlight-subdued);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.lp-faq__q {
+  font-size: var(--jui-typography-body-large-medium-size);
+  font-weight: var(--jui-typography-body-large-medium-weight);
+}
+.lp-faq__a {
+  font-size: var(--jui-typography-body-medium-regular-size);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+  max-width: 640px;
+}
+
+/* ─── FOOTER ─── */
+
+.lp-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 32px;
+  padding: 64px 24px;
+}
+.lp-footer__title {
+  font-size: clamp(28px, 3.8vw, 40px);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  font-weight: 700;
+  max-width: 720px;
+}
+.lp-footer__meta {
+  font-size: var(--jui-typography-body-small-regular-size);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+  padding-top: 24px;
+}
+
+/* ─── LINK IN STORIES (Figma 15101:11695 — visual left, text right) ─── */
+
+.lp-ig__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+.lp-ig__visual { display: flex; justify-content: center; }
+.lp-ig__visual img { width: 100%; max-width: 470px; height: auto; }
+.lp-ig__text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 32px;
+  text-align: left;
+  max-width: 420px;
+}
+.lp-ig__icon { color: var(--jui-color-decorative-upgrade); }
+.lp-ig__icon svg { width: 48px; height: 48px; display: block; }
+.lp-ig__head { display: flex; flex-direction: column; gap: 8px; }
+.lp-ig__title {
+  font-size: var(--jui-typography-sub-headline-large-size);
+  line-height: var(--jui-typography-sub-headline-large-lh);
+  font-weight: var(--jui-typography-sub-headline-large-weight);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+.lp-ig__title strong { font-weight: 700; }
+.lp-ig__lede {
+  font-size: var(--jui-typography-body-medium-regular-size);
+  line-height: var(--jui-typography-body-medium-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+.lp-ig__proof { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+.lp-ig__msg {
+  width: 210px;
+  height: auto;
+  display: block;
+  /* very subtle purpleish lift — drop-shadow hugs the bubble's rounded shape */
+  filter: drop-shadow(0 6px 16px color-mix(in srgb, var(--jui-color-decorative-upgrade) 22%, transparent));
+}
+.lp-ig__dms {
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-decorative-upgrade);
+}
+.lp-ig__dms strong { font-weight: 700; }
+
+/* ─── BUILT FOR YOUR CRAFT (isometric flip — ported from landing-playground H4) ─── */
+/* The OUTER .lp-craft__card holds position + detects hover (never rotates, so the
+   cursor's hit-test stays stable). The INNER .lp-craft__flipper rotates 180° on
+   hover to reveal the matching bio-page on the back face. Ambient wave bobs each
+   card ±6px on a per-card stagger so the row feels alive at rest. */
+/* tighter gap to the headline above — the frame has no visible surface now,
+   so it can sit closer than the default 56px section rhythm. */
+.lp-craft-section { gap: 24px; }
+.lp-craft__frame {
+  --lp-craft-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --lp-craft-duration: 600ms;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: 320px;
+  overflow: hidden;
+  isolation: isolate;
+  container-type: size;
+}
+@keyframes lp-craft-wave {
+  0%, 100% { translate: 0 0; }
+  50%      { translate: 0 -6px; }
+}
+.lp-craft__stage { position: absolute; inset: 0; }
+.lp-craft__card {
+  position: absolute;
+  top: 44%;
+  left: calc(50% + var(--i, 0) * 11%);
+  height: 50%;
+  width: auto;
+  aspect-ratio: 360 / 700;
+  transform-origin: 50% 50%;
+  transform: translate(-50%, -50%) skewY(-18deg);
+  animation: lp-craft-wave 6s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.5s);
+  transition: transform var(--lp-craft-duration) var(--lp-craft-ease),
+              left var(--lp-craft-duration) var(--lp-craft-ease);
+  perspective: 1000px;
+}
+.lp-craft__flipper {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform var(--lp-craft-duration) var(--lp-craft-ease);
+}
+.lp-craft__face {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  backface-visibility: hidden;
+  box-shadow: 0 16px 40px 0 rgba(0, 0, 0, 0.10);
+  background-color: var(--jui-color-gray-200);
+  background-size: auto 100%;
+  background-position: top center;
+  background-repeat: no-repeat;
+  outline: 1px solid var(--jui-color-strokes-onlight-subdued);
+  outline-offset: -1px;
+}
+.lp-craft__face--back { transform: rotateY(180deg); }
+/* hover any card → gentle spread of all; inner flipper turns to the back face */
+.lp-craft__stage:has(.lp-craft__card:hover) .lp-craft__card {
+  left: calc(50% + var(--i, 0) * 12.5%);
+}
+.lp-craft__card:hover .lp-craft__flipper { transform: rotateY(180deg); }
+.lp-craft__card:nth-child(1) { --i: -2.5; }
+.lp-craft__card:nth-child(2) { --i: -1.5; }
+.lp-craft__card:nth-child(3) { --i: -0.5; }
+.lp-craft__card:nth-child(4) { --i:  0.5; }
+.lp-craft__card:nth-child(5) { --i:  1.5; }
+.lp-craft__card:nth-child(6) { --i:  2.5; }
+@container (max-width: 480px) {
+  .lp-craft__card { height: 44%; left: calc(50% + var(--i, 0) * 10%); }
+  .lp-craft__stage:has(.lp-craft__card:hover) .lp-craft__card { left: calc(50% + var(--i, 0) * 11.5%); }
+}
+
+/* ─── Responsive ─── */
+
+@media (max-width: 880px) {
+  .lp-page { gap: 80px; }
+  /* tighter 8px outer white border on mobile (page pads 24px → margin -16 = 8) */
+  .lp-hero { margin: 8px -16px 0; padding: 24px 12px 0; gap: 52px; }
+  /* scale both headlines down together — keep their ~2.4 ratio */
+  .lp-hero__eyebrow { font-size: 14px; }
+  .lp-hero__title { font-size: 34px; }
+  /* keep the three trust marks reading as one group — tighter row gap */
+  .lp-hero__trust { gap: 8px 20px; }
+  /* medium-size CTA (40px / 16px) on mobile, not the oversized hero variant */
+  .lp-hero__cta { font-size: 16px; height: 40px; padding: 0 16px; line-height: 1; }
+  .lp-hero__fan { height: 200px; }
+  /* mobile: drop the outer pair, spread the mid pair out so they read clearly */
+  .lp-hero__fan-card:nth-child(1),
+  .lp-hero__fan-card:nth-child(2) { display: none; }
+  .lp-hero__fan-card { left: calc(50% + var(--i, 0) * 30%); border-radius: 10.5px; }
+  .lp-hero__float--blob   { width: 40px; left: 10%;  top: 9%; }
+  .lp-hero__float--camera { width: 46px; right: 1%; top: 7%; }
+  .lp-hero__float--arrow  { width: 40px; }
+  .lp-pages-grid { grid-template-columns: 1fr; }
+  .lp-img-row { grid-template-columns: 1fr; }
+  .lp-quotes { grid-template-columns: 1fr; }
+  .lp-benefits { grid-template-columns: 1fr 1fr; gap: 24px; }
+  .lp-ig__grid { grid-template-columns: 1fr; gap: 40px; }
+  .lp-ig__visual img { max-width: 320px; }
+  .lp-ig__text { max-width: none; align-items: center; text-align: center; }
+  .lp-ig__head { align-items: center; }
+  .lp-ig__proof { align-items: center; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="lp-page">
+
+  <!-- ════════════════════════════════════
+       HERO — gradient card · claim · CTA · bio-page fan (Figma 15071:9937)
+       ════════════════════════════════════ -->
+  <section class="lp-hero">
+    <div class="lp-hero__top">
+      <!-- jimdo FLOWS lockup -->
+      <div class="lp-hero__brand" data-no-phrase>
+        <img class="lp-hero__brand-mark" src="/flows-prototype/design-system/hifi-designs/assets/landing-public/jimdo-mark.svg" alt="Jimdo">
+        <img class="lp-hero__brand-flows" src="/flows-prototype/design-system/hifi-designs/assets/landing-public/flows-text.svg" alt="Flows">
+      </div>
+
+      <div class="lp-hero__content">
+        <div class="lp-hero__head">
+          <p class="lp-hero__eyebrow" data-inspect-phrase="flows.landingPublic.hero.eyebrow">
+            The link in bio that turns
+          </p>
+          <h1 class="lp-hero__title" data-inspect-phrase="flows.landingPublic.hero.headline">
+            Your followers into customers.
+          </h1>
+        </div>
+
+        <div class="lp-hero__cta-group">
+          <div class="lp-hero__cta-wrap">
+            <button class="btn btn-primary lp-hero__cta" data-inspect-phrase="flows.landingPublic.hero.cta">Build yours for free</button>
+            <!-- arrow anchored to the CTA so it always points at the button -->
+            <img class="lp-hero__float lp-hero__float--arrow" src="/flows-prototype/design-system/hifi-designs/assets/landing-public/hero-3d-arrow.png" alt="" aria-hidden="true">
+          </div>
+          <div class="lp-hero__trust">
+            <span class="lp-hero__trust-item" data-inspect-phrase="flows.landingPublic.hero.trustGdpr">
+              <svg class="lp-hero__trust-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              GDPR-compliant
+            </span>
+            <span class="lp-hero__trust-item" data-inspect-phrase="flows.landingPublic.hero.trustMobile">
+              <svg class="lp-hero__trust-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Mobile-optimized
+            </span>
+            <span class="lp-hero__trust-item" data-inspect-phrase="flows.landingPublic.hero.trustMadeInGermany">
+              <svg class="lp-hero__trust-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Made in Germany
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- bio-page card fan — DOM order -2, +2, -1, +1, 0 (center on top) -->
+    <div class="lp-hero__fan" aria-hidden="true">
+      <div class="lp-hero__fan-card" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/template-picker/soft_and_warm_en.webp');"></div>
+      <div class="lp-hero__fan-card" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/template-picker/light_artistic_en.webp');"></div>
+      <div class="lp-hero__fan-card" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/template-picker/elegant_green_en.webp');"></div>
+      <div class="lp-hero__fan-card" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/template-picker/black_minimal_en.webp');"></div>
+      <div class="lp-hero__fan-card" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/template-picker/bold_colorful_en.webp');"></div>
+    </div>
+
+    <!-- floating 3D illustrations (arrow lives in the CTA wrap above) -->
+    <img class="lp-hero__float lp-hero__float--blob"   src="/flows-prototype/design-system/hifi-designs/assets/landing-public/hero-3d-blob.png"   alt="" aria-hidden="true">
+    <img class="lp-hero__float lp-hero__float--camera" src="/flows-prototype/design-system/hifi-designs/assets/landing-public/hero-3d-camera.png" alt="" aria-hidden="true">
+  </section>
+
+  <!-- ════════════════════════════════════
+       QUICK PROOF — narrow strip, centered
+       ════════════════════════════════════ -->
+  <section class="lp-container lp-container--narrow lp-proof">
+    <div class="lp-img lp-img--wide">
+      <div class="lp-img__label">Quick proof strip</div>
+      <div class="lp-img__hint">Jimdo wordmark · 20+ years · Made in Germany · 2–3 trust marks</div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       TWO ARTIFACTS — centered intro, columns left-aligned inside
+       ════════════════════════════════════ -->
+  <section class="lp-section lp-section--center lp-container">
+    <div class="lp-section__head">
+      <h2 class="lp-section__title" data-inspect-phrase="flows.landingPublic.pages.title">
+        Two types of pages, each with a goal.
+      </h2>
+      <p class="lp-section__lede" data-inspect-phrase="flows.landingPublic.pages.lede">
+        One sits in your bio. The other does the selling.
+      </p>
+    </div>
+
+    <div class="lp-pages-grid">
+      <div class="lp-page-item">
+        <div class="lp-img lp-img--tall">
+          <div class="lp-img__label">Bio page mock</div>
+          <div class="lp-img__hint">Phone frame · single bio page</div>
+        </div>
+        <div class="lp-page-text">
+          <h3 class="lp-page-name" data-inspect-phrase="flows.landingPublic.pages.bioPageName">Your bio page</h3>
+          <p class="lp-page-desc" data-inspect-phrase="flows.landingPublic.pages.bioPageDesc">
+            Lives in your Instagram, TikTok, or Facebook bio. Everything you offer, one tap away from a follower.
+          </p>
+        </div>
+      </div>
+
+      <div class="lp-page-item">
+        <div class="lp-img lp-img--tall">
+          <div class="lp-img__label">Solo page mock</div>
+          <div class="lp-img__hint">Phone frame · single solo page</div>
+        </div>
+        <div class="lp-page-text">
+          <h3 class="lp-page-name" data-inspect-phrase="flows.landingPublic.pages.soloName">Your solo page</h3>
+          <p class="lp-page-desc" data-inspect-phrase="flows.landingPublic.pages.soloDesc">
+            A page for one thing — a class, an event, a new product. Built from what you do. Made to sell. Make a fresh one for every offer you promote.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       READY IN MINUTES — centered intro, list block centered, items left
+       ════════════════════════════════════ -->
+  <section class="lp-section lp-section--center lp-container">
+    <div class="lp-section__head">
+      <h2 class="lp-section__title" data-inspect-phrase="flows.landingPublic.ready.title">
+        Ready in minutes, not weekends.
+      </h2>
+      <p class="lp-section__lede" data-inspect-phrase="flows.landingPublic.ready.lede">
+        Tell us what you do. Your pages come back ready. Tweak anything you want and share.
+      </p>
+    </div>
+
+    <ol class="lp-steps">
+      <li>
+        <span class="lp-step-number" aria-hidden="true">1</span>
+        <span class="lp-step-text" data-inspect-phrase="flows.landingPublic.ready.step1">
+          <strong>Tell us what you do.</strong> A few quick questions about your craft and your offers.
+        </span>
+      </li>
+      <li>
+        <span class="lp-step-number" aria-hidden="true">2</span>
+        <span class="lp-step-text" data-inspect-phrase="flows.landingPublic.ready.step2">
+          <strong>Your pages arrive ready.</strong> A bio page and your first solo page, built from what you told us.
+        </span>
+      </li>
+      <li>
+        <span class="lp-step-number" aria-hidden="true">3</span>
+        <span class="lp-step-text" data-inspect-phrase="flows.landingPublic.ready.step3">
+          <strong>Share the link.</strong> Drop it in your Instagram, TikTok, or Facebook bio. Or share a solo page in Stories, posts, and DMs.
+        </span>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ════════════════════════════════════
+       WHERE IT SHOWS UP — centered intro, 3-col surface grid
+       ════════════════════════════════════ -->
+  <section class="lp-section lp-section--center lp-container">
+    <div class="lp-section__head">
+      <h2 class="lp-section__title" data-inspect-phrase="flows.landingPublic.surfaces.title">
+        Share your pages where you already post.
+      </h2>
+    </div>
+
+    <div class="lp-img-row">
+      <div class="lp-surface-item">
+        <div class="lp-img lp-img--tall">
+          <div class="lp-img__label">Instagram Stories</div>
+          <div class="lp-img__hint">Story with link sticker + reactions / DMs</div>
+        </div>
+        <h3 class="lp-surface-name" data-inspect-phrase="flows.landingPublic.surfaces.instagramName">Instagram Stories</h3>
+        <p class="lp-surface-desc" data-inspect-phrase="flows.landingPublic.surfaces.instagramDesc">
+          Your solo page as a tappable preview.
+        </p>
+      </div>
+      <div class="lp-surface-item">
+        <div class="lp-img lp-img--tall">
+          <div class="lp-img__label">Facebook post</div>
+          <div class="lp-img__hint">Post with preview card + likes / comments</div>
+        </div>
+        <h3 class="lp-surface-name" data-inspect-phrase="flows.landingPublic.surfaces.facebookName">Facebook posts</h3>
+        <p class="lp-surface-desc" data-inspect-phrase="flows.landingPublic.surfaces.facebookDesc">
+          Share with a preview card. People react, reply, register.
+        </p>
+      </div>
+      <div class="lp-surface-item">
+        <div class="lp-img lp-img--tall">
+          <div class="lp-img__label">WhatsApp / DMs</div>
+          <div class="lp-img__hint">Chat with link preview + reply</div>
+        </div>
+        <h3 class="lp-surface-name" data-inspect-phrase="flows.landingPublic.surfaces.whatsappName">WhatsApp groups &amp; DMs</h3>
+        <p class="lp-surface-desc" data-inspect-phrase="flows.landingPublic.surfaces.whatsappDesc">
+          Send it directly. People register without leaving the chat.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       LINK IN STORIES — visual left, text right (Figma 15101:11695)
+       ════════════════════════════════════ -->
+  <section class="lp-container lp-ig">
+    <div class="lp-ig__grid">
+      <div class="lp-ig__visual">
+        <img src="/flows-prototype/design-system/hifi-designs/assets/landing-public/ig-stories-visual.png"
+             alt="An Instagram story and a solo page side by side, with a link sticker reading “Reserve yours”">
+      </div>
+
+      <div class="lp-ig__text">
+        <span class="lp-ig__icon" aria-hidden="true">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="5"/>
+            <circle cx="12" cy="12" r="4.5"/>
+            <circle cx="17" cy="7" r="1" fill="currentColor" stroke="none"/>
+          </svg>
+        </span>
+
+        <div class="lp-ig__head">
+          <h2 class="lp-ig__title" data-inspect-phrase="flows.landingPublic.igStories.title">
+            Link your solo page in your <strong>Instagram</strong> stories
+          </h2>
+          <p class="lp-ig__lede" data-inspect-phrase="flows.landingPublic.igStories.lede">
+            If you have something coming up, this is the best way for clients to find out without browsing.
+          </p>
+        </div>
+
+        <div class="lp-ig__proof">
+          <img class="lp-ig__msg" src="/flows-prototype/design-system/hifi-designs/assets/landing-public/ig-message.png"
+               alt="Direct message from Laura: “Can I wishlist more than 1?”">
+          <p class="lp-ig__dms" data-inspect-phrase="flows.landingPublic.igStories.dms">
+            Getting DMs means people are <strong>paying attention</strong>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       WINS — big centered punchline
+       ════════════════════════════════════ -->
+  <section class="lp-wins lp-container">
+    <span class="lp-wins__eyebrow" data-inspect-phrase="flows.landingPublic.wins.eyebrow">
+      Every share counts
+    </span>
+    <p class="lp-wins__line" data-inspect-phrase="flows.landingPublic.wins.line">
+      Likes, DMs, comments, replies, sign-ups, bookings — they're all wins. Promoting yourself is what makes them happen.
+    </p>
+  </section>
+
+  <!-- ════════════════════════════════════
+       PEER VOICE — centered intro and quotes
+       ════════════════════════════════════ -->
+  <section class="lp-section lp-section--center lp-container">
+    <div class="lp-section__head">
+      <span class="lp-section__eyebrow" data-inspect-phrase="flows.landingPublic.quotes.eyebrow">
+        What we're hearing
+      </span>
+      <h2 class="lp-section__title" data-inspect-phrase="flows.landingPublic.quotes.title">
+        How it's working for them.
+      </h2>
+    </div>
+
+    <div class="lp-quotes">
+      <div class="lp-quote">
+        <p class="lp-quote__text" data-inspect-phrase="flows.landingPublic.quotes.q1Text">
+          "I got fully booked with Flows."
+        </p>
+        <div class="lp-quote__person">
+          <div class="lp-quote__avatar">M</div>
+          <div class="lp-quote__meta" data-inspect-phrase="flows.landingPublic.quotes.q1Meta">
+            Mia — Yoga teacher
+          </div>
+        </div>
+      </div>
+
+      <div class="lp-quote">
+        <p class="lp-quote__text" data-inspect-phrase="flows.landingPublic.quotes.q2Text">
+          "Flows takes your idea and makes it better."
+        </p>
+        <div class="lp-quote__person">
+          <div class="lp-quote__avatar">L</div>
+          <div class="lp-quote__meta" data-inspect-phrase="flows.landingPublic.quotes.q2Meta">
+            Laura — Musicians' manager
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       BUILT FOR YOUR CRAFT — identity beat, isometric flip showcase
+       (person on the front, hover flips to the bio page made for them)
+       ════════════════════════════════════ -->
+  <section class="lp-section lp-section--center lp-container lp-craft-section">
+    <div class="lp-section__head">
+      <h2 class="lp-section__title" data-inspect-phrase="flows.landingPublic.craft.title">
+        Built for people who love their craft.
+      </h2>
+      <p class="lp-section__lede" data-inspect-phrase="flows.landingPublic.craft.lede">
+        You pour everything into your work. Jimdo turns it into a page that helps you get paid for it — whatever you do.
+      </p>
+    </div>
+
+    <div class="lp-craft__frame" aria-hidden="true">
+      <div class="lp-craft__stage">
+        <!-- Pottery artist ↔ light_artistic -->
+        <div class="lp-craft__card">
+          <div class="lp-craft__flipper">
+            <div class="lp-craft__face lp-craft__face--front" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/solopreneurs/pottery-artist.png');"></div>
+            <div class="lp-craft__face lp-craft__face--back" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/template-picker/light_artistic_en.webp');"></div>
+          </div>
+        </div>
+        <!-- Dancer ↔ elegant_green -->
+        <div class="lp-craft__card">
+          <div class="lp-craft__flipper">
+            <div class="lp-craft__face lp-craft__face--front" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/solopreneurs/dancer.png');"></div>
+            <div class="lp-craft__face lp-craft__face--back" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/template-picker/elegant_green_en.webp');"></div>
+          </div>
+        </div>
+        <!-- Male photographer ↔ soft_and_warm -->
+        <div class="lp-craft__card">
+          <div class="lp-craft__flipper">
+            <div class="lp-craft__face lp-craft__face--front" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/solopreneurs/photographer-male.png');"></div>
+            <div class="lp-craft__face lp-craft__face--back" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/template-picker/soft_and_warm_en.webp');"></div>
+          </div>
+        </div>
+        <!-- Content creator ↔ bold_colorful -->
+        <div class="lp-craft__card">
+          <div class="lp-craft__flipper">
+            <div class="lp-craft__face lp-craft__face--front" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/solopreneurs/content-creator.png');"></div>
+            <div class="lp-craft__face lp-craft__face--back" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/template-picker/bold_colorful_en.webp');"></div>
+          </div>
+        </div>
+        <!-- Wildlife photographer ↔ black_minimal -->
+        <div class="lp-craft__card">
+          <div class="lp-craft__flipper">
+            <div class="lp-craft__face lp-craft__face--front" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/solopreneurs/photographer-female.png');"></div>
+            <div class="lp-craft__face lp-craft__face--back" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/template-picker/black_minimal_en.webp');"></div>
+          </div>
+        </div>
+        <!-- Designer ↔ white_minimal -->
+        <div class="lp-craft__card">
+          <div class="lp-craft__flipper">
+            <div class="lp-craft__face lp-craft__face--front" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/solopreneurs/designer.png');"></div>
+            <div class="lp-craft__face lp-craft__face--back" style="background-image: url('/flows-prototype/design-system/hifi-designs/pages/assets/template-picker/white_minimal_en.webp');"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       WHY JIMDO — narrative beat + benefits grid (grows with you)
+       ════════════════════════════════════ -->
+  <section class="lp-section lp-container">
+    <div class="lp-section__head">
+      <span class="lp-section__eyebrow" data-inspect-phrase="flows.landingPublic.why.eyebrow">
+        Why Jimdo
+      </span>
+      <h2 class="lp-section__title" data-inspect-phrase="flows.landingPublic.why.title">
+        More than a bio page, the day you're ready for more.
+      </h2>
+      <p class="lp-section__lede" data-inspect-phrase="flows.landingPublic.why.lede">
+        You might know us for websites — we've helped solopreneurs show up online for over 20 years. Start with a bio page today. Everything else is here on the same account, the day your business needs it.
+      </p>
+    </div>
+
+    <div class="lp-benefits">
+      <div class="lp-benefit">
+        <span class="lp-benefit__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <h3 class="lp-benefit__name" data-inspect-phrase="flows.landingPublic.why.bookName">Get booked</h3>
+        <p class="lp-benefit__desc" data-inspect-phrase="flows.landingPublic.why.bookDesc">
+          Let people book your time straight from your page — no back-and-forth messages.
+        </p>
+      </div>
+
+      <div class="lp-benefit">
+        <span class="lp-benefit__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <rect x="1" y="4" width="22" height="16" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="1" y1="10" x2="23" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <h3 class="lp-benefit__name" data-inspect-phrase="flows.landingPublic.why.payName">Payment links &amp; invoices</h3>
+        <p class="lp-benefit__desc" data-inspect-phrase="flows.landingPublic.why.payDesc">
+          Send a link to get paid, and invoices that look professional.
+        </p>
+      </div>
+
+      <div class="lp-benefit">
+        <span class="lp-benefit__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M7.5 12C7.5 18 12 22 12 22C12 22 16.5 18 16.5 12C16.5 6 12 2 12 2C12 2 7.5 6 7.5 12Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/>
+            <path d="M22 12L2 12" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+          </svg>
+        </span>
+        <h3 class="lp-benefit__name" data-inspect-phrase="flows.landingPublic.why.foundName">Get found on Google</h3>
+        <p class="lp-benefit__desc" data-inspect-phrase="flows.landingPublic.why.foundDesc">
+          Show up when people search for what you do, without the technical homework.
+        </p>
+      </div>
+
+      <div class="lp-benefit">
+        <span class="lp-benefit__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M21 11.0511V6.12325C21 5.34825 20.4145 4.70502 19.6551 4.57302C16.595 4.04108 14.0546 2.85772 12.8152 2.20154C12.3077 1.93282 11.6923 1.93282 11.1848 2.20154C9.94542 2.85772 7.40502 4.04108 4.34489 4.57302C3.58552 4.70502 3 5.34825 3 6.12325V11.0511C3 17.4795 9.53762 20.9859 11.4689 21.8815C11.8097 22.0395 12.1903 22.0395 12.5311 21.8815C14.4624 20.9859 21 17.4795 21 11.0511Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+          </svg>
+        </span>
+        <h3 class="lp-benefit__name" data-inspect-phrase="flows.landingPublic.why.legalName">Legal text, sorted</h3>
+        <p class="lp-benefit__desc" data-inspect-phrase="flows.landingPublic.why.legalDesc">
+          Privacy policy and legal pages generated for you, and kept up to date.
+        </p>
+      </div>
+    </div>
+
+    <p class="lp-benefits-more" data-inspect-phrase="flows.landingPublic.why.more">
+      …and a full website whenever you outgrow the rest — same account, same login.
+    </p>
+  </section>
+
+  <!-- ════════════════════════════════════
+       FAQ — centered H2, left-aligned list
+       ════════════════════════════════════ -->
+  <section class="lp-section lp-section--center lp-container">
+    <div class="lp-section__head">
+      <h2 class="lp-section__title" data-inspect-phrase="flows.landingPublic.faq.title">
+        Questions you might have
+      </h2>
+    </div>
+
+    <div class="lp-faq">
+      <div class="lp-faq__item">
+        <div class="lp-faq__q" data-inspect-phrase="flows.landingPublic.faq.q1">Do I need a website first?</div>
+        <div class="lp-faq__a" data-inspect-phrase="flows.landingPublic.faq.a1">No. Your bio page works on its own. Add a full website later if you ever want one.</div>
+      </div>
+      <div class="lp-faq__item">
+        <div class="lp-faq__q" data-inspect-phrase="flows.landingPublic.faq.q2">How is this different from Linktree?</div>
+        <div class="lp-faq__a" data-inspect-phrase="flows.landingPublic.faq.a2">Linktree is a list of links. Yours is a page about what you do — with a solo page ready for every offer you want to promote.</div>
+      </div>
+      <div class="lp-faq__item">
+        <div class="lp-faq__q" data-inspect-phrase="flows.landingPublic.faq.q3">Can I sell or take bookings from it?</div>
+        <div class="lp-faq__a" data-inspect-phrase="flows.landingPublic.faq.a3">Yes. Your solo pages handle sign-ups, bookings, registrations, and sales. People can act right there, without leaving the page.</div>
+      </div>
+      <div class="lp-faq__item">
+        <div class="lp-faq__q" data-inspect-phrase="flows.landingPublic.faq.q4">What does it cost?</div>
+        <div class="lp-faq__a" data-inspect-phrase="flows.landingPublic.faq.a4">Free to start. Paid plans are there if you need more.</div>
+      </div>
+      <div class="lp-faq__item">
+        <div class="lp-faq__q" data-inspect-phrase="flows.landingPublic.faq.q5">Can I change everything later?</div>
+        <div class="lp-faq__a" data-inspect-phrase="flows.landingPublic.faq.a5">Yes. Words, photos, links, layout — change anything, anytime. Or share what we built as is.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       FOOTER CTA — repeated single action, echoes hero
+       ════════════════════════════════════ -->
+  <footer class="lp-footer lp-container">
+    <h2 class="lp-footer__title" data-inspect-phrase="flows.landingPublic.footer.title">
+      A bio page that actually promotes your work.
+    </h2>
+
+    <div class="lp-cta-group">
+      <button class="btn btn-primary" data-inspect-phrase="flows.landingPublic.footer.cta">Get started</button>
+      <span class="lp-cta-caption" data-inspect-phrase="flows.landingPublic.footer.caption">
+        Free to start. Ready in minutes.
+      </span>
+    </div>
+
+    <div class="lp-footer__meta" data-no-phrase>© Jimdo · Made in Germany</div>
+  </footer>
+
+</div>
+
+</body>
+</html>

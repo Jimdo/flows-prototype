@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bookings — Schedule (no events)</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/management-shell.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<script type="module" src="/flows-prototype/design-system/hifi-designs/shared/shell-components.js"></script>
+<style>
+/* lint-disable */
+  body { background: var(--jui-color-background-gray-canvas); }
+
+  /* Shared with schedule.html — same page envelope. */
+  .schedule-page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-l, 24px);
+    padding: var(--jui-layout-padding-xl, 40px);
+    max-width: 808px;
+  }
+
+  .schedule-title {
+    font-size: var(--jui-typography-headline-medium-size, 40px);
+    font-weight: var(--jui-typography-headline-medium-weight, 400);
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+    color: var(--jui-color-typography-gray-on-light-default);
+    margin: 0;
+  }
+
+  /* Empty state card — mirrors ScheduleEmptyState/index.module.scss.
+     padding-xl, border-radius-l, 1px gray stroke, gray-light bg,
+     column flex, centered. */
+  .schedule-empty {
+    padding: var(--jui-layout-padding-xl, 40px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: var(--jui-style-radius-l, 12px);
+    border: 1px solid var(--jui-color-stroke-gray-default, #e6e6e6);
+    background: var(--jui-color-background-gray-light, #fff);
+    text-align: center;
+  }
+
+  .schedule-empty-image {
+    width: 200px;
+    height: 160px;
+    margin-bottom: var(--jui-layout-padding-l, 24px);
+  }
+
+  .schedule-empty-title {
+    font-size: var(--jui-typography-subheadline-medium-size, 20px);
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--jui-color-typography-gray-on-light-default);
+    margin: 0 0 var(--jui-layout-gap-xxs, 4px) 0;
+  }
+
+  .schedule-empty-desc {
+    font-size: var(--jui-typography-body-medium-size, 16px);
+    line-height: 1.5;
+    color: var(--jui-color-typography-gray-on-light-subdued, #6d6d6d);
+    margin: 0 0 var(--jui-layout-gap-m, 16px) 0;
+    max-width: 480px;
+  }
+
+  /* Illustration — minimal calendar+clock to evoke "schedule".
+     CSS-only, follows the same approach as events-empty.html's calendar. */
+  .schedule-illustration {
+    position: relative;
+    width: 200px;
+    height: 160px;
+    margin-bottom: var(--jui-layout-padding-l, 24px);
+  }
+
+  .si-card {
+    position: absolute;
+    background: var(--jui-color-background-gray-canvas);
+    border: 1px solid var(--jui-color-stroke-gray-default);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  }
+
+  .si-card--cal {
+    width: 132px;
+    height: 116px;
+    left: 12px;
+    top: 22px;
+    padding: 10px;
+  }
+
+  .si-card-head {
+    height: 8px;
+    background: var(--jui-color-stroke-gray-default);
+    border-radius: 4px;
+    width: 60%;
+    margin-bottom: 10px;
+  }
+
+  .si-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+  }
+
+  .si-cell {
+    aspect-ratio: 1;
+    background: var(--jui-color-stroke-gray-default);
+    border-radius: 2px;
+    opacity: 0.5;
+  }
+
+  .si-cell--accent {
+    background: var(--jui-color-actions-primary-rest);
+    opacity: 1;
+  }
+
+  /* Clock overlay — bottom-right corner */
+  .si-clock {
+    position: absolute;
+    right: 6px;
+    bottom: 6px;
+    width: 68px;
+    height: 68px;
+    background: var(--jui-color-background-gray-light);
+    border: 2px solid var(--jui-color-stroke-primary-on-light);
+    border-radius: 50%;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  .si-clock::before,
+  .si-clock::after {
+    content: '';
+    position: absolute;
+    background: var(--jui-color-stroke-primary-on-light);
+    border-radius: 2px;
+    transform-origin: bottom center;
+  }
+
+  .si-clock::before {
+    left: 50%;
+    top: 22%;
+    width: 3px;
+    height: 30%;
+    transform: translateX(-50%) rotate(40deg);
+  }
+
+  .si-clock::after {
+    left: 50%;
+    top: 30%;
+    width: 3px;
+    height: 22%;
+    transform: translateX(-50%) rotate(-25deg);
+  }
+
+  .si-clock-pin {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 6px;
+    height: 6px;
+    background: var(--jui-color-stroke-primary-actionable);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+</style>
+</head>
+<body class="app-shell management-shell">
+
+  <jimdo-topbar></jimdo-topbar>
+
+  <div class="shell-middle">
+    <jimdo-sidebar
+      product="bookings"
+      active="schedule"
+      variant="contextual"
+      back-label="Back to Dashboard"
+      back-product="core"
+      back-screen="main-navigation.html"
+      title="Bookings">
+    </jimdo-sidebar>
+
+    <main class="shell-working-area">
+      <div class="schedule-page">
+
+        <h1 class="schedule-title" data-inspect-phrase="schedule.page.title">Schedule</h1>
+
+        <section class="schedule-empty">
+          <div class="schedule-illustration" aria-hidden="true">
+            <div class="si-card si-card--cal">
+              <div class="si-card-head"></div>
+              <div class="si-grid">
+                <div class="si-cell"></div><div class="si-cell"></div><div class="si-cell"></div><div class="si-cell"></div><div class="si-cell"></div>
+                <div class="si-cell"></div><div class="si-cell"></div><div class="si-cell"></div><div class="si-cell"></div><div class="si-cell"></div>
+                <div class="si-cell"></div><div class="si-cell"></div><div class="si-cell"></div><div class="si-cell"></div><div class="si-cell"></div>
+                <div class="si-cell"></div><div class="si-cell"></div><div class="si-cell"></div><div class="si-cell"></div><div class="si-cell"></div>
+              </div>
+            </div>
+            <div class="si-clock">
+              <span class="si-clock-pin"></span>
+            </div>
+          </div>
+
+          <h2 class="schedule-empty-title" data-inspect-phrase="schedule.page.emptystate.noEvents.title">Create your first event to start receiving bookings</h2>
+          <p class="schedule-empty-desc" data-inspect-phrase="schedule.page.emptystate.noEvents.description">Once you have events set up, your customers' bookings appear here as a daily schedule.</p>
+
+          <a href="event-created-success.html" data-nav-to="bookings/event-created-success.html" class="btn btn-primary" data-inspect-phrase="schedule.page.emptystate.noEvents.cta">Create event</a>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+</body>
+</html>

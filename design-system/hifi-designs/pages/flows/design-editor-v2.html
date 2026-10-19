@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Editor — Morphing Dock</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+
+  [hidden] { display: none !important; }
+
+  /* ═══════════════════════════════════════════════
+     PAGE SHELL — FLOWS-985 Morphing Dock (scr-435, iteration of scr-027)
+     One edit panel, one content structure. Only the dock responds to
+     viewport width: bottom drawer < 1024px, right side panel ≥ 1024px.
+     Spec: plans/2026-07-15-flows-985-responsive-edit-design-counter-proposal.md
+     ═══════════════════════════════════════════════ */
+
+  body,
+  .app-shell {
+    background: var(--jui-color-background-gray-medium);
+  }
+
+  /* ─────────────────────────────────────────────
+     IFRAME STAGE
+     Mobile: full-bleed live preview; bottom inset so the
+     collapsed drawer never hides page content permanently.
+     Desktop: centered phone-shaped preview beside the panel.
+     ───────────────────────────────────────────── */
+
+  .md-stage {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    height: 100%;
+    padding: 0 var(--jui-layout-padding-xxs);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center top;
+  }
+
+  /* Expanded drawer scales the live preview down (same as live scr-027)
+     so the whole page stays visible above the half drawer. */
+  @media (max-width: 1023px) {
+    .md-stage.is-scaled { transform: scale(0.5); }
+  }
+
+  .md-iframe-wrapper {
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--jui-color-background-gray-light);
+    border: 1px solid var(--jui-color-gray-100);
+    border-radius: var(--jui-style-radius-20);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  }
+
+  .md-iframe {
+    width: 100%;
+    flex: 1;
+    border: 0;
+    min-height: 0;
+  }
+
+  /* Keep the preview visible above the collapsed drawer (peek = 80px). */
+  @media (max-width: 1023px) {
+    .shell-working-area { padding-bottom: 80px; }
+  }
+
+  /* ═══════════════════════════════════════════════
+     MORPH PANEL — the one edit panel
+     Mobile dock: fixed bottom drawer with snap states
+     peek (80px) / half (50%) / tall (calc(100% - 56px)).
+     Opens at HALF (decision 2026-07-16, FLOWS-1005).
+     Desktop dock: static right panel, always expanded.
+     Nothing inside the panel knows which dock it is in.
+     ═══════════════════════════════════════════════ */
+
+  .md-panel {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 80px;
+    background: var(--jui-color-background-gray-light);
+    border-top: 1px solid var(--jui-color-stroke-gray-decorative);
+    border-radius: var(--jui-style-radius-16) var(--jui-style-radius-16) 0 0;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+    transition: height 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .md-panel[data-state="half"] { height: 50%; }
+  .md-panel[data-state="tall"] { height: calc(100% - 56px); }
+  .md-panel.is-dragging { transition: none; }
+
+  /* Collapsed: only grabber + section tabs remain (the peek bar). */
+  .md-panel[data-state="peek"] .md-views { display: none; }
+
+  /* Panel header lives on the wide dock only (global header serves mobile). */
+  .md-panel-header { display: none; }
+
+  /* ── Grabber — the drag handle under test (FLOWS-1005) ── */
+  .md-grabber {
+    flex-shrink: 0;
+    border: 0;
+    background: none;
+    padding: var(--jui-layout-padding-xs) 0 var(--jui-layout-padding-xxs);
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .md-grabber:active { cursor: grabbing; }
+
+  .md-grabber span {
+    display: block;
+    width: 40px;
+    height: 4px;
+    margin: 0 auto;
+    border-radius: var(--jui-style-radius-2);
+    background: var(--jui-color-gray-100);
+  }
+
+  .md-grabber:focus-visible {
+    outline: 2px solid var(--jui-color-blue-500);
+    outline-offset: 2px;
+    border-radius: var(--jui-style-radius-8);
+  }
+
+  /* ── Section tabs — Style | Layout (same control is the peek bar) ── */
+  .md-tabs {
+    flex-shrink: 0;
+    padding: 0 var(--jui-layout-padding-m) var(--jui-layout-padding-s);
+  }
+
+  /* ── Views container — scrolls internally (scroll fallback, option C) ── */
+  .md-views {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0 var(--jui-layout-padding-m) var(--jui-layout-padding-m);
+  }
+
+  /* ─────────────────────────────────────────────
+     DESKTOP DOCK — same panel pinned right (≥1024px)
+     ───────────────────────────────────────────── */
+
+  @media (min-width: 1024px) {
+    /* 50/50 split: preview and panel each take half the width;
+       the preview centers in its half (same as live scr-027). */
+    .md-panel {
+      position: static;
+      z-index: auto;
+      height: auto !important;
+      width: auto;
+      flex: 1 1 0;
+      border-top: 0;
+      border-left: 1px solid var(--jui-color-stroke-gray-decorative);
+      border-radius: 0;
+      box-shadow: none;
+      transition: none;
+    }
+
+    .md-grabber { display: none; }
+    .md-panel[data-state="peek"] .md-views { display: block; }
+
+    /* The panel supplies its own header on the wide dock, so the
+       global shell header is redundant (same as live scr-027). */
+    .shell-header { display: none; }
+    .md-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--jui-layout-gap-s);
+      padding: var(--jui-layout-padding-s) var(--jui-layout-padding-m);
+    }
+
+    .md-tabs { padding-top: var(--jui-layout-padding-xs); }
+
+    /* Centered phone-shaped preview beside the panel */
+    .md-stage { padding: var(--jui-layout-padding-l) 0; }
+    .md-iframe-wrapper { max-width: 320px; margin: 0 auto; }
+
+    /* Density is the only responsive difference inside the panel:
+       the same rows render roomier on the wide dock. Font/pairing cards
+       stay live-size at every width (fontsTabStyles.scss fixes them). */
+    .md-shape-thumb { width: 56px; height: 24px; }
+    .md-layout-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  /* ─────────────────────────────────────────────
+     SEGMENTED CONTROL — mirrors @jimdo/ui 84.x
+     DataDisplay/SegmentedControl (fullWidth): gray-50
+     backplate via ::before, one shared indicator pill
+     that slides behind the labels to the selected segment.
+     ───────────────────────────────────────────── */
+
+  .jui-segmented {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-xxs);
+    width: 100%;
+    margin: var(--jui-layout-padding-xxs) 0;
+  }
+
+  .jui-segmented::before {
+    position: absolute;
+    inset: -4px;
+    z-index: 0;
+    background: var(--jui-color-gray-50);
+    border-radius: var(--jui-style-radius-12);
+    content: "";
+    pointer-events: none;
+  }
+
+  .jui-segment-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    background: var(--jui-color-gray-white);
+    border: 1px solid var(--jui-color-blue-100);
+    border-radius: var(--jui-style-radius-8);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.14);
+    pointer-events: none;
+    transition: left 0.2s cubic-bezier(0.4, 0, 0.2, 1), width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .jui-segment {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+    height: 32px;
+    padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-s);
+    color: var(--jui-color-typography-gray-on-light-default);
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    background: transparent;
+    border: 0;
+    border-radius: var(--jui-style-radius-8);
+    cursor: pointer;
+    appearance: none;
+    transition: color 0.2s, background-color 0.2s;
+  }
+
+  .jui-segment:hover:not(.is-active) {
+    background: var(--jui-color-gray-100);
+  }
+
+  .jui-segment:focus-visible {
+    outline: 2px solid var(--jui-color-blue-500);
+    outline-offset: 2px;
+  }
+
+  .jui-segment.is-active {
+    color: var(--jui-color-blue-500);
+    pointer-events: none;
+  }
+
+  /* ═══════════════════════════════════════
+     UPGRADE BANNER — same component as Home (home-dashboard-v2 .domain-banner,
+     Figma "Domain Upgrade" 15931:22289; placed here per Figma 15841:73973).
+     ═══════════════════════════════════════ */
+  .domain-banner {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-s);
+    width: 100%;
+    min-height: 44px;
+    padding: var(--jui-layout-padding-s) var(--jui-layout-padding-m);
+    background: var(--jui-color-background-upgrade-light);
+    border: 1px solid transparent;
+    border-radius: var(--jui-style-radius-16);
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.12s ease, border-color 0.12s ease;
+  }
+  .domain-banner:hover {
+    background: var(--jui-color-background-upgrade-medium);
+    border-color: var(--jui-color-decorative-upgrade);
+  }
+  .domain-banner:active {
+    background: var(--jui-color-background-upgrade-dark);
+    border-color: var(--jui-color-decorative-upgrade);
+  }
+  .domain-banner:focus-visible {
+    background: var(--jui-color-background-upgrade-medium);
+    border-color: var(--jui-color-decorative-upgrade);
+    outline: 2px solid var(--jui-color-blue-500);
+    outline-offset: 2px;
+  }
+  .domain-banner-status {
+    display: flex;
+    flex: 1 0 0;
+    align-items: center;
+    gap: var(--jui-layout-gap-xs);
+    min-width: 0;
+  }
+  .domain-banner-status-text {
+    font-size: var(--jui-typography-body-small-regular-size);
+    font-weight: var(--jui-typography-body-small-regular-weight);
+    line-height: var(--jui-typography-body-small-regular-lh);
+    color: var(--jui-color-typography-upgrade-on-light);
+  }
+  .domain-banner-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-xs);
+    font-size: var(--jui-typography-label-small-size);
+    font-weight: var(--jui-typography-label-small-weight);
+    letter-spacing: var(--jui-typography-label-small-ls);
+    line-height: var(--jui-typography-label-small-lh);
+    text-transform: uppercase;
+    color: var(--jui-color-typography-upgrade-on-light);
+    white-space: nowrap;
+  }
+  .domain-banner-cta svg { width: 16px; height: 16px; flex-shrink: 0; }
+  /* Top gap only — the following section heading's 24px owns the gap below,
+     keeping one consistent rhythm between all sections. */
+  .domain-banner--editor { margin: var(--jui-layout-gap-s) 0 0; }
+  /* Narrow dock: drop the CTA to its own line (mirrors Home's mobile wrap). */
+  @media (max-width: 1023px) {
+    .domain-banner--editor { flex-wrap: wrap; }
+    .domain-banner--editor .domain-banner-status { flex: 1 0 auto; }
+    .domain-banner--editor .domain-banner-cta { flex-basis: 100%; }
+  }
+
+  /* ─────────────────────────────────────────────
+     PANEL SECTIONS — compact one-row controls (density option A)
+     ───────────────────────────────────────────── */
+
+  .md-heading {
+    font-size: var(--jui-typography-sub-headline-small-size);
+    font-weight: var(--jui-typography-sub-headline-small-weight);
+    line-height: var(--jui-typography-sub-headline-small-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+    margin: 0;
+    padding: var(--jui-layout-padding-l) 0 var(--jui-layout-padding-s);
+  }
+
+  /* ── Color swatches — mirrors the live ColorSwatch (colorsTabStyles.scss):
+     outer frame keeps a constant 2px border so the box never shifts;
+     only the border colour changes on selection. ── */
+  .md-swatch-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--jui-layout-gap-s);
+  }
+
+  .md-swatch {
+    flex: 1 0 0;
+    min-width: 0;
+    height: 64px;
+    padding: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 2px solid var(--jui-color-stroke-gray-default);
+    border-radius: var(--jui-style-radius-m);
+    cursor: pointer;
+    transition: border-color 0.12s ease;
+  }
+
+  .md-swatch.is-active {
+    border-color: var(--jui-color-stroke-primary-actionable);
+  }
+
+  .md-swatch-chip {
+    flex: 1 0 0;
+    align-self: stretch;
+    min-height: 0;
+    width: 100%;
+    border: 1px solid var(--jui-component-input-color-field-stroke-rest);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .md-swatch-chip svg {
+    display: none;
+    width: 16px;
+    height: 16px;
+    color: var(--jui-color-decorative-primary);
+  }
+
+  .md-swatch.is-active .md-swatch-chip svg { display: block; }
+  .md-swatch-chip.is-dark svg { color: var(--jui-color-typography-gray-on-dark-default); }
+
+  /* Taller portrait swatches in the brand-colors edit view */
+  .md-swatch--edit {
+    height: auto;
+    aspect-ratio: 71 / 108;
+  }
+
+  .md-swatch-divider {
+    display: block;
+    width: 1px;
+    align-self: stretch;
+    background: var(--jui-color-stroke-gray-default);
+    flex-shrink: 0;
+  }
+
+  /* Flush-left subtle "Edit brand colors" button below the swatch row */
+  .md-subtle-btn {
+    align-self: flex-start;
+    margin-top: var(--jui-layout-gap-s);
+    padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-s) var(--jui-layout-padding-xxs) 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: var(--jui-typography-body-small-medium-size);
+    font-weight: var(--jui-typography-body-small-medium-weight);
+    line-height: var(--jui-typography-body-small-medium-lh);
+    color: var(--jui-color-actions-primary-rest);
+  }
+
+  /* ── Single-color picker (mirrors BrandColorPicker: hex TextField +
+     react-colorful saturation panel and hue slider) ── */
+  .md-hex-field {
+    width: 100%;
+    height: 40px;
+    padding: 0 var(--jui-layout-padding-s);
+    margin: 0 0 var(--jui-layout-padding-m);
+    border: 1px solid var(--jui-color-gray-200);
+    border-radius: var(--jui-style-radius-8);
+    background: var(--jui-color-background-gray-light);
+    font-family: inherit;
+    font-size: var(--jui-typography-body-small-regular-size);
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+
+  .md-hex-field:focus-visible {
+    outline: 2px solid var(--jui-color-blue-500);
+    outline-offset: 1px;
+  }
+
+  .md-sat-panel {
+    position: relative;
+    width: 100%;
+    height: 120px;
+    border-radius: var(--jui-style-radius-m);
+    margin-bottom: var(--jui-layout-padding-m);
+    cursor: crosshair;
+    touch-action: none;
+  }
+
+  .md-sat-thumb {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--jui-color-gray-white);
+    border-radius: var(--jui-style-radius-24);
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+    transform: translate(-8px, -8px);
+    pointer-events: none;
+  }
+
+  .md-hue-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 12px;
+    border-radius: var(--jui-style-radius-m);
+    /* rainbow gradient set inline on the element (hex literals live in markup) */
+    cursor: pointer;
+  }
+
+  .md-hue-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: var(--jui-style-radius-24);
+    border: 2px solid var(--jui-color-gray-white);
+    background: transparent;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+  }
+
+  /* ── Button shape — compact card row ── */
+  .md-shape-row {
+    display: flex;
+    gap: var(--jui-layout-gap-s);
+  }
+
+  .md-shape-card {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--jui-layout-gap-xs);
+    padding: var(--jui-layout-padding-s) var(--jui-layout-padding-xs);
+    min-width: 0;
+    border: 1px solid var(--jui-color-gray-200);
+    border-radius: var(--jui-style-radius-8);
+    cursor: pointer;
+    background: none;
+    font-family: inherit;
+    transition: border-color 0.12s ease;
+    position: relative;
+  }
+
+  .md-shape-card.is-active { border: 2px solid var(--jui-color-blue-400); }
+
+  .md-shape-card-check {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    width: 16px;
+    height: 16px;
+    color: var(--jui-color-actions-primary-rest);
+    opacity: 0;
+  }
+
+  .md-shape-card.is-active .md-shape-card-check { opacity: 1; }
+
+  .md-shape-thumb {
+    width: 40px;
+    height: 16px;
+    border: 2px solid var(--jui-color-gray-400);
+    margin-top: var(--jui-layout-padding-s);
+  }
+
+  .md-shape-card.is-active .md-shape-thumb {
+    border-color: var(--jui-color-typography-gray-on-light-default);
+  }
+
+  .md-shape-label {
+    font-size: var(--jui-typography-label-small-size);
+    font-weight: var(--jui-typography-label-small-weight);
+    letter-spacing: var(--jui-typography-label-small-ls);
+    color: var(--jui-color-gray-400);
+    text-align: center;
+  }
+
+  .md-shape-card.is-active .md-shape-label {
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+
+  /* ── Font rows & cards — mirror the live fontsTabStyles.scss:
+     fixed-size cards in horizontally scrolling rows, hidden scrollbar,
+     2px blue border when selected with padding compensation. ── */
+  .md-font-row {
+    display: flex;
+    gap: var(--jui-layout-gap-m);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: var(--jui-layout-padding-xxs);
+    scrollbar-width: none;
+  }
+
+  .md-font-row::-webkit-scrollbar { display: none; }
+
+  .md-font-card,
+  .md-pairing-card {
+    position: relative;
+    flex-shrink: 0;
+    min-width: 128px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--jui-color-stroke-gray-default);
+    border-radius: var(--jui-style-radius-m);
+    background: var(--jui-color-gray-white);
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.12s ease;
+  }
+
+  .md-font-card {
+    height: 104px;
+    padding: 0 var(--jui-layout-padding-s);
+  }
+
+  .md-pairing-card {
+    height: 112px;
+    padding: var(--jui-layout-padding-s);
+  }
+
+  .md-font-card.is-active,
+  .md-pairing-card.is-active {
+    border: 2px solid var(--jui-color-stroke-primary-actionable);
+  }
+
+  /* 1px padding compensation so content doesn't shift on selection */
+  .md-font-card.is-active { padding: 0 calc(var(--jui-layout-padding-s) - 1px); }
+  .md-pairing-card.is-active { padding: calc(var(--jui-layout-padding-s) - 1px); }
+
+  .md-card-check {
+    position: absolute;
+    top: var(--jui-layout-padding-xs);
+    right: var(--jui-layout-padding-xs);
+    width: 16px;
+    height: 16px;
+    color: var(--jui-color-actions-primary-rest);
+    display: none;
+  }
+
+  .md-font-card.is-active .md-card-check,
+  .md-pairing-card.is-active .md-card-check { display: block; }
+
+  .md-font-preview {
+    font-size: 28px;
+    line-height: 1;
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+
+  .md-font-name {
+    margin-top: var(--jui-layout-gap-xs);
+    font-size: var(--jui-typography-body-small-regular-size);
+    color: var(--jui-color-typography-gray-on-light-subdued);
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .md-pairing-preview-headline {
+    font-size: 32px;
+    line-height: 1;
+    font-weight: 400;
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+
+  .md-pairing-preview-copy {
+    margin-top: var(--jui-layout-gap-xxs);
+    font-size: 18px;
+    line-height: 1;
+    font-weight: 400;
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+
+  /* Current-pair label + "Edit" button row under the pairing strip */
+  .md-pair-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--jui-layout-gap-s);
+    margin-top: var(--jui-layout-gap-s);
+  }
+
+  .md-pair-label {
+    flex: 1;
+    min-width: 0;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--jui-color-gray-400);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Uppercase section label above each font row (headings / paragraphs) */
+  .md-section-label {
+    margin: var(--jui-layout-padding-l) 0 var(--jui-layout-padding-s);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--jui-color-typography-gray-on-light-subdued);
+  }
+
+  /* ── Info notice — "Your website and flows share these styles" ── */
+  .md-info-notice {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-s);
+    margin-top: var(--jui-layout-gap-l);
+    padding: var(--jui-layout-padding-s);
+    background: var(--jui-color-gray-10);
+    border: 1px solid var(--jui-color-gray-50);
+    border-radius: var(--jui-style-radius-m);
+    color: var(--jui-color-typography-gray-on-light-subdued);
+    font-size: var(--jui-typography-body-small-regular-size);
+    font-weight: var(--jui-typography-body-small-regular-weight);
+    line-height: var(--jui-typography-body-small-regular-lh);
+  }
+
+  .md-info-notice svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  /* ── Layout section — partial previews grid (FLOWS-983) ── */
+  .md-layout-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--jui-layout-gap-s);
+    padding-top: var(--jui-layout-padding-l);
+  }
+
+  .md-layout-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--jui-layout-gap-xs);
+    padding: var(--jui-layout-padding-m);
+    background: var(--jui-color-background-gray-light);
+    border: 1px solid var(--jui-color-stroke-gray-default);
+    border-radius: var(--jui-style-radius-m);
+    cursor: pointer;
+    font-family: inherit;
+    text-align: center;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+  }
+  .md-layout-card:hover { border-color: var(--jui-color-gray-300); }
+  .md-layout-card.is-active {
+    border-color: var(--jui-color-stroke-primary-on-light);
+    background: var(--jui-color-background-primary-light);
+  }
+
+  .md-layout-card-thumb {
+    width: 48px;
+    height: 64px;
+    background: var(--jui-color-background-gray-canvas);
+    border-radius: var(--jui-style-radius-xs);
+    border: 1px solid var(--jui-color-gray-100);
+  }
+
+  .md-layout-card-label {
+    font-size: var(--jui-typography-body-small-medium-size);
+    font-weight: var(--jui-typography-body-small-medium-weight);
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+
+  .md-fine-print {
+    margin: var(--jui-layout-gap-s) 0 0;
+    font-size: var(--jui-typography-label-small-size);
+    font-weight: var(--jui-typography-label-small-weight);
+    letter-spacing: var(--jui-typography-label-small-ls);
+    color: var(--jui-color-typography-gray-on-light-subdued);
+  }
+
+  /* ─────────────────────────────────────────────
+     PUSHED VIEWS — stack navigation (no overlays)
+     "Edit brand colors" / "Edit" push a view; the live
+     pattern's Confirm button (BrandEditorHeader / fontsTabHeader)
+     pops the stack. Identical on both docks.
+     ───────────────────────────────────────────── */
+
+  .md-view-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--jui-layout-gap-s);
+    padding: var(--jui-layout-padding-m) 0 var(--jui-layout-padding-s);
+  }
+
+  .md-view-header .md-heading { padding: 0; }
+  /* Focus target for the pushed view (a11y) — ring not needed on a heading. */
+  .md-view-header .md-heading:focus { outline: none; }
+
+  .md-edit-swatches {
+    padding: var(--jui-layout-padding-l) 0;
+  }
+
+  /* ─────────────────────────────────────────────
+     COLOR-CHANGE WARNING — the one true overlay,
+     same at every width (@jimdo/ui Modal stand-in).
+     ───────────────────────────────────────────── */
+
+  .md-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    padding: var(--jui-layout-padding-m);
+  }
+
+  .md-modal {
+    width: 100%;
+    max-width: 320px;
+    background: var(--jui-color-background-gray-light);
+    border-radius: var(--jui-style-radius-16);
+    padding: var(--jui-layout-padding-l);
+    text-align: center;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+  }
+
+  .md-modal .md-heading { padding: 0 0 var(--jui-layout-padding-xs); }
+
+  .md-modal p {
+    margin: 0 0 var(--jui-layout-padding-l);
+    font-size: var(--jui-typography-body-small-regular-size);
+    font-weight: var(--jui-typography-body-small-regular-weight);
+    line-height: var(--jui-typography-body-small-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-subdued);
+  }
+
+  .md-modal-actions {
+    display: flex;
+    gap: var(--jui-layout-gap-s);
+    justify-content: center;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ══════════════════════════════════════════
+       HEADER — same chrome at every width (one experience)
+       "EDITING DESIGN" + Done → Bio Page home (scr-131)
+       ══════════════════════════════════════════ -->
+  <header class="shell-header no-pad-y">
+    <div class="content-container">
+      <div class="page-header">
+        <span class="page-header-label" data-inspect-phrase="design.editor.label">Editing Design</span>
+        <button class="btn-primary btn-sm"
+                data-nav-to="flows/home-dashboard-v2.html"
+                data-nav-screen-id="scr-131"
+                aria-label="Done editing page">
+          <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+          <span data-inspect-phrase="editLinks.pageCloseCta">Done</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════════
+       WORKING AREA — live preview + morph panel
+       ══════════════════════════════════════════ -->
+  <div class="shell-middle">
+    <div class="shell-working-area">
+      <div class="md-stage is-scaled" id="md-stage">
+        <div class="md-iframe-wrapper">
+          <iframe
+            class="md-iframe"
+            id="de-iframe"
+            src="../artifacts/flow-page.html"
+            title="Page preview"
+            loading="eager"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         MORPH PANEL — bottom drawer < 1024px, right dock ≥ 1024px.
+         Identical content in both docks. Opens at HALF on mobile.
+         ════════════════════════════════════════ -->
+    <aside class="md-panel" id="md-panel" data-state="half" data-view="root" aria-label="Design editor">
+
+      <!-- Panel header — desktop only; replaces the global shell header
+           on the wide dock (same integration as live scr-027). -->
+      <div class="md-panel-header">
+        <span class="page-header-label" data-inspect-phrase="design.editor.label">Editing Design</span>
+        <button class="btn-primary btn-sm"
+                data-nav-to="flows/home-dashboard-v2.html"
+                data-nav-screen-id="scr-131"
+                aria-label="Done editing page">
+          <span data-inspect-phrase="editLinks.pageCloseCta">Done</span>
+        </button>
+      </div>
+
+      <button type="button" class="md-grabber" id="md-grabber" aria-label="Expand or collapse the editor drawer"><span></span></button>
+
+      <div class="md-tabs">
+        <div class="jui-segmented" role="tablist" aria-label="Editor sections">
+          <span class="jui-segment-indicator" id="md-seg-indicator" aria-hidden="true"></span>
+          <button type="button" class="jui-segment is-active" role="tab" aria-selected="true" onclick="switchSection('style', this)" data-inspect-phrase="flows.designEditor.style">Style</button>
+          <button type="button" class="jui-segment" role="tab" aria-selected="false" onclick="switchSection('layout', this)" data-inspect-phrase="flows.designEditor.layout">Layout</button>
+        </div>
+      </div>
+
+      <div class="md-views" id="md-views">
+
+        <!-- ── ROOT VIEW — Style + Layout sections ── -->
+        <section class="md-view" data-view="root">
+
+          <div id="md-section-style">
+
+            <!-- Upgrade banner — same component as Home (Figma 15841:73973) -->
+            <button class="domain-banner domain-banner--editor" type="button" aria-label="Remove Jimdo branding" data-inspect-phrase="design.upsell.removeBranding">
+              <span class="domain-banner-status">
+                <span class="domain-banner-status-text" data-inspect-phrase="design.upsell.standout">Make your brand standout</span>
+              </span>
+              <span class="domain-banner-cta">
+                Remove Jimdo branding
+                <!-- Hugeicons ArrowRight01 -->
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 12H4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M15 17L20 12L15 7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+              </span>
+            </button>
+
+            <!-- Background color — live BackgroundColorPicker: 4 brand
+                 swatches + divider + White/Black, subtle CTA below. -->
+            <h3 class="md-heading" data-inspect-phrase="loopsStyleModalColorsHeading">Background color</h3>
+            <div class="md-swatch-row" role="radiogroup" aria-label="Background color">
+              <button type="button" class="md-swatch" role="radio" aria-checked="false" onclick="selectBgSwatch(this)" aria-label="Main color">
+                <span class="md-swatch-chip is-dark" data-color-role="main" style="background: #26323a;">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                </span>
+              </button>
+              <button type="button" class="md-swatch" role="radio" aria-checked="false" onclick="selectBgSwatch(this)" aria-label="Secondary color">
+                <span class="md-swatch-chip" data-color-role="secondary" style="background: #e3e7e2;">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                </span>
+              </button>
+              <button type="button" class="md-swatch" role="radio" aria-checked="false" onclick="selectBgSwatch(this)" aria-label="Shade 1">
+                <span class="md-swatch-chip is-dark" data-color-role="shade1" style="background: #5b4636;">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                </span>
+              </button>
+              <button type="button" class="md-swatch" role="radio" aria-checked="false" onclick="selectBgSwatch(this)" aria-label="Shade 2">
+                <span class="md-swatch-chip" data-color-role="shade2" style="background: #efe9f7;">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                </span>
+              </button>
+              <span class="md-swatch-divider"></span>
+              <button type="button" class="md-swatch" role="radio" aria-checked="false" onclick="selectBgSwatch(this)" aria-label="White">
+                <span class="md-swatch-chip" style="background: #ffffff;">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                </span>
+              </button>
+              <button type="button" class="md-swatch is-active" role="radio" aria-checked="true" onclick="selectBgSwatch(this)" aria-label="Black">
+                <span class="md-swatch-chip is-dark" style="background: #0a0a0a;">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                </span>
+              </button>
+            </div>
+            <button type="button" class="md-subtle-btn" onclick="pushView('colors')" data-inspect-phrase="loopsStyleModalEditBrandColorsButton">Edit brand colors</button>
+
+            <!-- Button shape — compact card row -->
+            <h3 class="md-heading" data-inspect-phrase="flows.designEditor.buttonShape">Button Shape</h3>
+            <div class="md-shape-row">
+              <button type="button" class="md-shape-card is-active" onclick="selectShapeCard(this)" data-inspect-phrase="flows.designEditor.squared">
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="md-shape-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                <div class="md-shape-thumb" style="border-radius: 0;"></div>
+                <span class="md-shape-label">Squared</span>
+              </button>
+              <button type="button" class="md-shape-card" onclick="selectShapeCard(this)" data-inspect-phrase="flows.designEditor.rounded">
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="md-shape-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                <div class="md-shape-thumb" style="border-radius: 6px;"></div>
+                <span class="md-shape-label">Rounded</span>
+              </button>
+              <button type="button" class="md-shape-card" onclick="selectShapeCard(this)" data-inspect-phrase="flows.designEditor.pill">
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="md-shape-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                <div class="md-shape-thumb" style="border-radius: 10px;"></div>
+                <span class="md-shape-label">Pill</span>
+              </button>
+            </div>
+
+            <!-- Font pairing — live FontsTab default view: pairing cards
+                 (stacked Aa previews) + current-pair label + "Edit". -->
+            <h3 class="md-heading" data-inspect-phrase="flows.designEditor.fontPairing">Font pairing</h3>
+            <div class="md-font-row" id="md-pairing-row" role="radiogroup" aria-label="Font pairing">
+              <button type="button" class="md-pairing-card is-active" role="radio" aria-checked="true" onclick="selectPairingCard(this)" data-headline="Sofia Sans" data-inspect-phrase="flows.designEditor.aaSofiaSansPair" data-copy="Sofia Sans" aria-label="Sofia Sans and Sofia Sans">
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="md-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                <span class="md-pairing-preview-headline" style="font-family: 'Sofia Sans', sans-serif;">Aa</span>
+                <span class="md-pairing-preview-copy" style="font-family: 'Sofia Sans', sans-serif;">Aa</span>
+              </button>
+              <button type="button" class="md-pairing-card" role="radio" aria-checked="false" onclick="selectPairingCard(this)" data-headline="Playfair" data-inspect-phrase="flows.designEditor.aaPlayfairPair" data-copy="Poppins" aria-label="Playfair and Poppins">
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="md-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                <span class="md-pairing-preview-headline" style="font-family: 'Playfair Display', serif;">Aa</span>
+                <span class="md-pairing-preview-copy" style="font-family: 'Poppins', sans-serif;">Aa</span>
+              </button>
+              <button type="button" class="md-pairing-card" role="radio" aria-checked="false" onclick="selectPairingCard(this)" data-headline="Poppins" data-inspect-phrase="flows.designEditor.aaPoppinsPair" data-copy="DM Sans" aria-label="Poppins and DM Sans">
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="md-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                <span class="md-pairing-preview-headline" style="font-family: 'Poppins', sans-serif;">Aa</span>
+                <span class="md-pairing-preview-copy" style="font-family: 'DM Sans', sans-serif;">Aa</span>
+              </button>
+              <button type="button" class="md-pairing-card" role="radio" aria-checked="false" onclick="selectPairingCard(this)" data-headline="DM Sans" data-inspect-phrase="flows.designEditor.aaDmSansPair" data-copy="Sofia Sans" aria-label="DM Sans and Sofia Sans">
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="md-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                <span class="md-pairing-preview-headline" style="font-family: 'DM Sans', sans-serif;">Aa</span>
+                <span class="md-pairing-preview-copy" style="font-family: 'Sofia Sans', sans-serif;">Aa</span>
+              </button>
+            </div>
+            <div class="md-pair-label-row">
+              <span class="md-pair-label" id="md-pair-label">Sofia Sans + Sofia Sans</span>
+              <button type="button" class="md-subtle-btn" style="margin-top: 0; padding: var(--jui-layout-padding-xxs) 0;" onclick="pushView('fonts')" data-inspect-phrase="loopsStyleModalFontsEditButton">Edit</button>
+            </div>
+
+            <div class="md-info-notice">
+              <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M12 11V16" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><circle cx="12" cy="8" r="1" fill="currentColor"/></svg>
+              <span>Your website and flows share these styles</span>
+            </div>
+          </div>
+
+          <!-- Layout section — partial previews, identical grid in both docks -->
+          <div id="md-section-layout" hidden>
+            <div class="md-layout-grid">
+              <button type="button" class="md-layout-card is-active" onclick="selectLayout(this)" data-inspect-phrase="flows.designEditor.centered">
+                <div class="md-layout-card-thumb"></div>
+                <span class="md-layout-card-label">Centered</span>
+              </button>
+              <button type="button" class="md-layout-card" onclick="selectLayout(this)" data-inspect-phrase="flows.designEditor.leftaligned">
+                <div class="md-layout-card-thumb"></div>
+                <span class="md-layout-card-label">Left-aligned</span>
+              </button>
+              <button type="button" class="md-layout-card" onclick="selectLayout(this)" data-inspect-phrase="flows.designEditor.split">
+                <div class="md-layout-card-thumb"></div>
+                <span class="md-layout-card-label">Split</span>
+              </button>
+              <button type="button" class="md-layout-card" onclick="selectLayout(this)" data-inspect-phrase="flows.designEditor.minimal">
+                <div class="md-layout-card-thumb"></div>
+                <span class="md-layout-card-label">Minimal</span>
+              </button>
+            </div>
+            <p class="md-fine-print">Partial previews — rendered at 360px and scaled</p>
+          </div>
+
+        </section>
+
+        <!-- ── BRAND COLORS VIEW — mirrors BrandColorEditor: header with
+             Confirm (pops the stack), 4 portrait swatches that drill into
+             the per-color picker, info hint. No overlay. ── -->
+        <section class="md-view" data-view="colors" hidden>
+          <div class="md-view-header">
+            <h2 class="md-heading" tabindex="-1" data-inspect-phrase="loopsStyleModalEditBrandColorsHeading">Edit brand colors</h2>
+            <button type="button" class="btn-secondary btn-sm" onclick="popView()" data-inspect-phrase="loopsStyleModalEditBrandColorsConfirm">Confirm</button>
+          </div>
+          <div class="md-swatch-row md-edit-swatches" role="radiogroup" aria-label="Edit brand colors">
+            <button type="button" class="md-swatch md-swatch--edit" role="radio" aria-checked="false" onclick="openColorPick('main')" aria-label="Main color">
+              <span class="md-swatch-chip is-dark" data-color-role="main" style="background: #26323a;">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+              </span>
+            </button>
+            <button type="button" class="md-swatch md-swatch--edit" role="radio" aria-checked="false" onclick="openColorPick('secondary')" aria-label="Secondary color">
+              <span class="md-swatch-chip" data-color-role="secondary" style="background: #e3e7e2;">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+              </span>
+            </button>
+            <button type="button" class="md-swatch md-swatch--edit" role="radio" aria-checked="false" onclick="openColorPick('shade1')" aria-label="Shade 1">
+              <span class="md-swatch-chip is-dark" data-color-role="shade1" style="background: #5b4636;">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+              </span>
+            </button>
+            <button type="button" class="md-swatch md-swatch--edit" role="radio" aria-checked="false" onclick="openColorPick('shade2')" aria-label="Shade 2">
+              <span class="md-swatch-chip" data-color-role="shade2" style="background: #efe9f7;">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+              </span>
+            </button>
+          </div>
+          <div class="md-info-notice">
+            <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M12 11V16" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><circle cx="12" cy="8" r="1" fill="currentColor"/></svg>
+            <span>Your website and flows share these styles</span>
+          </div>
+        </section>
+
+        <!-- ── SINGLE COLOR PICKER — mirrors BrandColorPicker: same header,
+             hex TextField, react-colorful saturation panel + hue slider.
+             Confirm pops back to the brand-colors view. ── -->
+        <section class="md-view" data-view="color-pick" hidden>
+          <div class="md-view-header">
+            <h2 class="md-heading" tabindex="-1" data-inspect-phrase="loopsStyleModalEditBrandColorsHeading">Edit brand colors</h2>
+            <button type="button" class="btn-secondary btn-sm" onclick="popView()" data-inspect-phrase="loopsStyleModalEditBrandColorsConfirm">Confirm</button>
+          </div>
+          <input type="text" class="md-hex-field" id="md-hex-input" placeholder="#000000" aria-label="Color hex value" spellcheck="false" autocomplete="off">
+          <div class="md-sat-panel" id="md-sat-panel">
+            <span class="md-sat-thumb" id="md-sat-thumb"></span>
+          </div>
+          <input type="range" class="md-hue-slider" id="md-hue-slider" min="0" max="360" value="200" aria-label="Hue"
+                 style="background: linear-gradient(to right, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%);">
+        </section>
+
+        <!-- ── FONT PAIRING VIEW — mirrors FontsTab edit mode: header with
+             primary Confirm, "headings" + "paragraphs" font rows. ── -->
+        <section class="md-view" data-view="fonts" hidden>
+          <div class="md-view-header">
+            <h2 class="md-heading" tabindex="-1" data-inspect-phrase="loopsStyleModalFontsHeading">Edit font pairings</h2>
+            <button type="button" class="btn-secondary btn-sm" onclick="popView()" data-inspect-phrase="loopsStyleModalFontsConfirmButton">Confirm</button>
+          </div>
+
+          <p class="md-section-label" data-inspect-phrase="loopsStyleModalFontsHeadingsLabel">headings</p>
+          <div class="md-font-row" role="radiogroup" aria-label="Headings font" data-font-slot="headline">
+            <button type="button" class="md-font-card is-active" role="radio" aria-checked="true" onclick="selectFontCard(this)" data-font="Sofia Sans" data-inspect-phrase="flows.designEditor.aaSofiaSans" aria-label="Sofia Sans">
+              <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="md-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+              <span class="md-font-preview" style="font-family: 'Sofia Sans', sans-serif;">Aa</span>
+              <span class="md-font-name">Sofia Sans</span>
+            </button>
+            <button type="button" class="md-font-card" role="radio" aria-checked="false" onclick="selectFontCard(this)" data-font="Playfair" data-inspect-phrase="flows.designEditor.aaPlayfair" aria-label="Playfair">
+              <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="md-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+              <span class="md-font-preview" style="font-family: 'Playfair Display', serif;">Aa</span>
+              <span class="md-font-name">Playfair</span>
+            </button>
+            <button type="button" class="md-font-card" role="radio" aria-checked="false" onclick="selectFontCard(this)" data-font="Poppins" data-inspect-phrase="flows.designEditor.aaPoppins" aria-label="Poppins">
+              <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="md-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+              <span class="md-font-preview" style="font-family: 'Poppins', sans-serif;">Aa</span>
+              <span class="md-font-name">Poppins</span>
+            </button>
+            <button type="button" class="md-font-card" role="radio" aria-checked="false" onclick="selectFontCard(this)" data-font="DM Sans" data-inspect-phrase="flows.designEditor.aaDmSans" aria-label="DM Sans">
+              <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="md-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+              <span class="md-font-preview" style="font-family: 'DM Sans', sans-serif;">Aa</span>
+              <span class="md-font-name">DM Sans</span>
+            </button>
+          </div>
+
+          <p class="md-section-label" data-inspect-phrase="loopsStyleModalFontsParagraphsLabel">paragraphs</p>
+          <div class="md-font-row" role="radiogroup" aria-label="Paragraphs font" data-font-slot="copy">
+            <button type="button" class="md-font-card is-active" role="radio" aria-checked="true" onclick="selectFontCard(this)" data-font="Sofia Sans" data-inspect-phrase="flows.designEditor.aaSofiaSans" aria-label="Sofia Sans">
+              <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="md-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+              <span class="md-font-preview" style="font-family: 'Sofia Sans', sans-serif;">Aa</span>
+              <span class="md-font-name">Sofia Sans</span>
+            </button>
+            <button type="button" class="md-font-card" role="radio" aria-checked="false" onclick="selectFontCard(this)" data-font="Playfair" data-inspect-phrase="flows.designEditor.aaPlayfair" aria-label="Playfair">
+              <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="md-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+              <span class="md-font-preview" style="font-family: 'Playfair Display', serif;">Aa</span>
+              <span class="md-font-name">Playfair</span>
+            </button>
+            <button type="button" class="md-font-card" role="radio" aria-checked="false" onclick="selectFontCard(this)" data-font="Poppins" data-inspect-phrase="flows.designEditor.aaPoppins" aria-label="Poppins">
+              <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="md-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+              <span class="md-font-preview" style="font-family: 'Poppins', sans-serif;">Aa</span>
+              <span class="md-font-name">Poppins</span>
+            </button>
+            <button type="button" class="md-font-card" role="radio" aria-checked="false" onclick="selectFontCard(this)" data-font="DM Sans" data-inspect-phrase="flows.designEditor.aaDmSans" aria-label="DM Sans">
+              <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="md-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+              <span class="md-font-preview" style="font-family: 'DM Sans', sans-serif;">Aa</span>
+              <span class="md-font-name">DM Sans</span>
+            </button>
+          </div>
+        </section>
+
+      </div>
+    </aside>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       COLOR-CHANGE WARNING — the one true overlay
+       ══════════════════════════════════════════ -->
+  <div class="md-modal-backdrop" id="md-color-warning" hidden>
+    <div class="md-modal" role="dialog" aria-modal="true" aria-labelledby="md-color-warning-title">
+      <h3 class="md-heading" id="md-color-warning-title" data-inspect-phrase="flows.designEditor.colorWarningTitle">Change colors?</h3>
+      <p>Your current colors will be replaced on your page.</p>
+      <div class="md-modal-actions">
+        <button type="button" class="btn-secondary btn-sm" onclick="cancelColorWarning()" data-inspect-phrase="global.cancel">Cancel</button>
+        <button type="button" class="btn-primary btn-sm" id="md-color-warning-go" onclick="confirmColorWarning()" data-inspect-phrase="global.continue">Continue</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js"></script>
+<script>
+/* ══════════════════════════════════════════
+   ARTIFACT ROUTING — same contract as scr-027
+   ══════════════════════════════════════════ */
+(function () {
+  var params = new URLSearchParams(window.location.search);
+  var page = params.get('page') || 'flow-page';
+  var iframe = document.getElementById('de-iframe');
+  if (iframe) iframe.src = '../artifacts/' + page + '.html';
+
+  if (page === 'bio-page') {
+    document.querySelectorAll('.btn-primary.btn-sm[data-nav-to]').forEach(function (doneEl) {
+      doneEl.setAttribute('data-nav-to', 'flows/bio-page-preview.html');
+      doneEl.setAttribute('data-nav-display-url', 'ama-wellness.jimdo.site');
+      doneEl.setAttribute('data-nav-screen-id', 'scr-119');
+    });
+  }
+})();
+
+/* ══════════════════════════════════════════
+   MORPH PANEL — dock state machine
+   States: peek | half | tall. Opens at HALF.
+   Desktop ignores all of this: the panel is pinned
+   expanded by CSS and the grabber is hidden.
+   ══════════════════════════════════════════ */
+var panel = document.getElementById('md-panel');
+var grabber = document.getElementById('md-grabber');
+var viewsEl = document.getElementById('md-views');
+
+function setState(state) {
+  panel.dataset.state = state;
+  document.getElementById('md-stage').classList.toggle('is-scaled', state !== 'peek');
+}
+
+/* ── Drag with snap points: peek 80px / half 50% / tall 90% ── */
+var drag = null;
+
+grabber.addEventListener('pointerdown', function (e) {
+  drag = { startY: e.clientY, startH: panel.offsetHeight, moved: false };
+  grabber.setPointerCapture(e.pointerId);
+  panel.classList.add('is-dragging');
+});
+
+grabber.addEventListener('pointermove', function (e) {
+  if (!drag) return;
+  var dy = drag.startY - e.clientY;
+  if (Math.abs(dy) > 4) drag.moved = true;
+  panel.style.height = Math.max(80, drag.startH + dy) + 'px';
+});
+
+grabber.addEventListener('pointerup', function () {
+  if (!drag) return;
+  var frac = panel.offsetHeight / document.documentElement.clientHeight;
+  panel.classList.remove('is-dragging');
+  panel.style.height = '';
+  if (!drag.moved) {
+    setState(panel.dataset.state === 'peek' ? 'half' : 'peek');
+  } else {
+    setState(frac < 0.25 ? 'peek' : frac < 0.7 ? 'half' : 'tall');
+  }
+  drag = null;
+});
+
+grabber.addEventListener('pointercancel', function () {
+  if (!drag) return;
+  panel.classList.remove('is-dragging');
+  panel.style.height = '';
+  drag = null;
+});
+
+/* Keyboard: arrow up/down steps through the snap states */
+grabber.addEventListener('keydown', function (e) {
+  var order = ['peek', 'half', 'tall'];
+  var idx = order.indexOf(panel.dataset.state);
+  if (e.key === 'ArrowUp' && idx < order.length - 1) {
+    e.preventDefault();
+    setState(order[idx + 1]);
+  } else if (e.key === 'ArrowDown' && idx > 0) {
+    e.preventDefault();
+    setState(order[idx - 1]);
+  }
+});
+
+/* ══════════════════════════════════════════
+   SECTIONS — Style | Layout (same control is the peek bar:
+   tapping a section from peek expands the drawer to half).
+   The shared indicator slides to the selected segment,
+   like @jimdo/ui SegmentedControl.
+   ══════════════════════════════════════════ */
+var segIndicator = document.getElementById('md-seg-indicator');
+
+function positionSegIndicator() {
+  var active = panel.querySelector('.jui-segment.is-active');
+  if (!active || !segIndicator) return;
+  segIndicator.style.left = active.offsetLeft + 'px';
+  segIndicator.style.top = active.offsetTop + 'px';
+  segIndicator.style.width = active.offsetWidth + 'px';
+  segIndicator.style.height = active.offsetHeight + 'px';
+}
+
+function switchSection(section, triggerEl) {
+  panel.querySelectorAll('.md-tabs .jui-segment').forEach(function (t) {
+    t.classList.remove('is-active');
+    t.setAttribute('aria-selected', 'false');
+  });
+  triggerEl.classList.add('is-active');
+  triggerEl.setAttribute('aria-selected', 'true');
+  positionSegIndicator();
+
+  document.getElementById('md-section-style').hidden = section !== 'style';
+  document.getElementById('md-section-layout').hidden = section !== 'layout';
+
+  if (panel.dataset.view !== 'root') { viewStack = []; setView('root'); }
+  if (panel.dataset.state === 'peek') setState('half');
+}
+
+window.addEventListener('resize', positionSegIndicator);
+window.addEventListener('load', positionSegIndicator);
+positionSegIndicator();
+
+/* ══════════════════════════════════════════
+   VIEW STACK — root -> colors -> color-pick, root -> fonts.
+   Push moves focus to the view heading; the live pattern's
+   Confirm button pops and returns focus to the invoker.
+   ══════════════════════════════════════════ */
+var viewStack = [];
+
+function setView(view) {
+  panel.dataset.view = view;
+  panel.querySelectorAll('.md-view').forEach(function (v) {
+    v.hidden = v.dataset.view !== view;
+  });
+  viewsEl.scrollTop = 0;
+}
+
+function pushView(view) {
+  viewStack.push({ view: panel.dataset.view, invoker: document.activeElement });
+  setView(view);
+  if (panel.dataset.state === 'peek') setState('half');
+  var heading = panel.querySelector('.md-view[data-view="' + view + '"] .md-view-header .md-heading');
+  if (heading) heading.focus();
+}
+
+function popView() {
+  var prev = viewStack.pop();
+  setView(prev ? prev.view : 'root');
+  if (prev && prev.invoker && document.contains(prev.invoker)) prev.invoker.focus();
+}
+
+/* ══════════════════════════════════════════
+   COLOR-CHANGE WARNING — shown once, then colors apply directly
+   ══════════════════════════════════════════ */
+var colorWarned = false;
+var pendingApply = null;
+var warningEl = document.getElementById('md-color-warning');
+
+function withColorWarning(apply) {
+  if (colorWarned) { apply(); return; }
+  pendingApply = apply;
+  warningEl.hidden = false;
+  document.getElementById('md-color-warning-go').focus();
+}
+
+function confirmColorWarning() {
+  colorWarned = true;
+  warningEl.hidden = true;
+  if (pendingApply) { pendingApply(); pendingApply = null; }
+}
+
+function cancelColorWarning() {
+  warningEl.hidden = true;
+  pendingApply = null;
+}
+
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape' && !warningEl.hidden) cancelColorWarning();
+});
+
+/* ══════════════════════════════════════════
+   SELECTION HELPERS
+   ══════════════════════════════════════════ */
+function markRadio(group, selector, el) {
+  group.querySelectorAll(selector).forEach(function (c) {
+    c.classList.remove('is-active');
+    c.setAttribute('aria-checked', 'false');
+  });
+  el.classList.add('is-active');
+  el.setAttribute('aria-checked', 'true');
+}
+
+function selectBgSwatch(el) {
+  withColorWarning(function () {
+    markRadio(el.closest('.md-swatch-row'), '.md-swatch', el);
+  });
+}
+
+function selectShapeCard(el) {
+  el.closest('.md-shape-row').querySelectorAll('.md-shape-card').forEach(function (c) {
+    c.classList.remove('is-active');
+  });
+  el.classList.add('is-active');
+}
+
+function selectLayout(el) {
+  el.closest('.md-layout-grid').querySelectorAll('.md-layout-card').forEach(function (c) {
+    c.classList.remove('is-active');
+  });
+  el.classList.add('is-active');
+}
+
+/* ── Font pairing (live FontsTab behaviour) ── */
+function updatePairLabel(headline, copy) {
+  document.getElementById('md-pair-label').textContent = headline + ' + ' + copy;
+}
+
+function selectPairingCard(el) {
+  markRadio(document.getElementById('md-pairing-row'), '.md-pairing-card', el);
+  updatePairLabel(el.dataset.headline, el.dataset.copy);
+  // Sync the edit view's rows to the chosen pair
+  [['headline', el.dataset.headline], ['copy', el.dataset.copy]].forEach(function (pair) {
+    var row = document.querySelector('.md-font-row[data-font-slot="' + pair[0] + '"]');
+    var card = row && row.querySelector('.md-font-card[data-font="' + pair[1] + '"]');
+    if (card) markRadio(row, '.md-font-card', card);
+  });
+}
+
+function selectFontCard(el) {
+  markRadio(el.closest('.md-font-row'), '.md-font-card', el);
+  var h = document.querySelector('.md-font-row[data-font-slot="headline"] .md-font-card.is-active');
+  var c = document.querySelector('.md-font-row[data-font-slot="copy"] .md-font-card.is-active');
+  if (h && c) updatePairLabel(h.dataset.font, c.dataset.font);
+}
+
+/* ══════════════════════════════════════════
+   BRAND PALETTE + SINGLE-COLOR PICKER
+   (mirrors BrandColorPicker: hex field + saturation
+   panel + hue slider; edits apply live, Confirm pops)
+   ══════════════════════════════════════════ */
+var palette = { main: '#26323a', secondary: '#e3e7e2', shade1: '#5b4636', shade2: '#efe9f7' };
+var pickRole = null;
+var hsv = { h: 200, s: 0.5, v: 0.5 };
+
+var satPanel = document.getElementById('md-sat-panel');
+var satThumb = document.getElementById('md-sat-thumb');
+var hueSlider = document.getElementById('md-hue-slider');
+var hexInput = document.getElementById('md-hex-input');
+
+function isBright(hex) {
+  var r = parseInt(hex.slice(1, 3), 16);
+  var g = parseInt(hex.slice(3, 5), 16);
+  var b = parseInt(hex.slice(5, 7), 16);
+  return (r * 299 + g * 587 + b * 114) / 1000 > 155;
+}
+
+function hexToHsv(hex) {
+  var r = parseInt(hex.slice(1, 3), 16) / 255;
+  var g = parseInt(hex.slice(3, 5), 16) / 255;
+  var b = parseInt(hex.slice(5, 7), 16) / 255;
+  var max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+  var h = 0;
+  if (d !== 0) {
+    if (max === r) h = 60 * (((g - b) / d) % 6);
+    else if (max === g) h = 60 * ((b - r) / d + 2);
+    else h = 60 * ((r - g) / d + 4);
+  }
+  if (h < 0) h += 360;
+  return { h: h, s: max === 0 ? 0 : d / max, v: max };
+}
+
+function hsvToHex(h, s, v) {
+  var f = function (n) {
+    var k = (n + h / 60) % 6;
+    var val = v - v * s * Math.max(0, Math.min(k, 4 - k, 1));
+    return Math.round(val * 255).toString(16).padStart(2, '0');
+  };
+  return '#' + f(5) + f(3) + f(1);
+}
+
+function renderRole(role) {
+  document.querySelectorAll('.md-swatch-chip[data-color-role="' + role + '"]').forEach(function (chip) {
+    chip.style.background = palette[role];
+    chip.classList.toggle('is-dark', !isBright(palette[role]));
+  });
+}
+
+function syncPicker() {
+  hueSlider.value = hsv.h;
+  satPanel.style.background =
+    'linear-gradient(to top, #000000, transparent), linear-gradient(to right, #ffffff, hsl(' + Math.round(hsv.h) + ', 100%, 50%))';
+  satThumb.style.left = (hsv.s * 100) + '%';
+  satThumb.style.top = ((1 - hsv.v) * 100) + '%';
+  hexInput.value = hsvToHex(hsv.h, hsv.s, hsv.v);
+}
+
+function applyPick() {
+  if (!pickRole) return;
+  palette[pickRole] = hsvToHex(hsv.h, hsv.s, hsv.v);
+  renderRole(pickRole);
+}
+
+function openColorPick(role) {
+  pickRole = role;
+  hsv = hexToHsv(palette[role]);
+  syncPicker();
+  pushView('color-pick');
+}
+
+hueSlider.addEventListener('input', function () {
+  hsv.h = Number(hueSlider.value);
+  syncPicker();
+  applyPick();
+});
+
+var satDrag = false;
+function satFromEvent(e) {
+  var rect = satPanel.getBoundingClientRect();
+  hsv.s = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+  hsv.v = Math.min(1, Math.max(0, 1 - (e.clientY - rect.top) / rect.height));
+  syncPicker();
+  applyPick();
+}
+satPanel.addEventListener('pointerdown', function (e) {
+  satDrag = true;
+  satPanel.setPointerCapture(e.pointerId);
+  satFromEvent(e);
+});
+satPanel.addEventListener('pointermove', function (e) { if (satDrag) satFromEvent(e); });
+satPanel.addEventListener('pointerup', function () { satDrag = false; });
+
+function commitHexInput() {
+  var raw = hexInput.value.trim();
+  var withHash = raw.charAt(0) === '#' ? raw : '#' + raw;
+  var short = /^#([a-f\d])([a-f\d])([a-f\d])$/i.exec(withHash);
+  var normalized = short ? '#' + short[1] + short[1] + short[2] + short[2] + short[3] + short[3] : withHash;
+  if (/^#[a-f\d]{6}$/i.test(normalized)) {
+    hsv = hexToHsv(normalized.toLowerCase());
+    syncPicker();
+    applyPick();
+  } else {
+    hexInput.value = hsvToHex(hsv.h, hsv.s, hsv.v);
+  }
+}
+hexInput.addEventListener('blur', commitHexInput);
+hexInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') commitHexInput(); });
+</script>
+
+</body>
+</html>

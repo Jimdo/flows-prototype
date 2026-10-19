@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<!--
+  Creator placeholder screen.
+  Underscore-prefixed → exempt from lint:screens content/coverage/parity rules.
+  One file serves all Creator screens: the scr-NNN is passed via the URL hash
+  (e.g. #scr-303). It reads data/creator/journey.json to show the real label,
+  section, and notes. Replace per-screen with real hi-fi designs over time and
+  point that screen's data/creator/layout-registry.json entry at the new file.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Creator — Screen placeholder</title>
+  <style>
+    :root {
+      --ink: #1f2933;
+      --muted: #69727d;
+      --faint: #9aa3ad;
+      --line: #e4e7eb;
+      --accent: #E17055;
+      --accent-bg: rgba(225, 112, 85, 0.10);
+      --bg: #f7f8fa;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+    }
+    .card {
+      width: 100%;
+      max-width: 520px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 36px 36px 32px;
+      text-align: center;
+      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-bg);
+      border-radius: 999px;
+      padding: 5px 11px;
+      margin-bottom: 20px;
+    }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+    .section {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--faint);
+      margin-bottom: 8px;
+    }
+    h1 { font-size: 26px; line-height: 1.2; margin: 0 0 14px; font-weight: 650; }
+    .scr-id {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      color: var(--faint);
+      margin-bottom: 22px;
+    }
+    .notes {
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--muted);
+      text-align: left;
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin: 0 0 22px;
+    }
+    .footer {
+      font-size: 12.5px;
+      color: var(--faint);
+      border-top: 1px solid var(--line);
+      padding-top: 18px;
+    }
+    .footer strong { color: var(--muted); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <span class="badge"><span class="dot"></span> Creator</span>
+    <div class="section" id="section">Screen</div>
+    <h1 id="label">Loading…</h1>
+    <div class="scr-id" id="scrid"></div>
+    <p class="notes" id="notes" hidden></p>
+    <div class="footer">
+      Not yet designed — documented from the <strong>Jimdo/jimdo</strong> Creator monolith.
+    </div>
+  </div>
+
+  <script>
+    // journey.json lives at repo-root data/creator/ — four levels up from
+    // design-system/hifi-designs/pages/creator/
+    var JOURNEY_URL = '../../../../data/creator/journey.json';
+    var index = null;
+
+    function indexJourney(journey) {
+      var map = {};
+      (journey.sections || []).forEach(function (section) {
+        (section.subsections || []).forEach(function (sub) {
+          (sub.screens || []).forEach(function (scr) {
+            map[scr.id] = {
+              label: scr.label,
+              section: section.label,
+              notes: scr.notes || ''
+            };
+          });
+        });
+      });
+      return map;
+    }
+
+    function currentId() {
+      return (location.hash || '').replace(/^#/, '').trim();
+    }
+
+    function render() {
+      var id = currentId();
+      var sectionEl = document.getElementById('section');
+      var labelEl = document.getElementById('label');
+      var idEl = document.getElementById('scrid');
+      var notesEl = document.getElementById('notes');
+
+      idEl.textContent = id || '';
+
+      var info = index && id ? index[id] : null;
+      if (info) {
+        sectionEl.textContent = info.section || 'Screen';
+        labelEl.textContent = info.label;
+        if (info.notes) { notesEl.textContent = info.notes; notesEl.hidden = false; }
+        else { notesEl.hidden = true; }
+        document.title = 'Creator — ' + info.label;
+      } else {
+        sectionEl.textContent = 'Screen';
+        labelEl.textContent = id || 'Creator screen';
+        notesEl.hidden = true;
+      }
+    }
+
+    fetch(JOURNEY_URL)
+      .then(function (r) { return r.json(); })
+      .then(function (j) { index = indexJourney(j); render(); })
+      .catch(function () { render(); });
+
+    window.addEventListener('hashchange', render);
+    render();
+  </script>
+</body>
+</html>

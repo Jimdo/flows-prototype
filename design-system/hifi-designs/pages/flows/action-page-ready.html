@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Action Page — Success &amp; Activation (Vision)</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+
+  /* ═══════════════════════════════════════════════════════════════
+     ACTION PAGE — SUCCESS & ACTIVATION (Vision iteration of scr-119)
+     Figma: LOA_001_SuccessActivation (15940:19346, desktop 1200).
+     Combines scr-135 (celebration phone + confetti) and scr-030
+     (QR / share surface), then adds a net-new "Add to Bio Page"
+     activation toggle card.
+
+     Shell: .app-shell-onboarding (gray canvas + white card, transparent
+     header gutter, gradient-fade footer) — same as scr-135.
+     Footer: single Continue (one-action-footer, right-aligned).
+
+     Layout: headline centered above a two-column body.
+       Desktop (≥768px): phone (left) | two stacked cards (right), 40px gap.
+       Mobile: single centered column — headline → phone → QR card →
+       toggle card → Continue.
+
+     Token note (figma-fidelity Rule 0.3): the outer cards bind Figma's
+     semantic $jui-style-radius-l, which renders 20px in Figma (ours = 16).
+     We use --jui-style-radius-20 to match the Figma pixel on-scale. The
+     inner link container is 16 (radius-16); the page mock is 12 (radius-m).
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* ─── Content stack: headline above the two-column body ───
+     Figma "009": headline at top, 32px to the body group. */
+  .activation-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;                                  /* Figma section gap — no 32px token in scale (matches scr-030) */
+  }
+
+  /* ─── Headline — Subheadline/Large, centered, black ───
+     Figma 15940:19350 (24px / 500 / lh 1.33). */
+  .activation-headline {
+    margin: 0;
+    font-family: inherit;
+    font-size: var(--jui-typography-sub-headline-large-size);
+    font-weight: var(--jui-typography-sub-headline-large-weight);
+    line-height: var(--jui-typography-sub-headline-large-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+    text-align: center;
+  }
+
+  /* ─── Two-column body ─── */
+  .activation-layout {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--jui-layout-gap-l);               /* 24px — mobile stack */
+  }
+  @media (min-width: 768px) {
+    .activation-layout {
+      flex-direction: row;
+      align-items: center;                      /* phone + card stack vertically centered (Figma) */
+      justify-content: center;
+      gap: var(--jui-layout-gap-xl);            /* 40px — Figma phone↔cards gap */
+    }
+  }
+
+  /* ═══════════════════════════════════════════════
+     PHONE STAGE — positioning context for confetti + phone.
+     Confetti layers in front of the device (z-index 3) so the
+     burst flies over it, matching loops-frontend Success page.
+     No purple blob here (Figma has none on this frame).
+     ═══════════════════════════════════════════════ */
+  .phone-stage {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    padding: var(--jui-layout-padding-l) 0;     /* 24px */
+  }
+
+  .phone-frame {
+    position: relative;
+    z-index: 2;
+    width: 230px;
+    height: 455.6px;
+    background: var(--jui-color-gray-black);
+    border: 1.1px solid var(--jui-color-gray-100);
+    border-radius: 16px;
+    box-shadow: 0 4.4px 26.5px rgba(0, 0, 0, 0.10);
+    padding: 4px;
+    flex-shrink: 0;
+  }
+  .phone-inner {
+    width: 221.2px;
+    height: 446.8px;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    background: var(--jui-color-gray-black);
+  }
+
+  /* Artifact iframe — action page loaded as a standalone doc, scaled
+     down from its native 360px width to fit the phone inner. */
+  .artifact-iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 360px;
+    height: 727px;
+    border: 0;
+    background: var(--jui-color-gray-black);
+    transform: scale(0.6144);
+    transform-origin: top left;
+  }
+
+  /* ═══════════════════════════════════════════════
+     CONFETTI — ported verbatim from scr-135 / loops-frontend
+     pages/Success. 45 seeded-random dots, burst plays once on
+     load, prefers-reduced-motion fallback shows static dots.
+     ═══════════════════════════════════════════════ */
+  .confetti {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    height: 0;
+    overflow: visible;
+    pointer-events: none;
+    z-index: 3;
+  }
+  .confetti-x {
+    position: absolute;
+    left: var(--dot-left);
+    top: 0;
+    animation: confetti-x var(--dot-duration) var(--dot-delay) cubic-bezier(0, 0.9, 0.4, 1) forwards;
+  }
+  .confetti-y {
+    animation: confetti-y var(--dot-duration) var(--dot-delay) ease-in-out forwards;
+  }
+  .confetti-dot {
+    width: var(--dot-size);
+    height: var(--dot-size);
+    border-radius: 50%;
+    background-color: var(--dot-color);
+    opacity: 0;
+    animation: confetti-fade var(--dot-duration) var(--dot-delay) linear forwards;
+  }
+  @keyframes confetti-x {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(var(--dot-x-drift)); }
+  }
+  @keyframes confetti-y {
+    0%   { transform: translateY(0); }
+    20%  { transform: translateY(var(--dot-y-peak)); }
+    100% { transform: translateY(var(--dot-y-end)); }
+  }
+  @keyframes confetti-fade {
+    0%   { opacity: 0;    transform: rotate(0deg) scaleX(1); }
+    6%   { opacity: 0.9; }
+    25%  { transform: rotate(calc(var(--dot-rotate) * 0.3)) scaleX(-1); }
+    50%  { opacity: 0.85; transform: rotate(calc(var(--dot-rotate) * 0.6)) scaleX(1); }
+    75%  { opacity: 0.7;  transform: rotate(calc(var(--dot-rotate) * 0.8)) scaleX(-1); }
+    90%  { opacity: 0.3; }
+    100% { opacity: 0;    transform: rotate(var(--dot-rotate)) scaleX(1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .confetti-x, .confetti-y { animation: none; }
+    .confetti-dot { animation: none; opacity: 0.6; }
+  }
+
+  /* ═══════════════════════════════════════════════
+     RIGHT COLUMN — two stacked cards, 24px gap (Figma 15940:19558)
+     ═══════════════════════════════════════════════ */
+  .activation-cards {
+    width: 100%;
+    max-width: 376px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-l);               /* 24px — Figma */
+    min-width: 0;
+  }
+
+  /* ═══════════════════════════════════════════════
+     QR / SHARE CARD — white, blue-10 border, blue-tinted shadow.
+     Figma 15931:19021: radius-l (renders 20), pt/px/pb 8, gap 8.
+     ═══════════════════════════════════════════════ */
+  .qr-share-card {
+    position: relative;
+    background: var(--jui-color-background-gray-light);            /* white */
+    border: 1px solid var(--jui-color-background-primary-light);   /* blue-10 #eff0ff */
+    border-radius: var(--jui-style-radius-20);                     /* 20 — Figma $jui-style-radius-l (figma-fidelity 0.3) */
+    box-shadow: var(--jui-effects-elevation-blue-lg);              /* 0 4px 32px rgba(0,76,237,0.10) — Figma 15931:19021 */
+    padding: var(--jui-layout-padding-xs);                         /* 8px */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--jui-layout-gap-xs);                                 /* 8px */
+    width: 100%;
+  }
+
+  /* Download QR button — absolute top-right of card.
+     Figma "Flow Link" frame spans card width; download icon (24px)
+     is justified to the end. */
+  .qr-download-btn {
+    position: absolute;
+    top: var(--jui-layout-padding-xs);          /* 8px */
+    right: var(--jui-layout-padding-s);         /* 12px */
+    width: var(--jui-layout-dimension-s);       /* 32px */
+    height: var(--jui-layout-dimension-s);
+    border-radius: var(--jui-style-radius-s);   /* 8px */
+    background: transparent;
+    border: none;
+    color: var(--jui-color-actions-primary-rest);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 150ms ease;
+  }
+  .qr-download-btn:hover { background: var(--jui-color-background-gray-canvas); }
+  .qr-download-btn:focus-visible {
+    outline: 2px solid var(--jui-color-actions-primary-rest);
+    outline-offset: 2px;
+  }
+  .qr-download-btn svg {
+    width: 24px; height: 24px;
+    stroke: currentColor; fill: none;
+    stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+  }
+
+  /* QR canvas — 110×110 centered, top margin clears the download row. */
+  .qr-canvas-wrap {
+    width: 110px;
+    height: 110px;
+    margin-top: var(--jui-layout-gap-m);        /* 16px — clears the 32px download hit target */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .qr-canvas { display: block; width: 110px; height: 110px; }
+
+  /* ─── Link container (inside QR card) ───
+     Figma 16036:20043: gray-50 bg, radius-16, pl 12 pr 8 py 8,
+     justify space-between. Icon + URL (flex-1) | inline Share button. */
+  .qr-link-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: var(--jui-color-background-gray-dark);   /* gray-50 #f8f8f8 */
+    border-radius: var(--jui-style-radius-16);           /* 16 */
+    padding: var(--jui-layout-padding-xs)
+             var(--jui-layout-padding-xs)
+             var(--jui-layout-padding-xs)
+             var(--jui-layout-padding-s);                /* 8 8 8 12 */
+    gap: var(--jui-layout-gap-xs);                       /* 8px */
+  }
+  .qr-link-open {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-xs);                       /* 8px */
+    min-width: 0;
+    padding: 0 var(--jui-layout-padding-xxs);            /* 0 4px */
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+  }
+  .qr-link-icon {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    color: var(--jui-color-typography-gray-on-light-default);
+    display: flex;
+  }
+  .qr-link-icon svg {
+    width: 100%; height: 100%;
+    stroke: currentColor; fill: none;
+    stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+  }
+  .qr-link-url {
+    flex: 1;
+    min-width: 0;
+    font-size: var(--jui-typography-body-small-medium-size);     /* Link/Small 14 */
+    font-weight: var(--jui-typography-body-small-medium-weight);
+    line-height: var(--jui-typography-body-small-medium-lh);
+    letter-spacing: 0.01em;
+    color: var(--jui-color-typography-gray-on-light-default);    /* black — Figma 16036:20043 */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .qr-link-open:hover .qr-link-url { text-decoration: underline; }
+  .qr-link-open:focus-visible {
+    outline: 2px solid var(--jui-color-actions-primary-rest);
+    outline-offset: 2px;
+    border-radius: var(--jui-style-radius-s);
+  }
+
+  /* Inline Share button — white bg, blue-100 border, blue-500 label.
+     Figma 15754:20063: h32, px12 py4, radius 8 (layout/base). */
+  .qr-share-btn {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--jui-layout-dimension-s);               /* 32px */
+    padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-s); /* 4px 12px */
+    background: var(--jui-color-background-gray-light);   /* white */
+    border: 1px solid var(--jui-color-stroke-primary-on-light); /* blue-100 #b4c4ff */
+    border-radius: var(--jui-style-radius-s);            /* 8px */
+    color: var(--jui-color-actions-primary-rest);        /* blue-500 */
+    font-family: inherit;
+    font-size: var(--jui-typography-body-small-medium-size);
+    font-weight: var(--jui-typography-body-small-medium-weight);
+    line-height: var(--jui-typography-body-small-medium-lh);
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 150ms ease, color 150ms ease;
+  }
+  .qr-share-btn:hover { background: var(--jui-color-background-primary-light); } /* blue-10 */
+  .qr-share-btn:active {
+    background: var(--jui-color-actions-primary-pressed);
+    color: var(--jui-color-typography-gray-on-dark-default);
+  }
+  .qr-share-btn:focus-visible {
+    outline: 2px solid var(--jui-color-actions-primary-rest);
+    outline-offset: 2px;
+  }
+
+  /* ═══════════════════════════════════════════════
+     ADD-TO-BIO TOGGLE CARD — net-new activation card.
+     Figma 16036:20003: gray-50 surface, radius-l (renders 20),
+     pl 24 pr 12 py 12, gap 32 between copy and page mock.
+     ═══════════════════════════════════════════════ */
+  .bio-toggle-card {
+    display: flex;
+    align-items: center;
+    gap: 32px;                                  /* Figma measurements/size/32 — no 32px token in scale */
+    width: 100%;
+    background: var(--jui-color-background-gray-dark);   /* gray-50 #f8f8f8 */
+    border-radius: var(--jui-style-radius-20);           /* 20 — Figma $jui-style-radius-l (figma-fidelity 0.3) */
+    padding: var(--jui-layout-padding-s)
+             var(--jui-layout-padding-s)
+             var(--jui-layout-padding-s)
+             var(--jui-layout-padding-l);                /* 12 12 12 24 */
+  }
+  .bio-toggle-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--jui-layout-gap-l);               /* 24px — Figma between toggle and copy */
+  }
+  .bio-toggle-copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-xs);              /* 8px — Figma */
+    width: 100%;
+  }
+  .bio-toggle-title-row {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-xs);              /* 8px */
+    flex-wrap: wrap;
+  }
+  .bio-toggle-title {
+    font-family: inherit;
+    font-size: var(--jui-typography-sub-headline-small-size);    /* Subheadline/Small 16 */
+    font-weight: var(--jui-typography-sub-headline-small-weight);
+    line-height: var(--jui-typography-sub-headline-small-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+  .bio-toggle-desc {
+    margin: 0;
+    font-size: var(--jui-typography-body-small-regular-size);    /* Body/Small/Regular 14 */
+    font-weight: var(--jui-typography-body-small-regular-weight);
+    line-height: var(--jui-typography-body-small-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-subdued);    /* #6d6d6d */
+  }
+
+  /* ─── Mini bio-page mock (80px) — shows the new button added ───
+     Figma 16036:20004: white, gray-default border, radius-12.
+     Skeleton bars use gray-100 (token) in place of Figma's decorative
+     periwinkle tint; the activated button uses blue-300 (token) + tick. */
+  .bio-page-mock {
+    flex-shrink: 0;
+    width: 80px;
+    height: 153px;
+    background: var(--jui-color-background-gray-light);  /* white */
+    border: 1px solid var(--jui-color-stroke-gray-default); /* gray-100 #e6e6e6 */
+    border-radius: var(--jui-style-radius-m);            /* 12 */
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--jui-layout-padding-s) var(--jui-layout-gap-xxs) var(--jui-layout-padding-xxs); /* 12 4 4 */
+    gap: var(--jui-layout-gap-xxs);                      /* 4px */
+  }
+  .mock-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--jui-style-radius-xs);          /* 4px */
+    background: var(--jui-color-gray-100);
+    flex-shrink: 0;
+  }
+  .mock-line {
+    background: var(--jui-color-gray-100);
+    border-radius: var(--jui-style-radius-s);
+    flex-shrink: 0;
+  }
+  .mock-line--title { width: 52px; height: 4px; }
+  .mock-line--sub   { width: 24px; height: 4px; margin-bottom: 2px; }
+  .mock-btn-row     { width: 100%; padding: 0 var(--jui-layout-padding-xxs); } /* 0 4px */
+  .mock-btn {
+    width: 100%;
+    height: 15px;
+    border-radius: var(--jui-style-radius-s);
+    background: var(--jui-color-gray-100);
+  }
+  /* The activated button — blue-300 fill + white tick (the new Bio button) */
+  .mock-btn--active {
+    background: var(--jui-color-blue-300);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--jui-color-gray-white);
+  }
+  .mock-btn--active svg {
+    width: 9px; height: 9px;
+    stroke: currentColor; fill: none;
+    stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+  }
+  .mock-dots {
+    display: flex;
+    gap: var(--jui-layout-gap-xxs);             /* 4px */
+    margin-top: auto;
+    padding-bottom: var(--jui-layout-padding-xxs); /* 4px */
+  }
+  .mock-dot {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--jui-color-gray-100);
+  }
+
+  /* ═══════════════════════════════════════════════
+     FOOTER — single Continue (right-aligned default footer-actions).
+     ═══════════════════════════════════════════════ */
+  .footer-actions-continue .btn {
+    padding-left: var(--jui-layout-padding-l);   /* 24px — Figma button content padding */
+    padding-right: var(--jui-layout-padding-l);
+  }
+
+  /* ═══════════════════════════════════════════════
+     H-SCROLL GUARD — the confetti drifts up to ±250px from the
+     phone-stage centre, overflowing its container. The actual
+     horizontal scroller is .shell-working-area (overflow: auto), so
+     the burst grows ITS scroll width and shows a horizontal bar.
+     Clip the x-axis on the working area (and the shell as an outer
+     guard). `overflow-x: clip` leaves overflow-y: auto intact, so the
+     working area still scrolls vertically and the card shadow is kept.
+     ═══════════════════════════════════════════════ */
+  .app-shell,
+  .shell-working-area { overflow-x: clip; }
+
+  /* ═══════════════════════════════════════════════
+     MOBILE REFINEMENTS (<768px)
+     - Phone preview scaled to 75% (explicit dims keep the iframe
+       crisp and the layout box correct — no leftover whitespace).
+     - Title gets top breathing room (not flush to the edge).
+     - Tighter title↔preview spacing.
+     ═══════════════════════════════════════════════ */
+  @media (max-width: 767px) {
+    .activation-content {
+      padding-top: var(--jui-layout-padding-l);    /* 24px — title not flush to top */
+      padding-bottom: var(--jui-layout-padding-l); /* 24px — toggle card not flush to Continue */
+      gap: var(--jui-layout-gap-m);                /* 16px — tighter title↔preview (was 32) */
+    }
+    .phone-stage {
+      padding: var(--jui-layout-padding-xs) 0;     /* 8px — reduce gap to title (was 24) */
+    }
+    .phone-frame {
+      width: 172.5px;                              /* 230 × 0.75 */
+      height: 341.7px;                             /* 455.6 × 0.75 */
+      border-radius: 12px;                         /* on-scale; padding stays 4px (inherited) */
+    }
+    .phone-inner {
+      width: 164.5px;                              /* 172.5 − 2×4 padding */
+      height: 333.7px;                             /* 341.7 − 2×4 padding */
+      border-radius: 8px;                          /* outer 12 − 4 padding */
+    }
+    .artifact-iframe {
+      transform: scale(0.4569);                    /* 164.5 / 360 native width */
+    }
+  }
+
+</style>
+</head>
+<body>
+
+<div class="app-shell app-shell-onboarding">
+
+  <div class="shell-middle">
+    <div class="shell-working-area setup-centered-v">
+      <div class="content-container activation-content">
+
+        <h1 class="activation-headline" data-inspect-phrase="explainerStatic.bio.title">Your action page is ready to review!</h1>
+
+        <div class="activation-layout">
+
+          <!-- ─── Left: celebration phone (action page preview) ─── -->
+          <div class="phone-stage">
+            <div class="confetti" id="confetti" aria-hidden="true"></div>
+            <div class="phone-frame">
+              <div class="phone-inner">
+                <iframe
+                  class="artifact-iframe"
+                  id="artifact-iframe"
+                  src="../artifacts/flow-page.html"
+                  title="Action page artifact"
+                  loading="eager"></iframe>
+              </div>
+            </div>
+          </div>
+
+          <!-- ─── Right: QR/share card + Add-to-Bio toggle card ─── -->
+          <div class="activation-cards">
+
+            <!-- QR / share card -->
+            <div class="qr-share-card"
+              data-inspect-label="QR / Share Card — elevated white surface"
+              data-inspect-tokens='[{"prop":"background","figma":"color/gray/white","css":"--jui-color-background-gray-light","value":"#ffffff"},{"prop":"border","figma":"color/blue/10","css":"--jui-color-background-primary-light","value":"1px solid #eff0ff"},{"prop":"border-radius","figma":"$jui-style-radius-l (renders 20)","css":"--jui-style-radius-20","value":"20px"},{"prop":"box-shadow","value":"0 4px 32px rgba(0,76,237,0.10) — Figma 15931:19021"},{"prop":"padding","css":"--jui-layout-padding-xs","value":"8px"}]'>
+
+              <!-- Download QR button, absolute top-right -->
+              <button class="qr-download-btn" id="download-btn"
+                title="Download QR code" aria-label="Download QR code"
+                data-inspect-label="Download QR — download-02 (subtle)"
+                data-inspect-phrase="flowCard.ariaDownloadQRCode">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 3v12"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <path d="M3 17v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2"/>
+                </svg>
+              </button>
+
+              <!-- QR canvas (110×110) -->
+              <div class="qr-canvas-wrap">
+                <canvas class="qr-canvas" id="qr-canvas"
+                  role="img"
+                  aria-label="QR code linking to the action page"></canvas>
+              </div>
+
+              <!-- Link row: link-square icon + URL + inline Share button -->
+              <div class="qr-link-row"
+                data-inspect-label="Link Container — URL + inline Share"
+                data-inspect-tokens='[{"prop":"background","figma":"color/gray/50","css":"--jui-color-background-gray-dark","value":"#f8f8f8"},{"prop":"border-radius","figma":"style/radius/16","css":"--jui-style-radius-16","value":"16px"},{"prop":"padding","value":"8px 8px 8px 12px"},{"prop":"gap","css":"--jui-layout-gap-xs","value":"8px"}]'>
+                <button class="qr-link-open" id="link-btn"
+                  aria-label="Open action page in new tab">
+                  <span class="qr-link-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                      <path d="M10.5 3H4.99995C3.89538 3 2.99995 3.89543 2.99995 5V19C2.99995 20.1046 3.89538 21 4.99995 21H19C20.1045 21 21 20.1046 21 19V13.5"/>
+                      <path d="M11 13L20.3499 3.64944M21 9V3L15 3"/>
+                    </svg>
+                  </span>
+                  <span class="qr-link-url" data-inspect-phrase="">claranstone.jimdosite.com/action-page</span>
+                </button>
+                <button class="qr-share-btn" id="share-btn"
+                  data-inspect-label="Inline Share button — outlined blue"
+                  data-inspect-tokens='[{"prop":"background","figma":"color/gray/white","css":"--jui-color-background-gray-light","value":"#ffffff"},{"prop":"border","figma":"color/blue/100","css":"--jui-color-stroke-primary-on-light","value":"1px solid #b4c4ff"},{"prop":"color","figma":"color/blue/500","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"border-radius","figma":"layout/base (8)","css":"--jui-style-radius-s","value":"8px"},{"prop":"height","css":"--jui-layout-dimension-s","value":"32px"}]'
+                  data-inspect-phrase="flowCard.ctaShare">Share</button>
+              </div>
+            </div>
+
+            <!-- Add-to-Bio toggle card -->
+            <div class="bio-toggle-card"
+              data-inspect-label="Add to Bio Page — activation toggle card"
+              data-inspect-tokens='[{"prop":"background","figma":"color/gray/50","css":"--jui-color-background-gray-dark","value":"#f8f8f8"},{"prop":"border-radius","figma":"$jui-style-radius-l (renders 20)","css":"--jui-style-radius-20","value":"20px"},{"prop":"padding","value":"12px 12px 12px 24px"},{"prop":"gap","figma":"measurements/size/32","value":"32px"}]'>
+
+              <div class="bio-toggle-text">
+                <label class="toggle on"
+                  data-inspect-label="Toggle — on (Add to Bio Page)">
+                  <input type="checkbox" checked aria-label="Add to Bio Page">
+                  <span class="toggle-thumb" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                    </svg>
+                  </span>
+                </label>
+
+                <div class="bio-toggle-copy">
+                  <div class="bio-toggle-title-row">
+                    <span class="bio-toggle-title" data-inspect-phrase="activation.addToBio.title">Add to Bio Page</span>
+                    <span class="badge badge--primary" data-inspect-phrase="common.badge.new">New</span>
+                  </div>
+                  <p class="bio-toggle-desc" data-inspect-phrase="activation.addToBio.description">It will be added as a new button that opens your page</p>
+                </div>
+              </div>
+
+              <!-- Mini bio-page mock: the new button appears, highlighted -->
+              <div class="bio-page-mock" aria-hidden="true"
+                data-inspect-label="Bio page mock — new button highlighted (blue-300 + tick)">
+                <div class="mock-avatar"></div>
+                <div class="mock-line mock-line--title"></div>
+                <div class="mock-line mock-line--sub"></div>
+                <div class="mock-btn-row"><div class="mock-btn"></div></div>
+                <div class="mock-btn-row">
+                  <div class="mock-btn mock-btn--active">
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <path d="M4.25 13.5L8.75 18L19.75 6"/>
+                    </svg>
+                  </div>
+                </div>
+                <div class="mock-btn-row"><div class="mock-btn"></div></div>
+                <div class="mock-dots">
+                  <span class="mock-dot"></span>
+                  <span class="mock-dot"></span>
+                  <span class="mock-dot"></span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <!-- /activation-cards -->
+
+        </div>
+        <!-- /activation-layout -->
+
+      </div>
+    </div>
+  </div>
+
+  <div class="shell-footer">
+    <div class="footer-actions footer-actions-continue">
+      <button class="btn btn-primary"
+              data-inspect-label="Primary Button — Continue"
+              data-inspect-phrase="preview.bioSite.continueCta"
+              data-trigger="primary-cta"
+              data-nav-to="flows/ai-suggestions-v2.html"
+              data-nav-screen-id="scr-131">Continue</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Confetti generator — ported verbatim from scr-135 (loops-frontend
+     Confetti.tsx). 45 seeded-random dots, identical formulas, built as
+     inline DOM so the static page reproduces the burst without React. -->
+<script>
+  (function () {
+    var COLORS = ['#8DA7FF', '#B5F2CE', '#A350D9', '#FFC77B', '#336BFF', '#7DEAAF', '#E4B5FF'];
+    var DOT_COUNT = 45;
+
+    function seededRandom(seed) {
+      var x = Math.sin(seed * 9301 + 49297) * 233280;
+      return x - Math.floor(x);
+    }
+
+    var root = document.getElementById('confetti');
+    if (!root) return;
+
+    for (var i = 0; i < DOT_COUNT; i++) {
+      var rand = (function (idx) {
+        return function (offset) { return seededRandom(idx * 7 + offset); };
+      })(i);
+
+      var x = document.createElement('div');
+      x.className = 'confetti-x';
+      x.style.setProperty('--dot-left', (-5 + rand(0) * 10) + '%');
+      x.style.setProperty('--dot-delay', (rand(1) * 0.06) + 's');
+      x.style.setProperty('--dot-duration', (2.5 + rand(2) * 1.5) + 's');
+      x.style.setProperty('--dot-x-drift', ((rand(3) - 0.5) * 500) + 'px');
+
+      var y = document.createElement('div');
+      y.className = 'confetti-y';
+      y.style.setProperty('--dot-delay', (rand(1) * 0.06) + 's');
+      y.style.setProperty('--dot-duration', (2.5 + rand(2) * 1.5) + 's');
+      y.style.setProperty('--dot-y-peak', (-(120 + rand(4) * 160)) + 'px');
+      y.style.setProperty('--dot-y-end', (80 + rand(5) * 120) + 'px');
+
+      var dot = document.createElement('div');
+      dot.className = 'confetti-dot';
+      dot.style.setProperty('--dot-color', COLORS[i % COLORS.length]);
+      dot.style.setProperty('--dot-delay', (rand(1) * 0.06) + 's');
+      dot.style.setProperty('--dot-duration', (2.5 + rand(2) * 1.5) + 's');
+      dot.style.setProperty('--dot-size', (3 + rand(6) * 2) + 'px');
+      dot.style.setProperty('--dot-rotate', (rand(7) * 360) + 'deg');
+
+      y.appendChild(dot);
+      x.appendChild(y);
+      root.appendChild(x);
+    }
+  })();
+</script>
+
+<!-- QR visual generator + share/download actions (ported from scr-030). -->
+<script>
+  (function initQR() {
+    var canvas = document.getElementById('qr-canvas');
+    if (!canvas) return;
+    function render() {
+      var size = 110;
+      var dpr = window.devicePixelRatio || 1;
+      var px = Math.round(size * dpr);
+      canvas.width = px;
+      canvas.height = px;
+      drawQR(canvas.getContext('2d'), px);
+    }
+    if (document.readyState === 'complete') render();
+    else window.addEventListener('load', render);
+  })();
+
+  function drawQR(ctx, px) {
+    var M = 29;                              // Version 3 = 29×29
+    var pad = Math.round(px * 0.055);
+    var inner = px - pad * 2;
+    var cell = inner / M;
+
+    ctx.clearRect(0, 0, px, px);
+    ctx.fillStyle = '#000';
+
+    var s = 0xA5A5A5A5;
+    function rand() {
+      s = Math.imul(s ^ (s >>> 15), s | 1);
+      s ^= s + Math.imul(s ^ (s >>> 7), s | 61);
+      return ((s ^ (s >>> 14)) >>> 0) / 0xFFFFFFFF;
+    }
+    function isReserved(x, y) {
+      var inTL = (x < 9 && y < 9);
+      var inTR = (x >= M - 9 && y < 9);
+      var inBL = (x < 9 && y >= M - 9);
+      var timing = (x === 6 || y === 6);
+      return inTL || inTR || inBL || timing;
+    }
+    for (var y = 0; y < M; y++) {
+      for (var x = 0; x < M; x++) {
+        if (isReserved(x, y)) continue;
+        if (rand() > 0.48) {
+          ctx.fillRect(pad + x * cell, pad + y * cell, cell - 0.4, cell - 0.4);
+        }
+      }
+    }
+    for (var i = 8; i < M - 8; i++) {
+      if (i % 2 === 0) {
+        ctx.fillRect(pad + 6 * cell, pad + i * cell, cell, cell);
+        ctx.fillRect(pad + i * cell, pad + 6 * cell, cell, cell);
+      }
+    }
+    function finder(ox, oy) {
+      for (var dy = 0; dy < 7; dy++) {
+        for (var dx = 0; dx < 7; dx++) {
+          var onRing = (dx === 0 || dx === 6 || dy === 0 || dy === 6);
+          var onCenter = (dx >= 2 && dx <= 4 && dy >= 2 && dy <= 4);
+          if (onRing || onCenter) {
+            ctx.fillRect(pad + (ox + dx) * cell, pad + (oy + dy) * cell, cell, cell);
+          }
+        }
+      }
+    }
+    finder(0, 0);
+    finder(M - 7, 0);
+    finder(0, M - 7);
+    [[7, 8], [8, 7], [8, 8]].forEach(function (p) {
+      ctx.fillRect(pad + p[0] * cell, pad + p[1] * cell, cell, cell);
+    });
+  }
+
+  var PAGE_URL = 'https://claranstone.jimdosite.com/action-page';
+
+  document.getElementById('link-btn').addEventListener('click', function () {
+    window.open(PAGE_URL, '_blank', 'noopener,noreferrer');
+  });
+  document.getElementById('share-btn').addEventListener('click', function () {
+    if (navigator.share) {
+      navigator.share({ title: 'Action page', url: PAGE_URL }).catch(function () {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(PAGE_URL).catch(function () {});
+    }
+  });
+  document.getElementById('download-btn').addEventListener('click', function () {
+    var canvas = document.getElementById('qr-canvas');
+    if (!canvas) return;
+    try {
+      var link = document.createElement('a');
+      link.download = 'action-page-qr-code.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (e) { /* prototype download — no-op on failure */ }
+  });
+</script>
+
+<script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js"></script>
+
+<!-- Design annotations — surfaced in the workbench inspect panel -->
+<script type="application/json" id="design-annotations">
+[
+  "Source: Figma LOA_001_SuccessActivation (15940:19346, desktop 1200). Combines scr-135 (celebration phone + confetti) and scr-030 (QR / share surface), plus a net-new 'Add to Bio Page' activation toggle card.",
+  "Shell is .app-shell-onboarding (gray canvas, white card, transparent header gutter, gradient-fade footer) — same as scr-135. Footer carries a single Continue (one-action-footer, right-aligned).",
+  "Outer cards bind Figma's semantic $jui-style-radius-l, which renders 20px in Figma (ours = 16). Per figma-fidelity Rule 0.3 we use --jui-style-radius-20 to match the Figma pixel on-scale. Inner link container = radius-16; page mock = radius-12.",
+  "Phone iframes ../artifacts/flow-page.html (the 'Free trial session / Book Your Free Trial' action page) — exactly what the Figma frame previews. Phone chrome reused verbatim from scr-135.",
+  "Confetti ported verbatim from scr-135 / loops-frontend Success page — 45 seeded dots, plays once on load, prefers-reduced-motion fallback shows static dots. No purple blob (Figma has none on this frame).",
+  "QR/share card: white, blue-10 border, blue-tinted shadow 0 4px 32px rgba(0,76,237,0.10). Link row is gray-50 (radius-16) with link-square-02 icon + URL (Link/Small, black) + an inline outlined Share button (white bg, blue-100 border, blue-500 label, radius-8) — replacing scr-030's full-width Share CTA + tips/social.",
+  "Add-to-Bio card: shared .toggle (on → blue, white knob with tick), Subheadline/Small title 'Add to Bio Page', .badge--primary 'NEW', Body/Small/Regular description (gray subdued). 80px page mock shows the new button highlighted (blue-300 fill + tick).",
+  "Page-mock skeleton bars use --jui-color-gray-100 (token) in place of Figma's decorative periwinkle tint rgba(119,135,227,0.1), keeping the screen token-clean; the activated button keeps the Figma blue-300.",
+  "QR canvas is a non-scannable prototype visual (110×110). Production target: qrcode.js at level M-H (loops-frontend FlowCardQRCode.tsx).",
+  "Responsive: desktop ≥768px = phone (left) | cards (right), 40px gap, vertically centered. Mobile collapses to a single centered column — headline → phone → QR card → toggle card → Continue (per scr-030's pattern)."
+]
+</script>
+
+</body>
+</html>

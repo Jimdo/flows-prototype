@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Core — Companion Chat Full</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+  html, body { height: 100%; margin: 0; overflow: hidden; font-size: var(--jui-typography-body-medium-regular-size); line-height: var(--jui-typography-body-medium-regular-lh); }
+  button, input, select, textarea { font-family: inherit; }
+
+  /* ─── Full-screen shell ─── */
+  .app-shell-companion-full {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--jui-color-background-gray-medium);
+  }
+
+  /* ─── Header ─── */
+  .companion-full-header {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    padding: 0 var(--jui-layout-padding-l);
+    height: 56px;
+    background: var(--jui-color-gray-white);
+  }
+
+  .companion-header-spacer {
+    flex-shrink: 0;
+    width: var(--jui-layout-dimension-m);
+  }
+
+  .companion-logo-group {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--jui-layout-gap-xxs);
+  }
+
+  .companion-logo-img {
+    height: 18px;
+    width: auto;
+    flex-shrink: 0;
+  }
+
+  .companion-close-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--jui-layout-dimension-m);
+    height: var(--jui-layout-dimension-m);
+    border: none;
+    background: none;
+    border-radius: var(--jui-style-radius-s);
+    cursor: pointer;
+    color: var(--jui-color-gray-500);
+    padding: 0;
+    transition: background-color 120ms ease, color 120ms ease;
+  }
+  .companion-close-btn:hover {
+    background: var(--jui-color-background-gray-medium);
+    color: var(--jui-color-gray-700);
+  }
+
+  /* ─── Chat body ─── */
+  .companion-full-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--jui-layout-padding-l);
+  }
+
+  .chat-thread {
+    max-width: 640px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-l);
+  }
+
+  /* ─── Message rows ─── */
+  .chat-msg {
+    display: flex;
+    gap: var(--jui-layout-gap-s);
+    align-items: flex-start;
+  }
+
+  .chat-msg--user {
+    flex-direction: row-reverse;
+  }
+
+  /* Avatar */
+  .chat-avatar {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--jui-color-actions-primary-rest);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+  }
+
+  /* Bubbles */
+  .chat-bubble {
+    max-width: 80%;
+    padding: var(--jui-layout-padding-s) var(--jui-layout-padding-m);
+    font-size: var(--jui-typography-body-medium-regular-size);
+    line-height: var(--jui-typography-body-medium-regular-lh);
+    color: var(--jui-color-gray-700);
+  }
+
+  .chat-msg--ai .chat-bubble {
+    background: var(--jui-color-gray-white);
+    border-radius: var(--jui-style-radius-m) var(--jui-style-radius-m) var(--jui-style-radius-m) 4px;
+  }
+
+  .chat-msg--user .chat-bubble {
+    background: var(--jui-color-gray-100);
+    color: var(--jui-color-gray-700);
+    border-radius: var(--jui-style-radius-m) var(--jui-style-radius-m) 4px var(--jui-style-radius-m);
+    padding: var(--jui-layout-padding-s) var(--jui-layout-padding-m);
+  }
+
+  /* Rich text inside AI bubble */
+  .chat-bubble p {
+    margin: 0 0 var(--jui-layout-gap-s);
+  }
+  .chat-bubble p:last-child {
+    margin-bottom: 0;
+  }
+  .chat-bubble strong {
+    font-weight: 600;
+  }
+  .chat-bubble ol,
+  .chat-bubble ul {
+    margin: var(--jui-layout-gap-xs) 0 var(--jui-layout-gap-s) var(--jui-layout-gap-m);
+    padding: 0;
+  }
+  .chat-bubble li {
+    margin-bottom: var(--jui-layout-gap-xs);
+  }
+  .bubble-section-title {
+    font-size: var(--jui-typography-label-small-size);
+    font-weight: 600;
+    color: var(--jui-color-gray-700);
+    margin: var(--jui-layout-gap-m) 0 var(--jui-layout-gap-xs) !important;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .bubble-section-title:first-child {
+    margin-top: 0 !important;
+  }
+
+  /* ─── Footer ─── */
+  .companion-full-footer {
+    flex-shrink: 0;
+    padding: var(--jui-layout-padding-m) var(--jui-layout-padding-l);
+    background: var(--jui-color-gray-white);
+  }
+
+  .companion-full-footer-inner {
+    max-width: 640px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-xs);
+  }
+
+  /* Reused input bar pattern (active <input>, not role=button) */
+  .companion-input-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-m);
+    width: 100%;
+    background: var(--jui-color-gray-white);
+    border: 1px solid var(--jui-color-actions-primary-rest);
+    border-radius: 9999px;
+    padding: 8px 8px 8px 20px;
+    cursor: text;
+  }
+
+  .companion-input-field {
+    flex: 1 0 0;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: var(--jui-typography-body-medium-regular-size);
+    line-height: var(--jui-typography-body-medium-regular-lh);
+    color: var(--jui-color-gray-700);
+  }
+  .companion-input-field::placeholder {
+    color: var(--jui-color-gray-400);
+  }
+
+  .companion-send-btn {
+    flex-shrink: 0;
+    width: var(--jui-layout-dimension-s);
+    height: var(--jui-layout-dimension-s);
+    border-radius: 20px;
+    background: var(--jui-color-actions-primary-rest);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--jui-color-gray-white);
+    transition: background-color 120ms ease;
+    padding: 0;
+  }
+  .companion-send-btn:hover {
+    background: var(--jui-color-actions-primary-hover);
+  }
+
+  .companion-disclaimer {
+    text-align: center;
+    font-size: var(--jui-typography-label-small-size);
+    line-height: var(--jui-typography-label-small-lh);
+    color: var(--jui-color-gray-400);
+    margin: 0;
+  }
+  .companion-disclaimer a {
+    color: var(--jui-color-actions-primary-rest);
+    text-decoration: none;
+  }
+  .companion-disclaimer a:hover {
+    text-decoration: underline;
+  }
+</style>
+<style>
+  /* lint-disable */
+  /* Companion brand-specific overrides — colors/shadows not in JUI palette */
+  /* Companion input blue glow — local Figma style "Local/Companion Input Blue" */
+  .companion-input-bar {
+    box-shadow: 0 8px 8px rgba(0, 76, 237, 0.08);
+  }
+</style>
+</head>
+<body>
+
+  <div class="app-shell app-shell-companion-full"
+    data-inspect-label="Companion Full Chat Shell"
+    data-inspect-tokens='[{"prop":"background","figma":"color/background/gray/medium","css":"--jui-color-background-gray-medium","value":"#f5f5f5"}]'>
+
+    <!-- ─── Header ─── -->
+    <header class="companion-full-header"
+      data-inspect-label="Companion Header"
+      data-inspect-tokens='[{"prop":"background","figma":"color/gray/white","css":"--jui-color-gray-white","value":"#ffffff"},{"prop":"border-bottom-color","figma":"color/gray/100","css":"--jui-color-gray-100","value":"#f0f0f0"},{"prop":"height","figma":"—","css":"—","value":"56px"}]'>
+
+      <div class="companion-header-spacer" aria-hidden="true"></div>
+
+      <div class="companion-logo-group">
+        <img class="companion-logo-img"
+          src="/flows-prototype/design-system/hifi-designs/shared/companion_beta_logo.svg"
+          alt="Companion">
+      </div>
+
+      <button class="companion-close-btn" type="button" aria-label="Close Companion"
+        data-inspect-phrase="companion.close"
+        data-inspect-label="Close Button"
+        data-inspect-tokens='[{"prop":"color","figma":"color/gray/500","css":"--jui-color-gray-500","value":"#737373"},{"prop":"width","figma":"layout/dimension/m","css":"--jui-layout-dimension-m","value":"40px"},{"prop":"height","figma":"layout/dimension/m","css":"--jui-layout-dimension-m","value":"40px"}]'>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.5" aria-hidden="true">
+          <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </header>
+
+    <!-- ─── Chat body ─── -->
+    <main class="companion-full-body"
+      data-inspect-label="Chat Body (Scrollable)"
+      data-inspect-tokens='[{"prop":"padding","figma":"layout/padding/l","css":"--jui-layout-padding-l","value":"24px"}]'>
+      <div class="chat-thread">
+
+        <!-- User message -->
+        <div class="chat-msg chat-msg--user">
+          <div class="chat-bubble"
+            data-inspect-phrase="companion.chat.userMsg1"
+            data-inspect-label="User Bubble"
+            data-inspect-tokens='[{"prop":"background","figma":"color/gray/100","css":"--jui-color-gray-100","value":"#f0f0f0"},{"prop":"color","figma":"color/gray/900","css":"--jui-color-gray-900","value":"#1a1a1a"},{"prop":"border-radius","figma":"—","css":"—","value":"16px 16px 4px 16px"}]'>
+            What social media channels should I focus on for my business?
+          </div>
+        </div>
+
+        <!-- AI response -->
+        <div class="chat-msg chat-msg--ai">
+          <div class="chat-bubble"
+            data-inspect-label="AI Bubble"
+            data-inspect-tokens='[{"prop":"background","figma":"color/gray/white","css":"--jui-color-gray-white","value":"#ffffff"},{"prop":"border-color","figma":"color/gray/100","css":"--jui-color-gray-100","value":"#f0f0f0"},{"prop":"border-radius","figma":"—","css":"—","value":"16px 16px 16px 4px"}]'>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- ─── Footer input ─── -->
+    <footer class="companion-full-footer"
+      data-inspect-label="Chat Input Footer"
+      data-inspect-tokens='[{"prop":"background","figma":"color/gray/white","css":"--jui-color-gray-white","value":"#ffffff"},{"prop":"border-top-color","figma":"color/gray/100","css":"--jui-color-gray-100","value":"#f0f0f0"},{"prop":"padding","figma":"layout/padding/m","css":"--jui-layout-padding-m","value":"16px"}]'>
+      <div class="companion-full-footer-inner">
+        <div class="companion-input-bar"
+          data-inspect-label="Chat Input Bar"
+          data-inspect-tokens='[{"prop":"border-color","figma":"color/actions/primary/rest","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"border-radius","figma":"—","css":"—","value":"9999px"},{"prop":"box-shadow","figma":"—","css":"—","value":"0 8px 8px rgba(0,76,237,0.08)"}]'>
+          <input
+            class="companion-input-field"
+            type="text"
+            placeholder="What's your goal today?"
+            aria-label="Chat with Companion"
+            data-inspect-phrase="companion.inputPlaceholder"
+            data-inspect-label="Chat Input Field"
+            data-inspect-tokens='[{"prop":"font-size","figma":"typography/body/medium/size","css":"--jui-typography-body-medium-size","value":"16px"},{"prop":"color","figma":"color/gray/900","css":"--jui-color-gray-900","value":"#1a1a1a"}]'>
+          <button class="companion-send-btn" type="button" aria-label="Send message"
+            data-inspect-label="Send Button"
+            data-inspect-tokens='[{"prop":"background","figma":"color/actions/primary/rest","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"width","figma":"layout/dimension/s","css":"--jui-layout-dimension-s","value":"32px"},{"prop":"height","figma":"layout/dimension/s","css":"--jui-layout-dimension-s","value":"32px"}]'>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="1.5" aria-hidden="true">
+              <path d="M12 19V5M5 12L12 5L19 12" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <p class="companion-disclaimer">
+          <a href="#" data-inspect-phrase="companion.aiMistakesLink">AI can make mistakes.</a>
+          <span data-inspect-phrase="companion.disclaimer"> Please review the results.</span>
+        </p>
+      </div>
+    </footer>
+
+  </div>
+
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/shell-components.js"></script>
+  <script>
+    document.querySelector('.companion-close-btn').addEventListener('click', function() {
+      window.parent?.postMessage({ type: 'close-popup' }, '*');
+    });
+  </script>
+</body>
+</html>

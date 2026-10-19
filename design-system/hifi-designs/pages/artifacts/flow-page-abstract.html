@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=360, initial-scale=1">
+<title>Flow page — abstract preview</title>
+<style>
+  /* ═══════════════════════════════════════════════
+     ARTIFACT — ABSTRACTED BIO → ACTION PAGE (animated)
+     A ghost-fidelity abstraction used as a LIVE PREVIEW inside
+     the Flow Suggestions v2 screen. Loop:
+       1. Bio page shown → tap its first (featured) link
+       2. Cross-fade to the action page
+       3. Tap the action-page CTA → form drawer slides up
+       4. Tap through 2 questions → submit → success
+       5. Hold, fade out, restart
+     Abstraction rules:
+       · images → gradient blocks    · page copy → ghost text bars
+       · functional shapes (buttons / inputs) stay bare — understood
+         to hold text; no ghost lines drawn on them
+       · touch-style tap ripples stand in for the finger (no cursor)
+     Padding / radii / structure mirror flow-page.html + bio-page-v2.html.
+     Native mobile width: 360px. No iPhone chrome — the workbench
+     iframe holder supplies it.
+     Source: artifacts/flow-page.html (Figma 13503:18324)
+     ═══════════════════════════════════════════════ */
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #0a0a0a;
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    font-family: 'Familjen Grotesk', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    color: #fff;
+    height: 100vh;
+    overflow: hidden;                 /* preview is a fixed, non-scrolling stage */
+  }
+
+  .flow-page {
+    width: 100%;
+    max-width: 360px;
+    height: 100vh;
+    margin: 0 auto;
+    background: #0a0a0a;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Two stacked, cross-fading screens fill the stage. */
+  .screen {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 420ms ease;
+  }
+  .screen.active { opacity: 1; }
+
+  /* ── Ghost text (page copy only) ── */
+  .ghost {
+    display: block;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.14);
+  }
+  .ghost.dim { background: rgba(255, 255, 255, 0.09); }
+  .ghost.h { height: 16px; }          /* title-weight bar */
+  .ghost.b { height: 11px; }          /* body-weight bar */
+
+  /* ── Tap ripple (touch feedback, replaces the cursor) ── */
+  .tappable { position: relative; overflow: hidden; }
+  .fp-ripple {
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 22px; height: 22px;
+    margin: -11px 0 0 -11px;
+    border-radius: 50%;
+    border: 2px solid var(--ripple, rgba(255, 255, 255, 0.8));
+    transform: scale(0.3);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .tapped .fp-ripple { animation: ripple 560ms ease-out; }
+  @keyframes ripple {
+    0%   { transform: scale(0.3); opacity: 0.7; }
+    100% { transform: scale(4);   opacity: 0; }
+  }
+
+  /* Shared gradient for image stand-ins (avatar + hero) */
+  .grad {
+    background: linear-gradient(135deg, #4b3f72 0%, #8a6fd6 48%, #e6a6ff 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .grad::after {
+    content: '';
+    position: absolute;
+    inset: -40%;
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.28), transparent 45%);
+    animation: sheen 6s ease-in-out infinite;
+  }
+  @keyframes sheen {
+    0%, 100% { transform: translate(0, 0); }
+    50%      { transform: translate(22%, 18%); }
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     SCREEN 1 — BIO PAGE (faithful to bio-page-v2.html — same hero,
+     real title + image + subtitle; link buttons abstracted, no text)
+     ══════════════════════════════════════════════════════════════ */
+  .bio-hero {
+    position: relative;
+    padding: 71px 20px 16px;   /* title lands so image bottom ~152, matches Figma */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+  .bio-hero-title {
+    font-size: 58px;
+    font-weight: 700;
+    line-height: 0.8;
+    letter-spacing: -1.75px;
+    text-transform: uppercase;
+    color: #ffffff;
+    margin: 0 0 -12px;         /* overlap image top by 12px */
+    text-align: center;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+  }
+  .bio-hero-img-wrap {
+    position: relative;
+    width: 180px; height: 180px;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #1a1015;
+    flex-shrink: 0;
+  }
+  .bio-hero-img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center 30%;
+  }
+  .bio-hero-share {
+    position: absolute;
+    top: 14px; right: 11px;
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; z-index: 2;
+  }
+  .bio-hero-share svg { width: 18px; height: 18px; stroke-width: 1.5; }
+  .bio-subtitle {
+    font-size: 18px;
+    font-weight: 400;
+    color: #aaa;
+    text-align: center;
+    line-height: 1.4;
+    padding: 20px 20px 40px;
+    margin: 0;
+  }
+  /* Abstracted link buttons — real .bio-link-btn shape, content omitted */
+  .bio-blocks {
+    padding: 0 12px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;                 /* block rhythm — matches .bio-blocks in bio-page-v2 */
+  }
+  .bio-btn {
+    min-height: 48px;
+    height: 52px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.15);
+    --ripple: rgba(255, 255, 255, 0.7);
+  }
+  /* The first (featured) link carries the selected card's title — the rest
+     stay abstracted. Mirrors the real .bio-link-btn (text + arrow). */
+  .bio-btn--labeled {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    gap: 8px;
+    color: #fff;
+    text-align: left;
+  }
+  .bio-btn-label {
+    flex: 1 1 0; min-width: 0;
+    font-size: 16px; font-weight: 400; line-height: 1;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .bio-btn-arrow { width: 16px; height: 16px; opacity: 0.85; flex-shrink: 0; }
+
+  /* ══════════════════════════════════════════════════════════════
+     SCREEN 2 — ACTION PAGE (mirrors flow-page.html)
+     No header here — the freed space grows the hero to a square,
+     the way flow-page.html renders it (344×344 native).
+     ══════════════════════════════════════════════════════════════ */
+  .fp-hero { padding: 12px 8px 0; width: 100%; }
+  .fp-hero-gradient {
+    width: 100%;
+    aspect-ratio: 1 / 1;       /* square hero — matches flow-page.html */
+    border-radius: 18px;
+  }
+
+  .fp-title-block { padding: 32px 20px 0; }
+  .fp-title {
+    margin: 0;
+    font-size: 25px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: #fff;            /* real title — mirrors the selected card */
+  }
+  .fp-body-block  { padding: 28px 20px 0; display: flex; flex-direction: column; gap: 14px; }
+
+  .fp-scroll-pad { flex: 1 1 auto; min-height: 20px; }
+
+  /* Fixed CTA — bare button, the tap target (bottom of the action screen) */
+  .fp-fixed-cta {
+    width: 100%;
+    padding: 20px;
+    background: #0a0a0a;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 -2px 17px rgba(0, 0, 0, 0.1);
+  }
+  .fp-cta {
+    width: 100%;
+    min-height: 48px;
+    border-radius: 16px;
+    background: #fdfdfd;
+    --ripple: rgba(0, 0, 0, 0.4);
+    transition: transform 120ms ease;
+  }
+  .fp-cta.pressed { transform: scale(0.96); }
+
+  /* ── Form drawer — overlays the action screen ── */
+  .fp-drawer-scrim {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 260ms ease;
+    z-index: 20;
+  }
+  .fp-drawer-scrim.show { opacity: 1; }
+
+  .fp-drawer {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    background: #202020;
+    border-radius: 20px 20px 0 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 16px 20px 28px;
+    transform: translateY(102%);
+    transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+    z-index: 21;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+  .fp-drawer.open { transform: translateY(0); }
+
+  .fp-drawer-handle {
+    width: 40px; height: 4px;
+    border-radius: 100px;
+    background: rgba(255, 255, 255, 0.22);
+    align-self: center;
+  }
+
+  .fp-form { display: flex; flex-direction: column; gap: 24px; }
+
+  .fp-input {
+    height: 48px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.04);
+    --ripple: rgba(255, 255, 255, 0.7);
+    transition: border-color 180ms ease, background-color 180ms ease;
+  }
+  .fp-input.active { border-color: rgba(255, 255, 255, 0.55); }
+  .fp-input.filled {
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  .fp-submit {
+    min-height: 48px;
+    border-radius: 12px;
+    background: #fdfdfd;
+    --ripple: rgba(0, 0, 0, 0.4);
+    transition: transform 120ms ease;
+  }
+  .fp-submit.pressed { transform: scale(0.96); }
+
+  /* Success overlays the form's reserved space — the form stays in layout
+     (visibility only) so the drawer keeps the taller form height and never
+     collapses to the smaller success content. */
+  .fp-success {
+    position: absolute;
+    left: 20px; right: 20px; top: 16px; bottom: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 300ms ease;
+  }
+  .fp-drawer.done .fp-form { visibility: hidden; }
+  .fp-drawer.done .fp-success { opacity: 1; }
+  .fp-check {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: rgba(120, 220, 150, 0.16);
+    display: flex; align-items: center; justify-content: center;
+    transform: scale(0.6);
+    opacity: 0;
+    transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1), opacity 300ms ease;
+  }
+  .fp-drawer.done .fp-check { transform: scale(1); opacity: 1; }
+  .fp-check svg { width: 28px; height: 28px; }
+
+  /* Static composed frame for users who opt out of motion:
+     show the action page with the drawer open + fields filled. */
+  @media (prefers-reduced-motion: reduce) {
+    .grad::after { display: none; }
+    .screen-bio { opacity: 0; }
+    .screen-action { opacity: 1; }
+    .fp-drawer { transform: translateY(0); }
+    .fp-drawer-scrim { opacity: 1; }
+    .fp-input.filled { background: rgba(255, 255, 255, 0.12); }
+  }
+</style>
+</head>
+<body>
+
+<div class="flow-page" id="stage">
+
+  <!-- ── SCREEN 1 — BIO PAGE (real hero from bio-page-v2, abstracted buttons) ── -->
+  <div class="screen screen-bio" id="screenBio">
+    <div class="bio-hero">
+      <div class="bio-hero-share" aria-label="Share">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+      </div>
+      <h1 class="bio-hero-title">Clara and<br>Stone</h1>
+      <div class="bio-hero-img-wrap" role="img" aria-label="Clara and Stone portrait">
+        <img class="bio-hero-img" alt="" src="../images/clara-stone.jpg" aria-hidden="true" />
+      </div>
+    </div>
+    <div class="bio-subtitle">Handmade Jewellery</div>
+    <div class="bio-blocks">
+      <div class="bio-btn bio-btn--labeled tappable" id="bioBtn">
+        <span class="fp-ripple"></span>
+        <span class="bio-btn-label" id="bioBtnLabel">Free first session</span>
+        <svg class="bio-btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="bio-btn"></div>
+      <div class="bio-btn"></div>
+    </div>
+  </div>
+
+  <!-- ── SCREEN 2 — ACTION PAGE (no header — square hero) ── -->
+  <div class="screen screen-action" id="screenAction">
+    <div class="fp-hero">
+      <div class="fp-hero-gradient grad"></div>
+    </div>
+
+    <div class="fp-title-block">
+      <h2 class="fp-title" id="actionTitle">Free first session</h2>
+    </div>
+    <div class="fp-body-block">
+      <span class="ghost b" style="width:100%"></span>
+      <span class="ghost b" style="width:92%"></span>
+      <span class="ghost b" style="width:78%"></span>
+    </div>
+
+    <div class="fp-scroll-pad"></div>
+
+    <div class="fp-fixed-cta">
+      <div class="fp-cta tappable" id="cta"><span class="fp-ripple"></span></div>
+    </div>
+  </div>
+
+  <!-- ── Form drawer (overlays the action screen) ── -->
+  <div class="fp-drawer-scrim" id="scrim"></div>
+  <div class="fp-drawer" id="drawer">
+    <span class="fp-drawer-handle"></span>
+
+    <div class="fp-form">
+      <div class="fp-input tappable" id="q1"><span class="fp-ripple"></span></div>
+      <div class="fp-input tappable" id="q2"><span class="fp-ripple"></span></div>
+      <div class="fp-submit tappable" id="submit"><span class="fp-ripple"></span></div>
+    </div>
+
+    <div class="fp-success">
+      <span class="fp-check">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#59d98c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5 11-11"/></svg>
+      </span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  'use strict';
+  (function () {
+    // ── Title sync — the host posts the selected card's title; it drives
+    //    the bio link label + the action-page title. Runs regardless of
+    //    motion preference so the static frame mirrors the selection too. ──
+    var bioLabel    = document.getElementById('bioBtnLabel');
+    var actionTitle = document.getElementById('actionTitle');
+    function applyTitle(t) {
+      if (!t) return;
+      if (bioLabel) bioLabel.textContent = t;
+      if (actionTitle) actionTitle.textContent = t;
+    }
+    window.addEventListener('message', function (e) {
+      if (e.data && e.data.type === 'suggestion') applyTitle(e.data.title);
+    });
+    // Announce readiness so the host pushes the current selection.
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: 'flow-abstract-ready' }, '*');
+      }
+    } catch (_) {}
+
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return;   /* static composed state is rendered via CSS */
+
+    var bio    = document.getElementById('screenBio');
+    var action = document.getElementById('screenAction');
+    var bioBtn = document.getElementById('bioBtn');
+    var scrim  = document.getElementById('scrim');
+    var drawer = document.getElementById('drawer');
+    var cta    = document.getElementById('cta');
+    var q1     = document.getElementById('q1');
+    var q2     = document.getElementById('q2');
+    var submit = document.getElementById('submit');
+
+    var timers = [];
+    function at(t, fn) { timers.push(setTimeout(fn, t)); }
+    function clearAll() { timers.forEach(clearTimeout); timers = []; }
+
+    function tap(el) {
+      el.classList.remove('tapped');
+      void el.offsetWidth;              /* restart the ripple animation */
+      el.classList.add('tapped');
+    }
+    function press(el) {
+      el.classList.add('pressed');
+      setTimeout(function () { el.classList.remove('pressed'); }, 150);
+    }
+
+    function reset() {
+      action.classList.remove('active');
+      bio.classList.add('active');           /* intro: bio fades in */
+      drawer.classList.remove('open', 'done');
+      scrim.classList.remove('show');
+      [bioBtn, cta, q1, q2, submit].forEach(function (el) { el.classList.remove('tapped'); });
+      q1.classList.remove('active', 'filled');
+      q2.classList.remove('active', 'filled');
+    }
+
+    function run() {
+      clearAll();
+      reset();
+
+      // 1 · bio page → tap the featured link
+      at(1000, function () { tap(bioBtn); });
+      // 2 · cross-fade to the action page
+      at(1500, function () { bio.classList.remove('active'); action.classList.add('active'); });
+      // 3 · tap the action-page CTA → open drawer
+      at(2500, function () { tap(cta); press(cta); });
+      at(2650, function () { scrim.classList.add('show'); drawer.classList.add('open'); });
+      // 4 · answer question 1
+      at(3500, function () { tap(q1); q1.classList.add('active'); });
+      at(3850, function () { q1.classList.remove('active'); q1.classList.add('filled'); });
+      // 5 · answer question 2
+      at(4600, function () { tap(q2); q2.classList.add('active'); });
+      at(4950, function () { q2.classList.remove('active'); q2.classList.add('filled'); });
+      // 6 · submit → success
+      at(5750, function () { tap(submit); press(submit); });
+      at(5950, function () { drawer.classList.add('done'); });
+      // 7 · let the success state linger, then fade the action page out
+      at(10000, function () { action.classList.remove('active'); drawer.classList.remove('open'); scrim.classList.remove('show'); });
+      // 8 · restart
+      at(10700, run);
+    }
+
+    reset();
+    at(500, run);
+  })();
+</script>
+
+</body>
+</html>

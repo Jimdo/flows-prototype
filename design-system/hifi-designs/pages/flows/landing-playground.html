@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flows — Landing Playground</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+/* lint-disable */
+
+/* ═══════════════════════════════════════════════════════
+   LANDING PLAYGROUND — FLOWS
+   ─────────────────────────────────────────────────────
+   Neutral chrome-less workshop for prototyping imagery
+   that will graduate to landing-public + landing-in-product.
+   Solid color shapes only — focus is proportion, aspect
+   ratio, role, and movement. No marketing copy.
+   ═══════════════════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+body {
+  font-family: 'Euclid Circular A', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--jui-color-typography-gray-on-light-default);
+  background: var(--jui-color-gray-white);
+  line-height: 1.5;
+}
+
+/* Shared motion tokens for the three hero illustrations.
+   One curve, one duration → fan, iso, and orbit all feel like part of the
+   same family. Slow enough (600ms) to stay calm for motion-sensitive users;
+   the prefers-reduced-motion media query below disables all of it. */
+:root {
+  --lp-lab-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --lp-lab-duration: 600ms;
+}
+
+/* ─── PAGE FRAME ─── */
+
+.lp-lab { padding: 24px; display: flex; flex-direction: column; gap: 64px; }
+.lp-lab__container { width: 100%; max-width: 1200px; margin: 0 auto; }
+
+/* ─── BAND ─── */
+
+.lp-lab__band { display: flex; flex-direction: column; gap: 24px; }
+.lp-lab__head { display: flex; flex-direction: column; gap: 4px; max-width: 720px; }
+.lp-lab__kicker {
+  font-size: var(--jui-typography-body-small-medium-size);
+  line-height: var(--jui-typography-body-small-medium-lh);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+.lp-lab__purpose {
+  font-size: var(--jui-typography-sub-headline-small-size);
+  line-height: var(--jui-typography-sub-headline-small-lh);
+  font-weight: var(--jui-typography-sub-headline-small-weight);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+
+/* ─── RAIL ─── */
+
+.lp-lab__rail { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+.lp-lab__rail--three { grid-template-columns: repeat(3, 1fr); }
+
+/* Empty-rail placeholder — visible only while a band has no variants yet. */
+.lp-lab__rail:empty {
+  display: block;
+  min-height: 160px;
+  border: 1px dashed var(--jui-color-strokes-onlight-subdued);
+  border-radius: 16px;
+  position: relative;
+}
+.lp-lab__rail:empty::after {
+  content: 'Add variants here';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--jui-typography-body-small-regular-size);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+  letter-spacing: 0.04em;
+}
+
+/* ─── VARIANT (toolkit — used once variants are added back) ─── */
+
+.lp-lab__variant { display: flex; flex-direction: column; gap: 12px; }
+.lp-lab__caption {
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+  font-feature-settings: 'tnum';
+}
+
+/* ─── FRAME (variant canvas — aspect-ratio toolkit) ─── */
+
+.lp-lab__frame {
+  position: relative;
+  border-radius: 16px;
+  background: var(--jui-color-background-gray-canvas);
+  overflow: hidden;
+  isolation: isolate;
+}
+.lp-lab__frame--16-9   { aspect-ratio: 16 / 9; }
+.lp-lab__frame--4-3    { aspect-ratio: 4 / 3; }
+.lp-lab__frame--1-1    { aspect-ratio: 1 / 1; }
+.lp-lab__frame--21-9   { aspect-ratio: 21 / 9; }
+/* Device aspect ratio — 360 × 700 phone proportion.
+   Reused for device previews AND photos that match this shape. */
+.lp-lab__frame--device { aspect-ratio: 360 / 700; }
+
+/* ─── SHAPE ROLES (the design vocabulary — fill these with geometry later) ─── */
+/* Grayscale-only palette while we explore proportion + composition.
+   Color comes later, once the structure feels right. */
+
+.lp-lab__shape--photo {
+  position: absolute;
+  background: var(--jui-color-background-gray-medium);
+  border-radius: 12px;
+}
+.lp-lab__shape--preview {
+  position: absolute;
+  background: var(--jui-color-gray-white);
+  border: 1px solid var(--jui-color-strokes-onlight-subdued);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px 0 rgba(0, 0, 0, 0.08);
+}
+.lp-lab__shape--float {
+  position: absolute;
+  background: var(--jui-color-background-gray-dark);
+  border-radius: 9999px;
+  box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.12);
+}
+.lp-lab__shape--float-square {
+  position: absolute;
+  background: var(--jui-color-background-gray-dark);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.12);
+}
+/* Device shape — phone proportion. Background-image carries the template
+   thumbnail (set per-card via inline style); gray-200 stays as a fallback
+   while images load. Thin stroke ensures light templates (white_minimal,
+   soft_and_warm) remain visible against the gray-50 canvas. */
+.lp-lab__shape--device {
+  position: absolute;
+  aspect-ratio: 360 / 700;
+  background-color: var(--jui-color-gray-200);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 24px;
+  box-shadow: 0 16px 40px 0 rgba(0, 0, 0, 0.10);
+  outline: 1px solid var(--jui-color-strokes-onlight-subdued);
+  outline-offset: -1px;
+}
+
+/* ─── ANIMATION PRIMITIVES (toolkit — apply to any shape later) ─── */
+
+@keyframes lp-lab-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes lp-lab-kenburns {
+  from { transform: scale(1) translate(0, 0); }
+  to   { transform: scale(1.12) translate(-2%, -3%); }
+}
+@keyframes lp-lab-float {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-12px); }
+  100% { transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0s !important;
+  }
+}
+
+/* ─── HERO VARIANT (just the visual — no copy) ─── */
+
+.lp-lab__rail--stack { grid-template-columns: 1fr; gap: 48px; }
+.lp-lab__variant--hero { gap: 16px; }
+
+.lp-lab__hero-frame {
+  position: relative;
+  border-radius: 16px;
+  background: var(--jui-color-background-gray-canvas);
+  overflow: hidden;
+  isolation: isolate;
+  container-type: size;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: 320px;
+}
+.lp-lab__hero-frame > .lp-lab__stage {
+  position: absolute;
+  inset: 0;
+}
+
+/* ─── STAGE: FAN (5 cards, 3-layer composition, center highest, bottoms cut) ─── */
+/* Layered fan: each card belongs to one of 3 layers.
+     Layer 1 (center, --i 0):  scale 1,    rotation  0°, drop  0%
+     Layer 2 (±1, mid):        scale 0.93, rotation ±3°, drop  6%
+     Layer 3 (±2, outer):      scale 0.85, rotation ±7°, drop 14%
+   Each outer layer is slightly smaller and dropped lower than the one above,
+   so the tops form a fan arc — center pokes highest, outer cards sit lower.
+   Bottoms all extend below the frame (cut by overflow:hidden). */
+
+.lp-lab__stage--fan { position: relative; width: 100%; height: 100%; }
+.lp-lab__stage--fan .lp-lab__shape--device {
+  position: absolute;
+  bottom: calc(-12% - var(--drop, 0%));
+  left: calc(50% + var(--i, 0) * 16%);
+  height: 78%;
+  width: auto;
+  aspect-ratio: 360 / 700;
+  transform-origin: 50% 100%;
+  transform:
+    translateX(-50%)
+    scale(var(--scale, 1))
+    rotate(var(--rot, 0deg));
+  transition: bottom var(--lp-lab-duration) var(--lp-lab-ease),
+              transform var(--lp-lab-duration) var(--lp-lab-ease);
+}
+
+/* Per-card layer values. DOM order: -2, +2, -1, +1, 0
+   (so center is painted last and sits on top). */
+.lp-lab__stage--fan .lp-lab__shape--device:nth-child(1) { --i: -2; --rot: -7deg; --scale: 0.85; --drop: 10%; }
+.lp-lab__stage--fan .lp-lab__shape--device:nth-child(2) { --i:  2; --rot:  7deg; --scale: 0.85; --drop: 10%; }
+.lp-lab__stage--fan .lp-lab__shape--device:nth-child(3) { --i: -1; --rot: -3deg; --scale: 0.93; --drop:  4%; }
+.lp-lab__stage--fan .lp-lab__shape--device:nth-child(4) { --i:  1; --rot:  3deg; --scale: 0.93; --drop:  4%; }
+.lp-lab__stage--fan .lp-lab__shape--device:nth-child(5) { --i:  0; --rot:  0deg; --scale: 1;    --drop:  0%; }
+
+/* Hover: push horizontally (more rotation) with minimal vertical change. */
+.lp-lab__stage--fan:hover .lp-lab__shape--device:nth-child(1),
+.lp-lab__stage--fan:focus-within .lp-lab__shape--device:nth-child(1) { --rot: -12deg; --drop:  8%; }
+.lp-lab__stage--fan:hover .lp-lab__shape--device:nth-child(2),
+.lp-lab__stage--fan:focus-within .lp-lab__shape--device:nth-child(2) { --rot:  12deg; --drop:  8%; }
+.lp-lab__stage--fan:hover .lp-lab__shape--device:nth-child(3),
+.lp-lab__stage--fan:focus-within .lp-lab__shape--device:nth-child(3) { --rot: -5deg;  --drop:  3%; }
+.lp-lab__stage--fan:hover .lp-lab__shape--device:nth-child(4),
+.lp-lab__stage--fan:focus-within .lp-lab__shape--device:nth-child(4) { --rot:  5deg;  --drop:  3%; }
+
+@container (max-width: 480px) {
+  .lp-lab__stage--fan .lp-lab__shape--device {
+    height: 74%;
+    bottom: calc(-10% - var(--drop, 0%));
+    left: calc(50% + var(--i, 0) * 17%);
+  }
+}
+
+/* ─── STAGE: ISOMETRIC ROW (6 cards, classic CSS isometric for standing surfaces) ─── */
+/* Isometric formula for a vertical card: skewY tilts the top/bottom edges
+   (vertical axis stays vertical — that's the defining property of axonometric
+   for an upright plane), scaleX foreshortens the width by ~cos(30°). No 3D,
+   no perspective, parallel projection. Cards are spread via `left` so the
+   offset is parent-relative (translateX % in transforms is element-relative). */
+
+/* Sizing math (desktop, ~1100 × 619 frame):
+   - Card height 68% = 421px tall, raw width 217px
+   - After scaleX(0.9): visible width 195px (≈18% of frame)
+   - skewY(-18°) adds ~63px to visual height → ~78% of frame total height
+   - So ~22% padding total = 11% top / 11% bottom
+   - Cards spread via `left` at 11% per --i step (6 cards from -2.5 to 2.5)
+     → centers from 22.5% to 77.5%; adjacent overlap ~6%
+
+   Subtle wave: each card bobs ±6px vertically with a 0.4s stagger per --i.
+   Cycle is 5s, so the wave ripples across the row continuously. */
+
+/* The wave animates the `translate` property (separate from `transform` in modern CSS),
+   so the hover state can override `transform` cleanly while the bob keeps running. */
+@keyframes lp-iso-wave {
+  0%, 100% { translate: 0 0; }
+  50%      { translate: 0 -6px; }
+}
+
+.lp-lab__stage--ortho-row { position: relative; width: 100%; height: 100%; }
+
+/* Slot: owns position + hover detection. Stays put even when the inner card
+   lifts on hover — so the cursor's hit-test never drops, no hover flicker. */
+.lp-lab__stage--ortho-row .lp-iso-slot {
+  position: absolute;
+  top: 50%;
+  left: calc(50% + var(--i, 0) * 11%);
+  height: 50%;
+  aspect-ratio: 360 / 700;
+  transform: translate(-50%, -50%);
+  transition: left var(--lp-lab-duration) var(--lp-lab-ease);
+}
+
+/* Inner card: visual + skewY + wave + the lift triggered by parent slot:hover. */
+.lp-lab__stage--ortho-row .lp-iso-slot .lp-lab__shape--device {
+  inset: 0;
+  top: 0; left: 0;
+  width: auto; height: auto;
+  aspect-ratio: unset;
+  border-radius: 12px;
+  background-size: auto 100%;
+  background-position: top center;
+  transform-origin: 50% 50%;
+  transform: skewY(-18deg);
+  animation: lp-iso-wave 6s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.5s);
+  transition: transform var(--lp-lab-duration) var(--lp-lab-ease);
+}
+
+/* Slot:hover lifts the inner card. Because the slot never moves vertically,
+   the cursor can't drop off and the lift can't oscillate. */
+.lp-lab__stage--ortho-row .lp-iso-slot:hover .lp-lab__shape--device {
+  transform: skewY(-18deg) translateY(-49px) scale(1.10);
+}
+
+/* Group hover: any slot hovered spreads all of them. */
+.lp-lab__stage--ortho-row:has(.lp-iso-slot:hover) .lp-iso-slot {
+  left: calc(50% + var(--i, 0) * 12.5%);
+}
+
+@container (max-width: 480px) {
+  .lp-lab__stage--ortho-row .lp-iso-slot {
+    height: 44%;
+    left: calc(50% + var(--i, 0) * 10%);
+  }
+  .lp-lab__stage--ortho-row:has(.lp-iso-slot:hover) .lp-iso-slot {
+    left: calc(50% + var(--i, 0) * 11.5%);
+  }
+}
+
+/* Slot index assignments — six slots at half-steps from -2.5 to 2.5 */
+.lp-lab__stage--ortho-row .lp-iso-slot:nth-child(1) { --i: -2.5; }
+.lp-lab__stage--ortho-row .lp-iso-slot:nth-child(2) { --i: -1.5; }
+.lp-lab__stage--ortho-row .lp-iso-slot:nth-child(3) { --i: -0.5; }
+.lp-lab__stage--ortho-row .lp-iso-slot:nth-child(4) { --i:  0.5; }
+.lp-lab__stage--ortho-row .lp-iso-slot:nth-child(5) { --i:  1.5; }
+.lp-lab__stage--ortho-row .lp-iso-slot:nth-child(6) { --i:  2.5; }
+
+/* ─── STAGE: ISOMETRIC FLIP (6 cards, hover triggers a 3D Y-axis flip) ─── */
+/* Same isometric projection + ambient wave as ortho-row. The OUTER card holds
+   the position and detects hover — it never rotates, so the cursor's hit-test
+   stays stable. The INNER `.lp-lab__shape--device-flipper` is what actually
+   rotates 180° on hover. This avoids the classic hover-flip flicker where the
+   rotating element passes edge-on and loses its hit area. */
+
+.lp-lab__stage--ortho-flip { position: relative; width: 100%; height: 100%; }
+.lp-lab__stage--ortho-flip .lp-lab__shape--device {
+  position: absolute;
+  top: 50%;
+  left: calc(50% + var(--i, 0) * 11%);
+  height: 50%;
+  width: auto;
+  aspect-ratio: 360 / 700;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  transform-origin: 50% 50%;
+  transform: translate(-50%, -50%) skewY(-18deg);
+  animation: lp-iso-wave 6s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.5s);
+  transition: transform var(--lp-lab-duration) var(--lp-lab-ease),
+              left var(--lp-lab-duration) var(--lp-lab-ease);
+  perspective: 1000px;
+}
+
+.lp-lab__shape--device-flipper {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform var(--lp-lab-duration) var(--lp-lab-ease);
+}
+
+.lp-lab__shape--device-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  backface-visibility: hidden;
+  box-shadow: 0 16px 40px 0 rgba(0, 0, 0, 0.10);
+  background-color: var(--jui-color-gray-200);
+  /* Image fills vertically at natural aspect; anchored top-center.
+     Wider images (like the portrait) spill horizontally and clip;
+     narrower ones (templates) show the chassis on the sides. */
+  background-size: auto 100%;
+  background-position: top center;
+  background-repeat: no-repeat;
+  outline: 1px solid var(--jui-color-strokes-onlight-subdued);
+  outline-offset: -1px;
+}
+.lp-lab__shape--device-face--back { transform: rotateY(180deg); }
+
+/* On hover of any card: same gentle spread as the row variant. */
+.lp-lab__stage--ortho-flip:has(.lp-lab__shape--device:hover) .lp-lab__shape--device {
+  left: calc(50% + var(--i, 0) * 12.5%);
+}
+/* The outer stays put; the inner flipper rotates 180° around its vertical axis. */
+.lp-lab__stage--ortho-flip .lp-lab__shape--device:hover .lp-lab__shape--device-flipper {
+  transform: rotateY(180deg);
+}
+
+@container (max-width: 480px) {
+  .lp-lab__stage--ortho-flip .lp-lab__shape--device {
+    height: 44%;
+    left: calc(50% + var(--i, 0) * 10%);
+  }
+  .lp-lab__stage--ortho-flip:has(.lp-lab__shape--device:hover) .lp-lab__shape--device {
+    left: calc(50% + var(--i, 0) * 11.5%);
+  }
+}
+
+/* Flip index assignments — same set as the row variant. */
+.lp-lab__stage--ortho-flip .lp-lab__shape--device:nth-child(1) { --i: -2.5; }
+.lp-lab__stage--ortho-flip .lp-lab__shape--device:nth-child(2) { --i: -1.5; }
+.lp-lab__stage--ortho-flip .lp-lab__shape--device:nth-child(3) { --i: -0.5; }
+.lp-lab__stage--ortho-flip .lp-lab__shape--device:nth-child(4) { --i:  0.5; }
+.lp-lab__stage--ortho-flip .lp-lab__shape--device:nth-child(5) { --i:  1.5; }
+.lp-lab__stage--ortho-flip .lp-lab__shape--device:nth-child(6) { --i:  2.5; }
+
+/* ─── STAGE: ORBIT (8 squares slowly rotating, each facing the center) ─── */
+/* Each card sits at a polar position (--a = angle in degrees, --t = individual tilt).
+   The rotor spins the whole arrangement. After translating outward, each card is
+   flipped 180° so its natural-top points back toward the center — that's "facing
+   the center". The --t value adds a small organic per-card variation on top.
+   Sizing uses cqmin (smaller axis of the frame) so the orbit stays proportional
+   in both wide and narrow layouts. */
+
+.lp-lab__stage--orbit {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Invisible circular hover zone — wraps the orbit ring so hovering the
+   space between cards (or the cards themselves) keeps the spread active.
+   Sized to comfortably contain both rest and hover radii. */
+.lp-lab__orbit-hover-zone {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 84cqmin;
+  height: 84cqmin;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+}
+
+.lp-lab__orbit-rotor {
+  position: absolute;
+  inset: 0;
+  animation: lp-orbit-rotate 80s linear infinite;
+  transform-origin: 50% 50%;
+  /* Let pointer events pass through the rotor's empty space to the hover zone behind.
+     The cards themselves re-enable pointer-events so they still receive hover. */
+  pointer-events: none;
+}
+.lp-lab__orbit-rotor .lp-lab__shape--asset { pointer-events: auto; }
+
+.lp-lab__shape--asset {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 13cqmin;
+  aspect-ratio: 4 / 5;
+  background-color: var(--jui-color-gray-200);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 20px;
+  box-shadow: 0 12px 28px 0 rgba(0, 0, 0, 0.08);
+  outline: 1px solid var(--jui-color-strokes-onlight-subdued);
+  outline-offset: -1px;
+  transform-origin: 50% 50%;
+  transform:
+    translate(-50%, -50%)
+    rotate(calc(var(--a, 0) * 1deg))
+    translate(0, -28cqmin)
+    rotate(180deg)
+    rotate(calc(var(--t, 0) * 1deg));
+  transition: transform var(--lp-lab-duration) var(--lp-lab-ease);
+}
+
+/* Hover the orbit ring (the invisible zone or any card on it) — all cards spread outward. */
+.lp-lab__stage--orbit:has(.lp-lab__orbit-hover-zone:hover, .lp-lab__shape--asset:hover) .lp-lab__shape--asset {
+  transform:
+    translate(-50%, -50%)
+    rotate(calc(var(--a, 0) * 1deg))
+    translate(0, -33cqmin)
+    rotate(180deg)
+    rotate(calc(var(--t, 0) * 1deg));
+}
+
+@keyframes lp-orbit-rotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@container (max-width: 480px) {
+  .lp-lab__shape--asset {
+    width: 16cqmin;
+    transform:
+      translate(-50%, -50%)
+      rotate(calc(var(--a, 0) * 1deg))
+      translate(0, -32cqmin)
+      rotate(180deg)
+      rotate(calc(var(--t, 0) * 1deg));
+  }
+  .lp-lab__orbit-hover-zone { width: 90cqmin; height: 90cqmin; }
+  .lp-lab__stage--orbit:has(.lp-lab__orbit-hover-zone:hover, .lp-lab__shape--asset:hover) .lp-lab__shape--asset {
+    transform:
+      translate(-50%, -50%)
+      rotate(calc(var(--a, 0) * 1deg))
+      translate(0, -36cqmin)
+      rotate(180deg)
+      rotate(calc(var(--t, 0) * 1deg));
+  }
+}
+
+/* ─── PAGE INTRO ─── */
+
+.lp-lab__intro {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--jui-color-strokes-onlight-subdued);
+}
+.lp-lab__intro-eyebrow {
+  font-size: var(--jui-typography-body-small-medium-size);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+.lp-lab__intro-title {
+  font-size: var(--jui-typography-headline-medium-size);
+  line-height: var(--jui-typography-headline-medium-lh);
+  font-weight: var(--jui-typography-headline-medium-weight);
+}
+.lp-lab__intro-lede {
+  font-size: var(--jui-typography-body-large-regular-size);
+  line-height: var(--jui-typography-body-large-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+  max-width: 720px;
+}
+
+/* ─── ROLE LEGEND ─── */
+
+.lp-lab__legend {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: var(--jui-typography-body-small-regular-size);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+  padding-top: 8px;
+}
+.lp-lab__legend-item { display: inline-flex; align-items: center; gap: 8px; }
+.lp-lab__legend-swatch { width: 16px; height: 16px; border-radius: 4px; }
+.lp-lab__legend-swatch--photo   { background: var(--jui-color-background-gray-medium); }
+.lp-lab__legend-swatch--preview { background: var(--jui-color-gray-white); border: 1px solid var(--jui-color-strokes-onlight-subdued); }
+.lp-lab__legend-swatch--float   { background: var(--jui-color-background-gray-dark); border-radius: 9999px; }
+.lp-lab__legend-swatch--device  { background: var(--jui-color-background-gray-medium); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<div class="lp-lab">
+
+  <!-- ─── INTRO ─── -->
+  <div class="lp-lab__container">
+    <header class="lp-lab__intro">
+      <span class="lp-lab__intro-eyebrow" data-no-phrase>Playground</span>
+      <h1 class="lp-lab__intro-title" data-no-phrase>Landing imagery lab</h1>
+      <p class="lp-lab__intro-lede" data-no-phrase>
+        Workshop for proportions, aspect ratios, shape roles, and movement.
+        Solid blocks stand in for photos, product previews, and floating assistive
+        elements. Successful experiments graduate to the real landing pages.
+      </p>
+      <div class="lp-lab__legend">
+        <span class="lp-lab__legend-item">
+          <span class="lp-lab__legend-swatch lp-lab__legend-swatch--photo"></span>
+          Photo wrapper
+        </span>
+        <span class="lp-lab__legend-item">
+          <span class="lp-lab__legend-swatch lp-lab__legend-swatch--preview"></span>
+          Product preview
+        </span>
+        <span class="lp-lab__legend-item">
+          <span class="lp-lab__legend-swatch lp-lab__legend-swatch--float"></span>
+          Floating element
+        </span>
+        <span class="lp-lab__legend-item">
+          <span class="lp-lab__legend-swatch lp-lab__legend-swatch--device"></span>
+          Device · 360 × 700
+        </span>
+      </div>
+    </header>
+  </div>
+
+  <!-- ─── BAND 1 · HERO TREATMENTS ─── -->
+  <section class="lp-lab__container">
+    <div class="lp-lab__band">
+      <div class="lp-lab__head">
+        <span class="lp-lab__kicker" data-no-phrase>Band 01 · Hero</span>
+        <h2 class="lp-lab__purpose" data-no-phrase>Above-the-fold compositions for a landing-page hero.</h2>
+      </div>
+
+      <div class="lp-lab__rail lp-lab__rail--stack">
+
+        <!-- H1 — Card fan: 5 devices, bottom cut by frame, hover spread -->
+        <figure class="lp-lab__variant lp-lab__variant--hero">
+          <div class="lp-lab__hero-frame">
+            <div class="lp-lab__stage lp-lab__stage--fan" tabindex="0">
+              <div class="lp-lab__shape--device" style="background-image: url('../assets/template-picker/white_minimal_en.webp');"></div>
+              <div class="lp-lab__shape--device" style="background-image: url('../assets/template-picker/soft_and_warm_en.webp');"></div>
+              <div class="lp-lab__shape--device" style="background-image: url('../assets/template-picker/elegant_green_en.webp');"></div>
+              <div class="lp-lab__shape--device" style="background-image: url('../assets/template-picker/black_minimal_en.webp');"></div>
+              <div class="lp-lab__shape--device" style="background-image: url('../assets/template-picker/bold_colorful_en.webp');"></div>
+            </div>
+          </div>
+          <figcaption class="lp-lab__caption">H1 · Subtle fan · 5 devices spread + tilt (±8° rest → ±14° hover)</figcaption>
+        </figure>
+
+        <!-- H2 — Isometric row: 6 devices, skewY + scaleX, no 3D -->
+        <figure class="lp-lab__variant lp-lab__variant--hero">
+          <div class="lp-lab__hero-frame">
+            <div class="lp-lab__stage lp-lab__stage--ortho-row">
+              <div class="lp-iso-slot"><div class="lp-lab__shape--device" style="background-image: url('../assets/template-picker/elegant_green_en.webp');"></div></div>
+              <div class="lp-iso-slot"><div class="lp-lab__shape--device" style="background-image: url('../assets/template-picker/bold_colorful_en.webp');"></div></div>
+              <div class="lp-iso-slot"><div class="lp-lab__shape--device" style="background-image: url('../assets/template-picker/white_minimal_en.webp');"></div></div>
+              <div class="lp-iso-slot"><div class="lp-lab__shape--device" style="background-image: url('../assets/template-picker/soft_and_warm_en.webp');"></div></div>
+              <div class="lp-iso-slot"><div class="lp-lab__shape--device" style="background-image: url('../assets/template-picker/black_minimal_en.webp');"></div></div>
+              <div class="lp-iso-slot"><div class="lp-lab__shape--device" style="background-image: url('../assets/template-picker/light_artistic_en.webp');"></div></div>
+            </div>
+          </div>
+          <figcaption class="lp-lab__caption">H2 · Isometric row · 6 devices · skewY(-18°) · subtle wave</figcaption>
+        </figure>
+
+        <!-- H3 — Asset orbit: 8 squares slowly rotating around an upload prompt -->
+        <figure class="lp-lab__variant lp-lab__variant--hero">
+          <div class="lp-lab__hero-frame">
+            <div class="lp-lab__stage lp-lab__stage--orbit">
+              <div class="lp-lab__orbit-hover-zone"></div>
+              <div class="lp-lab__orbit-rotor">
+                <div class="lp-lab__shape--asset" style="--a: 0;   background-image: url('../assets/template-picker/bold_colorful_en.webp');"></div>
+                <div class="lp-lab__shape--asset" style="--a: 45;  background-image: url('../assets/template-picker/white_minimal_en.webp');"></div>
+                <div class="lp-lab__shape--asset" style="--a: 90;  background-image: url('../assets/template-picker/elegant_green_en.webp');"></div>
+                <div class="lp-lab__shape--asset" style="--a: 135; background-image: url('../assets/template-picker/soft_and_warm_en.webp');"></div>
+                <div class="lp-lab__shape--asset" style="--a: 180; background-image: url('../assets/template-picker/black_minimal_en.webp');"></div>
+                <div class="lp-lab__shape--asset" style="--a: 225; background-image: url('../assets/template-picker/light_artistic_en.webp');"></div>
+                <div class="lp-lab__shape--asset" style="--a: 270; background-image: url('../assets/template-picker/bold_colorful_en.webp');"></div>
+                <div class="lp-lab__shape--asset" style="--a: 315; background-image: url('../assets/template-picker/soft_and_warm_en.webp');"></div>
+              </div>
+            </div>
+          </div>
+          <figcaption class="lp-lab__caption">H3 · Asset orbit · 8 squares facing center, slowly rotating (80s loop)</figcaption>
+        </figure>
+
+        <!-- H4 — Isometric flip: hover triggers a 3D Y-axis flip showing the back face -->
+        <figure class="lp-lab__variant lp-lab__variant--hero">
+          <div class="lp-lab__hero-frame">
+            <div class="lp-lab__stage lp-lab__stage--ortho-flip">
+              <!-- Pottery artist ↔ light_artistic -->
+              <div class="lp-lab__shape--device">
+                <div class="lp-lab__shape--device-flipper">
+                  <div class="lp-lab__shape--device-face lp-lab__shape--device-face--front" style="background-image: url('../assets/solopreneurs/pottery-artist.png');"></div>
+                  <div class="lp-lab__shape--device-face lp-lab__shape--device-face--back" style="background-image: url('../assets/template-picker/light_artistic_en.webp');"></div>
+                </div>
+              </div>
+              <!-- Dancer ↔ elegant_green -->
+              <div class="lp-lab__shape--device">
+                <div class="lp-lab__shape--device-flipper">
+                  <div class="lp-lab__shape--device-face lp-lab__shape--device-face--front" style="background-image: url('../assets/solopreneurs/dancer.png');"></div>
+                  <div class="lp-lab__shape--device-face lp-lab__shape--device-face--back" style="background-image: url('../assets/template-picker/elegant_green_en.webp');"></div>
+                </div>
+              </div>
+              <!-- Male photographer ↔ soft_and_warm -->
+              <div class="lp-lab__shape--device">
+                <div class="lp-lab__shape--device-flipper">
+                  <div class="lp-lab__shape--device-face lp-lab__shape--device-face--front" style="background-image: url('../assets/solopreneurs/photographer-male.png');"></div>
+                  <div class="lp-lab__shape--device-face lp-lab__shape--device-face--back" style="background-image: url('../assets/template-picker/soft_and_warm_en.webp');"></div>
+                </div>
+              </div>
+              <!-- Content creator ↔ bold_colorful -->
+              <div class="lp-lab__shape--device">
+                <div class="lp-lab__shape--device-flipper">
+                  <div class="lp-lab__shape--device-face lp-lab__shape--device-face--front" style="background-image: url('../assets/solopreneurs/content-creator.png');"></div>
+                  <div class="lp-lab__shape--device-face lp-lab__shape--device-face--back" style="background-image: url('../assets/template-picker/bold_colorful_en.webp');"></div>
+                </div>
+              </div>
+              <!-- Wildlife photographer ↔ black_minimal -->
+              <div class="lp-lab__shape--device">
+                <div class="lp-lab__shape--device-flipper">
+                  <div class="lp-lab__shape--device-face lp-lab__shape--device-face--front" style="background-image: url('../assets/solopreneurs/photographer-female.png');"></div>
+                  <div class="lp-lab__shape--device-face lp-lab__shape--device-face--back" style="background-image: url('../assets/template-picker/black_minimal_en.webp');"></div>
+                </div>
+              </div>
+              <!-- Designer ↔ white_minimal -->
+              <div class="lp-lab__shape--device">
+                <div class="lp-lab__shape--device-flipper">
+                  <div class="lp-lab__shape--device-face lp-lab__shape--device-face--front" style="background-image: url('../assets/solopreneurs/designer.png');"></div>
+                  <div class="lp-lab__shape--device-face lp-lab__shape--device-face--back" style="background-image: url('../assets/template-picker/white_minimal_en.webp');"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <figcaption class="lp-lab__caption">H4 · Isometric flip · "there's always one to fit your style" — same solopreneur on the front, hover to flip and reveal each matching template</figcaption>
+        </figure>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── BAND 2 · GALLERY LAYOUTS ─── -->
+  <section class="lp-lab__container">
+    <div class="lp-lab__band">
+      <div class="lp-lab__head">
+        <span class="lp-lab__kicker" data-no-phrase>Band 02 · Gallery</span>
+        <h2 class="lp-lab__purpose" data-no-phrase>Mid-page imagery clusters — supporting evidence and proof.</h2>
+      </div>
+      <div class="lp-lab__rail lp-lab__rail--three"></div>
+    </div>
+  </section>
+
+  <!-- ─── BAND 3 · ANIMATION PRIMITIVES ─── -->
+  <section class="lp-lab__container">
+    <div class="lp-lab__band">
+      <div class="lp-lab__head">
+        <span class="lp-lab__kicker" data-no-phrase>Band 03 · Motion</span>
+        <h2 class="lp-lab__purpose" data-no-phrase>Single-purpose motion primitives — applied sparingly per surface.</h2>
+      </div>
+      <div class="lp-lab__rail lp-lab__rail--three"></div>
+    </div>
+  </section>
+
+</div>
+
+</body>
+</html>

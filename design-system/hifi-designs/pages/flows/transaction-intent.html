@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transaction Intent — Connect</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+
+  [hidden] { display: none !important; }
+
+  /* Content stack inside the onboarding white card.
+     Figma 15910:82326 — card 992 wide; columns inset 40 (padding-xl) each side. */
+  .ti-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-l);
+    padding-top: var(--jui-layout-padding-l);
+    padding-bottom: var(--jui-layout-padding-l);
+  }
+  @media (min-width: 768px) {
+    .ti-content { padding-left: var(--jui-layout-padding-xl); padding-right: var(--jui-layout-padding-xl); }
+  }
+
+  /* Heading — Subheadline/Large, centered */
+  .ti-heading-group { display: flex; flex-direction: column; align-items: center; text-align: center; gap: var(--jui-layout-gap-xs); }
+  .ti-heading {
+    font-size: var(--jui-typography-sub-headline-large-size);
+    font-weight: var(--jui-typography-sub-headline-large-weight);
+    line-height: var(--jui-typography-sub-headline-large-lh);
+    color: var(--jui-color-gray-black);
+    margin: 0;
+  }
+  .ti-subtitle {
+    font-size: var(--jui-typography-body-small-regular-size);
+    font-weight: var(--jui-typography-body-small-regular-weight);
+    line-height: var(--jui-typography-body-small-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-subdued);
+    margin: 0;
+  }
+
+  /* Two columns — controls left, phone preview right.
+     Figma 15910:82333 — Questions 436 + 80 gutter + preview 436 within the 912 inset.
+     Preview column is centered against the controls height. */
+  .ti-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--jui-measurements-size-32);
+    align-items: center;
+  }
+
+  /* ─── Check-selector cards (Figma 15910:82578) ───
+     padding 16, gap 16 between head row and text, radius-16, gray border on white.
+     Cards do NOT expand — toggling one highlights its preview element. */
+  .ti-cards { display: flex; flex-direction: column; gap: var(--jui-layout-gap-s); }
+  .ti-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-m);
+    padding: var(--jui-layout-padding-m);
+    background: var(--jui-color-background-gray-light);
+    border: 1px solid var(--jui-color-stroke-gray-default);
+    border-radius: var(--jui-style-radius-16);
+  }
+  .ti-card-head { display: flex; align-items: center; justify-content: space-between; gap: var(--jui-layout-gap-s); }
+  .ti-card-icon { width: 24px; height: 24px; flex-shrink: 0; color: var(--jui-color-typography-gray-on-light-default); }
+  .ti-card-icon svg { width: 24px; height: 24px; display: block; }
+  .ti-card-text { display: flex; flex-direction: column; gap: var(--jui-layout-gap-xxs); }
+  .ti-card-title {
+    font-size: var(--jui-typography-sub-headline-small-size);
+    font-weight: var(--jui-typography-sub-headline-small-weight);
+    line-height: var(--jui-typography-sub-headline-small-lh);
+    color: var(--jui-color-gray-black);
+  }
+  .ti-card-desc {
+    font-size: var(--jui-typography-body-small-regular-size);
+    font-weight: var(--jui-typography-body-small-regular-weight);
+    line-height: var(--jui-typography-body-small-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-subdued);
+  }
+
+  /* ═══════════════════════════════════
+     RIGHT: phone preview. Phone 180×345 (Figma 16195:32777).
+     ═══════════════════════════════════ */
+  .ti-preview-col {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: var(--jui-layout-gap-l);
+    padding: var(--jui-layout-padding-l) var(--jui-layout-padding-m);
+  }
+  /* Phone — Figma 16195:32777: white, blue-100 border, radius-20, soft glow. */
+  .ti-phone {
+    width: 180px; height: 345px;
+    background: var(--jui-color-background-gray-light);
+    border: 1px solid var(--jui-color-blue-100);
+    border-radius: var(--jui-style-radius-20);
+    box-shadow: 0 5px 31px rgba(0, 0, 0, 0.08);
+    padding: 0 var(--jui-layout-padding-s);
+    display: flex; flex-direction: column; align-items: center;
+    flex-shrink: 0;
+  }
+  .pv-avatar { width: 62px; height: 62px; border-radius: var(--jui-style-radius-8); background: var(--jui-color-blue-10); margin-top: var(--jui-measurements-size-32); flex-shrink: 0; }
+
+  /* name-row = first intent (Promote) */
+  .pv-namerow { display: flex; gap: var(--jui-layout-gap-xs); margin-top: var(--jui-measurements-size-32); }
+  .pv-namebar { width: 44px; height: 12px; border-radius: var(--jui-style-radius-8); background: var(--jui-color-blue-10); transition: background-color 0.3s ease; }
+  .pv-namerow[data-state="on"] .pv-namebar { background: var(--jui-color-blue-100); }
+
+  .pv-blocks { display: flex; flex-direction: column; align-items: center; gap: var(--jui-layout-gap-xs); width: 100%; margin-top: var(--jui-layout-gap-m); }
+  .pv-block {
+    width: 154px; border-radius: var(--jui-style-radius-8);
+    background: var(--jui-color-blue-10);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+  .pv-block.sm { height: var(--jui-measurements-size-32); }
+  .pv-block.lg { height: var(--jui-measurements-size-56); }
+  .pv-block[data-state="on"] { background: var(--jui-color-blue-100); }
+
+  .pv-dots { margin-top: auto; margin-bottom: var(--jui-layout-gap-m); display: flex; gap: var(--jui-layout-gap-s); }
+  .pv-dot { width: 20px; height: 20px; border-radius: var(--jui-style-radius-20); background: var(--jui-color-blue-10); }
+
+  /* Caption under the phone — Figma 15910:82437, body-small regular, centered. */
+  .ti-preview-caption {
+    max-width: 230px; margin: 0; text-align: center;
+    font-size: var(--jui-typography-body-small-regular-size);
+    font-weight: var(--jui-typography-body-small-regular-weight);
+    line-height: var(--jui-typography-body-small-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+
+  /* Graceful state-change pop */
+  .pv-pop { animation: pv-pop 0.3s ease; }
+  @keyframes pv-pop { 0% { transform: scale(1); } 45% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pv-block, .pv-namebar { transition: none; }
+    .pv-pop { animation: none; }
+  }
+
+  /* ═══════════════════════════════════
+     MOBILE (<768) — no preview, single column
+     ═══════════════════════════════════ */
+  @media (max-width: 767px) {
+    .ti-cols { grid-template-columns: 1fr; }
+    .ti-preview-col { display: none; }
+  }
+
+</style>
+</head>
+<body>
+
+  <div class="app-shell app-shell-onboarding">
+
+    <!-- ─── HEADER ─── -->
+    <div class="shell-header no-pad-y">
+      <div class="header-row">
+        <button class="icon-btn" aria-label="Back" data-nav-to="flows/onboarding-offer.html" data-inspect-phrase="">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+          </svg>
+        </button>
+        <div class="progress-bar" aria-label="Step 4 of 4">
+          <div class="progress-segment filled"></div>
+          <div class="progress-segment filled"></div>
+          <div class="progress-segment filled"></div>
+          <div class="progress-segment filled"></div>
+        </div>
+        <div class="header-spacer"></div>
+      </div>
+    </div>
+
+    <!-- ─── WORKING AREA (white card) ─── -->
+    <div class="shell-middle">
+      <div class="shell-working-area setup-centered-v">
+        <div class="content-container ti-content">
+
+          <!-- Heading -->
+          <div class="ti-heading-group">
+            <h1 class="ti-heading" data-inspect-phrase="">Add ways to connect with you</h1>
+            <p class="ti-subtitle" data-inspect-phrase="">You can always edit and add more later</p>
+          </div>
+
+          <!-- Two columns -->
+          <div class="ti-cols">
+
+            <!-- LEFT — intent cards -->
+            <div class="ti-cards">
+
+              <!-- CARD 1 — Promote -->
+              <section class="ti-card" id="card-promote">
+                <div class="ti-card-head">
+                  <span class="ti-card-icon" aria-hidden="true">
+                    <!-- Hugeicons Megaphone03 -->
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M7 9V15" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M7 9H5C3.89543 9 3 9.89543 3 11V13C3 14.1046 3.89543 15 5 15H7L16.0341 17.7102C16.6681 17.9004 17.245 18.245 17.7131 18.7131L18.7071 19.7071C18.8946 19.8946 19.149 20 19.4142 20H20C20.5523 20 21 19.5523 21 19V5C21 4.44772 20.5523 4 20 4H19.4142C19.149 4 18.8946 4.10536 18.7071 4.29289L17.7131 5.2869C17.245 5.75498 16.6681 6.09957 16.0341 6.28978L7 9Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M8 15.5V18.0458C8 19.1251 8.87491 20 9.95416 20C10.6075 20 11.2177 19.6735 11.5801 19.1298L13 17" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                  </span>
+                  <button class="toggle" id="tg-promote" role="switch" aria-checked="true" aria-label="Toggle promote something to register for" onclick="toggleCard('promote')" data-inspect-phrase="">
+                    <span class="toggle-thumb" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                    </span>
+                  </button>
+                </div>
+                <div class="ti-card-text">
+                  <span class="ti-card-title" data-inspect-phrase="">Promote something to register for</span>
+                  <span class="ti-card-desc" data-inspect-phrase="">Perfect for a yoga workshop waitlist or [...]</span>
+                </div>
+              </section>
+
+              <!-- CARD 2 — Online payments -->
+              <section class="ti-card" id="card-payments">
+                <div class="ti-card-head">
+                  <span class="ti-card-icon" aria-hidden="true">
+                    <!-- Hugeicons CreditCard -->
+                    <svg viewBox="0 0 24 24" fill="none"><rect x="1" y="4" width="22" height="16" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="1" y1="10" x2="23" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <button class="toggle" id="tg-payments" role="switch" aria-checked="true" aria-label="Toggle online payments" onclick="toggleCard('payments')" data-inspect-phrase="">
+                    <span class="toggle-thumb" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                    </span>
+                  </button>
+                </div>
+                <div class="ti-card-text">
+                  <span class="ti-card-title" data-inspect-phrase="">Online payments</span>
+                  <span class="ti-card-desc" data-inspect-phrase="">Sell special pieces [something else...]</span>
+                </div>
+              </section>
+
+              <!-- CARD 3 — Events -->
+              <section class="ti-card" id="card-events">
+                <div class="ti-card-head">
+                  <span class="ti-card-icon" aria-hidden="true">
+                    <!-- Hugeicons Calendar02 -->
+                    <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 3v4M16 3v4M3 10h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <button class="toggle" id="tg-events" role="switch" aria-checked="true" aria-label="Toggle one time or recurring events" onclick="toggleCard('events')" data-inspect-phrase="">
+                    <span class="toggle-thumb" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                    </span>
+                  </button>
+                </div>
+                <div class="ti-card-text">
+                  <span class="ti-card-title" data-inspect-phrase="">One time or recurring events</span>
+                  <span class="ti-card-desc" data-inspect-phrase="">Perfect for 1:1 workshops or [something else...]</span>
+                </div>
+              </section>
+
+              <!-- CARD 4 — Bookable slots -->
+              <section class="ti-card" id="card-bookable">
+                <div class="ti-card-head">
+                  <span class="ti-card-icon" aria-hidden="true">
+                    <!-- Hugeicons CalendarCheck -->
+                    <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="17" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 2v4M16 2v4M3 9h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 14.5l2 2 4.5-4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <button class="toggle" id="tg-bookable" role="switch" aria-checked="false" aria-label="Toggle bookable calendar slots" onclick="toggleCard('bookable')" data-inspect-phrase="">
+                    <span class="toggle-thumb" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                    </span>
+                  </button>
+                </div>
+                <div class="ti-card-text">
+                  <span class="ti-card-title" data-inspect-phrase="">Bookable calendar slots</span>
+                  <span class="ti-card-desc" data-inspect-phrase="">Perfect for 1:1 personalised sessions or [...]</span>
+                </div>
+              </section>
+
+            </div>
+
+            <!-- RIGHT — phone preview -->
+            <div class="ti-preview-col">
+              <div class="ti-phone" aria-hidden="true">
+                <div class="pv-avatar"></div>
+                <!-- name-row = Promote -->
+                <div class="pv-namerow" id="pv-promote" data-state="on">
+                  <span class="pv-namebar"></span><span class="pv-namebar"></span><span class="pv-namebar"></span>
+                </div>
+                <div class="pv-blocks">
+                  <div class="pv-block sm" id="pv-payments" data-state="on"></div>
+                  <div class="pv-block sm" id="pv-events" data-state="on"></div>
+                  <div class="pv-block lg" id="pv-bookable" data-state="off"></div>
+                </div>
+                <div class="pv-dots"><span class="pv-dot"></span><span class="pv-dot"></span><span class="pv-dot"></span></div>
+              </div>
+              <p class="ti-preview-caption" data-inspect-phrase="">Make it easy for your customers to contact or find you</p>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── FOOTER (fixed, right-aligned Continue) ─── -->
+    <div class="shell-footer">
+      <div class="footer-actions">
+        <button class="btn btn-primary" data-inspect-phrase="questionaire.cta" data-nav-to="flows/bio-page-preview.html" data-nav-screen-id="scr-119">Continue</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js"></script>
+  <script>
+    /* ══════════════════════════════════════════
+       INTENT CARDS — each toggle highlights one preview element.
+       Cards never expand; off → blue/10, on → blue/100.
+       ══════════════════════════════════════════ */
+    var CARDS = {
+      promote:  { toggle: 'tg-promote',  pv: 'pv-promote'  },
+      payments: { toggle: 'tg-payments', pv: 'pv-payments' },
+      events:   { toggle: 'tg-events',   pv: 'pv-events'   },
+      bookable: { toggle: 'tg-bookable', pv: 'pv-bookable' }
+    };
+    var state = { promote: 'on', payments: 'on', events: 'on', bookable: 'off' };
+
+    function pop(el) {
+      if (!el) return;
+      el.classList.remove('pv-pop'); void el.offsetWidth; el.classList.add('pv-pop');
+    }
+
+    function toggleCard(id) {
+      state[id] = (state[id] === 'off') ? 'on' : 'off';
+      var cfg = CARDS[id];
+      var tg = document.getElementById(cfg.toggle);
+      var pv = document.getElementById(cfg.pv);
+      if (tg) tg.setAttribute('aria-checked', String(state[id] === 'on'));
+      if (pv) { pv.setAttribute('data-state', state[id]); pop(pv); }
+    }
+  </script>
+
+</body>
+</html>

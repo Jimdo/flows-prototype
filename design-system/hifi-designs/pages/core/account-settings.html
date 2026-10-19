@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Core — Account Settings</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/management-shell.css">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css">
+<style>
+  button, input, select, textarea { font-family: inherit; }
+  body { background: var(--jui-color-background-gray-medium); }
+  .shell-working-area { background: var(--jui-color-background-gray-light); }
+</style>
+</head>
+<body class="app-shell management-shell">
+
+  <jimdo-topbar variant="extended"></jimdo-topbar>
+
+  <div class="shell-middle">
+    <jimdo-sidebar product="jimdo" active="dashboard"></jimdo-sidebar>
+
+    <main class="shell-working-area">
+      <div class="management-content">
+        <div class="placeholder-content">
+          <div class="placeholder-content-title" data-inspect-phrase="core.account-settings.title">Account Settings</div>
+          <div class="placeholder-content-sub">Core · Account &amp; Identity</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/shell-components.js"></script>
+</body>
+</html>
