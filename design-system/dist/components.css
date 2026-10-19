@@ -1687,6 +1687,33 @@ body {
   justify-content: flex-end;
 }
 
+/* ── A button mid-work ──
+   The label goes transparent rather than away, so the button keeps the width
+   it had and the dialog does not twitch while it waits. Nothing to press in
+   the meantime: the press already landed. */
+@keyframes btn-busy-spin { to { transform: rotate(360deg); } }
+.btn[data-busy="true"] {
+  position: relative;
+  color: transparent;
+  pointer-events: none;
+}
+.btn[data-busy="true"]::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border-radius: 50%;
+  border: 2px solid var(--jui-color-blue-100);
+  border-top-color: var(--jui-color-gray-white);
+  animation: btn-busy-spin 700ms linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn[data-busy="true"]::after { animation-duration: 2.4s; }
+}
+
 /* Upgrade CTA button */
 .btn-upgrade {
   background: var(--jui-color-actions-upgrade-rest);
@@ -4620,6 +4647,15 @@ body {
   .edit-row .edit-row-grip { opacity: 1; }
 }
 
+/* The same suggestion, past the plan's first action page: same words, same
+   shape, the colour of a thing that now costs money. */
+.edit-suggestion--upgrade {
+  border-color: var(--jui-color-stroke-upgrade-on-light);
+  background: var(--jui-color-background-upgrade-light);
+}
+.edit-suggestion--upgrade .edit-row-icon { color: var(--jui-color-decorative-upgrade); }
+.edit-suggestion--upgrade .edit-row-label { color: var(--jui-color-typography-upgrade-on-light); }
+
 /* Set it up sits at the right end, with Remove inboard of it: the action
    being proposed is the one the thumb lands on, and the one that undoes the
    proposal is the one it has to reach past. Stacked on a phone the two take
@@ -5286,6 +5322,7 @@ body {
    Declared after .sheet-actions so the modifier actually modifies it. */
 .sheet-actions--end { justify-content: flex-end; }
 
+.btn-danger-subtle[hidden] { display: none; }
 .btn-danger-subtle {
   display: inline-flex;
   align-items: center;

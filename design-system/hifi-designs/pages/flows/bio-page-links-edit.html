@@ -260,7 +260,7 @@
 
           <div class="add-group">
             <p class="add-group-title" data-inspect-phrase="biopage.add.group.link">Links and pages</p>
-            <button type="button" class="add-option" data-picker="booking" data-no-phrase>
+            <button type="button" class="add-option" data-picker="booking" data-no-phrase hidden>
               <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 2v4M16 2v4M3 9h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
               <span class="add-option-copy">
                 <span class="add-option-title" data-inspect-phrase="">Booking</span>
@@ -268,7 +268,7 @@
               </span>
               <svg class="add-option-more" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
-            <button type="button" class="add-option" data-picker="form" data-no-phrase>
+            <button type="button" class="add-option" data-picker="form" data-no-phrase hidden>
               <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M11 6L21 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 12L21 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 18L21 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 7.5L4.5 9L8.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 18.5L4.5 20L8.5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
               <span class="add-option-copy">
                 <span class="add-option-title" data-inspect-phrase="">Form</span>
@@ -276,7 +276,7 @@
               </span>
               <svg class="add-option-more" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
-            <button type="button" class="add-option" data-picker="pages" data-no-phrase>
+            <button type="button" class="add-option" data-picker="pages" data-no-phrase hidden>
               <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20 20V9l-7-7H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M13 2v5a2 2 0 0 0 2 2h5" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 13h4M8 17h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
               <span class="add-option-copy">
                 <span class="add-option-title" data-inspect-phrase="">Website page</span>
@@ -728,6 +728,8 @@
     const editSheet = document.getElementById('editSheet');
     const editTitle = document.getElementById('editSheetTitle');
     const editFields = document.getElementById('editFields');
+    const editRemove = document.getElementById('editRemove');
+    const editSave = document.getElementById('editSave');
     const openEdit = (on) => editSheet.setAttribute('data-open', String(on));
 
     let activeEditor = null;
@@ -763,7 +765,42 @@
         wrap.append(l, i);
         editFields.appendChild(wrap);
       });
+      // Making a booking and changing one are not the same dialog. The one
+      // that makes it has nothing to remove yet, and "Save" names the wrong
+      // act — there is no earlier version to save over.
+      const making = !blockKey && kind === 'offer';
+      editRemove.hidden = !blockKey;
+      // space-between with one child leaves it at the start, which puts the
+      // only action in the dialog where a dialog's actions never are.
+      editSheet.querySelector('.sheet-actions').classList.toggle('sheet-actions--end', !blockKey);
+      editSave.textContent = making ? 'Create booking' : 'Save';
+      if (making) addDateControl();
       openEdit(true);
+    }
+
+    /* A booking can be more than one date, which the dialog had no way to
+       say. Each extra date is another field, added where the last one is. */
+    function addDateControl() {
+      const more = document.createElement('button');
+      more.type = 'button';
+      more.className = 'text-action';
+      more.textContent = 'Add another date';
+      more.setAttribute('data-inspect-phrase', '');
+      more.addEventListener('click', () => {
+        const wrap = document.createElement('label');
+        wrap.className = 'sheet-field';
+        const l = document.createElement('span');
+        l.className = 'sheet-label';
+        l.textContent = 'And also';
+        const i = document.createElement('input');
+        i.className = 'form-input';
+        i.type = 'text';
+        i.placeholder = 'Sat 17 May, 14:00';
+        wrap.append(l, i);
+        editFields.insertBefore(wrap, more);
+        i.focus();
+      });
+      editFields.appendChild(more);
     }
 
     /* ── What shows ──
@@ -793,12 +830,42 @@
         document.getElementById(id).closest('li').hidden = s.removed || s.done;
       });
 
+      /* A submenu of things you already have is empty until you have one.
+         On a first visit there is no booking, no form and no website, so the
+         list opens with the one row that needs nothing: a plain link. Each
+         comes back the moment there is something behind it. */
+      const hasKind = (kind) => [...BLOCKS.values()].some((b) => b.kind === kind);
+      const pickerRow = (name) => addContent.querySelector('[data-picker="' + name + '"]');
+      if (pickerRow('booking')) pickerRow('booking').hidden = !hasKind('book');
+      if (pickerRow('form')) pickerRow('form').hidden = !hasKind('form');
+
+      /* Past the first one, a suggestion is still a good idea and no longer
+         a free one. It keeps its words and changes its colour and its ask. */
+      const capped = limitReached();
+      Object.keys(SUGGESTIONS).forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.toggle('edit-suggestion--upgrade', capped);
+        const cta = el.querySelector('[data-setup]');
+        if (!cta) return;
+        cta.textContent = capped ? 'Upgrade and set up' : 'Set it up';
+        cta.classList.toggle('btn-upgrade', capped);
+      });
+
       const hasBlockRow = Object.keys(BLOCK_ROWS).some((id) => ON[BLOCK_ROWS[id]]) ||
         BLOCKS.size > 0;
       document.getElementById('headBlocks').hidden = !hasBlockRow;
       document.getElementById('headSuggest').hidden = pending().length === 0;
 
     }
+
+    /* One action page on the free plan. Everything that would make a second
+       — the other suggestion, the idea cards, Create new — turns into the
+       upgrade instead of quietly making it. Per-kind instead of per-page is
+       one word here: `b.kind === kind` rather than a test for either. */
+    const PAGE_KINDS = ['book', 'form'];
+    const limitReached = () =>
+      [...BLOCKS.values()].some((b) => PAGE_KINDS.indexOf(b.kind) !== -1);
 
     const SUGGESTION_KIND = { offer: 'book', form: 'form' };
 
@@ -826,6 +893,10 @@
     document.querySelectorAll('[data-setup]').forEach((btn) =>
       btn.addEventListener('click', () => {
         const kind = btn.getAttribute('data-setup');
+        if (limitReached()) {
+          window.location.href = '/flows-prototype/design-system/hifi-designs/pages/flows/paywall-domain.html';
+          return;
+        }
         if (kind !== 'form') return showEditor(kind);
         const match = Object.keys(SUGGESTIONS).find((k) => SUGGESTIONS[k].editor === 'form');
         if (match) finishSuggestion(match);
@@ -849,22 +920,39 @@
     /* Saving the setup of a suggestion is what finishes it. The same sheet
        saves an ordinary row, where there is nothing to finish — and renames
        it, since the first field is the row's own name. */
-    document.getElementById('editSave').addEventListener('click', () => {
+    /* Changing a row is instant — the page already has it. Making one is
+       not: there is a booking page to create behind it, and the button that
+       asked for it is where the wait belongs, not the row that does not
+       exist yet. */
+    editSave.addEventListener('click', () => {
       const named = editFields.querySelector('.form-input');
+
       if (activeBlock && BLOCKS.has(activeBlock)) {
         const b = BLOCKS.get(activeBlock);
         if (named && named.value.trim()) b.label = named.value.trim();
         const row = document.querySelector('[data-block="' + activeBlock + '"] .edit-row-label');
         if (row) row.textContent = b.label;
-      } else {
-        const match = Object.keys(SUGGESTIONS).find((k) => SUGGESTIONS[k].editor === activeEditor && !SUGGESTIONS[k].done);
-        if (match) finishSuggestion(match);
+        openEdit(false);
+        refresh();
+        split.sync();
+        return;
       }
-      openEdit(false);
-      refresh();
-      split.sync();
+
+      const match = Object.keys(SUGGESTIONS).find((k) => SUGGESTIONS[k].editor === activeEditor && !SUGGESTIONS[k].done);
+      if (!match) { openEdit(false); return; }
+
+      const label = named && named.value.trim();
+      editSave.setAttribute('data-busy', 'true');
+      setTimeout(() => {
+        editSave.removeAttribute('data-busy');
+        openEdit(false);
+        if (label) SUGGESTIONS[match].card.title = label;
+        // The wait already happened on the button, so the row it makes
+        // arrives finished rather than waiting a second time.
+        finishSuggestion(match, { creating: false });
+      }, CREATE_MS);
     });
-    document.getElementById('editRemove').addEventListener('click', () => {
+    editRemove.addEventListener('click', () => {
       if (activeBlock && BLOCKS.has(activeBlock)) {
         dropBlock(activeBlock);
       } else {
@@ -912,15 +1000,22 @@
     function renderIdeas(ideas) {
       ideaGrid.innerHTML = '';
       ideas.forEach((idea) => {
+        const capped = limitReached();
         const card = document.createElement('div');
-        card.className = 'add-card';
+        card.className = 'add-card' + (capped ? ' add-card--upgrade' : '');
         card.innerHTML =
           '<span class="add-card-icon">' + IDEA_ICONS[idea.shape] + '</span>' +
           '<span class="add-card-title">' + idea.title + '</span>' +
           '<span class="add-card-detail">' + idea.detail + '</span>' +
-          '<span class="add-card-action"><button type="button" class="btn btn-secondary btn-sm" data-add="idea" data-inspect-phrase="">Set it up</button></span>';
+          '<span class="add-card-action"><button type="button" class="btn btn-secondary btn-sm' +
+          (capped ? ' btn-upgrade' : '') + '" data-add="idea" data-inspect-phrase="">' +
+          (capped ? 'Upgrade and set up' : 'Set it up') + '</button></span>';
         card.querySelector('button').addEventListener('click', () => {
           closeAdd();
+          if (capped) {
+            window.location.href = '/flows-prototype/design-system/hifi-designs/pages/flows/paywall-domain.html';
+            return;
+          }
           addBlock({
             label: idea.title,
             kind: idea.shape === 'form' ? 'form' : 'book',
@@ -931,7 +1026,12 @@
       });
     }
 
-    renderIdeas(FIRST_IDEAS);
+    /* Kept, because the cards are rebuilt every time the list opens: they
+       are drawn against the plan, and the plan changes while the list is
+       closed. Built once, they went on offering a free setup after the free
+       one was used. */
+    let currentIdeas = FIRST_IDEAS;
+    renderIdeas(currentIdeas);
 
     const askInput = document.getElementById('askInput');
 
@@ -947,7 +1047,8 @@
     function ask() {
       const prompt = askInput.value.trim();
       if (!prompt) return;
-      renderIdeas(ideasFor(prompt));
+      currentIdeas = ideasFor(prompt);
+      renderIdeas(currentIdeas);
       askInput.value = '';
       closePicker();
     }
@@ -1034,9 +1135,20 @@
             '<span class="add-option-title">' + item.title + '</span>' +
             '<span class="add-option-detail">' + item.detail + '</span>' +
           '</span>';
+        const capped = isMake && limitReached();
         if (isMake) el.classList.add('add-option--make');
+        if (capped) {
+          el.classList.add('add-option--upgrade');
+          el.querySelector('.add-option-title').textContent = 'Upgrade and create new';
+        }
         el.addEventListener('click', () => {
           closeAdd();
+          // Making a second one is what the plan stops. Putting one you
+          // already have on the page is not.
+          if (capped) {
+            window.location.href = '/flows-prototype/design-system/hifi-designs/pages/flows/paywall-domain.html';
+            return;
+          }
           addBlock({
             label: item.title,
             kind: PICKER_KIND[kind] || 'link',
@@ -1099,6 +1211,7 @@
     placeAdd();
 
     function openAdd() {
+      renderIdeas(currentIdeas);
       closePicker();
       if (phone.matches) {
         shell.setAttribute('data-view', 'add');
