@@ -46,7 +46,10 @@ function setupList(list) {
     const li = grip.closest('li');
     if (!li) return;
 
-    const items = Array.from(list.children);
+    // Only the rows that are actually on screen. A list can carry wrappers
+    // for rows it is not showing, and counting those put the pitch and the
+    // drop index against things nobody can see.
+    const items = Array.from(list.children).filter((n) => n.getClientRects().length);
     if (items.length < 2) return;
     const rects = items.map((n) => n.getBoundingClientRect());
 

@@ -71,7 +71,14 @@
     padding-left: var(--bleed);
     /* Trailing room so the last layout can still reach the first place. */
     padding-right: calc(100vw - var(--card-w));
-    scroll-padding-inline: 0;
+    /* One stop per layout, each at the first place. Free scrolling let the
+       row come to rest anywhere, which left a half-card in the position the
+       chosen one is supposed to hold. The scroll padding is what makes
+       "start" mean the content edge rather than the scroller's own, so a
+       snapped card lands exactly where the first one sits at rest. */
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: var(--bleed);
+    scroll-padding-inline-end: 0;
   }
 
   .template-carousel::-webkit-scrollbar { display: none; }
@@ -82,7 +89,9 @@
   .template-carousel { cursor: grab; }
   .template-carousel.is-dragging,
   .template-carousel.is-dragging .template-card { cursor: grabbing; }
-  .template-carousel.is-dragging { scroll-behavior: auto; user-select: none; }
+  /* Snapping fights a drag that sets scrollLeft by hand, so the row moves
+     freely while held and takes the nearest stop when released. */
+  .template-carousel.is-dragging { scroll-behavior: auto; user-select: none; scroll-snap-type: none; }
 
   @media (min-width: 768px) {
     /* A left-aligned row rather than a centred one: the first layout is the
@@ -108,14 +117,15 @@
          and the selection snaps back to whichever one the end of the scroll
          happened to leave on the left. */
       padding-right: calc(100vw - var(--card-w));
-      scroll-padding-inline: 0;
-      scroll-snap-type: none;
+      scroll-snap-type: x mandatory;
+      scroll-padding-left: var(--bleed);
+      scroll-padding-inline-end: 0;
     }
   }
 
   .template-card {
     flex: 0 0 auto;
-    scroll-snap-align: center;
+    scroll-snap-align: start;
     background: none;
     border: none;
     padding: 0;
@@ -299,12 +309,19 @@
          first place, at both sizes. */
       function closestToAnchor(){
         var rect = carousel.getBoundingClientRect();
-        // The first place, in viewport coordinates: the scroller's own left
-        // edge plus its bleed padding. Not offset by scrollLeft — the anchor
-        // is a fixed spot on screen, and subtracting the scroll made it
-        // travel with the content, which dragged the selection back to the
-        // first card after every scroll.
-        var anchorX = rect.left + cards[0].offsetLeft;
+        /* The first place, in viewport coordinates: the scroller's left edge
+           plus its own leading padding, which is the same distance the snap
+           uses for scroll-padding-left.
+
+           Read from the computed style rather than from cards[0].offsetLeft.
+           offsetLeft is measured against the offset parent, which is not
+           this scroller, so mixing it with a viewport rect put the anchor at
+           0 while the first place was at 232 — every scroll then chose
+           whichever card was nearest the left edge of the window instead.
+           The scroll target elsewhere gets away with offsetLeft because it
+           subtracts two of them and the parent cancels out. */
+        var padLeft = parseFloat(getComputedStyle(carousel).paddingLeft) || 0;
+        var anchorX = rect.left + padLeft;
         var best = null, bestDist = Infinity;
         cards.forEach(function(c){
           var d = Math.abs(c.getBoundingClientRect().left - anchorX);
@@ -356,6 +373,11 @@
         }
         carousel.classList.remove('is-dragging');
         drag = null;
+        // Letting go re-enables snapping, and the browser slides the row to
+        // the nearest stop without firing a scroll event for it. Without
+        // this the layout that ends up in the first place is not the one
+        // marked as chosen.
+        if (dragged) setTimeout(chooseAtAnchor, 220);
       }
       carousel.addEventListener('pointerup', endDrag);
       carousel.addEventListener('pointercancel', endDrag);
@@ -376,24 +398,27 @@
         card.addEventListener('click', function(){ select(card); });
       });
 
+      /* Whatever came to rest in the first place is the choice. */
+      function chooseAtAnchor(){
+        var c = closestToAnchor();
+        if (!c || c.getAttribute('aria-checked') === 'true') return;
+        // Choosing it also seats it, for the scrolls that stop between two
+        // stops — a drag released mid-row, or a trackpad flick that the
+        // snap did not finish. The guard above keeps this from chasing its
+        // own scroll.
+        select(c);
+      }
+
       // Auto-select on scroll end (debounced)
       var scrollTimer = null;
       carousel.addEventListener('scroll', function(){
-        // On a phone the scroll is the gesture that chooses: what you have
-        // brought to the first place is what you have picked. On a desktop
-        // the row is scanned rather than swiped, so the choice moves on a
-        // click and scrolling is just looking.
-        if (window.matchMedia('(min-width: 768px)').matches) return;
+        // The row stops with one layout in the first place, and that is the
+        // one being chosen — the same rule at both sizes now the stops are
+        // there. Desktop used to leave the choice on the click alone, which
+        // with snapping would have parked a layout in the chosen position
+        // without choosing it.
         if (scrollTimer) clearTimeout(scrollTimer);
-        scrollTimer = setTimeout(function(){
-          var c = closestToAnchor();
-          if (!c || c.getAttribute('aria-checked') === 'true') return;
-          // Choosing it also seats it. Selecting without moving left the
-          // chosen layout wherever the drag happened to stop, which on a
-          // phone meant the highlighted card sitting half off the left edge.
-          // The guard above keeps this from chasing its own scroll.
-          select(c);
-        }, 120);
+        scrollTimer = setTimeout(chooseAtAnchor, 120);
       }, { passive: true });
 
       // Keyboard navigation
