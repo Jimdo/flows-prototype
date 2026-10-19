@@ -4565,6 +4565,24 @@ body {
   line-height: var(--jui-typography-sub-headline-small-lh);
 }
 
+/* ── A row being made ──
+   The page it points at does not exist yet, so the row says so rather than
+   arriving finished: the spinner takes the icon's place in the same cell,
+   the name steps back, and the row cannot be opened or dragged until the
+   thing behind it is real. The preview draws it pending for the same
+   reason. */
+.edit-row[data-state="creating"] {
+  cursor: default;
+  pointer-events: none;
+}
+.edit-row[data-state="creating"] .edit-row-label {
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+.edit-row[data-state="creating"] .edit-row-edit { visibility: hidden; }
+.edit-row[data-state="creating"] .edit-row-icon,
+.edit-row[data-state="creating"] .edit-row-grip { opacity: 0; }
+.edit-row:not([data-state="creating"]) .edit-row-mark .setup-status-spinner { display: none; }
+
 /* One cell, two marks — a suggestion and a finished row both. The piece
    wears what it is until the pointer arrives, and then wears what you can
    do with it. Stacking them rather than lining them up is what

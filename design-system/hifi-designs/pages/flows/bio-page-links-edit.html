@@ -117,10 +117,6 @@
           </div>
 
           <div class="edit-section" id="sectionBlocks" data-view-only="list">
-            <div class="edit-section-head" id="headBlocks" hidden>
-              <p class="edit-section-title" data-inspect-phrase="biopage.edit.section.blocks">On your page</p>
-            </div>
-
             <!-- One label over the pair: without it the two read as the start
                  of the page's own list rather than as something being put
                  forward. It goes with the last of them. -->
@@ -171,6 +167,9 @@
               </li>
             </ul>
 
+            <div class="edit-section-head" id="headBlocks" hidden>
+              <p class="edit-section-title" data-inspect-phrase="biopage.edit.section.blocks">On your page</p>
+            </div>
             <ul class="edit-list" id="blockList">
               <li>
                 <button type="button" class="edit-row" id="rowMainlink" data-edits="mainlink" data-no-phrase data-editor="mainlink" hidden>
@@ -543,15 +542,31 @@
     /* What the page shows, in the order the panel lists it. Reading the DOM
        rather than a kept array is what makes a drag land on the page: the
        drag moves the node, and the next sync reads where it ended up. */
+    /* Everything the page carries as a button, in the order it carries it.
+       A list, not a set of switches: a seller has two links, or three
+       bookings, and the old six booleans could only answer yes or no to one
+       of each — a second link added nothing and a booking arrived wearing
+       the label of the link slot it had been aliased onto. */
+    const BLOCKS = new Map();   // key -> { label, kind, editor, creating }
+    let blockSeq = 0;
+
     function links() {
       const out = [];
       document.querySelectorAll('#suggestionList > li').forEach((li) => {
         const el = li.querySelector('.edit-suggestion');
         const id = el && el.id;
         if (!id || li.hidden) return;
-        out.push({ id: id, label: SUGGESTIONS[id].card.title, pending: !SUGGESTIONS[id].done });
+        out.push({ id: id, label: SUGGESTIONS[id].card.title, pending: true });
       });
-      if (ON.mainlink) out.push({ id: 'mainlink', label: 'My website' });
+      // DOM order, not insertion order: the drag moves the node, and this is
+      // what makes the page follow it.
+      document.querySelectorAll('#blockList > li').forEach((li) => {
+        const row = li.querySelector('.edit-row');
+        const key = row && row.getAttribute('data-block');
+        const b = key && BLOCKS.get(key);
+        if (!b || li.hidden) return;
+        out.push({ id: key, label: b.label, pending: !!b.creating });
+      });
       return out;
     }
 
@@ -608,9 +623,13 @@
 
     /* A drag ends with the node somewhere new, and the page has to follow.
        pointerup fires before the module's own handler moves it, so the sync
-       waits a frame. */
-    document.getElementById('suggestionList').addEventListener('pointerup', () => {
-      requestAnimationFrame(() => split.sync());
+       waits a frame. Both lists, because both are on the page — reordering
+       the finished rows did nothing at all while only the suggestions were
+       listened to. */
+    ['suggestionList', 'blockList'].forEach((id) => {
+      document.getElementById(id).addEventListener('pointerup', () => {
+        requestAnimationFrame(() => split.sync());
+      });
     });
 
     // What each kind of row asks for. The transactional one is the only one
@@ -634,17 +653,95 @@
         ['Instagram', 'url', ''], ['TikTok', 'url', '']] },
     };
 
+    /* ── Adding ──
+       One row builder for every kind of thing that can land on the page, so
+       a booking, a website page and a plain link are the same object with a
+       different icon and a different name. Icons are cloned from rows the
+       page already has rather than written again here.
+
+       Creating takes a beat on purpose. The real thing has a page to make
+       behind it, and a row that appears finished before it is tells the
+       seller the work is done when it is not; the preview draws it pending
+       for the same reason. */
+    const CREATE_MS = 900;
+
+    function iconFor(kind) {
+      const from = {
+        book: '#sugEvent .edit-row-icon',
+        form: '#sugForm .edit-row-icon',
+        page: '#rowMainlink .edit-row-icon',
+        link: '#rowMainlink .edit-row-icon',
+      }[kind] || '#rowMainlink .edit-row-icon';
+      const el = document.querySelector(from);
+      return el ? el.outerHTML : '';
+    }
+
+    function addBlock({ label, kind = 'link', editor = 'mainlink', creating = true }) {
+      const key = 'blk' + (++blockSeq);
+      BLOCKS.set(key, { label, kind, editor, creating });
+
+      const li = document.createElement('li');
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'edit-row';
+      btn.setAttribute('data-block', key);
+      btn.setAttribute('data-no-phrase', '');
+      btn.setAttribute('data-edits', 'mainlink');
+      if (creating) btn.setAttribute('data-state', 'creating');
+      btn.innerHTML =
+        '<span class="edit-row-mark">' + iconFor(kind) +
+          document.querySelector('#rowMainlink .edit-row-grip').outerHTML +
+          '<span class="setup-status-spinner" aria-hidden="true"></span></span>' +
+        '<span class="edit-row-label">' + label + '</span>' +
+        document.querySelector('#rowMainlink .edit-row-edit').outerHTML;
+      btn.addEventListener('click', () => {
+        if (BLOCKS.get(key).creating) return;
+        showEditor(BLOCKS.get(key).editor, key);
+      });
+      li.appendChild(btn);
+      document.getElementById('blockList').appendChild(li);
+
+      refresh();
+      split.sync();
+
+      if (creating) {
+        setTimeout(() => {
+          const b = BLOCKS.get(key);
+          if (!b) return;
+          b.creating = false;
+          btn.removeAttribute('data-state');
+          refresh();
+          split.sync();
+        }, CREATE_MS);
+      }
+      return key;
+    }
+
+    function dropBlock(key) {
+      const row = document.querySelector('[data-block="' + key + '"]');
+      if (row) row.closest('li').remove();
+      BLOCKS.delete(key);
+      refresh();
+      split.sync();
+    }
+
     const editSheet = document.getElementById('editSheet');
     const editTitle = document.getElementById('editSheetTitle');
     const editFields = document.getElementById('editFields');
     const openEdit = (on) => editSheet.setAttribute('data-open', String(on));
 
     let activeEditor = null;
+    let activeBlock = null;
 
-    function showEditor(kind) {
+    function showEditor(kind, blockKey = null) {
       const e = EDITORS[kind] || EDITORS.mainlink;
       activeEditor = kind;
-      editTitle.textContent = e.title;
+      activeBlock = blockKey;
+      // A row names itself. Opening "Summer retreat" and being shown an
+      // editor headed "Link" was the old list's way of admitting that every
+      // added thing was the same slot underneath.
+      const b = blockKey && BLOCKS.get(blockKey);
+      editTitle.textContent = b ? b.label : e.title;
       editFields.innerHTML = '';
       if (e.pending) {
         const p = document.createElement('p');
@@ -652,7 +749,8 @@
         p.textContent = e.pending;
         editFields.appendChild(p);
       }
-      e.fields.forEach(([label, type, value]) => {
+      e.fields.forEach(([label, type, value], idx) => {
+        if (b && idx === 0) value = b.label;
         const wrap = document.createElement('label');
         wrap.className = 'sheet-field';
         const l = document.createElement('span');
@@ -689,40 +787,31 @@
 
       Object.keys(SUGGESTIONS).forEach((id) => {
         const s = SUGGESTIONS[id];
-        const el = document.getElementById(id);
         // Set up, it stops being a suggestion and becomes a row like any
-        // other — the dashed outline is the whole of what marked it.
-        el.closest('li').hidden = s.removed || s.done;
-        let doneRow = document.getElementById(s.row);
-        if (s.done && !s.removed && !doneRow) {
-          doneRow = document.createElement('li');
-          const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = 'edit-row';
-          btn.id = s.row;
-          btn.setAttribute('data-no-phrase', '');
-          btn.setAttribute('data-editor', s.editor);
-          btn.setAttribute('data-edits', 'offer');
-          // Grip and pencil are cloned from a row that already has them, so
-          // a finished suggestion is the same object as its neighbours
-          // rather than a near-copy that cannot be dragged.
-          btn.innerHTML = document.querySelector('#rowMainlink .edit-row-grip').outerHTML +
-            el.querySelector('.edit-row-icon').outerHTML +
-            '<span class="edit-row-label">' + s.card.title + '</span>' +
-            document.querySelector('#rowMainlink .edit-row-edit').outerHTML;
-          doneRow.appendChild(btn);
-          document.getElementById('blockList').appendChild(doneRow);
-          btn.addEventListener('click', () => showEditor(s.editor));
-        } else if ((!s.done || s.removed) && doneRow) {
-          doneRow.parentNode.removeChild(doneRow);
-        }
+        // other — the dashed outline is the whole of what marked it. The row
+        // itself is a block now, made by finishSuggestion().
+        document.getElementById(id).closest('li').hidden = s.removed || s.done;
       });
 
       const hasBlockRow = Object.keys(BLOCK_ROWS).some((id) => ON[BLOCK_ROWS[id]]) ||
-        live().some((k) => SUGGESTIONS[k].done);
+        BLOCKS.size > 0;
       document.getElementById('headBlocks').hidden = !hasBlockRow;
       document.getElementById('headSuggest').hidden = pending().length === 0;
 
+    }
+
+    const SUGGESTION_KIND = { offer: 'book', form: 'form' };
+
+    function finishSuggestion(id, { creating = true } = {}) {
+      const s = SUGGESTIONS[id];
+      if (!s || s.done || s.removed) return;
+      s.done = true;
+      addBlock({
+        label: s.card.title,
+        kind: SUGGESTION_KIND[s.editor] || 'link',
+        editor: s.editor,
+        creating,
+      });
     }
 
     document.querySelectorAll('.edit-row').forEach((row) =>
@@ -739,9 +828,7 @@
         const kind = btn.getAttribute('data-setup');
         if (kind !== 'form') return showEditor(kind);
         const match = Object.keys(SUGGESTIONS).find((k) => SUGGESTIONS[k].editor === 'form');
-        if (match) SUGGESTIONS[match].done = true;
-        refresh();
-        split.sync();
+        if (match) finishSuggestion(match);
         openForm(true);
       }));
 
@@ -759,16 +846,31 @@
     document.getElementById('editClose').addEventListener('click', () => openEdit(false));
     /* Saving the setup of a suggestion is what finishes it. The same sheet
        saves an ordinary row, where there is nothing to finish. */
+    /* Saving the setup of a suggestion is what finishes it. The same sheet
+       saves an ordinary row, where there is nothing to finish — and renames
+       it, since the first field is the row's own name. */
     document.getElementById('editSave').addEventListener('click', () => {
-      const match = Object.keys(SUGGESTIONS).find((k) => SUGGESTIONS[k].editor === activeEditor);
-      if (match) SUGGESTIONS[match].done = true;
+      const named = editFields.querySelector('.form-input');
+      if (activeBlock && BLOCKS.has(activeBlock)) {
+        const b = BLOCKS.get(activeBlock);
+        if (named && named.value.trim()) b.label = named.value.trim();
+        const row = document.querySelector('[data-block="' + activeBlock + '"] .edit-row-label');
+        if (row) row.textContent = b.label;
+      } else {
+        const match = Object.keys(SUGGESTIONS).find((k) => SUGGESTIONS[k].editor === activeEditor && !SUGGESTIONS[k].done);
+        if (match) finishSuggestion(match);
+      }
       openEdit(false);
       refresh();
       split.sync();
     });
     document.getElementById('editRemove').addEventListener('click', () => {
-      const match = Object.keys(SUGGESTIONS).find((k) => SUGGESTIONS[k].editor === activeEditor);
-      if (match) SUGGESTIONS[match].removed = true;
+      if (activeBlock && BLOCKS.has(activeBlock)) {
+        dropBlock(activeBlock);
+      } else {
+        const match = Object.keys(SUGGESTIONS).find((k) => SUGGESTIONS[k].editor === activeEditor);
+        if (match) SUGGESTIONS[match].removed = true;
+      }
       openEdit(false);
       refresh();
       split.sync();
@@ -818,10 +920,12 @@
           '<span class="add-card-detail">' + idea.detail + '</span>' +
           '<span class="add-card-action"><button type="button" class="btn btn-secondary btn-sm" data-add="idea" data-inspect-phrase="">Set it up</button></span>';
         card.querySelector('button').addEventListener('click', () => {
-          ON.mainlink = true;
           closeAdd();
-          refresh();
-          split.sync();
+          addBlock({
+            label: idea.title,
+            kind: idea.shape === 'form' ? 'form' : 'book',
+            editor: idea.shape === 'form' ? 'form' : 'offer',
+          });
         });
         ideaGrid.appendChild(card);
       });
@@ -903,6 +1007,9 @@
       },
     };
 
+    const PICKER_KIND = { booking: 'book', form: 'form', pages: 'page' };
+    const PICKER_EDITOR = { booking: 'offer', form: 'form', pages: 'mainlink' };
+
     const pickerGroups = document.getElementById('pickerGroups');
     const pickerMake = document.getElementById('pickerMake');
     const pickerMakeGroup = document.getElementById('pickerMakeGroup');
@@ -929,10 +1036,12 @@
           '</span>';
         if (isMake) el.classList.add('add-option--make');
         el.addEventListener('click', () => {
-          ON.mainlink = true;
           closeAdd();
-          refresh();
-          split.sync();
+          addBlock({
+            label: item.title,
+            kind: PICKER_KIND[kind] || 'link',
+            editor: PICKER_EDITOR[kind] || 'mainlink',
+          });
         });
         return el;
       };
@@ -1035,16 +1144,27 @@
     /* Picking something puts it on the page and brings its heading with it.
        An idea and the piece it is built from land in the same place; in the
        product the idea would arrive named and the bare piece would not. */
+    /* A link is a thing the page can hold any number of, so it is added as
+       one. The rest are slots the page has exactly one of — a map, a row of
+       social icons, the three contact buttons the preview can draw — so they
+       stay switches. sms and the social names alias onto the nearest button
+       the artifact actually renders; that is a limit of the preview, not of
+       the list. */
     const ADD_ALIAS = {
-      'idea-retreat': 'mainlink', 'idea-session': 'mainlink', 'idea-ask': 'mainlink',
-      booking: 'mainlink', form: 'mainlink',
       sms: 'call', tiktok: 'social', facebook: 'social', youtube: 'social', linkedin: 'social',
     };
     addContent.querySelectorAll('[data-add]:not([data-picker])').forEach((o) =>
       o.addEventListener('click', () => {
         const key = o.getAttribute('data-add');
-        ON[ADD_ALIAS[key] || key] = true;
+        if (key === 'idea') return;             // the card wires its own
         closeAdd();
+        if (key === 'mainlink') {
+          addBlock({ label: 'My website', kind: 'link', editor: 'mainlink' });
+          return;
+        }
+        const slot = ADD_ALIAS[key] || key;
+        if (!(slot in ON)) return;
+        ON[slot] = true;
         refresh();
         split.sync();
       }));
