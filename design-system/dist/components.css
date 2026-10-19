@@ -4878,6 +4878,17 @@ body {
   color: var(--jui-color-typography-gray-on-light-default);
 }
 
+/* A submenu with nothing in it yet. Sits where the list would be, in the
+   list's own gutter, so the space reads as the empty version of the thing
+   rather than as a different panel. */
+.add-empty {
+  margin: 0;
+  padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-m) var(--jui-layout-padding-s);
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
 /* ── Add row ──
    Figma 2LVaYKcyyN2F2MUwSssFrL 12421:35880 ("CMS Pill"). A row, not a card:
    no fill, no border, no medallion behind the icon. py 12 / px 16, 12 between

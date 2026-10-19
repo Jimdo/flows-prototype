@@ -76,6 +76,14 @@
 
   .template-carousel::-webkit-scrollbar { display: none; }
 
+  /* The row says it can be dragged, and says it is being dragged. The cards
+     keep their own pointer cursor until the drag starts, so a layout still
+     reads as something to click. */
+  .template-carousel { cursor: grab; }
+  .template-carousel.is-dragging,
+  .template-carousel.is-dragging .template-card { cursor: grabbing; }
+  .template-carousel.is-dragging { scroll-behavior: auto; user-select: none; }
+
   @media (min-width: 768px) {
     /* A left-aligned row rather than a centred one: the first layout is the
        one being chosen, so it sits where reading starts. It still runs off
@@ -305,6 +313,64 @@
         return best;
       }
 
+      /* ── Drag to move ──
+         A row that runs off the edge invites a drag, and the only way to
+         move it was a trackpad or the scrollbar it hides. Mouse only: touch
+         already scrolls itself, and taking that over means re-implementing
+         momentum badly.
+
+         The drag has to end without choosing anything. A pointerup after a
+         drag still fires a click on whatever card is under it, which would
+         pick a layout the seller was only moving out of the way — so a drag
+         that actually moved swallows the click that follows it. */
+      var drag = null;
+      var dragged = false;
+      var MOVE_THRESHOLD = 4;   // below this it is a click with a shaky hand
+
+      carousel.addEventListener('pointerdown', function(e){
+        if (e.pointerType !== 'mouse' || e.button !== 0) return;
+        drag = { x: e.clientX, left: carousel.scrollLeft, id: e.pointerId, moved: false };
+        dragged = false;
+      });
+
+      carousel.addEventListener('pointermove', function(e){
+        if (!drag || e.pointerId !== drag.id) return;
+        var dx = e.clientX - drag.x;
+        if (!drag.moved) {
+          if (Math.abs(dx) < MOVE_THRESHOLD) return;
+          drag.moved = true;
+          carousel.classList.add('is-dragging');
+          // Captured once it is a drag, not before: capturing on pointerdown
+          // would steal the click from the card under the pointer.
+          try { carousel.setPointerCapture(drag.id); } catch (err) {}
+        }
+        carousel.scrollLeft = drag.left - dx;
+        e.preventDefault();
+      });
+
+      function endDrag(e){
+        if (!drag || (e && e.pointerId !== drag.id)) return;
+        dragged = drag.moved;
+        if (drag.moved) {
+          try { carousel.releasePointerCapture(drag.id); } catch (err) {}
+        }
+        carousel.classList.remove('is-dragging');
+        drag = null;
+      }
+      carousel.addEventListener('pointerup', endDrag);
+      carousel.addEventListener('pointercancel', endDrag);
+
+      // Capture phase, so it runs before the card's own handler.
+      carousel.addEventListener('click', function(e){
+        if (!dragged) return;
+        dragged = false;
+        e.stopPropagation();
+        e.preventDefault();
+      }, true);
+
+      // Chrome drags the image itself otherwise, and the row stays put.
+      carousel.addEventListener('dragstart', function(e){ e.preventDefault(); });
+
       // Click to select
       cards.forEach(function(card){
         card.addEventListener('click', function(){ select(card); });
@@ -321,7 +387,12 @@
         if (scrollTimer) clearTimeout(scrollTimer);
         scrollTimer = setTimeout(function(){
           var c = closestToAnchor();
-          if (c && c.getAttribute('aria-checked') !== 'true') select(c, { scroll: false });
+          if (!c || c.getAttribute('aria-checked') === 'true') return;
+          // Choosing it also seats it. Selecting without moving left the
+          // chosen layout wherever the drag happened to stop, which on a
+          // phone meant the highlighted card sitting half off the left edge.
+          // The guard above keeps this from chasing its own scroll.
+          select(c);
         }, 120);
       }, { passive: true });
 

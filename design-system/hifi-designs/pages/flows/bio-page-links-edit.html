@@ -260,7 +260,7 @@
 
           <div class="add-group">
             <p class="add-group-title" data-inspect-phrase="biopage.add.group.link">Links and pages</p>
-            <button type="button" class="add-option" data-picker="booking" data-no-phrase hidden>
+            <button type="button" class="add-option" data-picker="booking" data-no-phrase>
               <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 2v4M16 2v4M3 9h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
               <span class="add-option-copy">
                 <span class="add-option-title" data-inspect-phrase="">Booking</span>
@@ -268,7 +268,7 @@
               </span>
               <svg class="add-option-more" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
-            <button type="button" class="add-option" data-picker="form" data-no-phrase hidden>
+            <button type="button" class="add-option" data-picker="form" data-no-phrase>
               <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M11 6L21 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 12L21 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 18L21 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 7.5L4.5 9L8.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 18.5L4.5 20L8.5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
               <span class="add-option-copy">
                 <span class="add-option-title" data-inspect-phrase="">Form</span>
@@ -276,7 +276,7 @@
               </span>
               <svg class="add-option-more" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
-            <button type="button" class="add-option" data-picker="pages" data-no-phrase hidden>
+            <button type="button" class="add-option" data-picker="pages" data-no-phrase>
               <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20 20V9l-7-7H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M13 2v5a2 2 0 0 0 2 2h5" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 13h4M8 17h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
               <span class="add-option-copy">
                 <span class="add-option-title" data-inspect-phrase="">Website page</span>
@@ -676,9 +676,10 @@
       return el ? el.outerHTML : '';
     }
 
-    function addBlock({ label, kind = 'link', editor = 'mainlink', creating = true }) {
+    function addBlock({ label, kind = 'link', editor = 'mainlink', creating = true, remember = false }) {
       const key = 'blk' + (++blockSeq);
       BLOCKS.set(key, { label, kind, editor, creating });
+      if (remember) rememberMade(kind, label);
 
       const li = document.createElement('li');
       const btn = document.createElement('button');
@@ -836,15 +837,6 @@
         document.getElementById(id).closest('li').hidden = s.removed || s.done || capped;
       });
 
-      /* A submenu of things you already have is empty until you have one.
-         On a first visit there is no booking, no form and no website, so the
-         list opens with the one row that needs nothing: a plain link. Each
-         comes back the moment there is something behind it. */
-      const hasKind = (kind) => [...BLOCKS.values()].some((b) => b.kind === kind);
-      const pickerRow = (name) => addContent.querySelector('[data-picker="' + name + '"]');
-      if (pickerRow('booking')) pickerRow('booking').hidden = !hasKind('book');
-      if (pickerRow('form')) pickerRow('form').hidden = !hasKind('form');
-
       const hasBlockRow = Object.keys(BLOCK_ROWS).some((id) => ON[BLOCK_ROWS[id]]) ||
         BLOCKS.size > 0;
       document.getElementById('headBlocks').hidden = !hasBlockRow;
@@ -871,6 +863,7 @@
         kind: SUGGESTION_KIND[s.editor] || 'link',
         editor: s.editor,
         creating,
+        remember: true,
       });
     }
 
@@ -1013,6 +1006,7 @@
             label: idea.title,
             kind: idea.shape === 'form' ? 'form' : 'book',
             editor: idea.shape === 'form' ? 'form' : 'offer',
+            remember: true,
           });
         });
         ideaGrid.appendChild(card);
@@ -1060,46 +1054,50 @@
       plus: '<path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>',
     };
 
+    /* What the seller already has, which on a first visit is nothing. The
+       submenu still opens — the kinds of thing a page can hold are worth
+       seeing before you own any — and says so, with the way to make the
+       first one underneath. Things made here are added to the list, so the
+       second visit is not the first one again. */
     const PICKERS = {
       booking: {
         icon: PICKER_ICONS.booking,
         make: { title: 'Create a booking', detail: 'A new date or set of slots' },
+        empty: 'Nothing to book yet. The first one can be made here.',
+        /* Two kinds of thing live here once there are any. A booking link
+           puts one bookable thing on the page as its own button; a booking
+           action page is a page of its own that holds them all. The label is
+           the only way to tell them apart once they are rows in one list. */
         groups: [
-          /* Two kinds of thing live here. A booking link puts one bookable
-             thing on the page as its own button; a booking action page is a
-             page of its own that holds them all. The label is the only way
-             to tell them apart once they are rows in the same list. */
-          { title: 'Booking links', items: [
-            { title: 'Summer retreat', detail: 'Fixed event' },
-            { title: 'Autumn course', detail: 'Open slots' },
-          ] },
-          { title: 'Booking action pages', items: [
-            { title: 'Yoga sessions', detail: 'Everything you offer, on one page' },
-          ] },
+          { title: 'Booking links', items: [] },
+          { title: 'Booking action pages', items: [] },
         ],
       },
       form: {
         icon: PICKER_ICONS.form,
         make: { title: 'Create a form', detail: 'A new set of questions' },
+        empty: 'No forms yet. The first one can be made here.',
         groups: [
-          { title: 'Your forms', items: [
-            { title: 'Newsletter signup', detail: 'Email and name' },
-          ] },
+          { title: 'Your forms', items: [] },
         ],
       },
       pages: {
         icon: PICKER_ICONS.page,
+        empty: 'No website pages yet. They appear here once your Jimdo site has some.',
         groups: [
-          { title: 'Your website pages', items: [
-            { title: 'Home', detail: 'claraandstone.com' },
-            { title: 'About me', detail: 'claraandstone.com/about' },
-            { title: 'Classes', detail: 'claraandstone.com/classes' },
-            { title: 'Contact', detail: 'claraandstone.com/contact' },
-            { title: 'Journal', detail: 'claraandstone.com/journal' },
-          ] },
+          { title: 'Your website pages', items: [] },
         ],
       },
     };
+
+    /* A thing made here is a thing they have, so it joins the list it would
+       have been picked from. */
+    const PICKER_FOR_KIND = { book: 'booking', form: 'form', page: 'pages' };
+    function rememberMade(kind, label) {
+      const picker = PICKERS[PICKER_FOR_KIND[kind]];
+      if (!picker) return;
+      picker.groups[0].items.push({ title: label, detail: 'Made on this page' });
+    }
 
     const PICKER_KIND = { booking: 'book', form: 'form', pages: 'page' };
     const PICKER_EDITOR = { booking: 'offer', form: 'form', pages: 'mainlink' };
@@ -1155,19 +1153,31 @@
       pickerMakeGroup.hidden = !p.make;
       if (p.make) pickerMake.appendChild(row(p.make, PICKER_ICONS.plus, true));
 
-      /* One labelled group per kind. The booking submenu holds two; the
-         others hold one, and read as the list they always were. */
-      p.groups.forEach((group) => {
-        const el = document.createElement('div');
-        el.className = 'add-group';
-        const title = document.createElement('p');
-        title.className = 'add-group-title';
-        title.setAttribute('data-no-phrase', '');
-        title.textContent = group.title;
-        el.appendChild(title);
-        group.items.forEach((item) => el.appendChild(row(item, p.icon, false)));
-        pickerGroups.appendChild(el);
-      });
+      /* One labelled group per kind, and only for the ones that hold
+         something. A heading over nothing is a promise the list does not
+         keep — before there is anything to pick, the submenu says that in a
+         line instead, and the way to make the first one is above it. */
+      const anything = p.groups.some((g) => g.items.length);
+      if (!anything) {
+        const empty = document.createElement('p');
+        empty.className = 'add-empty';
+        empty.setAttribute('data-no-phrase', '');
+        empty.textContent = p.empty || 'Nothing here yet.';
+        pickerGroups.appendChild(empty);
+      } else {
+        p.groups.forEach((group) => {
+          if (!group.items.length) return;
+          const el = document.createElement('div');
+          el.className = 'add-group';
+          const title = document.createElement('p');
+          title.className = 'add-group-title';
+          title.setAttribute('data-no-phrase', '');
+          title.textContent = group.title;
+          el.appendChild(title);
+          group.items.forEach((item) => el.appendChild(row(item, p.icon, false)));
+          pickerGroups.appendChild(el);
+        });
+      }
 
       headBacks.forEach((b) => { b.hidden = false; });
       addContent.setAttribute('data-level', 'picker');
