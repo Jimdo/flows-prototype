@@ -16,6 +16,30 @@
      reads from the same left edge as the row of layouts under it. Spacing
      and the header come from the single-column setup variant. */
 
+  /* On a tall screen the leftover height was dumped between the cards and
+     Continue — at 900 that was a 200px hole. The question keeps the top
+     left, where every other step puts it; the row of layouts takes the
+     middle of what is left under it. So the carousel grows into the spare
+     height and centres its cards inside itself, which measures from below
+     the question rather than from the top of the frame — the offset the
+     question and its line add is already spent by the time the row starts. */
+  @media (min-width: 768px) {
+    .template-carousel {
+      flex: 1 0 auto;
+      align-items: center;
+    }
+  }
+
+  /* The flow's phone gutter is 16: every step before and after this one
+     starts its title there, and this shell's own 12 put the question and the
+     row of layouts 4px left of all of them. Set on the column and on the
+     scroller's bleed together, so the first card keeps landing on the
+     title's left edge. */
+  @media (max-width: 767px) {
+    .setup-split-fields { padding-left: var(--jui-layout-padding-m); padding-right: var(--jui-layout-padding-m); }
+    .setup-split-actions { padding-left: var(--jui-layout-padding-m); padding-right: var(--jui-layout-padding-m); }
+  }
+
   /* ─── Template carousel ─── */
   /* Horizontal snap-scroll with peek of adjacent cards. Selected card gets a
      2px blue outline + soft blue glow shadow; unselected cards carry a neutral
@@ -43,7 +67,7 @@
        where reading starts. The scroller still spans the viewport and pads
        itself back to that edge, which keeps the cards already scrolled past
        on screen and clickable in the gutter. */
-    --bleed: var(--jui-layout-padding-s);
+    --bleed: var(--jui-layout-padding-m);
     padding-left: var(--bleed);
     /* Trailing room so the last layout can still reach the first place. */
     padding-right: calc(100vw - var(--card-w));
@@ -239,14 +263,13 @@
           c.tabIndex = isSel ? 0 : -1;
         });
         if (opts.scroll !== false) {
-          // Desktop puts the chosen layout in the first place and pushes the
-          // ones before it off to the left; mobile centres it. Measuring from
-          // the first card rather than from the padding keeps both honest if
-          // the bleed padding ever changes.
-          var wide = window.matchMedia('(min-width: 768px)').matches;
-          var target = wide
-            ? card.offsetLeft - cards[0].offsetLeft
-            : card.offsetLeft + card.offsetWidth / 2 - carousel.clientWidth / 2;
+          // The chosen layout goes to the first place at both sizes, which
+          // is where the title above it starts. Mobile used to centre it,
+          // leaving the card sitting 78px right of everything else on the
+          // screen — the CSS had already been changed to left-align and this
+          // had not. Measuring from the first card rather than from the
+          // padding keeps it honest if the bleed padding ever changes.
+          var target = card.offsetLeft - cards[0].offsetLeft;
           target = Math.max(0, Math.min(carousel.scrollWidth - carousel.clientWidth, target));
           var before = carousel.scrollLeft;
           try {
@@ -255,7 +278,7 @@
             carousel.scrollLeft = target;
           }
           // Safety: if native scroll was a no-op (headless / hidden tab),
-          // force-assign after a tick so the selected card still centers.
+          // force-assign after a tick so the selected card still lands.
           setTimeout(function(){
             if (Math.abs(carousel.scrollLeft - before) < 1 && Math.abs(target - before) > 1) {
               carousel.scrollLeft = target;
@@ -264,17 +287,19 @@
         }
       }
 
-      /* Whichever card is nearest the place a selected card belongs — the
-         left edge on desktop, the middle on mobile. */
+      /* Whichever card is nearest the place a selected card belongs: the
+         first place, at both sizes. */
       function closestToAnchor(){
         var rect = carousel.getBoundingClientRect();
-        var wide = window.matchMedia('(min-width: 768px)').matches;
-        var anchorX = wide ? rect.left + cards[0].offsetLeft : rect.left + rect.width / 2;
+        // The first place, in viewport coordinates: the scroller's own left
+        // edge plus its bleed padding. Not offset by scrollLeft — the anchor
+        // is a fixed spot on screen, and subtracting the scroll made it
+        // travel with the content, which dragged the selection back to the
+        // first card after every scroll.
+        var anchorX = rect.left + cards[0].offsetLeft;
         var best = null, bestDist = Infinity;
         cards.forEach(function(c){
-          var r = c.getBoundingClientRect();
-          var x = wide ? r.left : r.left + r.width / 2;
-          var d = Math.abs(x - anchorX);
+          var d = Math.abs(c.getBoundingClientRect().left - anchorX);
           if (d < bestDist) { bestDist = d; best = c; }
         });
         return best;
@@ -288,9 +313,10 @@
       // Auto-select on scroll end (debounced)
       var scrollTimer = null;
       carousel.addEventListener('scroll', function(){
-        // Mobile snaps one card at a time, so where the scroll lands is the
-        // choice. Desktop scrolls freely, where landing on a card is just
-        // looking at it — there the choice moves on click only.
+        // On a phone the scroll is the gesture that chooses: what you have
+        // brought to the first place is what you have picked. On a desktop
+        // the row is scanned rather than swiped, so the choice moves on a
+        // click and scrolling is just looking.
         if (window.matchMedia('(min-width: 768px)').matches) return;
         if (scrollTimer) clearTimeout(scrollTimer);
         scrollTimer = setTimeout(function(){
