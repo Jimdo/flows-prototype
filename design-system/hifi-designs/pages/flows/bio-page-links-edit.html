@@ -822,12 +822,18 @@
         document.getElementById(id).hidden = !SECTIONS[id].some((k) => ON[k]);
       });
 
+      const capped = limitReached();
       Object.keys(SUGGESTIONS).forEach((id) => {
         const s = SUGGESTIONS[id];
         // Set up, it stops being a suggestion and becomes a row like any
         // other — the dashed outline is the whole of what marked it. The row
         // itself is a block now, made by finishSuggestion().
-        document.getElementById(id).closest('li').hidden = s.removed || s.done;
+        //
+        // Past the plan's one action page it leaves the list altogether. A
+        // suggestion is a thing to do next, and this is not one any more;
+        // the upgrade it would need is offered where they go to add
+        // something, not standing in the list of what they have.
+        document.getElementById(id).closest('li').hidden = s.removed || s.done || capped;
       });
 
       /* A submenu of things you already have is empty until you have one.
@@ -839,23 +845,10 @@
       if (pickerRow('booking')) pickerRow('booking').hidden = !hasKind('book');
       if (pickerRow('form')) pickerRow('form').hidden = !hasKind('form');
 
-      /* Past the first one, a suggestion is still a good idea and no longer
-         a free one. It keeps its words and changes its colour and its ask. */
-      const capped = limitReached();
-      Object.keys(SUGGESTIONS).forEach((id) => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.classList.toggle('edit-suggestion--upgrade', capped);
-        const cta = el.querySelector('[data-setup]');
-        if (!cta) return;
-        cta.textContent = capped ? 'Upgrade and set up' : 'Set it up';
-        cta.classList.toggle('btn-upgrade', capped);
-      });
-
       const hasBlockRow = Object.keys(BLOCK_ROWS).some((id) => ON[BLOCK_ROWS[id]]) ||
         BLOCKS.size > 0;
       document.getElementById('headBlocks').hidden = !hasBlockRow;
-      document.getElementById('headSuggest').hidden = pending().length === 0;
+      document.getElementById('headSuggest').hidden = capped || pending().length === 0;
 
     }
 

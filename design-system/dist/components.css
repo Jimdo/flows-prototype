@@ -4647,15 +4647,6 @@ body {
   .edit-row .edit-row-grip { opacity: 1; }
 }
 
-/* The same suggestion, past the plan's first action page: same words, same
-   shape, the colour of a thing that now costs money. */
-.edit-suggestion--upgrade {
-  border-color: var(--jui-color-stroke-upgrade-on-light);
-  background: var(--jui-color-background-upgrade-light);
-}
-.edit-suggestion--upgrade .edit-row-icon { color: var(--jui-color-decorative-upgrade); }
-.edit-suggestion--upgrade .edit-row-label { color: var(--jui-color-typography-upgrade-on-light); }
-
 /* Set it up sits at the right end, with Remove inboard of it: the action
    being proposed is the one the thumb lands on, and the one that undoes the
    proposal is the one it has to reach past. Stacked on a phone the two take
