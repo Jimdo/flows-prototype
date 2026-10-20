@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Action Pages — Flows Dashboard</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=c3dd95d">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=c3dd95d">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/management-shell.css?v=c3dd95d">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=2a520b4">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=2a520b4">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/management-shell.css?v=2a520b4">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=c3dd95d">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=2a520b4">
 <style>
   /* Shell components (topbar, sidebar) rendered by shell-components.js.
      Extended topbar CSS (bell, account dropdown) and contextual sidebar CSS
@@ -1515,28 +1515,13 @@
     padding-left: var(--jui-layout-padding-l);
     padding-right: var(--jui-layout-padding-l);
   }
-  /* Type sections sit closer to each other than to the page furniture. */
-  .ap-sections {
+  /* One column, 24 between cards — ActionPagesSection's own gap. The 12 that
+     was here separated panels, and cards need more air than lids did. */
+  .ap-list {
     display: flex;
     flex-direction: column;
-    gap: var(--jui-layout-gap-s);
+    gap: var(--jui-layout-gap-l);
   }
-  /* Content-width small button on the cross-sell card. */
-  /* primitive-override */
-  .ap-cross-cta {
-    flex-shrink: 0;
-    width: auto;
-    height: var(--jui-layout-dimension-s);
-    padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-s);
-    font-size: var(--jui-typography-body-small-medium-size);
-  }
-  @media (max-width: 767px) { .ap-cross-cta { width: 100%; } }
-  /* Figma fills the type panel #fbfbfb against a white page. Our working area
-     is already background-gray-medium (#fdfdfd), so reusing that token gives a
-     panel with zero contrast — verified 253,253,253 on both. Step down one to
-     gray-canvas so the grouping reads, keeping the frame's page/panel relation
-     rather than its literal hex. */
-  .ap-section { background: var(--jui-color-background-gray-canvas); }
 
   /* The upgrade CTA is content-width, not a stretched footer button. */
   /* primitive-override */
@@ -1563,7 +1548,7 @@
     background: rgba(255, 255, 255, 0.7);
   }
 </style>
-<script type="module" src="/flows-prototype/design-system/hifi-designs/shared/shell-components.js?v=c3dd95d"></script>
+<script type="module" src="/flows-prototype/design-system/hifi-designs/shared/shell-components.js?v=2a520b4"></script>
 </head>
 
 <body class="app-shell management-shell">
@@ -1596,153 +1581,89 @@
                 data-nav-to="flows/flows-suggestions-bookings.html" data-nav-screen-id="scr-459">Create action page</button>
             </div>
 
-            <!-- Allowance spent — the free action-page limit -->
-            <div class="card-status card-status--upgrade"
-              data-inspect-label="Upgrade banner — card-status upgrade variant"
-              data-inspect-tokens='[{"prop":"highlight background","figma":"$jui-color-background-upgrade-dark","value":"#e4b5ff"},{"prop":"highlight color","figma":"$jui-color-typography-upgrade-on-light","value":"#4e0079"}]'>
-              <div class="card-status-highlight">
-                <span class="card-status-highlight-icon"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M13.5 4.5C16.5 2 19.5 2 21 2C21.5523 2 22 2.44772 22 3C22 4.5 22 7.5 19.5 10.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M11.5 6.5C9.5 6.5 7.5 7 6 8.5L2.5 12L6 13M17.5 12.5C17.5 14.5 17 16.5 15.5 18L12 21.5L11 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M14 10L14.009 10" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 18C5 19 4.5 20.5 4.5 20.5C4.5 20.5 6 20 7 19" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></span>
-                <span class="card-status-highlight-label" data-inspect-phrase="">Upgrade</span>
+            <!-- Allowance spent — the free action-page limit.
+                 Same component as the legal trigger in the add-links sheet:
+                 purple-10 shell, white body, eyebrow naming the job. It used
+                 to be .card-status--upgrade, whose purple-100 strip made the
+                 same offer look like a different kind of thing on each
+                 screen. One offer, one shape. -->
+            <div class="upgrade-banner upgrade-banner--light"
+              data-inspect-label="Upgrade panel — shared with the add-links legal trigger"
+              data-inspect-tokens='[{"prop":"shell","figma":"$jui-color-background-upgrade-light","css":"--jui-color-background-upgrade-light","value":"#fcecff"},{"prop":"body","figma":"color/gray/white","css":"--jui-color-background-gray-light","value":"#ffffff"},{"prop":"shell padding","figma":"$jui-layout-padding-xxs","css":"--jui-layout-padding-xxs","value":"4px"},{"prop":"body radius","figma":"$jui-style-radius-m","css":"--jui-style-radius-m","value":"12px"}]'>
+              <div class="upgrade-banner-header">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                <span class="upgrade-banner-eyebrow" data-inspect-phrase="">More action pages</span>
               </div>
-              <div class="card-status-frame">
-                <div class="card-status-content">
-                  <div class="card-status-header">
-                    <div class="card-status-copy">
-                      <div class="card-status-headline">You've used up your free action pages</div>
-                      <div class="card-status-desc">Upgrade to add as many as you need, of any type.</div>
-                    </div>
-                    <button class="btn btn-primary btn-upgrade" data-inspect-phrase="">Upgrade</button>
-                  </div>
+              <div class="upgrade-banner-body upgrade-banner-body--row">
+                <div class="upgrade-banner-headline">
+                  <p class="upgrade-banner-title" data-inspect-phrase="">You have used your free action page</p>
+                  <p class="upgrade-banner-subtitle" data-inspect-phrase="">Add as many as you need, of any type, from Jimdo Start.</p>
+                </div>
+                <div class="upgrade-banner-cta">
+                  <button type="button" class="btn btn-primary btn-upgrade"
+                    data-nav-to="flows/paywall-domain.html?from=solo-pages"
+                    data-nav-screen-id="scr-054"
+                    data-inspect-phrase="paywall.pro.cta"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg>Upgrade</button>
                 </div>
               </div>
             </div>
 
-            <!-- Type sections — one disclosure per action-page type -->
-            <div class="ap-sections">
-
-            <div class="ap-section"
-              data-inspect-label="Type section — collapsible; count trails the title, parent-product link at the trailing edge"
-              data-inspect-tokens='[{"prop":"background","figma":"#fbfbfb (raw)","css":"--jui-color-background-gray-canvas","value":"stepped down one so the panel reads against our gray-medium page"},{"prop":"border-radius","figma":"$jui-style-radius-l","value":"16px"},{"prop":"padding","figma":"$jui-layout-padding-xs","value":"8px"}]'>
-              <details class="ap-section-disc" open>
-              <summary class="ap-section-head">
-                <span class="ap-section-chevron"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 6L15 12L9 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></span>
-                <h3 class="ap-section-title" data-inspect-phrase="">Forms</h3>
-                <span class="ap-section-count" aria-label="2 pages"
-                  data-inspect-label="Count — subdued at zero, default ink from one up"
-                  data-inspect-tokens='[{"prop":"color (0)","css":"--jui-color-typography-gray-on-light-subdued"},{"prop":"color (1+)","css":"--jui-color-typography-gray-on-light-default"}]'>2</span>
-              </summary>
-                <div class="ap-section-body">
-                <a class="flow-card-h" href="#" data-inspect-phrase="">
-                  <img class="flow-card-h-thumb" src="../images/clara-stone.jpg" alt="" />
-                  <div class="flow-card-h-body">
-                    <h4 class="flow-card-h-title" data-inspect-phrase="">Join my mailing list</h4>
-                    <div class="flow-card-h-activity">
-                      <span>128 views</span><span>24 clicks</span><span>6 customers</span>
+            <!-- The list, flat.
+                 ActionPagesSection renders every action page as one FlowCard
+                 in one column — no grouping by type, because the type is a
+                 line on the card rather than a lid over a pile of them. The
+                 three disclosures that used to be here (Forms, Bookings,
+                 Payments) and the cross-sell inside the empty ones were an
+                 exploration; production has neither. -->
+            <div class="ap-list">
+              <div class="flow-card-h">
+                <img class="flow-card-h-thumb" src="../images/clara-stone.jpg" alt="" />
+                <div class="flow-card-h-body">
+                  <a class="flow-card-h-link" href="#" data-no-phrase>
+                    <h3 class="flow-card-h-title" data-inspect-phrase="">Join my mailing list</h3>
+                    <div class="flow-card-h-activity"><span>128 views</span><span>24 clicks</span><span>6 customers</span></div>
+                  </a>
+                  <div class="flow-card-h-meta">
+                    <span class="flow-card-h-type"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M11 6L21 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M11 12L21 12" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M11 18L21 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M3 7.5L4.5 9L8.5 4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M3 18.5L4.5 20L8.5 15" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span data-inspect-phrase="dashboard.flowCard.typeForm">Form</span></span>
+                    <div class="flow-card-h-actions" role="toolbar" aria-label="Share Join my mailing list">
+                      <button type="button" aria-label="Copy link" data-no-phrase><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M13.5 17H17C19.7614 17 22 14.7614 22 12C22 9.23858 19.7614 7 17 7H13.5M10.5 17H7C4.23858 17 2 14.7614 2 12C2 9.23858 4.23858 7 7 7H10.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M8.5 12H15.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+                      <button type="button" aria-label="Open in a new tab" data-no-phrase><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M10.5 3H4.99995C3.89538 3 2.99995 3.89543 2.99995 5V19C2.99995 20.1046 3.89538 21 4.99995 21H19C20.1045 21 21 20.1046 21 19V13.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M11 13L20.3499 3.64944M21 9V3L15 3" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
                     </div>
                   </div>
-                </a>
-                <a class="flow-card-h" href="#" data-inspect-phrase="">
-                  <img class="flow-card-h-thumb" src="../images/clara-stone.jpg" alt="" />
-                  <div class="flow-card-h-body">
-                    <h4 class="flow-card-h-title" data-inspect-phrase="">Ask me about custom pieces</h4>
-                    <div class="flow-card-h-activity">
-                      <span>41 views</span><span>9 clicks</span><span>2 customers</span>
-                    </div>
-                  </div>
-                </a>
-              </div>
-              </details>
-              <a class="ap-section-nav" href="#" aria-label="Go to Forms" data-inspect-phrase=""
-                data-inspect-label="Parent-product link — every type has one"
-                data-inspect-tokens='[{"prop":"color","css":"--jui-color-actions-primary-rest"},{"prop":"position","value":"absolute, top/right 8px"}]'>Go to Forms <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15.0001 17L20 12L15 7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></a>
-            </div>
-
-            <div class="ap-section"
-              data-inspect-label="Type section — collapsible; count trails the title, parent-product link at the trailing edge"
-              data-inspect-tokens='[{"prop":"background","figma":"#fbfbfb (raw)","css":"--jui-color-background-gray-canvas","value":"stepped down one so the panel reads against our gray-medium page"},{"prop":"border-radius","figma":"$jui-style-radius-l","value":"16px"},{"prop":"padding","figma":"$jui-layout-padding-xs","value":"8px"}]'>
-              <details class="ap-section-disc" open>
-              <summary class="ap-section-head">
-                <span class="ap-section-chevron"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 6L15 12L9 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></span>
-                <h3 class="ap-section-title" data-inspect-phrase="">Bookings</h3>
-                <span class="ap-section-count" aria-label="1 page"
-                  data-inspect-label="Count — subdued at zero, default ink from one up"
-                  data-inspect-tokens='[{"prop":"color (0)","css":"--jui-color-typography-gray-on-light-subdued"},{"prop":"color (1+)","css":"--jui-color-typography-gray-on-light-default"}]'>1</span>
-              </summary>
-                <div class="ap-section-body">
-                <a class="flow-card-h" href="#" data-inspect-phrase="">
-                  <img class="flow-card-h-thumb" src="../images/clara-stone.jpg" alt="" />
-                  <div class="flow-card-h-body">
-                    <h4 class="flow-card-h-title" data-inspect-phrase="">Jewellery making for beginners</h4>
-                    <div class="flow-card-h-activity">
-                      <span>96 views</span><span>31 clicks</span><span>4 customers</span>
-                    </div>
-                  </div>
-                </a>
-              </div>
-              </details>
-              <a class="ap-section-nav" href="#" aria-label="Go to Bookings" data-inspect-phrase=""
-                data-inspect-label="Parent-product link — every type has one"
-                data-inspect-tokens='[{"prop":"color","css":"--jui-color-actions-primary-rest"},{"prop":"position","value":"absolute, top/right 8px"}]'>Go to Bookings <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15.0001 17L20 12L15 7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></a>
-            </div>
-
-            <div class="ap-section"
-              data-inspect-label="Type section — collapsible; count trails the title, parent-product link at the trailing edge"
-              data-inspect-tokens='[{"prop":"background","figma":"#fbfbfb (raw)","css":"--jui-color-background-gray-canvas","value":"stepped down one so the panel reads against our gray-medium page"},{"prop":"border-radius","figma":"$jui-style-radius-l","value":"16px"},{"prop":"padding","figma":"$jui-layout-padding-xs","value":"8px"}]'>
-              <details class="ap-section-disc">
-              <summary class="ap-section-head">
-                <span class="ap-section-chevron"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 6L15 12L9 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></span>
-                <h3 class="ap-section-title" data-inspect-phrase="">Payments</h3>
-                <span class="ap-section-count ap-section-count--zero" aria-label="0 pages"
-                  data-inspect-label="Count — subdued at zero, default ink from one up"
-                  data-inspect-tokens='[{"prop":"color (0)","css":"--jui-color-typography-gray-on-light-subdued"},{"prop":"color (1+)","css":"--jui-color-typography-gray-on-light-default"}]'>0</span>
-              </summary>
-                <div class="ap-section-body">
-                <div class="ap-cross"
-                  data-inspect-label="Cross-sell card — an unused type sells itself in the slot a page would fill"
-                  data-inspect-tokens='[{"prop":"background","css":"--jui-color-background-gray-light"},{"prop":"border-radius","value":"12px"},{"prop":"icon tile","value":"48px, background-primary-light"}]'>
-                  <span class="ap-cross-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="1" y="4" width="22" height="16" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="1" y1="10" x2="23" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                  <div class="ap-cross-copy">
-                    <h4 class="ap-cross-title" data-inspect-phrase="">Get paid without sending an invoice</h4>
-                    <p class="ap-cross-desc">Share a link, they pay, and the money lands in your account.</p>
-                  </div>
-                  <button class="btn-secondary ap-cross-cta" aria-label="Create a payment page" data-inspect-phrase="">Create a payment page</button>
                 </div>
               </div>
-              </details>
-              <a class="ap-section-nav" href="#" aria-label="Go to Payments" data-inspect-phrase=""
-                data-inspect-label="Parent-product link — every type has one"
-                data-inspect-tokens='[{"prop":"color","css":"--jui-color-actions-primary-rest"},{"prop":"position","value":"absolute, top/right 8px"}]'>Go to Payments <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15.0001 17L20 12L15 7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></a>
-            </div>
-
-            <div class="ap-section"
-              data-inspect-label="Type section — collapsible; count trails the title, parent-product link at the trailing edge"
-              data-inspect-tokens='[{"prop":"background","figma":"#fbfbfb (raw)","css":"--jui-color-background-gray-canvas","value":"stepped down one so the panel reads against our gray-medium page"},{"prop":"border-radius","figma":"$jui-style-radius-l","value":"16px"},{"prop":"padding","figma":"$jui-layout-padding-xs","value":"8px"}]'>
-              <details class="ap-section-disc">
-              <summary class="ap-section-head">
-                <span class="ap-section-chevron"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 6L15 12L9 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></span>
-                <h3 class="ap-section-title" data-inspect-phrase="">Store</h3>
-                <span class="ap-section-count ap-section-count--zero" aria-label="0 pages"
-                  data-inspect-label="Count — subdued at zero, default ink from one up"
-                  data-inspect-tokens='[{"prop":"color (0)","css":"--jui-color-typography-gray-on-light-subdued"},{"prop":"color (1+)","css":"--jui-color-typography-gray-on-light-default"}]'>0</span>
-              </summary>
-                <div class="ap-section-body">
-                <div class="ap-cross"
-                  data-inspect-label="Cross-sell card — an unused type sells itself in the slot a page would fill"
-                  data-inspect-tokens='[{"prop":"background","css":"--jui-color-background-gray-light"},{"prop":"border-radius","value":"12px"},{"prop":"icon tile","value":"48px, background-primary-light"}]'>
-                  <span class="ap-cross-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3.5 10.5V19.5C3.5 20.6046 4.39543 21.5 5.5 21.5H18.5C19.6046 21.5 20.5 20.6046 20.5 19.5V10.5" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/><path d="M9.10312 10.2593C7.90964 11.5658 6.23423 11.565 5.26481 11.3905C3.76542 11.1205 2.62896 9.9078 2 9L3.7828 3.20591C3.9119 2.78632 4.29957 2.5 4.73857 2.5H19.2614C19.7004 2.5 20.0881 2.78632 20.2172 3.20591L22 9C20.2678 11.0951 17.1113 12.7253 14.8632 10.2722M9.10312 10.2593C9.61924 9.69435 10.0452 8.88492 10.285 7.73936M9.10312 10.2593C9.69112 10.9253 11.3255 12.0178 13.3509 11.2197C15.286 10.4572 15.7171 9.01536 16 7.73936" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M6.5 18H10.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></span>
-                  <div class="ap-cross-copy">
-                    <h4 class="ap-cross-title" data-inspect-phrase="">Sell the things you make</h4>
-                    <p class="ap-cross-desc">One page per product, with checkout already built in.</p>
+              <div class="flow-card-h">
+                <img class="flow-card-h-thumb" src="../images/clara-stone.jpg" alt="" />
+                <div class="flow-card-h-body">
+                  <a class="flow-card-h-link" href="#" data-no-phrase>
+                    <h3 class="flow-card-h-title" data-inspect-phrase="">Ask me about custom pieces</h3>
+                    <div class="flow-card-h-activity"><span>41 views</span><span>9 clicks</span><span>2 customers</span></div>
+                  </a>
+                  <div class="flow-card-h-meta">
+                    <span class="flow-card-h-type"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M11 6L21 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M11 12L21 12" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M11 18L21 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M3 7.5L4.5 9L8.5 4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M3 18.5L4.5 20L8.5 15" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span data-inspect-phrase="dashboard.flowCard.typeForm">Form</span></span>
+                    <div class="flow-card-h-actions" role="toolbar" aria-label="Share Ask me about custom pieces">
+                      <button type="button" aria-label="Copy link" data-no-phrase><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M13.5 17H17C19.7614 17 22 14.7614 22 12C22 9.23858 19.7614 7 17 7H13.5M10.5 17H7C4.23858 17 2 14.7614 2 12C2 9.23858 4.23858 7 7 7H10.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M8.5 12H15.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+                      <button type="button" aria-label="Open in a new tab" data-no-phrase><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M10.5 3H4.99995C3.89538 3 2.99995 3.89543 2.99995 5V19C2.99995 20.1046 3.89538 21 4.99995 21H19C20.1045 21 21 20.1046 21 19V13.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M11 13L20.3499 3.64944M21 9V3L15 3" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+                    </div>
                   </div>
-                  <button class="btn-secondary ap-cross-cta" aria-label="Create a product page" data-inspect-phrase="">Create a product page</button>
                 </div>
               </div>
-              </details>
-              <a class="ap-section-nav" href="#" aria-label="Go to Store" data-inspect-phrase=""
-                data-inspect-label="Parent-product link — every type has one"
-                data-inspect-tokens='[{"prop":"color","css":"--jui-color-actions-primary-rest"},{"prop":"position","value":"absolute, top/right 8px"}]'>Go to Store <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15.0001 17L20 12L15 7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></a>
-            </div>
-
+              <div class="flow-card-h">
+                <img class="flow-card-h-thumb" src="../images/clara-stone.jpg" alt="" />
+                <div class="flow-card-h-body">
+                  <a class="flow-card-h-link" href="#" data-no-phrase>
+                    <h3 class="flow-card-h-title" data-inspect-phrase="">Jewellery making for beginners</h3>
+                    <div class="flow-card-h-activity"><span>96 views</span><span>31 clicks</span><span>4 customers</span></div>
+                  </a>
+                  <div class="flow-card-h-meta">
+                    <span class="flow-card-h-type"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M18 2V4M6 2V4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M3 8H21" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M2.5 12.2432C2.5 7.88594 2.5 5.70728 3.75212 4.35364C5.00424 3 7.01949 3 11.05 3H12.95C16.9805 3 18.9958 3 20.2479 4.35364C21.5 5.70728 21.5 7.88594 21.5 12.2432V12.7568C21.5 17.1141 21.5 19.2927 20.2479 20.6464C18.9958 22 16.9805 22 12.95 22H11.05C7.01949 22 5.00424 22 3.75212 20.6464C2.5 19.2927 2.5 17.1141 2.5 12.7568V12.2432Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span data-inspect-phrase="dashboard.flowCard.typeBooking">Booking</span></span>
+                    <div class="flow-card-h-actions" role="toolbar" aria-label="Share Jewellery making for beginners">
+                      <button type="button" aria-label="Copy link" data-no-phrase><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M13.5 17H17C19.7614 17 22 14.7614 22 12C22 9.23858 19.7614 7 17 7H13.5M10.5 17H7C4.23858 17 2 14.7614 2 12C2 9.23858 4.23858 7 7 7H10.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M8.5 12H15.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+                      <button type="button" aria-label="Open in a new tab" data-no-phrase><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M10.5 3H4.99995C3.89538 3 2.99995 3.89543 2.99995 5V19C2.99995 20.1046 3.89538 21 4.99995 21H19C20.1045 21 21 20.1046 21 19V13.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M11 13L20.3499 3.64944M21 9V3L15 3" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
           </div>

@@ -2265,7 +2265,11 @@ body {
   padding: var(--jui-layout-padding-xxs);
   background: var(--jui-color-background-gray-light);
   border: 1px solid var(--jui-color-stroke-gray-default);
-  border-radius: var(--jui-style-radius-m);
+  /* radius-l, the way FlowCardItem has it — and it is what makes the
+     thumbnail's radius-m correct: 16 outside, 4 of padding, 12 inside. At
+     radius-m the card and its image had the same corner, which reads as one
+     shape misdrawn rather than two shapes nested. */
+  border-radius: var(--jui-style-radius-16);
   overflow: hidden;
   text-decoration: none;
   transition: border-color 150ms ease, box-shadow 150ms ease;
@@ -2279,11 +2283,17 @@ body {
   outline-offset: 2px;
 }
 
+/* dimension-xl wide and as tall as the card, the way FlowCardItem has it —
+   the fixed 88 was right when the card held a title and a stat line, and left
+   a gap under the image once the type row arrived. radius-m, not 8: the card
+   is radius-16 with 4 of padding, so the image's corner is the card's minus
+   its inset. */
 .flow-card-h-thumb {
   flex-shrink: 0;
-  width: 64px;
-  height: 88px;
-  border-radius: var(--jui-style-radius-8);
+  align-self: stretch;
+  width: var(--jui-layout-dimension-xl);
+  min-height: 88px;
+  border-radius: var(--jui-style-radius-m);
   background: var(--jui-color-background-gray-dark);
   object-fit: cover;
   display: block;
@@ -2319,6 +2329,90 @@ body {
   color: var(--jui-color-typography-gray-on-light-default);
 }
 /* 4px separator dot between metrics. */
+/* ── Type, and what you can do with the link ──
+   FlowCardItem's second row: what kind of page this is on the left, the two
+   things you can do with its address on the right. The card used to be one
+   anchor end to end, which left no room for a button inside it — the anchor
+   is now a child that stretches over the card with ::after, and this row
+   sits back above it. Production does the same, for the same reason. */
+.flow-card-h { position: relative; }
+.flow-card-h-link {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xxs);
+  min-width: 0;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+.flow-card-h-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--jui-style-radius-16);
+}
+.flow-card-h:has(.flow-card-h-link:focus-visible) {
+  outline: 2px solid var(--jui-color-actions-primary-rest);
+  outline-offset: 2px;
+}
+.flow-card-h-link:focus-visible { outline: none; }
+
+.flow-card-h-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--jui-layout-gap-xs);
+  margin-top: auto;
+}
+.flow-card-h-type {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+  font-size: var(--jui-typography-label-small-size);
+  font-weight: var(--jui-typography-label-small-weight);
+  letter-spacing: var(--jui-typography-label-small-ls);
+  line-height: var(--jui-typography-label-small-lh);
+}
+.flow-card-h-type svg { width: 16px; height: 16px; flex-shrink: 0; }
+/* labelSmall renders uppercase in @jimdo/ui; the design shows it as written,
+   which is the note FlowCardTypeBadge carries too. */
+.flow-card-h-type span { text-transform: capitalize; }
+
+.flow-card-h-actions {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-s);
+}
+.flow-card-h-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--jui-layout-dimension-s);
+  height: var(--jui-layout-dimension-s);
+  padding: 0;
+  border: none;
+  border-radius: var(--jui-style-radius-8);
+  background: none;
+  color: var(--jui-color-typography-gray-on-light-default);
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+.flow-card-h-actions button svg { width: 20px; height: 20px; }
+.flow-card-h-actions button:hover { background: var(--jui-color-actions-static-hover); }
+.flow-card-h-actions button:focus-visible {
+  outline: 2px solid var(--jui-color-actions-primary-rest);
+  outline-offset: 2px;
+}
+/* Archived pages say so where the actions would be — there is nothing to
+   share once a page is off the air. */
+.flow-card-h-archived {
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
 .flow-card-h-activity span + span::before {
   content: '';
   display: inline-block;
