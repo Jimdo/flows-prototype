@@ -81,9 +81,20 @@
               <span data-inspect-phrase="businessInfo.offerDescription.suggestLoading">Reading your tagline…</span>
             </span>
             <div class="ai-suggest-body">
-              <p class="ai-suggest-text" data-inspect-phrase="businessInfo.offerDescription.suggestBody">Add what people can book — a workshop, a class — so they know what they get from you.</p>
-              <button type="button" class="ai-suggest-apply" id="applySuggestion"
-                data-inspect-phrase="businessInfo.offerDescription.suggestApplyCta">Apply</button>
+              <p class="ai-suggest-text" id="suggestText" data-inspect-phrase="businessInfo.offerDescription.suggestBody">Add what people can book — a workshop, a class — so they know what they get from you.</p>
+              <!-- Apply and another go sit together: they are the two
+                   answers to the same offer, and one of them is always the
+                   right one. -->
+              <div class="ai-suggest-actions">
+                <button type="button" class="ai-suggest-apply" id="applySuggestion"
+                  data-inspect-label="Smart Secondary Button — Apply"
+                  data-inspect-tokens='[{"prop":"border","figma":"@jimdo/ui smartSecondaryButton","css":"--jui-gradient-smart","value":"1px gradient 111deg blue-500 → red-300 → yellow-300"},{"prop":"background","figma":"$jui-color-background-gray-light","css":"--jui-color-gray-white","value":"#ffffff"},{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px"}]'
+                  data-inspect-phrase="businessInfo.offerDescription.suggestApplyCta"><span class="btn-smart-label">Apply</span></button>
+                <button type="button" class="regen regen--smart" id="regenSuggestion" data-busy="false"
+                  data-inspect-label="Regenerate — smart"
+                  data-inspect-tokens='[{"prop":"label","figma":"@jimdo/ui smartSecondaryButton","css":"--jui-gradient-smart","value":"gradient 111deg blue-500 → red-300 → yellow-300"},{"prop":"icon","figma":"reload","css":"--jui-color-blue-500","value":"16px #004ced"}]'
+                  data-inspect-phrase="businessInfo.offerDescription.suggestRegenerateCta"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M14.5 1.99976L15.5 4.54791C14.3079 3.91092 12.9461 3.5498 11.5 3.5498C6.80558 3.5498 3 7.35538 3 12.0498C3 13.8409 3.554 15.6294 4.5 16.9998" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M8.5 21.9997L7.5 19.4516C8.69215 20.0885 10.0539 20.4497 11.5 20.4497C16.1944 20.4497 20 16.6441 20 11.9497C20 10.1585 19.446 8.37009 18.5 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span class="regen-label">Regenerate</span></button>
+              </div>
             </div>
           </div>
 
@@ -125,29 +136,69 @@
     const suggest = document.getElementById('suggest');
     const applyBtn = document.getElementById('applySuggestion');
 
-    // Hardcoded for now: one suggestion, one addition. The timing is the part
-    // worth feeling — it has to arrive after a pause rather than interrupt.
-    // The loader turns up on the first few characters rather than after a
-    // pause, so the person can see something is reading along while they
-    // write. The pause then does the other half of the job: the suggestion
-    // lands when they stop, which is the only moment it is not an
-    // interruption. Nothing is timed to look busy — the wait IS the typing.
+    const suggestText = document.getElementById('suggestText');
+    const regenBtn = document.getElementById('regenSuggestion');
+
+    /* Hardcoded for now, but more than one: a single suggestion that cannot
+       be refused is advice, and advice about someone's own business is a
+       thing to be able to turn down. Each is a different question a service
+       business gets asked before anyone books — what it is, who it is for,
+       where it happens — and each ends in something that could go in the
+       line as it stands. */
+    const SUGGESTIONS = [
+      {
+        note: 'Add what people can book — a workshop, a class — so they know what they get from you.',
+        addition: ' — weekly classes and beginner workshops',
+      },
+      {
+        note: 'Say who it is for. Someone who sees themselves in the line is the one who gets in touch.',
+        addition: ' — for women starting out',
+      },
+      {
+        note: 'Say where you work. People checking whether you are near them are deciding right there.',
+        addition: ' — in Hamburg and online',
+      },
+      {
+        note: 'Say how people start with you. A first step is easier to take than an open invitation.',
+        addition: ' — book a taster class any week',
+      },
+    ];
+
+    // The timing is the part worth feeling — it has to arrive after a pause
+    // rather than interrupt. The loader turns up on the first few characters
+    // rather than after a pause, so the person can see something is reading
+    // along while they write. The pause then does the other half of the job:
+    // the suggestion lands when they stop, which is the only moment it is
+    // not an interruption. Nothing is timed to look busy — the wait IS the
+    // typing. Asking for another is the one wait with nothing behind it, so
+    // that one is timed.
     const SETTLE_MS = 1000;
+    const REGEN_MS = 900;
     const MIN_CHARS = 3;
-    const ADDITION = ' — weekly classes and beginner workshops';
 
     let settleTimer = null;
+    let regenTimer = null;
     let applied = false;
+    let round = 0;
+
+    const current = () => SUGGESTIONS[round % SUGGESTIONS.length];
+
+    function paintSuggestion() {
+      suggestText.textContent = current().note;
+    }
+    paintSuggestion();
 
     function hideSuggestion() {
       window.clearTimeout(settleTimer);
+      window.clearTimeout(regenTimer);
+      regenBtn.setAttribute('data-busy', 'false');
       suggest.hidden = true;
     }
 
     function scheduleSuggestion() {
       window.clearTimeout(settleTimer);
       const text = input.value.trim();
-      if (applied || text.length < MIN_CHARS || text.includes(ADDITION.trim())) {
+      if (applied || text.length < MIN_CHARS || text.includes(current().addition.trim())) {
         hideSuggestion();
         return;
       }
@@ -166,10 +217,25 @@
 
     applyBtn.addEventListener('click', () => {
       applied = true;
-      input.value = (input.value.trim() || input.placeholder) + ADDITION;
+      input.value = (input.value.trim() || input.placeholder) + current().addition;
       hideSuggestion();
       split.sync();
       input.focus();
+    });
+
+    /* Another go. The panel goes back to reading rather than swapping the
+       words under the pointer — the seller asked for a new one, and seeing
+       it being found is what says one is coming. */
+    regenBtn.addEventListener('click', () => {
+      if (regenBtn.getAttribute('data-busy') === 'true') return;
+      regenBtn.setAttribute('data-busy', 'true');
+      suggest.setAttribute('data-state', 'loading');
+      regenTimer = window.setTimeout(() => {
+        round += 1;
+        paintSuggestion();
+        suggest.setAttribute('data-state', 'ready');
+        regenBtn.setAttribute('data-busy', 'false');
+      }, REGEN_MS);
     });
 
     const TAGLINE = 'Yoga and mindfulness workshops for women';
@@ -178,7 +244,7 @@
       'writing':           { drawer: 'default',   value: TAGLINE,   focus: true,  suggest: 'loading' },
       'reading-it':        { drawer: 'default',   value: TAGLINE,   focus: false, suggest: 'loading' },
       'suggestion':        { drawer: 'default',   value: TAGLINE,   focus: false, suggest: 'ready' },
-      'applied':           { drawer: 'default',   value: TAGLINE + ADDITION, focus: false, suggest: null },
+      'applied':           { drawer: 'default',   value: TAGLINE + SUGGESTIONS[0].addition, focus: false, suggest: null },
       'preview-peek':      { drawer: 'collapsed', value: TAGLINE,   focus: false, suggest: null },
     };
 

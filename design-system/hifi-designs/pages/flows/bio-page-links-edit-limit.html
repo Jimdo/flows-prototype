@@ -218,6 +218,11 @@
             <p class="add-group-title" data-inspect-phrase="">Ideas for your page</p>
             <div class="add-grid" id="ideaGrid"></div>
 
+            <button type="button" class="regen regen--smart" id="regenIdeas" data-busy="false"
+              data-inspect-label="Regenerate — smart"
+              data-inspect-tokens='[{"prop":"label","figma":"@jimdo/ui smartSecondaryButton","css":"--jui-gradient-smart","value":"gradient 111deg blue-500 \u2192 red-300 \u2192 yellow-300"},{"prop":"icon","figma":"reload","css":"--jui-color-blue-500","value":"16px #004ced"}]'
+              data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M14.5 1.99976L15.5 4.54791C14.3079 3.91092 12.9461 3.5498 11.5 3.5498C6.80558 3.5498 3 7.35538 3 12.0498C3 13.8409 3.554 15.6294 4.5 16.9998" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M8.5 21.9997L7.5 19.4516C8.69215 20.0885 10.0539 20.4497 11.5 20.4497C16.1944 20.4497 20 16.6441 20 11.9497C20 10.1585 19.446 8.37009 18.5 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span class="regen-label">Regenerate</span></button>
+
             <button type="button" class="text-action" id="askOpen" data-inspect-phrase="">Offer something else</button>
           </div>
 
@@ -957,20 +962,45 @@
       form: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M11 6L21 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 12L21 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 18L21 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 7.5L4.5 9L8.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 18.5L4.5 20L8.5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     };
 
-    const FIRST_IDEAS = [
-      { shape: 'book',  title: 'Weekend retreat booking',       detail: 'A date people sign up for' },
-      { shape: 'book',  title: 'One-to-one session booking',    detail: 'They pick a time' },
-      { shape: 'form',  title: 'Tell me what you need form',    detail: 'Questions before booking' },
+    /* Rounds, so the three can be refused. Same sets as
+       bio-page-links-edit.html — two ways to be booked and one way to be
+       asked, moving from the obvious thing to the ones nobody thinks to put
+       on a page. */
+    const FIRST_IDEA_ROUNDS = [
+      [
+        { shape: 'book',  title: 'Weekend retreat booking',       detail: 'A date people sign up for' },
+        { shape: 'book',  title: 'One-to-one session booking',    detail: 'They pick a time' },
+        { shape: 'form',  title: 'Tell me what you need form',    detail: 'Questions before booking' },
+      ],
+      [
+        { shape: 'book',  title: 'Taster class booking',          detail: 'A short first try' },
+        { shape: 'book',  title: 'Monthly class pass booking',    detail: 'They pay once for the month' },
+        { shape: 'form',  title: 'What does it cost form',        detail: 'The question that comes first' },
+      ],
+      [
+        { shape: 'book',  title: 'Beginner course booking',       detail: 'Several dates, one sign-up' },
+        { shape: 'book',  title: 'Team session booking',          detail: 'A company books for its people' },
+        { shape: 'form',  title: 'Tell me when a date opens form', detail: 'For the ones you are full for' },
+      ],
     ];
 
-    function ideasFor(prompt) {
+    const ASKED_IDEA_ROUNDS = [
+      [['book', ' booking', 'A date people sign up for'],
+       ['book', ' slots booking', 'They pick a time'],
+       ['form', ' enquiry form', 'Questions before booking']],
+      [['book', ' taster booking', 'A short first try'],
+       ['book', ' course booking', 'Several dates, one sign-up'],
+       ['form', ' price form', 'What it costs, before they commit']],
+      [['book', ' group booking', 'They bring their own people'],
+       ['book', ' one-to-one booking', 'Just them and you'],
+       ['form', ' waitlist form', 'For the dates you are full for']],
+    ];
+
+    function ideasFor(prompt, round = 0) {
       const thing = prompt.trim().replace(/^(a|an|the)\s+/i, '').replace(/\s+/g, ' ');
       const Thing = thing.charAt(0).toUpperCase() + thing.slice(1);
-      return [
-        { shape: 'book',  title: Thing + ' booking',         detail: 'A date people sign up for' },
-        { shape: 'book',  title: Thing + ' slots booking',   detail: 'They pick a time' },
-        { shape: 'form',  title: Thing + ' enquiry form',    detail: 'Questions before booking' },
-      ];
+      return ASKED_IDEA_ROUNDS[round % ASKED_IDEA_ROUNDS.length]
+        .map(([shape, suffix, detail]) => ({ shape, title: Thing + suffix, detail }));
     }
 
     const ideaGrid = document.getElementById('ideaGrid');
@@ -995,7 +1025,29 @@
       });
     }
 
-    renderIdeas(FIRST_IDEAS);
+    renderIdeas(FIRST_IDEA_ROUNDS[0]);
+
+    /* What the three are built from, so another go knows what to vary:
+       nothing yet means the first rounds, a prompt means that prompt again
+       with a different three. */
+    let askedFor = null;
+    let ideaRound = 0;
+    const REGEN_MS = 900;
+    const regenIdeas = document.getElementById('regenIdeas');
+
+    regenIdeas.addEventListener('click', () => {
+      if (regenIdeas.getAttribute('data-busy') === 'true') return;
+      regenIdeas.setAttribute('data-busy', 'true');
+      ideaGrid.setAttribute('data-regenerating', 'true');
+      window.setTimeout(() => {
+        ideaRound += 1;
+        renderIdeas(askedFor
+          ? ideasFor(askedFor, ideaRound)
+          : FIRST_IDEA_ROUNDS[ideaRound % FIRST_IDEA_ROUNDS.length]);
+        ideaGrid.removeAttribute('data-regenerating');
+        regenIdeas.setAttribute('data-busy', 'false');
+      }, REGEN_MS);
+    });
 
     const askInput = document.getElementById('askInput');
 
@@ -1011,7 +1063,9 @@
     function ask() {
       const prompt = askInput.value.trim();
       if (!prompt) return;
-      renderIdeas(ideasFor(prompt));
+      askedFor = prompt;
+      ideaRound = 0;
+      renderIdeas(ideasFor(prompt, ideaRound));
       askInput.value = '';
       closePicker();
     }

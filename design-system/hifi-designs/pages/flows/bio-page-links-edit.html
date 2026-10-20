@@ -167,6 +167,13 @@
               </li>
             </ul>
 
+            <!-- Both of these are guesses about someone else's business.
+                 The way to disagree with a guess is to ask for another one. -->
+            <button type="button" class="regen regen--smart" id="regenSuggest" data-busy="false"
+              data-inspect-label="Regenerate — smart"
+              data-inspect-tokens='[{"prop":"label","figma":"@jimdo/ui smartSecondaryButton","css":"--jui-gradient-smart","value":"gradient 111deg blue-500 \u2192 red-300 \u2192 yellow-300"},{"prop":"icon","figma":"reload","css":"--jui-color-blue-500","value":"16px #004ced"}]'
+              data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M14.5 1.99976L15.5 4.54791C14.3079 3.91092 12.9461 3.5498 11.5 3.5498C6.80558 3.5498 3 7.35538 3 12.0498C3 13.8409 3.554 15.6294 4.5 16.9998" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M8.5 21.9997L7.5 19.4516C8.69215 20.0885 10.0539 20.4497 11.5 20.4497C16.1944 20.4497 20 16.6441 20 11.9497C20 10.1585 19.446 8.37009 18.5 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span class="regen-label">Regenerate</span></button>
+
             <div class="edit-section-head" id="headBlocks" hidden>
               <p class="edit-section-title" data-inspect-phrase="biopage.edit.section.blocks">On your page</p>
             </div>
@@ -253,6 +260,11 @@
           <div class="add-group">
             <p class="add-group-title" data-inspect-phrase="">Ideas for your page</p>
             <div class="add-grid" id="ideaGrid"></div>
+
+            <button type="button" class="regen regen--smart" id="regenIdeas" data-busy="false"
+              data-inspect-label="Regenerate — smart"
+              data-inspect-tokens='[{"prop":"label","figma":"@jimdo/ui smartSecondaryButton","css":"--jui-gradient-smart","value":"gradient 111deg blue-500 \u2192 red-300 \u2192 yellow-300"},{"prop":"icon","figma":"reload","css":"--jui-color-blue-500","value":"16px #004ced"}]'
+              data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M14.5 1.99976L15.5 4.54791C14.3079 3.91092 12.9461 3.5498 11.5 3.5498C6.80558 3.5498 3 7.35538 3 12.0498C3 13.8409 3.554 15.6294 4.5 16.9998" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M8.5 21.9997L7.5 19.4516C8.69215 20.0885 10.0539 20.4497 11.5 20.4497C16.1944 20.4497 20 16.6441 20 11.9497C20 10.1585 19.446 8.37009 18.5 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span class="regen-label">Regenerate</span></button>
 
             <button type="button" class="text-action" id="askOpen" data-inspect-phrase="">Offer something else</button>
           </div>
@@ -536,6 +548,47 @@
                   row: 'rowFormDone' },
     };
 
+    /* Rounds of guesses, because one guess the seller cannot refuse is not
+       a suggestion. Each round asks a different question a service business
+       gets asked — what you run, how someone starts, what a group costs —
+       and each pairs the thing people book with the thing people ask about,
+       which is the shape of the choice rather than two of the same. */
+    const SUGGESTION_ROUNDS = [
+      {
+        sugEvent: { label: 'Beginner workshop booking', title: 'Beginner workshop',
+                    why: 'You run workshops, so a dated one is the easiest thing to sell.' },
+        sugForm:  { label: 'Private class enquiry form', title: 'Ask me about private classes',
+                    why: 'Private classes start with a question, not a booking.' },
+      },
+      {
+        sugEvent: { label: 'Drop-in class booking', title: 'Drop-in class',
+                    why: 'One class is the smallest thing someone new can say yes to.' },
+        sugForm:  { label: 'Sessions for a team form', title: 'Sessions for your team',
+                    why: 'A company asks what it would cost before it books anything.' },
+      },
+      {
+        sugEvent: { label: 'Six-week course booking', title: 'Six-week beginner course',
+                    why: 'People who sign up for the whole course come back without being asked.' },
+        sugForm:  { label: 'Private group enquiry form', title: 'Book me for your group',
+                    why: 'A group has a date and a size to settle before anything is booked.' },
+      },
+    ];
+
+    let suggestRound = 0;
+
+    function paintSuggestions() {
+      const set = SUGGESTION_ROUNDS[suggestRound % SUGGESTION_ROUNDS.length];
+      Object.keys(set).forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.querySelector('.edit-row-label').textContent = set[id].label;
+        el.querySelector('.edit-suggestion-why').textContent = set[id].why;
+        const drop = el.querySelector('[data-drop]');
+        if (drop) drop.setAttribute('aria-label', 'Remove ' + set[id].label);
+        SUGGESTIONS[id].card.title = set[id].title;
+      });
+    }
+
     // Still on the page at all — a set-up suggestion is a real piece, and
     // the preview draws it as one.
     const live = () => Object.keys(SUGGESTIONS).filter((k) => !SUGGESTIONS[k].removed);
@@ -793,9 +846,14 @@
 
       // Making the thing itself, from scratch or from its reference box.
       if (thing) {
+        // The name comes from the button if there is one, and otherwise from
+        // the suggestion that asked for it. Not from the table: the
+        // suggestions can be regenerated, and a dialog that opened on the
+        // first round's name would build the wrong thing.
+        const seed = b ? b.label : seedName(kind);
         editTitle.textContent = thing.title;
         thing.fields.forEach(([label, type, value]) => {
-          editFields.appendChild(field(label, type, b && label === 'Name' ? b.label : value));
+          editFields.appendChild(field(label, type, label === 'Name' && seed ? seed : value));
         });
         addDateControl();
         editRemove.hidden = true;
@@ -840,6 +898,15 @@
         : '#row' + kind.charAt(0).toUpperCase() + kind.slice(1) + ' .edit-row-icon';
       const el = document.querySelector(sel);
       return el ? el.outerHTML : iconFor((TYPES[kind] || TYPES.mainlink).kind);
+    }
+
+    /* The suggestion this kind of thing would finish, if one is still
+       standing. Same search editSave does when it marks one done, so the
+       name the dialog opens on is the name of the thing it will build. */
+    function seedName(kind) {
+      const id = Object.keys(SUGGESTIONS).find((k) =>
+        SUGGESTIONS[k].editor === kind && !SUGGESTIONS[k].done && !SUGGESTIONS[k].removed);
+      return id ? SUGGESTIONS[id].card.title : null;
     }
 
     function labelOf(kind, b) {
@@ -988,7 +1055,10 @@
       const hasBlockRow = Object.keys(BLOCK_ROWS).some((id) => ON[BLOCK_ROWS[id]]) ||
         BLOCKS.size > 0;
       document.getElementById('headBlocks').hidden = !hasBlockRow;
-      document.getElementById('headSuggest').hidden = capped || pending().length === 0;
+      const noSuggestions = capped || pending().length === 0;
+      document.getElementById('headSuggest').hidden = noSuggestions;
+      // Nothing to ask again about once the pair is gone.
+      document.getElementById('regenSuggest').hidden = noSuggestions;
 
     }
 
@@ -1044,6 +1114,25 @@
     document.getElementById('formClose').addEventListener('click', () => openForm(false));
     document.getElementById('formDone').addEventListener('click', () => openForm(false));
     formSheet.addEventListener('click', (e) => { if (e.target === formSheet) openForm(false); });
+
+    /* Another round. The two step back while the next pair is found — the
+       wait belongs to the suggestions, not to the button that asked. */
+    const REGEN_MS = 900;
+    const regenSuggest = document.getElementById('regenSuggest');
+    const suggestionListEl = document.getElementById('suggestionList');
+
+    regenSuggest.addEventListener('click', () => {
+      if (regenSuggest.getAttribute('data-busy') === 'true') return;
+      regenSuggest.setAttribute('data-busy', 'true');
+      suggestionListEl.setAttribute('data-regenerating', 'true');
+      window.setTimeout(() => {
+        suggestRound += 1;
+        paintSuggestions();
+        suggestionListEl.removeAttribute('data-regenerating');
+        regenSuggest.setAttribute('data-busy', 'false');
+        split.sync();
+      }, REGEN_MS);
+    });
 
     document.querySelectorAll('[data-drop]').forEach((btn) =>
       btn.addEventListener('click', () => {
@@ -1147,20 +1236,49 @@
       form: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M11 6L21 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 12L21 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 18L21 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 7.5L4.5 9L8.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 18.5L4.5 20L8.5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     };
 
-    const FIRST_IDEAS = [
-      { shape: 'book',  title: 'Weekend retreat booking',       detail: 'A date people sign up for' },
-      { shape: 'book',  title: 'One-to-one session booking',    detail: 'They pick a time' },
-      { shape: 'form',  title: 'Tell me what you need form',    detail: 'Questions before booking' },
+    /* Rounds again, same reason as the dashed pair: three guesses the
+       seller can only accept are not three guesses. Each round is two ways
+       to be booked and one way to be asked — the split a service business
+       actually has — and the wording moves from the obvious thing to the
+       ones nobody thinks to put on a page. */
+    const FIRST_IDEA_ROUNDS = [
+      [
+        { shape: 'book',  title: 'Weekend retreat booking',       detail: 'A date people sign up for' },
+        { shape: 'book',  title: 'One-to-one session booking',    detail: 'They pick a time' },
+        { shape: 'form',  title: 'Tell me what you need form',    detail: 'Questions before booking' },
+      ],
+      [
+        { shape: 'book',  title: 'Taster class booking',          detail: 'A short first try' },
+        { shape: 'book',  title: 'Monthly class pass booking',    detail: 'They pay once for the month' },
+        { shape: 'form',  title: 'What does it cost form',        detail: 'The question that comes first' },
+      ],
+      [
+        { shape: 'book',  title: 'Beginner course booking',       detail: 'Several dates, one sign-up' },
+        { shape: 'book',  title: 'Team session booking',          detail: 'A company books for its people' },
+        { shape: 'form',  title: 'Tell me when a date opens form', detail: 'For the ones you are full for' },
+      ],
     ];
 
-    function ideasFor(prompt) {
+    // The same three shapes, wrapped around whatever the seller typed when
+    // the guesses missed. Asking again moves to the next row rather than
+    // handing back the same three with a new label.
+    const ASKED_IDEA_ROUNDS = [
+      [['book', ' booking', 'A date people sign up for'],
+       ['book', ' slots booking', 'They pick a time'],
+       ['form', ' enquiry form', 'Questions before booking']],
+      [['book', ' taster booking', 'A short first try'],
+       ['book', ' course booking', 'Several dates, one sign-up'],
+       ['form', ' price form', 'What it costs, before they commit']],
+      [['book', ' group booking', 'They bring their own people'],
+       ['book', ' one-to-one booking', 'Just them and you'],
+       ['form', ' waitlist form', 'For the dates you are full for']],
+    ];
+
+    function ideasFor(prompt, round = 0) {
       const thing = prompt.trim().replace(/^(a|an|the)\s+/i, '').replace(/\s+/g, ' ');
       const Thing = thing.charAt(0).toUpperCase() + thing.slice(1);
-      return [
-        { shape: 'book',  title: Thing + ' booking',         detail: 'A date people sign up for' },
-        { shape: 'book',  title: Thing + ' slots booking',   detail: 'They pick a time' },
-        { shape: 'form',  title: Thing + ' enquiry form',    detail: 'Questions before booking' },
-      ];
+      return ASKED_IDEA_ROUNDS[round % ASKED_IDEA_ROUNDS.length]
+        .map(([shape, suffix, detail]) => ({ shape, title: Thing + suffix, detail }));
     }
 
     const ideaGrid = document.getElementById('ideaGrid');
@@ -1199,8 +1317,35 @@
        are drawn against the plan, and the plan changes while the list is
        closed. Built once, they went on offering a free setup after the free
        one was used. */
-    let currentIdeas = FIRST_IDEAS;
+    let currentIdeas = FIRST_IDEA_ROUNDS[0];
     renderIdeas(currentIdeas);
+
+    /* What the three are built from, so another go knows what to vary:
+       nothing yet means the first rounds, a prompt means that prompt again
+       with a different three. */
+    let askedFor = null;
+    let ideaRound = 0;
+
+    function nextIdeas() {
+      ideaRound += 1;
+      return askedFor
+        ? ideasFor(askedFor, ideaRound)
+        : FIRST_IDEA_ROUNDS[ideaRound % FIRST_IDEA_ROUNDS.length];
+    }
+
+    const regenIdeas = document.getElementById('regenIdeas');
+
+    regenIdeas.addEventListener('click', () => {
+      if (regenIdeas.getAttribute('data-busy') === 'true') return;
+      regenIdeas.setAttribute('data-busy', 'true');
+      ideaGrid.setAttribute('data-regenerating', 'true');
+      window.setTimeout(() => {
+        currentIdeas = nextIdeas();
+        renderIdeas(currentIdeas);
+        ideaGrid.removeAttribute('data-regenerating');
+        regenIdeas.setAttribute('data-busy', 'false');
+      }, REGEN_MS);
+    });
 
     const askInput = document.getElementById('askInput');
 
@@ -1216,7 +1361,9 @@
     function ask() {
       const prompt = askInput.value.trim();
       if (!prompt) return;
-      currentIdeas = ideasFor(prompt);
+      askedFor = prompt;
+      ideaRound = 0;
+      currentIdeas = ideasFor(prompt, ideaRound);
       renderIdeas(currentIdeas);
       askInput.value = '';
       closePicker();

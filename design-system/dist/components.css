@@ -20,6 +20,13 @@ jimdo-icon svg { display: block; }
   --jui-color-surface-glass: rgba(255, 255, 255, 0.8);
   --jui-color-surface-glass-border: rgba(255, 255, 255, 0.9);
   --jui-effects-elevation-blue-lg: 0 4px 32px rgba(0, 76, 237, 0.10);
+  /* The smart gradient, from @jimdo/ui smartButton / smartSecondaryButton.
+     Every stop is a token; only the angle and the stop positions are the
+     component's own. It marks a control that acts on something the product
+     suggested rather than something the seller reached for. */
+  --jui-gradient-smart: linear-gradient(111deg, var(--jui-color-blue-500) -4.04%, var(--jui-color-red-300) 109.59%, var(--jui-color-yellow-300) 159.89%);
+  --jui-gradient-smart-hover: linear-gradient(111deg, var(--jui-color-blue-600) -4.04%, var(--jui-color-red-400) 109.59%, var(--jui-color-yellow-400) 159.89%);
+  --jui-gradient-smart-active: linear-gradient(111deg, var(--jui-color-blue-700) -4.04%, var(--jui-color-red-500) 109.59%, var(--jui-color-yellow-500) 159.89%);
   --jui-effects-elevation-blue-sm: 0 4px 16px rgba(0, 76, 237, 0.10);
   --jui-layout-width-m: 576px;
   --jui-typography-body-medium-medium-lh: 1.5;
@@ -3099,6 +3106,58 @@ body {
   border-radius: var(--jui-style-radius-4);
 }
 
+/* ── Ask for another go ──
+   Every set of suggestions on these screens is a guess, and a guess the
+   seller cannot refuse is a guess they have to argue with. This is the
+   refusal: same shape wherever it appears, under the thing it replaces.
+
+   The icon turning is the whole loader. A spinner beside it would be a
+   second thing moving for one wait, and the wait is short. */
+.regen[hidden] { display: none; }
+.regen {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
+  padding: 0;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: 500;
+  line-height: var(--jui-typography-body-small-regular-lh);
+  letter-spacing: var(--jui-typography-link-small-ls);
+  color: var(--jui-color-actions-primary-rest);
+  cursor: pointer;
+}
+.regen svg { flex: 0 0 auto; width: 16px; height: 16px; }
+.regen:hover .regen-label { text-decoration: underline; }
+.regen:focus-visible {
+  outline: 2px solid var(--jui-color-actions-primary-rest);
+  outline-offset: 2px;
+  border-radius: var(--jui-style-radius-4);
+}
+.regen[data-busy="true"] {
+  color: var(--jui-color-typography-gray-on-light-subdued);
+  cursor: default;
+}
+.regen[data-busy="true"] .regen-label { text-decoration: none; }
+.regen[data-busy="true"] svg { animation: regen-spin 800ms linear infinite; }
+
+@keyframes regen-spin { to { transform: rotate(360deg); } }
+
+/* What is being replaced steps back while the next one is found, so the
+   wait reads as happening to the suggestions rather than to the button. */
+[data-regenerating="true"] {
+  opacity: 0.4;
+  pointer-events: none;
+  transition: opacity 150ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .regen[data-busy="true"] svg { animation: none; }
+}
+
 /* A step whose control is a list has to scroll inside the drawer; the
    peek still shows only the question, so nothing can be scrolled out of
    that state. */
@@ -3457,27 +3516,90 @@ body {
 
 .ai-suggest-text { margin: 0; }
 
+/* Apply and Regenerate are one row: accept this one, or ask for another. */
+.ai-suggest-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-m);
+}
+
+/* @jimdo/ui smartSecondaryButton: a white box with a gradient border and a
+   gradient label. Two backgrounds in one declaration — the white one is
+   clipped to the padding box, the gradient to the border box, which is how
+   you get a gradient border without a wrapper element. */
 .ai-suggest-apply {
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   height: var(--jui-layout-dimension-s);
   padding: 0 var(--jui-layout-padding-s);
-  background: var(--jui-color-gray-white);
-  border: 1px solid var(--jui-color-stroke-primary-actionable);
+  border: 1px solid transparent;
   border-radius: var(--jui-style-radius-8);
+  background:
+    linear-gradient(var(--jui-color-gray-white), var(--jui-color-gray-white)) padding-box,
+    var(--jui-gradient-smart) border-box;
   font-family: inherit;
   font-size: var(--jui-typography-body-small-regular-size);
   font-weight: 500;
   line-height: var(--jui-typography-body-small-regular-lh);
   color: var(--jui-color-actions-primary-rest);
   cursor: pointer;
-  transition: background-color 150ms ease;
 }
-.ai-suggest-apply:hover { background: var(--jui-color-background-primary-medium); }
+.ai-suggest-apply:hover {
+  background:
+    linear-gradient(var(--jui-color-gray-white), var(--jui-color-gray-white)) padding-box,
+    var(--jui-gradient-smart-hover) border-box;
+}
+.ai-suggest-apply:active {
+  background:
+    linear-gradient(var(--jui-color-gray-white), var(--jui-color-gray-white)) padding-box,
+    var(--jui-gradient-smart-active) border-box;
+}
 .ai-suggest-apply:focus-visible {
   outline: 2px solid var(--jui-color-actions-primary-rest);
   outline-offset: 2px;
+}
+
+/* The label carries the gradient, not the box. A filled gradient button
+   here would outweigh the field it is advising on — and @jimdo/ui paints
+   the secondary's label this way for the same reason. */
+.btn-smart-label,
+.regen--smart .regen-label {
+  background-image: var(--jui-gradient-smart);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.ai-suggest-apply:hover .btn-smart-label,
+.ai-suggest-apply:focus-visible .btn-smart-label,
+.regen--smart:hover .regen-label,
+.regen--smart:focus-visible .regen-label {
+  background-image: var(--jui-gradient-smart-hover);
+}
+.ai-suggest-apply:active .btn-smart-label,
+.regen--smart:active .regen-label {
+  background-image: var(--jui-gradient-smart-active);
+}
+/* The icon stays flat blue — a four-stop gradient across 16px is a smudge,
+   which is what @jimdo/ui does with it too. */
+.regen--smart svg { color: var(--jui-color-blue-500); }
+.regen--smart:hover svg,
+.regen--smart:focus-visible svg { color: var(--jui-color-blue-600); }
+/* Mid-wait there is nothing to accept, so the gradient comes off with it. */
+.regen--smart[data-busy="true"] .regen-label {
+  background-image: none;
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+.regen--smart[data-busy="true"] svg { color: inherit; }
+
+/* Clipping a background to text has no meaning when the system is painting
+   its own colours. */
+@media (forced-colors: active) {
+  .btn-smart-label,
+  .regen--smart .regen-label {
+    background-image: none;
+    color: var(--jui-color-blue-500);
+  }
 }
 
 
