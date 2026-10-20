@@ -3114,14 +3114,23 @@ body {
    The icon turning is the whole loader. A spinner beside it would be a
    second thing moving for one wait, and the wait is short. */
 .regen[hidden] { display: none; }
+/* @jimdo/ui subtleButton at Size=Small: transparent, 32 high, 4/12 with the
+   leading visual pulling the left padding in to 8. The negative margin is
+   optical only — it puts the icon's edge on the same line as the cards and
+   the text action under it, which a button's own padding would otherwise
+   push off by 8. */
 .regen {
   align-self: flex-start;
   display: inline-flex;
   align-items: center;
   gap: var(--jui-layout-gap-xs);
-  padding: 0;
-  background: none;
-  border: none;
+  height: var(--jui-layout-dimension-s);
+  padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-s);
+  padding-left: var(--jui-layout-padding-xs);
+  margin-left: calc(-1 * var(--jui-layout-padding-xs));
+  border: 1px solid transparent;
+  border-radius: var(--jui-style-radius-8);
+  background: transparent;
   font-family: inherit;
   font-size: var(--jui-typography-body-small-regular-size);
   font-weight: 500;
@@ -3129,19 +3138,20 @@ body {
   letter-spacing: var(--jui-typography-link-small-ls);
   color: var(--jui-color-actions-primary-rest);
   cursor: pointer;
+  transition: background-color 200ms ease-out;
 }
 .regen svg { flex: 0 0 auto; width: 16px; height: 16px; }
-.regen:hover .regen-label { text-decoration: underline; }
+.regen:hover { background: var(--jui-color-actions-static-hover); }
+.regen:active { background: var(--jui-color-actions-static-pressed); }
 .regen:focus-visible {
   outline: 2px solid var(--jui-color-actions-primary-rest);
   outline-offset: 2px;
-  border-radius: var(--jui-style-radius-4);
 }
 .regen[data-busy="true"] {
   color: var(--jui-color-typography-gray-on-light-subdued);
+  background: transparent;
   cursor: default;
 }
-.regen[data-busy="true"] .regen-label { text-decoration: none; }
 .regen[data-busy="true"] svg { animation: regen-spin 800ms linear infinite; }
 
 @keyframes regen-spin { to { transform: rotate(360deg); } }
@@ -3580,17 +3590,28 @@ body {
 .regen--smart:active .regen-label {
   background-image: var(--jui-gradient-smart-active);
 }
-/* The icon stays flat blue — a four-stop gradient across 16px is a smudge,
-   which is what @jimdo/ui does with it too. */
-.regen--smart svg { color: var(--jui-color-blue-500); }
-.regen--smart:hover svg,
-.regen--smart:focus-visible svg { color: var(--jui-color-blue-600); }
-/* Mid-wait there is nothing to accept, so the gradient comes off with it. */
+/* The icon takes the gradient too, which a stroke can only do by pointing
+   at a <linearGradient> in the same document — hence the def inside each
+   one and an id per instance. Two stops, not three: the yellow sits past
+   160% of the box and never reaches a 16px icon. The stop colours live
+   here rather than on the attribute so the markup stays free of hex. */
+.smart-stop-a { stop-color: var(--jui-color-blue-500); }
+.smart-stop-b { stop-color: var(--jui-color-red-300); }
+.regen--smart:hover .smart-stop-a,
+.regen--smart:focus-visible .smart-stop-a { stop-color: var(--jui-color-blue-600); }
+.regen--smart:hover .smart-stop-b,
+.regen--smart:focus-visible .smart-stop-b { stop-color: var(--jui-color-red-400); }
+/* Mid-wait there is nothing to accept, so the gradient comes off with it —
+   on the label and on the icon, which needs its stops moved rather than
+   its colour, since a url() stroke ignores currentColor. */
 .regen--smart[data-busy="true"] .regen-label {
   background-image: none;
   color: var(--jui-color-typography-gray-on-light-subdued);
 }
-.regen--smart[data-busy="true"] svg { color: inherit; }
+.regen--smart[data-busy="true"] .smart-stop-a,
+.regen--smart[data-busy="true"] .smart-stop-b {
+  stop-color: var(--jui-color-typography-gray-on-light-subdued);
+}
 
 /* Clipping a background to text has no meaning when the system is painting
    its own colours. */
