@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Onboarding — Name</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=aceedd1">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=aceedd1">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=d2465da">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=d2465da">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=aceedd1">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=d2465da">
 <style>
   /* ─── Screen overrides ───
      Layout, preview stage, drawer, progress pill and field sizing all come
@@ -176,7 +176,7 @@
         <span class="dialog-mark dialog-mark--upgrade" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg></span>
         <div class="dialog-copy">
           <p class="dialog-title" id="domainSheetTitle" data-inspect-phrase="businessInfo.domain.dialog.title">Your own web address comes with Jimdo Start</p>
-          <p class="sheet-copy" data-inspect-phrase="businessInfo.domain.dialog.copy"><span id="domainSheetName">yourname.com</span> is free to take. Your page works without it, so this can wait.</p>
+          <p class="sheet-copy" data-inspect-phrase="businessInfo.domain.dialog.copy"><span id="domainSheetName">yourname.com</span> is still free to take. It is the address people remember, and it stays yours if you ever move.</p>
         </div>
         <div class="plan-line"
           data-inspect-label="Plan line — the one price this trigger is about"
@@ -201,8 +201,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=aceedd1"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=aceedd1"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=d2465da"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=d2465da"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
 
