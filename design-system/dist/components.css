@@ -4977,6 +4977,10 @@ body {
 }
 
 .sheet-head {
+  /* What the padding is measured against: the title's own line box, not
+     whichever control happens to be tallest. */
+  --sheet-head-line: calc(
+    var(--jui-typography-sub-headline-small-size) * var(--jui-typography-sub-headline-small-lh));
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -4984,6 +4988,19 @@ body {
   flex-shrink: 0;
   padding: var(--jui-layout-padding-m) var(--jui-layout-padding-m) var(--jui-layout-padding-xs);
 }
+/* Both header controls are 32 so they can be hit, and 32 was also setting
+   the row's height — which put 30px above the title against 16 at the
+   sides. They keep the hit area and stop driving the row: the negative
+   block margin pulls their boxes back to the title's line, so the 16 at the
+   top is the 16 at the sides, and the 8 below plus the body's own 8 is the
+   same 16 again. */
+.sheet-head .setup-back-btn,
+.sheet-head .add-head-back {
+  width: var(--jui-layout-dimension-s);
+  height: var(--jui-layout-dimension-s);
+  margin-block: calc((var(--sheet-head-line) - var(--jui-layout-dimension-s)) / 2);
+}
+.sheet-head .setup-back-btn svg { width: 20px; height: 20px; }
 /* Takes the room between the controls, so its text stays on the left
    whether the header carries two children or three. */
 .sheet-title {
@@ -5093,10 +5110,12 @@ body {
    list below it never shifts to make room for a control. */
 .add-head-back { flex-shrink: 0; }
 .add-head-back[hidden] { display: none; }
-.sheet-head .add-head-back,
 .setup-split-intro--back .add-head-back {
   width: var(--jui-layout-dimension-s);
   height: var(--jui-layout-dimension-s);
+}
+.sheet-head .add-head-back,
+.setup-split-intro--back .add-head-back {
   margin-left: calc(-1 * var(--jui-layout-padding-xs));
 }
 .sheet-head .add-head-back svg,
