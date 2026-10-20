@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bio Page — Home (Vision)</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=86029b0">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=86029b0">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/management-shell.css?v=86029b0">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=1b8aa32">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=1b8aa32">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/management-shell.css?v=1b8aa32">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=86029b0">
-<script type="module" src="/flows-prototype/design-system/hifi-designs/shared/shell-components.js?v=86029b0"></script>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=1b8aa32">
+<script type="module" src="/flows-prototype/design-system/hifi-designs/shared/shell-components.js?v=1b8aa32"></script>
 <style>
 
   /* ═══════════════════════════════════════
@@ -31,84 +31,6 @@
     color: var(--jui-color-typography-gray-on-light-default);
     margin: 0;
   }
-
-  /* ═══════════════════════════════════════
-     DOMAIN BANNER — Figma 15754:20589
-     purple/10 fill, 20px radius, h44, px16 py12, gap12.
-     ═══════════════════════════════════════ */
-  /* Full-surface interactive button — Figma "Domain Upgrade" states 15931:22289.
-     Default: upgrade-light + gray border. Hover/Active/Focus darken the fill and
-     switch the border to decorative-upgrade; Focus adds a blue ring. */
-  .domain-banner {
-    display: flex;
-    align-items: center;
-    gap: var(--jui-layout-gap-s);
-    width: 100%;
-    min-height: 44px;
-    padding: var(--jui-layout-padding-s) var(--jui-layout-padding-m);
-    background: var(--jui-color-background-upgrade-light);
-    /* No resting outline; transparent 1px keeps hover/focus from shifting layout. */
-    border: 1px solid transparent;
-    border-radius: var(--jui-style-radius-16);
-    font-family: inherit;
-    text-align: left;
-    cursor: pointer;
-    transition: background-color 0.12s ease, border-color 0.12s ease;
-  }
-  .domain-banner:hover {
-    background: var(--jui-color-background-upgrade-medium);
-    border-color: var(--jui-color-decorative-upgrade);
-  }
-  .domain-banner:active {
-    background: var(--jui-color-background-upgrade-dark);
-    border-color: var(--jui-color-decorative-upgrade);
-  }
-  .domain-banner:focus-visible {
-    background: var(--jui-color-background-upgrade-medium);
-    border-color: var(--jui-color-decorative-upgrade);
-    outline: 2px solid var(--jui-color-blue-500);
-    outline-offset: 2px;
-  }
-  .domain-banner-name {
-    font-size: var(--jui-typography-body-small-medium-size);
-    font-weight: var(--jui-typography-body-small-medium-weight);
-    line-height: var(--jui-typography-body-small-medium-lh);
-    color: var(--jui-color-typography-upgrade-on-light);
-    white-space: nowrap;
-  }
-  .domain-banner-status {
-    display: flex;
-    flex: 1 0 0;
-    align-items: center;
-    gap: var(--jui-layout-gap-xs);
-    min-width: 0;
-  }
-  .domain-banner-status svg {
-    width: 16px;
-    height: 16px;
-    flex-shrink: 0;
-    color: var(--jui-color-decorative-positive);
-  }
-  .domain-banner-status-text {
-    font-size: var(--jui-typography-body-small-regular-size);
-    font-weight: var(--jui-typography-body-small-regular-weight);
-    line-height: var(--jui-typography-body-small-regular-lh);
-    color: var(--jui-color-typography-upgrade-on-light);
-  }
-  /* Right-side label — uppercase; the whole banner is the interactive surface. */
-  .domain-banner-cta {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--jui-layout-gap-xs);
-    font-size: var(--jui-typography-label-small-size);
-    font-weight: var(--jui-typography-label-small-weight);
-    letter-spacing: var(--jui-typography-label-small-ls);
-    line-height: var(--jui-typography-label-small-lh);
-    text-transform: uppercase;
-    color: var(--jui-color-typography-upgrade-on-light);
-    white-space: nowrap;
-  }
-  .domain-banner-cta svg { width: 16px; height: 16px; flex-shrink: 0; }
 
   /* ═══════════════════════════════════════
      BIO PREVIEW CARD — Figma 15841:70253
@@ -206,10 +128,55 @@
     color: var(--jui-color-typography-gray-on-light-default);
   }
   .bio-preview-metric {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--jui-layout-gap-xs);
     font-size: var(--jui-typography-body-medium-regular-size);
     font-weight: var(--jui-typography-body-medium-regular-weight);
     line-height: var(--jui-typography-body-medium-regular-lh);
     color: var(--jui-color-typography-gray-on-light-subdued);
+  }
+  /* A separator, not a word — it carries no meaning for a screen reader and
+     would be read as "dot" between two numbers. */
+  .bio-preview-metric-sep { color: var(--jui-color-gray-300); }
+
+  /* ── Advanced analytics ──
+     loops-frontend ships this as a bare purple label with an icon, sitting
+     directly under the counts. Two numbers and a link in a column all read
+     as the same kind of thing; the upgrade family's own fill and stroke say
+     this one costs money without raising its voice. */
+  .analytics-upsell {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-xs);
+    height: var(--jui-layout-dimension-s);
+    padding: 0 var(--jui-layout-padding-s);
+    border: 1px solid var(--jui-color-stroke-upgrade-on-light);
+    border-radius: var(--jui-style-radius-16);
+    background: var(--jui-color-background-upgrade-light);
+    font-family: inherit;
+    font-size: var(--jui-typography-body-small-medium-size);
+    font-weight: var(--jui-typography-body-small-medium-weight);
+    line-height: var(--jui-typography-body-small-medium-lh);
+    color: var(--jui-color-typography-upgrade-on-light);
+    cursor: pointer;
+    transition: background-color 150ms ease, border-color 150ms ease;
+  }
+  .analytics-upsell svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    color: var(--jui-color-decorative-upgrade);
+  }
+  .analytics-upsell:hover {
+    background: var(--jui-color-background-upgrade-medium);
+    border-color: var(--jui-color-decorative-upgrade);
+  }
+  .analytics-upsell:focus-visible {
+    outline: 2px solid var(--jui-color-actions-upgrade-rest);
+    outline-offset: 2px;
   }
 
   /* Buttons row — auto-width, left-aligned, gap-8 (Figma 15754:20216) */
@@ -262,6 +229,24 @@
     border: 1px solid var(--jui-color-gray-200);
     border-radius: var(--jui-style-radius-16);
     overflow: hidden;
+  }
+
+  /* ── The upgrade card ──
+     Same anatomy, the upgrade family's colours. The shell and the body swap
+     round against the other cards — purple surround, white body — which is
+     the shape .upgrade-banner--light already uses for this same trigger in
+     the add-links list, so the two read as one offer in two places. */
+  .upnext-card--upgrade {
+    background: var(--jui-color-background-upgrade-light);
+    border-color: var(--jui-color-stroke-upgrade-on-light);
+  }
+  .upnext-card--upgrade .upnext-body { background: var(--jui-color-background-gray-light); }
+  .upnext-card--upgrade .upnext-decoration { background: var(--jui-color-background-upgrade-medium); }
+  .upnext-card--upgrade .deco-doc-line { background: var(--jui-color-background-upgrade-light); }
+  .upnext-card--upgrade .deco-doc-card svg { color: var(--jui-color-decorative-upgrade); }
+  .upnext-card--upgrade .upnext-eyebrow {
+    background: var(--jui-color-background-upgrade-medium);
+    color: var(--jui-color-typography-upgrade-on-light);
   }
 
   /* Inner Body panel — gray-medium, radius 12, pl 8 / pr 16 / py 8, gap 24. */
@@ -416,12 +401,30 @@
   /* ── Actions row — Dismiss left, Maybe Later + primary right ── */
   .upnext-footer {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: var(--jui-layout-gap-xs);
     padding: var(--jui-layout-padding-xs);
   }
   .upnext-footer-end { display: flex; align-items: center; gap: var(--jui-layout-gap-xs); }
+  /* The labels keep their line; the row is what gives. A button label broken
+     over three lines is a button nobody reads. */
+  .upnext-footer button { white-space: nowrap; }
+
+  /* On a phone the answers take the width instead of fighting for it. The
+     upgrade card carries two of them and the longest labels, so this is the
+     card that decides the rule. */
+  @media (max-width: 575px) {
+    .upnext-footer { flex-direction: column; align-items: stretch; }
+    /* Reversed, because the row reads left to right and the column has to
+       read top to bottom: the answer being pushed is the one at the top. */
+    .upnext-footer-end { flex-direction: column-reverse; align-items: stretch; }
+    .upnext-footer > button,
+    .upnext-footer-end > button { width: 100%; }
+    /* Dismiss goes last: it is the way out, not the way on. */
+    .upnext-footer > [data-upnext-resolve="dismiss"] { order: 2; }
+  }
   /* Content-width small buttons — @jimdo/ui buttonSize="small". layout.css
      stretches buttons to full width, so narrow them back here. Shared by the
      card footer and the progress row so both Dismiss controls match. */
@@ -452,9 +455,6 @@
 
   /* ─── Mobile: stack the preview card, wrap the banner ─── */
   @media (max-width: 767px) {
-    .domain-banner { flex-wrap: wrap; }
-    .domain-banner-status { flex: 1 0 auto; }
-    .domain-banner-cta { flex-basis: 100%; }
     .bio-preview-card { flex-direction: column; }
     .bio-phone { width: 100%; min-height: 0; aspect-ratio: 5 / 7; align-self: stretch; }
     .bio-phone-iframe { width: 100%; height: 140%; transform: none; }
@@ -482,21 +482,6 @@
         <!-- Page title -->
         <h1 class="bio-home-title" data-inspect-phrase="biosite.productName">Bio Page</h1>
 
-        <!-- ─── Domain upgrade banner — full-surface button w/ states (Figma 15931:22289) ─── -->
-        <button class="domain-banner" type="button" aria-label="Get your own domain and standout" data-inspect-phrase="domain.upsell.cta">
-          <span class="domain-banner-name" data-inspect-phrase="" data-no-phrase>claraandstone.com/bio</span>
-          <span class="domain-banner-status">
-            <!-- Hugeicons Tick02 (plain checkmark) -->
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
-            <span class="domain-banner-status-text" data-inspect-phrase="domain.status.available">Available</span>
-          </span>
-          <span class="domain-banner-cta">
-            Get your own domain and standout
-            <!-- Hugeicons ArrowRight01 -->
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 12H4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M15 17L20 12L15 7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
-          </span>
-        </button>
-
         <div class="bio-setup-group">
         <!-- ─── Bio preview + edit card (Figma 15841:70253) ─── -->
         <section class="bio-preview-card" aria-label="Your Bio Page">
@@ -513,7 +498,25 @@
             <div class="bio-preview-lower">
               <div class="bio-preview-headline">
                 <div class="bio-preview-name">Clara and Stone</div>
-                <div class="bio-preview-metric"><span data-inspect-phrase="" data-no-phrase>3</span> <span data-inspect-phrase="stats.views">views</span></div>
+                <!-- Views and clicks on one line with a middot between them,
+                     the way loops-frontend BioPageStats ships it. Clicks are
+                     the number that says the page worked; views only say it
+                     was found. -->
+                <div class="bio-preview-metric">
+                  <span data-inspect-phrase="bioPagePreviewCard.views"><span data-no-phrase>3</span> views</span>
+                  <span class="bio-preview-metric-sep" aria-hidden="true">·</span>
+                  <span data-inspect-phrase="bioPagePreviewCard.clicks"><span data-no-phrase>1</span> click</span>
+                </div>
+                <!-- Shipped as a bare purple text button (AdvancedAnalyticsTrigger).
+                     Given the upgrade family's own shell here so it reads as an
+                     offer rather than as a third statistic. -->
+                <button type="button" class="analytics-upsell"
+                  data-inspect-label="Advanced analytics trigger"
+                  data-inspect-tokens='[{"prop":"background","figma":"$jui-color-background-upgrade-light","css":"--jui-color-background-upgrade-light","value":"#fcecff"},{"prop":"border","figma":"$jui-color-stroke-upgrade-on-light","css":"--jui-color-stroke-upgrade-on-light","value":"1px #e4b5ff"},{"prop":"color","figma":"$jui-color-typography-upgrade-on-light","css":"--jui-color-typography-upgrade-on-light","value":"#4e0079"},{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px"}]'
+                  data-inspect-phrase="advancedAnalytics.trigger">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M7 17V13" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M12 17V7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M17 17V11" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M2.5 12C2.5 7.52166 2.5 5.28249 3.89124 3.89124C5.28249 2.5 7.52166 2.5 12 2.5C16.4783 2.5 18.7175 2.5 20.1088 3.89124C21.5 5.28249 21.5 7.52166 21.5 12C21.5 16.4783 21.5 18.7175 20.1088 20.1088C18.7175 21.5 16.4783 21.5 12 21.5C7.52166 21.5 5.28249 21.5 3.89124 20.1088C2.5 18.7175 2.5 16.4783 2.5 12Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                  <span>Unlock advanced analytics</span>
+                </button>
               </div>
               <div class="bio-preview-actions">
                 <button class="btn-primary"
@@ -612,7 +615,11 @@
               </div>
             </div>
           </section>
-          <section class="upnext-card" data-task="3" aria-label="Next action" hidden>
+          <!-- The one card in the queue that costs money. Coated in the
+               upgrade family rather than the blue the others wear, because
+               a card that looks like its neighbours and then asks for a
+               plan is a card that was pretending. -->
+          <section class="upnext-card upnext-card--upgrade" data-task="3" aria-label="Next action" hidden>
             <div class="upnext-body">
               <div class="upnext-decoration deco-doc" aria-hidden="true"
                 data-inspect-label="Illustration well — legal document"
@@ -628,16 +635,19 @@
                 </div>
               </div>
               <div class="upnext-content">
-                <span class="upnext-eyebrow" data-inspect-phrase="suggestion.actionNeeded.eyebrow">Action needed</span>
-                <div class="upnext-card-title" data-inspect-phrase="">Review your legal pages to stay compliant</div>
-                <p class="upnext-card-desc" data-inspect-phrase="" style="margin:0;">Up-to-date pages build trust and guard against warning notices.</p>
+                <span class="upnext-eyebrow" data-inspect-phrase="upgrade.legal.eyebrow">Stay legally compliant</span>
+                <div class="upnext-card-title" data-inspect-phrase="upgrade.legal.title">Your legal pages, written for your business</div>
+                <p class="upnext-card-desc" data-inspect-phrase="upgrade.legal.description" style="margin:0;">An imprint and a privacy policy that match what you do, updated when the rules change.</p>
               </div>
             </div>
+            <!-- Two real answers rather than one, so Maybe later goes: four
+                 buttons in a row is a decision nobody reads, and doing it
+                 yourself is already the way to put this off. -->
             <div class="upnext-footer">
               <button class="btn-subtle" data-upnext-resolve="dismiss" data-inspect-phrase="">Dismiss</button>
               <div class="upnext-footer-end">
-                <button class="btn-subtle" data-upnext-resolve="later" data-inspect-phrase="suggestion.maybeLater">Maybe later</button>
-                <button class="btn-secondary" data-upnext-resolve="done" data-nav-to="flows/legal-privacy.html" data-nav-screen-id="scr-053" data-inspect-phrase="">Review legal pages</button>
+                <button class="btn-subtle" data-upnext-resolve="done" data-nav-to="flows/legal-privacy.html" data-nav-screen-id="scr-053" data-inspect-phrase="upgrade.legal.ctaSecondary">Review them myself</button>
+                <button class="btn-secondary btn-upgrade" data-upnext-resolve="done" data-nav-to="flows/paywall-domain.html?from=home" data-inspect-phrase="upgrade.legal.ctaPrimary">Get my legal text written</button>
               </div>
             </div>
           </section>
@@ -747,7 +757,7 @@
   })();
 </script>
 
-<script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=86029b0"></script>
+<script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=1b8aa32"></script>
 
   <!-- Design annotations — read by workbench chrome -->
   <script type="application/json" id="design-annotations">
