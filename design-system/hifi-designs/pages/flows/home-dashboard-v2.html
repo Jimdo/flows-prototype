@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bio Page — Home (Vision)</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=84b0cd1">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=84b0cd1">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/management-shell.css?v=84b0cd1">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=6791cd7">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=6791cd7">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/management-shell.css?v=6791cd7">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=84b0cd1">
-<script type="module" src="/flows-prototype/design-system/hifi-designs/shared/shell-components.js?v=84b0cd1"></script>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=6791cd7">
+<script type="module" src="/flows-prototype/design-system/hifi-designs/shared/shell-components.js?v=6791cd7"></script>
 <style>
 
   /* ═══════════════════════════════════════
@@ -146,32 +146,6 @@
      directly under the counts. Two numbers and a link in a column all read
      as the same kind of thing; the upgrade family's own fill and stroke say
      this one costs money without raising its voice. */
-  .analytics-upsell {
-    align-self: flex-start;
-    display: inline-flex;
-    align-items: center;
-    gap: var(--jui-layout-gap-xxs);
-    padding: 0;
-    border: none;
-    background: none;
-    font-family: inherit;
-    font-size: var(--jui-typography-body-small-medium-size);
-    font-weight: var(--jui-typography-body-small-medium-weight);
-    line-height: var(--jui-typography-body-small-medium-lh);
-    color: var(--jui-color-typography-upgrade-on-light);
-    cursor: pointer;
-  }
-  .analytics-upsell svg {
-    width: 16px;
-    height: 16px;
-    flex-shrink: 0;
-  }
-  .analytics-upsell:hover { text-decoration: underline; }
-  .analytics-upsell:focus-visible {
-    outline: 2px solid var(--jui-color-actions-upgrade-rest);
-    outline-offset: 2px;
-    border-radius: var(--jui-style-radius-4);
-  }
 
   /* Buttons row — auto-width, left-aligned, gap-8 (Figma 15754:20216) */
   .bio-preview-actions {
@@ -493,10 +467,10 @@
                   <span class="bio-preview-metric-sep" aria-hidden="true">·</span>
                   <span data-inspect-phrase="bioPagePreviewCard.clicks"><span data-no-phrase>1</span> click</span>
                 </div>
-                <!-- Shipped as a bare purple text button (AdvancedAnalyticsTrigger).
-                     Given the upgrade family's own shell here so it reads as an
-                     offer rather than as a third statistic. -->
-                <button type="button" class="analytics-upsell"
+                <!-- AdvancedAnalyticsTrigger, as shipped: a purple label with
+                     an icon under the counts. Shares .upgrade-link with the
+                     QR code's remove-logo offer on scr-030. -->
+                <button type="button" class="upgrade-link"
                   data-inspect-label="Advanced analytics trigger"
                   data-inspect-tokens='[{"prop":"background","figma":"$jui-color-background-upgrade-light","css":"--jui-color-background-upgrade-light","value":"#fcecff"},{"prop":"border","figma":"$jui-color-stroke-upgrade-on-light","css":"--jui-color-stroke-upgrade-on-light","value":"1px #e4b5ff"},{"prop":"color","figma":"$jui-color-typography-upgrade-on-light","css":"--jui-color-typography-upgrade-on-light","value":"#4e0079"},{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px"}]'
                   data-inspect-phrase="advancedAnalytics.trigger">
@@ -743,7 +717,7 @@
   })();
 </script>
 
-<script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=84b0cd1"></script>
+<script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=6791cd7"></script>
 
   <!-- Design annotations — read by workbench chrome -->
   <script type="application/json" id="design-annotations">

@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bio Page — Link &amp; QR Ready</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=84b0cd1">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=84b0cd1">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=6791cd7">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=6791cd7">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=84b0cd1">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=6791cd7">
 <style>
 
   /* ═══════════════════════════════════════════════════════════════
@@ -323,6 +323,23 @@
   }
   .qr-code-wrapper { position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; }
   .qr-canvas { display: block; width: 110px; height: 110px; margin: 0 auto; }
+  /* Centred on the code, over the square drawQR() leaves empty. 35% of the
+     code is buildQrOptions' LOGO_SIZE; the wordmark is wider than it is
+     tall, so the width is what the ratio is spent on. */
+  .qr-logo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 38.5px;
+    display: flex;
+    color: var(--jui-color-typography-gray-on-light-default);
+    pointer-events: none;
+  }
+  .qr-logo svg { width: 100%; height: auto; display: block; }
+
+  /* The offer to take it off sits under the code, centred on it. */
+  .qr-remove-logo { align-self: center; }
   .qr-download-btn {
     position: absolute;
     top: var(--jui-layout-padding-xxs);             /* 4 */
@@ -343,17 +360,20 @@
   .qr-download-btn:focus-visible { outline: 2px solid var(--jui-color-actions-primary-rest); outline-offset: 2px; }
   .qr-download-btn svg { width: 24px; height: 24px; }
 
+  /* The same box the bio page home shows this address in (.bio-url-bar):
+     radius-s, 8/8/8/12, gap 8. It was a 16-radius pill here, which read as
+     a different kind of thing in the two places it is the same address. */
   .url-row {
     width: 100%;
     display: flex;
     align-items: center;
-    gap: var(--jui-layout-gap-s);                   /* 12 */
-    background: var(--jui-color-background-gray-dark);        /* gray-50 */
-    border-radius: var(--jui-style-radius-l);                 /* 16 */
-    padding: var(--jui-layout-padding-xxs)
+    gap: var(--jui-layout-gap-xs);                            /* 8 */
+    background: var(--jui-color-background-gray-canvas);      /* gray-50 */
+    border-radius: var(--jui-style-radius-s);                 /* 8 */
+    padding: var(--jui-layout-padding-xs)
              var(--jui-layout-padding-xs)
-             var(--jui-layout-padding-xxs)
-             var(--jui-layout-padding-s);                     /* 4 8 4 12 */
+             var(--jui-layout-padding-xs)
+             var(--jui-layout-padding-s);                     /* 8 8 8 12 */
   }
   .url-icon {
     flex-shrink: 0;
@@ -554,11 +574,25 @@
             data-inspect-tokens='[{"prop":"background","figma":"color/gray/white","css":"--jui-color-background-gray-light","value":"#ffffff"},{"prop":"border","figma":"color/stroke/gray/default","css":"--jui-color-stroke-gray-default","value":"1px solid #e6e6e6"},{"prop":"border-radius","figma":"$jui-style-radius-l (resolves 16)","css":"--jui-style-radius-l","value":"16px"},{"prop":"padding","css":"--jui-layout-padding-xs","value":"8px"},{"prop":"gap","css":"--jui-layout-gap-s","value":"12px"}]'>
             <div class="qr-code-wrapper">
               <canvas class="qr-canvas" id="qr-canvas" role="img" aria-label="QR code for your bio page"></canvas>
+              <!-- The wordmark sits in a clear square the modules leave for
+                   it — buildQrOptions does the same with hideBackgroundDots
+                   at imageSize 0.35, which is why a real code still scans. -->
+              <span class="qr-logo" aria-hidden="true"
+                data-inspect-label="QR wordmark — 35% of the code, on a cleared square"
+                data-inspect-tokens='[{"prop":"size","figma":"buildQrOptions LOGO_SIZE","value":"35% of the code"},{"prop":"fill","figma":"$jui-color-typography-gray-on-light-default","css":"--jui-color-typography-gray-on-light-default","value":"#000000"}]'><svg viewBox="0 0 650 241" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M536 64.9905C505.071 64.9905 480 89.8375 480 120.49C480 151.143 505.071 175.99 536 175.99C566.929 175.99 592 151.143 592 120.49C592.01 89.8474 566.929 64.9905 536 64.9905ZM536 151.621C518.656 151.621 504.589 137.689 504.589 120.49C504.589 103.302 518.646 89.3595 536 89.3595C553.344 89.3595 567.411 103.292 567.411 120.49C567.411 137.689 553.354 151.621 536 151.621Z" fill="currentColor"/><path d="M228 67.9905H251.456L287.001 134.519L322.385 67.9905H346.002V174.99H319.633V117.819L289.613 174.99H284.399L254.378 117.969V174.99H228.01V67.9905H228Z" fill="currentColor"/><path d="M149 67.9905H122.515V132.046C122.515 142.257 114.224 150.538 104 150.538C93.7764 150.538 85.4853 142.257 85.4853 132.046H59C59 156.869 79.1469 176.99 104 176.99C128.853 176.99 149 156.869 149 132.046V67.9905Z" fill="currentColor"/><path d="M412.514 67.9905H373V174.99H412.514C442.054 174.99 466 151.039 466 121.49C466 91.9423 442.054 67.9905 412.514 67.9905ZM409.302 152.665H399.289V90.2963H409.302C426.516 90.2963 440.479 104.252 440.479 121.48C440.479 138.709 426.526 152.665 409.302 152.665Z" fill="currentColor"/><path d="M202 67.9905H175V173.99H202V67.9905Z" fill="currentColor"/><path d="M633.989 16.9798V225.001H16.0111V16.9798H633.989ZM650 0.990479H0V240.99H650V0.990479Z" fill="currentColor"/></svg></span>
               <button class="qr-download-btn" id="download-btn"
                 title="Download QR code" aria-label="Download QR code as PNG"
                 data-inspect-label="Download QR — download-04, 32×32 subtle"
                 data-inspect-phrase="flowCard.ariaDownloadQRCode"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 17v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
             </div>
+            <!-- Shipped as a standalone link under the code
+                 (FlowCardQRCode, flowCard.removeQrLogo). Same shell as the
+                 advanced-analytics offer on the bio page home. -->
+            <button type="button" class="upgrade-link qr-remove-logo"
+              data-inspect-label="Remove logo on QR code — upgrade link"
+              data-inspect-tokens='[{"prop":"color","figma":"$jui-color-typography-upgrade-on-light","css":"--jui-color-typography-upgrade-on-light","value":"#4e0079"},{"prop":"icon","figma":"square-lock-02","value":"16px"}]'
+              data-inspect-phrase="flowCard.removeQrLogo"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 16.5V14.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M16.5 9V6.5C16.5 4.01472 14.4853 2 12 2C9.51472 2 7.5 4.01472 7.5 6.5V9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M18 9H6.00019C4.89554 9 4.00008 9.89554 4.00018 11.0002L4.00102 20.0002C4.00112 21.1047 4.89652 22 6.00102 22H18C19.1046 22 20 21.1046 20 20V11C20 9.89543 19.1046 9 18 9Z" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/></svg><span>Remove logo on QR code</span></button>
+
             <div class="url-row"
               data-inspect-label="URL row — gray-50, radius-l, pl12 pr8 py4"
               data-inspect-tokens='[{"prop":"background","figma":"color/gray/50","css":"--jui-color-background-gray-dark","value":"#f8f8f8"},{"prop":"border-radius","figma":"$jui-style-radius-l (resolves 16)","css":"--jui-style-radius-l","value":"16px"},{"prop":"padding","value":"4px 8px 4px 12px"},{"prop":"gap","css":"--jui-layout-gap-s","value":"12px"}]'>
@@ -566,6 +600,21 @@
               <button class="url-text" id="link-btn" aria-label="Open your bio page in a new tab"
                 data-inspect-phrase="success.openBioPageAriaLabel">claranstone.jimdosite.com/bio</button>
             </div>
+
+            <!-- The address they could have instead, lifted from the name
+                 step (scr-011) so the offer looks the same in both places.
+                 It belongs under the address they just got, not beside it. -->
+            <button type="button" class="setup-domain-offer" id="domainOffer" data-no-phrase
+              data-state="ready"
+              data-inspect-label="Custom domain offer — same component as scr-011"
+              data-inspect-tokens='[{"prop":"state colour","figma":"$jui-color-actions-positive-hover","css":"--jui-color-actions-positive-hover","value":"#07754d"},{"prop":"padding","figma":"$jui-layout-padding-xs","css":"--jui-layout-padding-xs","value":"8px 12px"},{"prop":"type","figma":"Body/Small/Medium","css":"--jui-typography-body-small-medium-size","value":"14 / 500"}]'>
+              <span class="setup-domain-offer-mark" aria-hidden="true"><span class="setup-status-spinner setup-status-spinner--upgrade"></span><svg class="setup-domain-offer-rocket" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M10.9398 7.13563L13.7862 4.50451C15.4589 2.83179 19.0233 1.97655 21.9993 2.00049C21.9993 5.50049 21.1681 8.54101 19.4954 10.2137L16.8643 13.0601C16.6137 13.3312 16.5328 13.7183 16.654 14.067L17.088 15.3164C17.3396 16.0405 17.155 16.8448 16.613 17.3869L15.4993 18.5005L5.5 8.50049L6.61351 7.38698C7.15565 6.84484 7.96 6.66034 8.68422 6.91201L9.93277 7.34589C10.2815 7.46709 10.6687 7.38625 10.9398 7.13563Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/><path d="M17.4922 6.49414L17.4985 6.50049" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M2 22.0005L8 16M8 22.0005L11 19M2 16.0005L5 13" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/></svg></span>
+              <span class="setup-domain-offer-checking" data-inspect-phrase="businessInfo.domain.checking">Checking for a custom domain</span>
+              <span class="setup-domain-offer-copy">
+                <span class="setup-domain-offer-value"><span class="setup-domain-offer-name">claraandstone</span><span class="setup-domain-offer-tld">.com</span></span>
+                <span class="setup-domain-offer-state" data-inspect-phrase="businessInfo.domain.available">available</span>
+              </span><svg class="setup-domain-offer-more" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
           </div>
 
           <!-- Social frame — SocialFrame.tsx + SocialSkeletonCard.tsx -->
@@ -729,12 +778,19 @@
       s ^= s + Math.imul(s ^ (s >>> 7), s | 61);
       return ((s ^ (s >>> 14)) >>> 0) / 0xFFFFFFFF;
     }
+    /* The wordmark's clear square, the way buildQrOptions hides the dots
+       behind the image. A real code survives it on error correction H;
+       this one only has to look like it does. */
+    var LOGO_CELLS = Math.round(M * 0.35);
+    var logoLo = Math.floor((M - LOGO_CELLS) / 2);
+    var logoHi = logoLo + LOGO_CELLS;
     function isReserved(x, y) {
       var inTL = (x < 9 && y < 9);
       var inTR = (x >= M - 9 && y < 9);
       var inBL = (x < 9 && y >= M - 9);
       var timing = (x === 6 || y === 6);
-      return inTL || inTR || inBL || timing;
+      var underLogo = (x >= logoLo && x < logoHi && y >= logoLo && y < logoHi);
+      return inTL || inTR || inBL || timing || underLogo;
     }
     for (var y = 0; y < M; y++) {
       for (var x = 0; x < M; x++) {
@@ -823,7 +879,7 @@
   }
 </script>
 
-<script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=84b0cd1"></script>
+<script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=6791cd7"></script>
 
 <!-- Design annotations — surfaced in the workbench inspect panel -->
 <script type="application/json" id="design-annotations">

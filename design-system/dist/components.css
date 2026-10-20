@@ -1736,6 +1736,35 @@ body {
    white, a purple-100 edge and purple-800 text, with the edge darkening
    only on press. After .btn-secondary and .btn-upgrade both, since it is
    the pair of them it has to beat. */
+/* ── An upgrade you can say no to by ignoring ──
+   loops-frontend ships two of these — AdvancedAnalyticsTrigger and the QR
+   code's remove-logo link — as a purple label with an icon, sitting under
+   the thing they are about. No fill and no border: these are offers beside
+   content, not controls in a row, and a box around them turns a sentence
+   you can ignore into a button you have to decide about. */
+.upgrade-link {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xxs);
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: var(--jui-typography-body-small-medium-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  line-height: var(--jui-typography-body-small-medium-lh);
+  color: var(--jui-color-typography-upgrade-on-light);
+  cursor: pointer;
+}
+.upgrade-link svg { flex: 0 0 auto; width: 16px; height: 16px; }
+.upgrade-link:hover { text-decoration: underline; }
+.upgrade-link:focus-visible {
+  outline: 2px solid var(--jui-color-actions-upgrade-rest);
+  outline-offset: 2px;
+  border-radius: var(--jui-style-radius-4);
+}
+
 .btn-secondary.btn-upgrade {
   background: var(--jui-color-gray-white);
   border: 1px solid var(--jui-color-stroke-upgrade-on-light);
