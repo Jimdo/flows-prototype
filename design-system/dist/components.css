@@ -5418,22 +5418,31 @@ body {
 .sheet-actions--end { justify-content: flex-end; }
 
 .btn-danger-subtle[hidden] { display: none; }
+/* Figma 11241:80471. A subtle button in the action colour, not the
+   typography one: red-500 is what the seller presses, red-800 is what text
+   is set in, and the two are far enough apart to read as a mistake. */
 .btn-danger-subtle {
   display: inline-flex;
   align-items: center;
-  gap: var(--jui-layout-gap-xs);
+  gap: var(--jui-layout-gap-s);
   height: var(--jui-layout-dimension-m);
-  padding: 0 var(--jui-layout-padding-s);
+  padding: 0 var(--jui-layout-padding-l);
   border: 1px solid transparent;
   border-radius: var(--jui-component-button-radius);
   background: none;
-  color: var(--jui-color-typography-negative-on-light);
+  color: var(--jui-color-actions-negative-rest);
   font-family: inherit;
   font-size: var(--jui-typography-body-medium-medium-size);
   font-weight: var(--jui-typography-body-medium-medium-weight);
   line-height: var(--jui-typography-body-medium-medium-lh);
+  letter-spacing: var(--jui-typography-link-small-ls);
   cursor: pointer;
   transition: background-color 160ms ease-out;
+}
+.btn-danger-subtle svg {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
 }
 .btn-danger-subtle:hover { background: var(--jui-color-background-negative-light); }
 .btn-danger-subtle:focus-visible {
