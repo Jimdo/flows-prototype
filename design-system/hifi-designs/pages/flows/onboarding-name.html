@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Onboarding — Name</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=fd08ea2">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=fd08ea2">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=aceedd1">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=aceedd1">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=fd08ea2">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=aceedd1">
 <style>
   /* ─── Screen overrides ───
      Layout, preview stage, drawer, progress pill and field sizing all come
@@ -161,26 +161,48 @@
 
   <!-- Not a sales page. It answers the one question the row raises — can I
        have it, and when — and leaves the buying to the paywall. -->
+  <!-- ─── The price, minimally ───
+       This trigger fires on the second screen of onboarding, where the
+       seller has a name and nothing else. Curiosity is not intent, and the
+       full pricing page answers a question they have not asked — so this
+       answers the one they did: what would it cost, and from which plan.
+       A modal, so the setup they were doing is still behind it.
+
+       Anyone who wants to compare plans presses Upgrade and gets the real
+       page, with the X there bringing them back here. -->
   <div class="sheet-backdrop" id="domainSheet" data-open="false" role="dialog" aria-modal="true" aria-labelledby="domainSheetTitle">
     <div class="sheet sheet--compact">
       <div class="sheet-body">
-        <span class="dialog-mark dialog-mark--upgrade" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.9398 7.13563L13.7862 4.50451C15.4589 2.83179 19.0233 1.97655 21.9993 2.00049C21.9993 5.50049 21.1681 8.54101 19.4954 10.2137L16.8643 13.0601C16.6137 13.3312 16.5328 13.7183 16.654 14.067L17.088 15.3164C17.3396 16.0405 17.155 16.8448 16.613 17.3869L15.4993 18.5005L5.5 8.50049L6.61351 7.38698C7.15565 6.84484 7.96 6.66034 8.68422 6.91201L9.93277 7.34589C10.2815 7.46709 10.6687 7.38625 10.9398 7.13563Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/><path d="M17.4922 6.49414L17.4985 6.50049" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M2 22.0005L8 16M8 22.0005L11 19M2 16.0005L5 13" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/></svg></span>
+        <span class="dialog-mark dialog-mark--upgrade" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg></span>
         <div class="dialog-copy">
-          <p class="dialog-title" id="domainSheetTitle"><span id="domainSheetName">yourname.com</span> is available</p>
-          <p class="sheet-copy" data-inspect-phrase="businessInfo.domain.dialog.copy">You can take this address once your page is set up.</p>
+          <p class="dialog-title" id="domainSheetTitle" data-inspect-phrase="businessInfo.domain.dialog.title">Your own web address comes with Jimdo Start</p>
+          <p class="sheet-copy" data-inspect-phrase="businessInfo.domain.dialog.copy"><span id="domainSheetName">yourname.com</span> is free to take. Your page works without it, so this can wait.</p>
+        </div>
+        <div class="plan-line"
+          data-inspect-label="Plan line — the one price this trigger is about"
+          data-inspect-tokens='[{"prop":"background","figma":"$jui-color-background-upgrade-light","css":"--jui-color-background-upgrade-light","value":"#fcecff"},{"prop":"border","figma":"$jui-color-stroke-upgrade-on-light","css":"--jui-color-stroke-upgrade-on-light","value":"1px #e4b5ff"},{"prop":"padding","figma":"$jui-layout-padding-s","css":"--jui-layout-padding-s","value":"12px"}]'>
+          <span class="plan-line-label" data-inspect-phrase="paywall.plan.includedFrom">Included from</span>
+          <span class="plan-line-name" data-inspect-phrase="paywall.plan.pro.name">Jimdo Start</span>
+          <span class="plan-line-price">
+            <span class="plan-line-amount" data-no-phrase>€11.50</span>
+            <span class="plan-line-period" data-inspect-phrase="paywall.plan.period">/month</span>
+          </span>
         </div>
       </div>
-      <!-- One way out. Nothing is for sale here yet: the answer to "can I
-           have it" is "after your page is set up", so the only action is
-           going back to setting it up. -->
-      <div class="sheet-actions sheet-actions--end">
-        <button type="button" class="btn btn-primary" id="domainLater" data-inspect-phrase="businessInfo.domain.dialog.cta">Continue setup</button>
+      <div class="sheet-actions sheet-actions--split">
+        <button type="button" class="btn btn-subtle" id="domainLater" data-inspect-phrase="suggestion.maybeLater">Maybe later</button>
+        <button type="button" class="btn btn-primary btn-upgrade" id="domainUpgrade"
+          data-nav-to="flows/paywall-domain.html?from=onboarding-name"
+          data-nav-screen-id="scr-054"
+          data-inspect-phrase="paywall.pro.cta"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg>Upgrade</button>
       </div>
     </div>
   </div>
+    </div>
+  </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=fd08ea2"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=fd08ea2"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=aceedd1"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=aceedd1"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
 

@@ -5473,6 +5473,64 @@ body {
 }
 
 .dialog-copy { display: flex; flex-direction: column; gap: var(--jui-layout-gap-xs); }
+
+/* ── The price, in one line ──
+   A second destination beside the pricing page, for the moments a trigger
+   fires before the seller has any reason to buy — curiosity on the second
+   screen of onboarding is not intent, and three plan cards answer a
+   question nobody asked yet.
+
+   It answers the only one they did ask: what would this cost, and from
+   which plan. The full page is still a click away for anyone who wants to
+   compare, which is what the Upgrade button is for. */
+.plan-line {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: var(--jui-layout-gap-xxs) var(--jui-layout-gap-s);
+  padding: var(--jui-layout-padding-s);
+  border: 1px solid var(--jui-color-stroke-upgrade-on-light);
+  border-radius: var(--jui-style-radius-8);
+  background: var(--jui-color-background-upgrade-light);
+}
+.plan-line-label {
+  grid-column: 1 / -1;
+  font-size: var(--jui-typography-label-small-size);
+  font-weight: var(--jui-typography-label-small-weight);
+  letter-spacing: var(--jui-typography-label-small-ls);
+  line-height: var(--jui-typography-label-small-lh);
+  text-transform: uppercase;
+  color: var(--jui-color-typography-upgrade-on-light);
+}
+.plan-line-name {
+  font-size: var(--jui-typography-sub-headline-small-size);
+  font-weight: var(--jui-typography-sub-headline-small-weight);
+  line-height: var(--jui-typography-sub-headline-small-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+.plan-line-price {
+  justify-self: end;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+  white-space: nowrap;
+}
+.plan-line-amount {
+  font-size: var(--jui-typography-sub-headline-small-size);
+  font-weight: var(--jui-typography-sub-headline-small-weight);
+  line-height: var(--jui-typography-sub-headline-small-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+.plan-line-period {
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
+/* Maybe later sits opposite Upgrade, not beside it. The two are the whole
+   decision and the cheap one has to be as easy to reach as the dear one —
+   a modal that fires on curiosity has to be as easy to leave as to enter. */
+.sheet-actions--split { justify-content: space-between; }
 .dialog-title {
   margin: 0;
   overflow-wrap: anywhere;
