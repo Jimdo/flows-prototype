@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Onboarding — Tagline</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=2ecb992">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=2ecb992">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=86029b0">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=86029b0">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=2ecb992">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=86029b0">
 <style>
   /* ─── Screen overrides ───
      Everything here comes from the design system. Only the resting drawer
@@ -94,6 +94,43 @@
                   data-inspect-label="Regenerate — smart"
                   data-inspect-tokens='[{"prop":"label","figma":"@jimdo/ui smartSecondaryButton","css":"--jui-gradient-smart","value":"gradient 111deg blue-500 → red-300 → yellow-300"},{"prop":"icon","figma":"reload","css":"--jui-color-blue-500","value":"16px #004ced"}]'
                   data-inspect-phrase="businessInfo.offerDescription.suggestRegenerateCta"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="smartRegenTagline" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><path d="M14.5 1.99976L15.5 4.54791C14.3079 3.91092 12.9461 3.5498 11.5 3.5498C6.80558 3.5498 3 7.35538 3 12.0498C3 13.8409 3.554 15.6294 4.5 16.9998" stroke="url(#smartRegenTagline)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M8.5 21.9997L7.5 19.4516C8.69215 20.0885 10.0539 20.4497 11.5 20.4497C16.1944 20.4497 20 16.6441 20 11.9497C20 10.1585 19.446 8.37009 18.5 6.99976" stroke="url(#smartRegenTagline)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span class="regen-label">Regenerate</span></button>
+                <!-- The third answer: neither this one nor another one, but
+                     the one you say. It opens under the field rather than in
+                     a window — the line being written has to stay in sight
+                     or the advice stops being about it. -->
+                <button type="button" class="regen regen--smart" id="askSuggestion"
+                  data-inspect-label="Ask for a change — smart"
+                  data-inspect-tokens='[{"prop":"label","figma":"@jimdo/ui smartSecondaryButton","css":"--jui-gradient-smart","value":"gradient 111deg blue-500 \u2192 red-300 \u2192 yellow-300"},{"prop":"icon","figma":"speech-bubble","css":"--jui-gradient-smart","value":"16px"}]'
+                  data-inspect-phrase="businessInfo.offerDescription.suggestAskCta"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="smartAskTagline" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" stroke="url(#smartAskTagline)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="regen-label">Ask for a change</span></button>
+              </div>
+            </div>
+
+            <!-- The back and forth. What was asked stays on screen, what you
+                 would get is drawn as the line itself rather than described,
+                 and nothing reaches the field until Apply. -->
+            <div class="ai-suggest-ask">
+              <ol class="ai-thread" id="aiThread"></ol>
+
+              <div class="ai-chips" id="aiChips">
+                <button type="button" class="ai-chip" data-ask="Make it shorter" data-inspect-phrase="">Shorter</button>
+                <button type="button" class="ai-chip" data-ask="Say who it is for" data-inspect-phrase="">Say who it is for</button>
+                <button type="button" class="ai-chip" data-ask="Add where I work" data-inspect-phrase="">Add where</button>
+                <button type="button" class="ai-chip" data-ask="Make it warmer" data-inspect-phrase="">Warmer</button>
+              </div>
+
+              <form class="ai-ask" id="aiAskForm">
+                <input class="ai-ask-input" id="aiAskInput" type="text" autocomplete="off"
+                  placeholder="Say what to change"
+                  data-inspect-phrase="businessInfo.offerDescription.askPlaceholder">
+                <button type="submit" class="ai-ask-send" id="aiAskSend" aria-label="Send" disabled data-no-phrase><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M18 15L12 9L6 15" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+              </form>
+
+              <div class="ai-suggest-actions">
+                <button type="button" class="ai-suggest-apply" id="applyAsked"
+                  data-inspect-label="Smart Secondary Button — Apply"
+                  data-inspect-phrase="businessInfo.offerDescription.suggestApplyCta"><span class="btn-smart-label">Apply</span></button>
+                <button type="button" class="text-action" id="askBack"
+                  data-inspect-phrase="businessInfo.offerDescription.askBackCta">Back to the suggestion</button>
               </div>
             </div>
           </div>
@@ -114,8 +151,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=2ecb992"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=2ecb992"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=86029b0"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=86029b0"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
 
@@ -196,6 +233,10 @@
     }
 
     function scheduleSuggestion() {
+      // Mid-conversation the panel belongs to the conversation. Typing in
+      // the field keeps working — the next answer is built from whatever is
+      // in it — but it does not throw away what has been asked so far.
+      if (suggest.getAttribute('data-state') === 'asking') return;
       window.clearTimeout(settleTimer);
       const text = input.value.trim();
       if (applied || text.length < MIN_CHARS || text.includes(current().addition.trim())) {
@@ -218,6 +259,131 @@
     applyBtn.addEventListener('click', () => {
       applied = true;
       input.value = (input.value.trim() || input.placeholder) + current().addition;
+      hideSuggestion();
+      split.sync();
+      input.focus();
+    });
+
+    /* ── Asking for something else ──
+       Hardcoded answers, matched loosely on what was typed. The shapes are
+       the four things anyone actually asks a tagline to do: be shorter, say
+       who it is for, say where, sound like a person. Anything else gets the
+       next one in the list, because a prototype that only answers four
+       phrasings teaches testers to type the four phrasings.
+
+       `line` builds on what is in the field, not on a stored draft: the
+       seller can keep typing while the panel is open, and an answer about a
+       sentence they have since rewritten is worse than no answer. */
+    const baseLine = () => (input.value.trim() || input.placeholder);
+    const stripEnd = (t) => t.replace(/\s*[—-]\s.*$/, '');
+
+    const ASKS = [
+      { match: /short|brief|less|concise|trim|cut/i,
+        line: () => stripEnd(baseLine()) },
+      { match: /who|for whom|audience|beginner|women|men|people/i,
+        line: () => stripEnd(baseLine()) + ' for women starting out' },
+      { match: /where|place|location|near|city|online|hamburg/i,
+        line: () => stripEnd(baseLine()) + ' in Hamburg and online' },
+      { match: /warm|friendl|human|soft|personal|kind/i,
+        line: () => 'Come as you are — ' + stripEnd(baseLine()).toLowerCase() },
+      { match: /price|cost|cheap|money|pay|euro/i,
+        line: () => stripEnd(baseLine()) + ', from €20 a class' },
+      { match: /book|class|sell|offer|what/i,
+        line: () => stripEnd(baseLine()) + ' — weekly classes and beginner workshops' },
+    ];
+    // What an unmatched ask gets, in turn.
+    const ASK_FALLBACKS = [
+      () => stripEnd(baseLine()) + ' — small groups, every week',
+      () => stripEnd(baseLine()) + ', for anyone starting out',
+      () => 'Weekly ' + stripEnd(baseLine()).toLowerCase() + ' in Hamburg',
+    ];
+
+    const askBtn = document.getElementById('askSuggestion');
+    const askBack = document.getElementById('askBack');
+    const thread = document.getElementById('aiThread');
+    const chips = document.getElementById('aiChips');
+    const askForm = document.getElementById('aiAskForm');
+    const askInput = document.getElementById('aiAskInput');
+    const askSend = document.getElementById('aiAskSend');
+    const applyAsked = document.getElementById('applyAsked');
+
+    let asked = null;       // the line the latest answer proposed
+    let fallbackTurn = 0;
+
+    const DOTS = '<span class="ai-suggest-dots" aria-hidden="true"><i></i><i></i><i></i></span>';
+
+    function answerTo(prompt) {
+      const hit = ASKS.find((a) => a.match.test(prompt));
+      if (hit) return hit.line();
+      const next = ASK_FALLBACKS[fallbackTurn % ASK_FALLBACKS.length];
+      fallbackTurn += 1;
+      return next();
+    }
+
+    /* A turn arrives waiting and fills in, so the panel never swaps text
+       under the hand that asked for it. The newest is scrolled to rather
+       than the thread being reordered — what was asked before is the
+       context for what comes next. */
+    function addTurn(prompt) {
+      const li = document.createElement('li');
+      li.className = 'ai-turn';
+      li.setAttribute('data-pending', 'true');
+      li.innerHTML =
+        '<span class="ai-turn-ask"></span>' +
+        '<p class="ai-turn-text">' + DOTS + '<span>Writing it</span></p>';
+      li.querySelector('.ai-turn-ask').textContent = prompt;
+      thread.appendChild(li);
+      thread.scrollTop = thread.scrollHeight;
+
+      applyAsked.disabled = true;
+      window.setTimeout(() => {
+        const line = answerTo(prompt);
+        asked = line;
+        li.removeAttribute('data-pending');
+        li.querySelector('.ai-turn-text').textContent = line;
+        thread.scrollTop = thread.scrollHeight;
+        applyAsked.disabled = false;
+      }, REGEN_MS);
+    }
+
+    function openAsk() {
+      window.clearTimeout(settleTimer);
+      window.clearTimeout(regenTimer);
+      regenBtn.setAttribute('data-busy', 'false');
+      suggest.setAttribute('data-state', 'asking');
+      suggest.hidden = false;
+      applyAsked.disabled = !asked;
+      askInput.focus();
+    }
+
+    askBtn.addEventListener('click', openAsk);
+    askBack.addEventListener('click', () => suggest.setAttribute('data-state', 'ready'));
+
+    chips.addEventListener('click', (e) => {
+      const chip = e.target.closest('.ai-chip');
+      if (!chip) return;
+      // A chip is used once. Four that keep offering themselves after they
+      // have been taken read as four buttons that did nothing.
+      chip.hidden = true;
+      addTurn(chip.getAttribute('data-ask'));
+    });
+
+    askInput.addEventListener('input', () => { askSend.disabled = !askInput.value.trim(); });
+    askForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const prompt = askInput.value.trim();
+      if (!prompt) return;
+      askInput.value = '';
+      askSend.disabled = true;
+      addTurn(prompt);
+    });
+
+    /* The asked-for line replaces what is there rather than extending it:
+       it is a rewrite of the whole sentence, which is what was asked for. */
+    applyAsked.addEventListener('click', () => {
+      if (!asked) return;
+      applied = true;
+      input.value = asked;
       hideSuggestion();
       split.sync();
       input.focus();

@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bio Page — Edit Links (At the limit)</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=2ecb992">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=2ecb992">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=86029b0">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=86029b0">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=2ecb992">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=86029b0">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -218,12 +218,13 @@
             <p class="add-group-title" data-inspect-phrase="">Ideas for your page</p>
             <div class="add-grid" id="ideaGrid"></div>
 
-            <button type="button" class="regen regen--smart" id="regenIdeas" data-busy="false"
-              data-inspect-label="Regenerate — smart"
-              data-inspect-tokens='[{"prop":"label","figma":"@jimdo/ui smartSecondaryButton","css":"--jui-gradient-smart","value":"gradient 111deg blue-500 \u2192 red-300 \u2192 yellow-300"},{"prop":"icon","figma":"reload","css":"--jui-color-blue-500","value":"16px #004ced"}]'
-              data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="smartRegenIdeas" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><path d="M14.5 1.99976L15.5 4.54791C14.3079 3.91092 12.9461 3.5498 11.5 3.5498C6.80558 3.5498 3 7.35538 3 12.0498C3 13.8409 3.554 15.6294 4.5 16.9998" stroke="url(#smartRegenIdeas)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M8.5 21.9997L7.5 19.4516C8.69215 20.0885 10.0539 20.4497 11.5 20.4497C16.1944 20.4497 20 16.6441 20 11.9497C20 10.1585 19.446 8.37009 18.5 6.99976" stroke="url(#smartRegenIdeas)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span class="regen-label">Regenerate</span></button>
-
-            <button type="button" class="text-action" id="askOpen" data-inspect-phrase="">Offer something else</button>
+            <div class="add-group-actions">
+              <button type="button" class="regen regen--smart" id="regenIdeas" data-busy="false"
+                data-inspect-label="Regenerate — smart"
+                data-inspect-tokens='[{"prop":"label","figma":"@jimdo/ui smartSecondaryButton","css":"--jui-gradient-smart","value":"gradient 111deg blue-500 \u2192 red-300 \u2192 yellow-300"},{"prop":"icon","figma":"reload","css":"--jui-color-blue-500","value":"16px #004ced"}]'
+                data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="smartRegenIdeas" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><path d="M14.5 1.99976L15.5 4.54791C14.3079 3.91092 12.9461 3.5498 11.5 3.5498C6.80558 3.5498 3 7.35538 3 12.0498C3 13.8409 3.554 15.6294 4.5 16.9998" stroke="url(#smartRegenIdeas)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M8.5 21.9997L7.5 19.4516C8.69215 20.0885 10.0539 20.4497 11.5 20.4497C16.1944 20.4497 20 16.6441 20 11.9497C20 10.1585 19.446 8.37009 18.5 6.99976" stroke="url(#smartRegenIdeas)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span class="regen-label">Regenerate</span></button>
+              <button type="button" class="text-action" id="askOpen" data-inspect-phrase="">Offer something else</button>
+            </div>
           </div>
 
           <div class="add-group">
@@ -454,8 +455,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=2ecb992"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=2ecb992"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=86029b0"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=86029b0"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -772,7 +773,9 @@
     }
 
     /* The grey box that says what a button points at: the thing's name, the
-       kind of thing it is, and a way into it. */
+       kind of thing it is, and a pencil. A chevron was there first and said
+       the wrong thing — it reads as going down a level, and what happens is
+       that the thing behind the button opens for editing. */
     function refBox(title, type, kind, blockKey) {
       const el = document.createElement('button');
       el.type = 'button';
@@ -784,7 +787,9 @@
           '<span class="sheet-ref-type"></span>' +
         '</span>' +
         '<svg class="sheet-ref-more" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
-          '<path d="M5.99977 9.00005L11.9998 15L17.9998 9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>';
+          '<g transform="translate(2.75 2.75) scale(1.4999)">' +
+          '<path d="M9.71585 0.00602053C10.0318 0.0344793 10.2865 0.179546 10.5166 0.360513C10.7325 0.530278 10.9714 0.768376 11.2481 1.04508L11.2891 1.0861C11.5658 1.36274 11.8039 1.60168 11.9737 1.81754C12.1546 2.04765 12.2997 2.30243 12.3282 2.61833C12.3362 2.70764 12.3362 2.79756 12.3282 2.88688C12.2997 3.20274 12.1546 3.45757 11.9737 3.68766C11.8039 3.90351 11.5657 4.14249 11.2891 4.41911L4.62503 11.0832C4.1127 11.596 3.75667 11.9528 3.29593 12.1437C2.83503 12.3346 2.33063 12.3335 1.6055 12.3332H0.501005C0.224863 12.3332 0.00100497 12.1093 0.00100497 11.8332V10.8234C0.00100487 10.7914 4.32922e-05 10.7598 2.84045e-05 10.7287C-0.000317779 10.0035 -0.000459922 9.49916 0.190458 9.03825C0.381362 8.57748 0.738172 8.22149 1.251 7.70915L7.91507 1.04508C8.19169 0.768434 8.43067 0.530247 8.64651 0.360513C8.8766 0.17961 9.13144 0.0344721 9.44729 0.00602053C9.53662 -0.00199738 9.62652 -0.0020163 9.71585 0.00602053ZM2.02542 8.34879C1.41861 8.95561 1.21961 9.1668 1.11429 9.42106C1.00897 9.67532 1.00101 9.96536 1.001 10.8234V11.3332H1.51077C2.36874 11.3332 2.65887 11.3242 2.91311 11.2189C3.1672 11.1135 3.37888 10.9153 3.98538 10.3088L9.12698 5.16715L7.16702 3.20719L2.02542 8.34879ZM9.53616 1.00211C9.49103 1.00625 9.41845 1.02575 9.26468 1.14665C9.10144 1.27501 8.90449 1.46972 8.60159 1.77262L7.87405 2.50016L9.83401 4.46012L10.5616 3.73258C10.8645 3.42968 11.0592 3.23274 11.1875 3.0695C11.3088 2.91528 11.328 2.84214 11.3321 2.79704C11.3347 2.76748 11.3347 2.73772 11.3321 2.70817C11.328 2.66306 11.3088 2.58998 11.1875 2.43571C11.0592 2.27246 10.8645 2.07555 10.5616 1.77262C10.2586 1.46968 10.0617 1.27503 9.89847 1.14665C9.74415 1.02529 9.67112 1.00618 9.626 1.00211C9.59625 0.99945 9.56592 0.999434 9.53616 1.00211Z" fill="currentColor"/>' +
+          '</g></svg>';
       el.querySelector('.sheet-ref-title').textContent = title;
       el.querySelector('.sheet-ref-type').textContent = type;
       // A booking opens its own fields. A form and a website page are made

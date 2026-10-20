@@ -2720,6 +2720,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  /* min-height, not height — a wrapped address makes the row taller rather
+     than spilling out of it. */
   gap: var(--jui-layout-gap-xs);
   min-height: var(--jui-layout-dimension-m);
   padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-s);
@@ -2777,12 +2779,19 @@ body {
 /* The address is one string. 8px separates it from the tick; the handle and
    its suffix sit 2px apart, as in Figma 12290:22178 — any more and they read
    as two unrelated words. */
+/* A long name is still a legal address, so it wraps rather than pushing the
+   row wider than the column it sits in. The handle is the only part that
+   can break mid-word — breaking `.jim.do/bio` would read as two addresses
+   where there is one. */
 .setup-link-address {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 2px;
   min-width: 0;
 }
+.setup-link-handle-value { overflow-wrap: anywhere; }
+.setup-link-suffix { white-space: nowrap; }
 
 .setup-link-value svg,
 .setup-link-check {
@@ -2811,6 +2820,7 @@ body {
 
 .setup-link-field {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 2px;
   min-width: 0;
@@ -2821,10 +2831,15 @@ body {
 .setup-link-handle {
   outline: none;
   min-width: 1px;
+  max-width: 100%;
   font-weight: 500;
   color: var(--jui-color-typography-gray-on-light-default);
   caret-color: var(--jui-color-actions-primary-rest);
-  white-space: nowrap;
+  /* Was nowrap, which pushed the row sideways as a long name was typed.
+     Still one line for anything that fits; anything that does not breaks
+     where it has to rather than where a space happens to be. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 /* ── Checking ──
@@ -2891,10 +2906,17 @@ body {
 /* The address itself in the upgrade colour: it is the paid one, and the row
    is the only place that says so once the spinner has gone. Matches the live
    DomainBanner, which paints its upgrade state upgrade-on-light. */
+/* Name and suffix, like the jim.do row above it: only the name can break,
+   so a long one never leaves the `m` of `.com` on a line of its own. */
 .setup-domain-offer-value { color: var(--jui-color-typography-upgrade-on-light); }
+.setup-domain-offer-name { overflow-wrap: anywhere; }
+.setup-domain-offer-tld { white-space: nowrap; }
 /* Not decorative-positive: the paywall's own availability tag found green-400
    too light to report a result with, and this is the same word. */
-.setup-domain-offer-state { color: var(--jui-color-actions-positive-hover); }
+.setup-domain-offer-state {
+  color: var(--jui-color-actions-positive-hover);
+  white-space: nowrap;
+}
 .setup-domain-offer-more {
   flex-shrink: 0;
   margin-left: auto;
@@ -2908,6 +2930,7 @@ body {
    offer the seller has not seen yet, so a bar of nothing says nothing. */
 .setup-domain-offer-copy {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--jui-layout-gap-xs);
   min-width: 0;
@@ -3482,7 +3505,11 @@ body {
 .ai-suggest[hidden] { display: none; }
 
 .ai-suggest[data-state="loading"] .ai-suggest-body,
-.ai-suggest[data-state="ready"] .ai-suggest-loading { display: none; }
+.ai-suggest[data-state="loading"] .ai-suggest-ask,
+.ai-suggest[data-state="ready"] .ai-suggest-loading,
+.ai-suggest[data-state="ready"] .ai-suggest-ask,
+.ai-suggest[data-state="asking"] .ai-suggest-loading,
+.ai-suggest[data-state="asking"] .ai-suggest-body { display: none; }
 
 .ai-suggest-loading {
   display: flex;
@@ -3526,11 +3553,146 @@ body {
 
 .ai-suggest-text { margin: 0; }
 
-/* Apply and Regenerate are one row: accept this one, or ask for another. */
+/* Take this one, ask for another, or say what you want instead. Three
+   answers to one offer, wrapping rather than shrinking — a control that
+   gets narrower on a phone is hardest to hit where hitting is hardest. */
 .ai-suggest-actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--jui-layout-gap-m);
+  gap: var(--jui-layout-gap-xs) var(--jui-layout-gap-m);
+}
+
+/* ── Asking for something else, in place ──
+   The panel is already under the field it is advising on, so the back and
+   forth happens there rather than in a window somewhere else. Three things
+   make that work and all three are here: what you asked stays visible, what
+   you would get is shown as the line itself rather than described, and
+   nothing lands in the field until Apply.
+
+   The trail scrolls instead of growing. A conversation that pushes the
+   field it is about off the screen has stopped being in context. */
+.ai-suggest-ask {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-s);
+}
+
+.ai-thread {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-s);
+  max-height: 232px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ai-turn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xxs);
+}
+/* What was asked for, kept small — it is the question, and the answer is
+   the thing worth reading. */
+.ai-turn-ask {
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+/* The answer drawn as the line it would become, not as a sentence about
+   it. White on the panel's blue, the same card the field is. */
+.ai-turn-text {
+  margin: 0;
+  padding: var(--jui-layout-padding-s);
+  border-radius: var(--jui-style-radius-8);
+  background: var(--jui-color-gray-white);
+  font-size: var(--jui-typography-body-medium-regular-size);
+  line-height: var(--jui-typography-body-medium-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+.ai-turn[data-pending="true"] .ai-turn-text {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
+/* Somewhere to start. A blank box asking an open question is the part
+   people stall on, and these are the four things anyone actually asks. */
+.ai-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--jui-layout-gap-xs);
+}
+.ai-chip {
+  display: inline-flex;
+  align-items: center;
+  height: var(--jui-layout-dimension-s);
+  padding: 0 var(--jui-layout-padding-s);
+  border: 1px solid var(--jui-color-stroke-primary-on-light);
+  border-radius: var(--jui-style-radius-16);
+  background: var(--jui-color-gray-white);
+  font-family: inherit;
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: 500;
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-actions-primary-rest);
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+.ai-chip:hover { background: var(--jui-color-background-primary-medium); }
+.ai-chip:focus-visible {
+  outline: 2px solid var(--jui-color-actions-primary-rest);
+  outline-offset: 2px;
+}
+.ai-chip[hidden] { display: none; }
+
+.ai-ask {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
+}
+.ai-ask-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: var(--jui-layout-dimension-s);
+  padding: 0 var(--jui-layout-padding-s);
+  border: 1px solid var(--jui-component-input-color-field-stroke-rest);
+  border-radius: var(--jui-style-radius-8);
+  background: var(--jui-color-gray-white);
+  font-family: inherit;
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+.ai-ask-input:focus-visible {
+  outline: 2px solid var(--jui-color-actions-primary-rest);
+  outline-offset: -1px;
+}
+.ai-ask-send {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--jui-layout-dimension-s);
+  height: var(--jui-layout-dimension-s);
+  border: none;
+  border-radius: var(--jui-style-radius-8);
+  background: var(--jui-color-actions-primary-rest);
+  color: var(--jui-color-typography-gray-on-dark-default);
+  cursor: pointer;
+}
+.ai-ask-send svg { width: 20px; height: 20px; }
+.ai-ask-send:hover { background: var(--jui-color-actions-primary-hover); }
+.ai-ask-send:disabled {
+  background: var(--jui-color-actions-static-pressed);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+  cursor: default;
+}
+.ai-ask-send:focus-visible {
+  outline: 2px solid var(--jui-color-actions-primary-rest);
+  outline-offset: 2px;
 }
 
 /* @jimdo/ui smartSecondaryButton: a white box with a gradient border and a
@@ -4704,7 +4866,10 @@ body {
   gap: var(--jui-layout-gap-s);
   width: 100%;
   padding: var(--jui-layout-padding-s);
-  border: 1px dashed var(--jui-color-stroke-primary-actionable);
+  /* The light primary stroke, the same one .btn-secondary carries. At the
+     actionable blue a dashed box reads as a thing that is already yours;
+     the point of the dashes is that it is not one yet. */
+  border: 1px dashed var(--jui-color-stroke-primary-on-light);
   border-radius: var(--jui-style-radius-12);
   background: var(--jui-color-gray-white);
 }
@@ -4986,7 +5151,9 @@ body {
   justify-content: space-between;
   gap: var(--jui-layout-gap-s);
   flex-shrink: 0;
-  padding: var(--jui-layout-padding-m) var(--jui-layout-padding-m) var(--jui-layout-padding-xs);
+  /* No bottom padding: the body below owns the gap under the title, and
+     two paddings stacked made it 32 where 24 was asked for. */
+  padding: var(--jui-layout-padding-m) var(--jui-layout-padding-m) 0;
 }
 /* Both header controls are 32 so they can be hit, and 32 was also setting
    the row's height — which put 30px above the title against 16 at the
@@ -5019,7 +5186,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: var(--jui-layout-gap-l);
-  padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-s) var(--jui-layout-padding-m);
+  padding: var(--jui-layout-padding-l) var(--jui-layout-padding-s);
 }
 @media (min-width: 768px) {
   .sheet-body { padding-left: var(--jui-layout-padding-m); padding-right: var(--jui-layout-padding-m); }
@@ -5249,6 +5416,7 @@ body {
 .dialog-copy { display: flex; flex-direction: column; gap: var(--jui-layout-gap-xs); }
 .dialog-title {
   margin: 0;
+  overflow-wrap: anywhere;
   font-size: var(--jui-typography-sub-headline-large-size);
   font-weight: var(--jui-typography-sub-headline-large-weight);
   line-height: var(--jui-typography-sub-headline-large-lh);
@@ -5324,6 +5492,25 @@ body {
    than running out to its edges. The row's 16 is on top of that, and it is
    the inset a press needs to land on a band rather than on the words. */
 .add-group .text-action { margin: var(--jui-layout-gap-m) 0 0; }
+
+/* ── The two ways out of a set of guesses ──
+   Ask for another three, or say what the three missed. One line, because
+   they are alternatives to each other; stacked they read as two unrelated
+   links, and the second one sat indented past the first.
+
+   Regenerate carries its own optical pull, so the row is padded like every
+   other band in the list and the icon still lands on the cards' left edge.
+   The text action drops the margin it carried when it stood alone. */
+.add-group-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--jui-layout-gap-xxs) var(--jui-layout-gap-xs);
+  margin-top: var(--jui-layout-gap-s);
+}
+.add-group-actions .text-action { margin: 0; }
+.add-host .add-group-actions { padding-left: var(--jui-layout-padding-m); }
+.add-host .add-group-actions .text-action { padding-left: 0; }
 
 /* ── The pieces that take money ──
    Given cards rather than rows, and put first. These are the reason the page
@@ -5536,10 +5723,12 @@ body {
   color: var(--jui-color-typography-gray-on-light-default);
 }
 
+/* Figma 11241:80518. The toggle sits next to its label, not at the far
+   edge: the two are one control, and a gap the width of the dialog makes
+   you look twice to see which switch belongs to which word. */
 .sheet-toggle {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: var(--jui-layout-gap-s);
 }
 .sheet-toggle-label {
