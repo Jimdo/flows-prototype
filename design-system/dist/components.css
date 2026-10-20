@@ -1746,7 +1746,10 @@ body {
   align-self: flex-start;
   display: inline-flex;
   align-items: center;
-  gap: var(--jui-layout-gap-xxs);
+  /* 8, not the 4 loops-frontend ships. The crown is a busier glyph than the
+     chart it replaced and it sat on the first letter. Same gap .regen gives
+     its 16px icon, so the two inline controls match. */
+  gap: var(--jui-layout-gap-xs);
   padding: 0;
   border: none;
   background: none;
