@@ -94,13 +94,14 @@
                   </p>
                   <p class="plan-option-note" data-inspect-phrase="paywall.plan.pro.note">For getting booked and paid</p>
                 </div>
+                <!-- Upgrade goes nowhere yet. Checkout is a flow of its own and
+                     none of it is designed; a button that lands on the home
+                     screen would read as "bought" to anyone testing this. -->
                 <button class="btn btn-primary btn-upgrade"
                   data-inspect-label="Upgrade Button"
                   data-inspect-tokens='[{"prop":"background","figma":"$jui-color-actions-upgrade-rest","css":"--jui-color-actions-upgrade-rest","value":"#8733be"},{"prop":"color","figma":"$jui-color-typography-upgrade-on-dark","css":"--jui-color-typography-upgrade-on-dark","value":"#fcecff"},{"prop":"height","figma":"$jui-layout-dimension-m","css":"--jui-layout-dimension-m","value":"48px"}]'
                   data-inspect-phrase="paywall.domain.ctaPrimary"
-                  data-trigger="primary-cta"
-                  data-nav-to="flows/home-dashboard-v2.html"
-                  data-nav-screen-id="scr-131">Upgrade</button>
+                  data-trigger="primary-cta">Upgrade</button>
                 <ul class="plan-feature-list">
                   <li class="plan-feature"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span data-inspect-phrase="upgrade.paid.feature1">Get booked for everything you offer</span></li>
                   <li class="plan-feature"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span data-inspect-phrase="upgrade.paid.feature2">Get enquiries with the details you need</span></li>

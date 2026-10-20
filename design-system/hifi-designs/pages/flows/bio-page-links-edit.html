@@ -211,7 +211,6 @@
         </div>
 
 
-
         <!-- The one way to put something on the page, so it sits where the
              step screens put their Continue: fixed at the foot of the drawer
              on a phone, out of the list that scrolls under it. On desktop the
@@ -496,6 +495,7 @@
   <div class="sheet-backdrop" id="editSheet" data-open="false" role="dialog" aria-modal="true" aria-labelledby="editSheetTitle">
     <div class="sheet">
       <div class="sheet-head">
+        <span class="sheet-type-icon" id="editTypeIcon" aria-hidden="true"></span>
         <p class="sheet-title" id="editSheetTitle" data-no-phrase>Edit</p>
         <button type="button" class="setup-back-btn" id="editClose" aria-label="Close" data-no-phrase><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
       </div>
@@ -542,9 +542,53 @@
     // it would be arguing for what is already there.
     const pending = () => live().filter((k) => !SUGGESTIONS[k].done);
 
-    /* What the page shows, in the order the panel lists it. Reading the DOM
-       rather than a kept array is what makes a drag land on the page: the
-       drag moves the node, and the next sync reads where it ended up. */
+    /* ── What each kind of button is made of ──
+       Figma 11241:80504. A button on the page is a label, the thing it
+       points at, and whether it is showing. What differs between kinds is
+       only the middle: the ones that point at something the seller owns
+       show it in a grey reference box, and the rest carry the field that
+       says where they go.
+
+       `type` is what the dialog is headed with — the kind, not the name.
+       The name lives in Button label, where it can be changed. */
+    const TYPES = {
+      offer:    { type: 'Booking',      kind: 'book', ref: 'Booking' },
+      form:     { type: 'Form',         kind: 'form', ref: 'Form' },
+      page:     { type: 'Website page', kind: 'page', ref: 'Website page' },
+      mainlink: { type: 'Link',         kind: 'link',
+                  fields: [['Address', 'url', 'https://claraandstone.com']] },
+      whatsapp: { type: 'WhatsApp',     kind: 'link',
+                  fields: [['Your number', 'tel', '+49 170 1234567']] },
+      email:    { type: 'Email',        kind: 'link',
+                  fields: [['Your email', 'email', 'hello@claraandstone.com']] },
+      call:     { type: 'Call',         kind: 'link',
+                  fields: [['Your number', 'tel', '+49 170 1234567']] },
+      // An address is a place on a map, not a button with a name on it.
+      map:      { type: 'Your address', kind: 'link', noLabel: true,
+                  fields: [['Search for a place', 'text', 'Elbe Einkaufszentrum, Hamburg']] },
+      // Social icons are a row of marks. There is nothing to label.
+      social:   { type: 'Social icons', kind: 'link', noLabel: true,
+                  fields: [['Instagram', 'url', ''], ['TikTok', 'url', '']] },
+    };
+
+    /* The fields that make the thing itself, as opposed to the button that
+       points at it. Reached from the reference box. */
+    const THINGS = {
+      offer: { title: 'Booking', fields: [
+        ['Name', 'text', 'Beginner workshop'], ['When', 'text', 'Sat 10 May, 14:00'],
+        ['Where', 'text', ''], ['Price', 'text', '€45']] },
+    };
+
+    /* Switch-backed pieces keep their label and their visibility here; the
+       blocks keep theirs on the block. */
+    const META = {
+      whatsapp: { label: 'WhatsApp', visible: true },
+      email:    { label: 'Email me', visible: true },
+      call:     { label: 'Call me',  visible: true },
+      map:      { visible: true },
+      social:   { visible: true },
+    };
+
     /* Everything the page carries as a button, in the order it carries it.
        A list, not a set of switches: a seller has two links, or three
        bookings, and the old six booleans could only answer yes or no to one
@@ -567,7 +611,9 @@
         const row = li.querySelector('.edit-row');
         const key = row && row.getAttribute('data-block');
         const b = key && BLOCKS.get(key);
-        if (!b || li.hidden) return;
+        // Hidden is not removed: the row stays in the list, where it can be
+        // switched back on, and only the page stops carrying it.
+        if (!b || li.hidden || b.visible === false) return;
         out.push({ id: key, label: b.label, pending: !!b.creating });
       });
       return out;
@@ -582,26 +628,30 @@
 
     const split = initSetupSplit({
       state: () => {
-        const hasContact = ON.whatsapp || ON.email || ON.call;
+        // On the list and showing on the page are two different states: a
+        // contact button switched off in its editor keeps its row and loses
+        // its place on the page.
+        const shown = (k) => ON[k] && META[k].visible !== false;
+        const hasContact = shown('whatsapp') || shown('email') || shown('call');
         const config = {
           title: 'Clara and Stone',
           subtitle: 'Yoga and mindfulness workshops for women',
           image: 'photo',
           contact: [
-            { id: 'whatsapp', on: ON.whatsapp },
-            { id: 'email', on: ON.email },
-            { id: 'call', on: ON.call },
+            { id: 'whatsapp', on: shown('whatsapp') },
+            { id: 'email', on: shown('email') },
+            { id: 'call', on: shown('call') },
           ],
           // Plain buttons, not the rich offer card: on the page these are
           // links like any other, and drawing one as a card would promise a
           // treatment the seller has not chosen. Order comes from the list
           // itself, so dragging a suggestion moves it on the page.
           links: links(),
-          address: { on: ON.map, value: 'Elbe Einkaufszentrum' },
+          address: { on: shown('map'), value: 'Elbe Einkaufszentrum' },
           offer: { on: false },
           ghost: [
             ...(hasContact ? [] : ['contact']),
-            ...(ON.social ? [] : ['socials']),
+            ...(shown('social') ? [] : ['socials']),
           ],
         };
         if (dragRegion) config.highlight = dragRegion;
@@ -635,27 +685,6 @@
       });
     });
 
-    // What each kind of row asks for. The transactional one is the only one
-    // that can be half-finished, so it is the only one that says so.
-    const EDITORS = {
-      whatsapp: { title: 'WhatsApp button', fields: [
-        ['Button label', 'text', 'WhatsApp'], ['Your number', 'tel', '+49 170 1234567']] },
-      email: { title: 'Email button', fields: [
-        ['Button label', 'text', 'Email me'], ['Your email', 'email', 'hello@claraandstone.com']] },
-      offer: { title: 'Beginner workshop', fields: [
-        ['Name', 'text', 'Beginner workshop'], ['When', 'text', 'Sat 10 May, 14:00'],
-        ['Where', 'text', ''], ['Price', 'text', '€45']] },
-      form: { title: 'Ask me about private classes', pending: 'This needs to know what to ask before anyone can send it.', fields: [
-        ['Name', 'text', 'Ask me about private classes'],
-        ['What you ask for', 'text', 'Name, email, what they want to know']] },
-      mainlink: { title: 'Link', fields: [
-        ['Button label', 'text', 'My website'], ['Address', 'url', 'https://claraandstone.com']] },
-      map: { title: 'Your address', fields: [
-        ['Address', 'text', 'Elbe Einkaufszentrum, Hamburg']] },
-      social: { title: 'Social icons', fields: [
-        ['Instagram', 'url', ''], ['TikTok', 'url', '']] },
-    };
-
     /* ── Adding ──
        One row builder for every kind of thing that can land on the page, so
        a booking, a website page and a plain link are the same object with a
@@ -672,7 +701,7 @@
       const from = {
         book: '#sugEvent .edit-row-icon',
         form: '#sugForm .edit-row-icon',
-        page: '#rowMainlink .edit-row-icon',
+        page: '[data-picker="pages"] .add-option-icon',
         link: '#rowMainlink .edit-row-icon',
       }[kind] || '#rowMainlink .edit-row-icon';
       const el = document.querySelector(from);
@@ -734,52 +763,154 @@
     const editFields = document.getElementById('editFields');
     const editRemove = document.getElementById('editRemove');
     const editSave = document.getElementById('editSave');
+    const editTypeIcon = document.getElementById('editTypeIcon');
+    const actionsRow = editSheet.querySelector('.sheet-actions');
+    let editingThing = false;
     const openEdit = (on) => editSheet.setAttribute('data-open', String(on));
 
     let activeEditor = null;
     let activeBlock = null;
 
-    function showEditor(kind, blockKey = null) {
-      const e = EDITORS[kind] || EDITORS.mainlink;
+    /* ── One dialog, two jobs ──
+       Making a thing and editing the button that points at it are not the
+       same act. The first has nothing to remove yet and ends in "Create";
+       the second is the button editor from Figma 11241:80504 — a label, the
+       thing it points at, whether it is showing — and ends in "Done". */
+    function showEditor(kind, blockKey = null, opts = {}) {
+      const t = TYPES[kind] || TYPES.mainlink;
       activeEditor = kind;
       activeBlock = blockKey;
-      // A row names itself. Opening "Summer retreat" and being shown an
-      // editor headed "Link" was the old list's way of admitting that every
-      // added thing was the same slot underneath.
-      const b = blockKey && BLOCKS.get(blockKey);
-      editTitle.textContent = b ? b.label : e.title;
+      const b = blockKey ? BLOCKS.get(blockKey) : null;
+      // Nothing to point at yet means there is nothing to edit about the
+      // button either — the first pass through makes the thing itself.
+      const thing = (opts.thing || !blockKey) ? THINGS[kind] : null;
+      editingThing = !!thing;
+
       editFields.innerHTML = '';
-      if (e.pending) {
-        const p = document.createElement('p');
-        p.className = 'sheet-pending';
-        p.textContent = e.pending;
-        editFields.appendChild(p);
+      editTypeIcon.innerHTML = typeIcon(kind, blockKey);
+
+      // Making the thing itself, from scratch or from its reference box.
+      if (thing) {
+        editTitle.textContent = thing.title;
+        thing.fields.forEach(([label, type, value]) => {
+          editFields.appendChild(field(label, type, b && label === 'Name' ? b.label : value));
+        });
+        addDateControl();
+        editRemove.hidden = true;
+        actionsRow.classList.add('sheet-actions--end');
+        editSave.textContent = blockKey ? 'Done' : 'Create booking';
+        openEdit(true);
+        return;
       }
-      e.fields.forEach(([label, type, value], idx) => {
-        if (b && idx === 0) value = b.label;
-        const wrap = document.createElement('label');
-        wrap.className = 'sheet-field';
-        const l = document.createElement('span');
-        l.className = 'sheet-label';
-        l.textContent = label;
-        const i = document.createElement('input');
-        i.className = 'form-input';
-        i.type = type;
-        i.value = value;
-        wrap.append(l, i);
-        editFields.appendChild(wrap);
-      });
-      // Making a booking and changing one are not the same dialog. The one
-      // that makes it has nothing to remove yet, and "Save" names the wrong
-      // act — there is no earlier version to save over.
-      const making = !blockKey && kind === 'offer';
-      editRemove.hidden = !blockKey;
-      // space-between with one child leaves it at the start, which puts the
-      // only action in the dialog where a dialog's actions never are.
-      editSheet.querySelector('.sheet-actions').classList.toggle('sheet-actions--end', !blockKey);
-      editSave.textContent = making ? 'Create booking' : 'Save';
-      if (making) addDateControl();
+
+      editTitle.textContent = t.type;
+
+      if (!t.noLabel) {
+        editFields.appendChild(field('Button label', 'text', labelOf(kind, b)));
+      }
+
+      if (t.ref) {
+        // What this button points at. Opening it is how the thing behind the
+        // button gets changed, which is a different dialog from this one.
+        editFields.appendChild(refBox(b ? b.label : t.type, t.ref, kind, blockKey));
+      } else {
+        (t.fields || []).forEach(([label, type, value]) => {
+          editFields.appendChild(field(label, type, value));
+        });
+      }
+
+      editFields.appendChild(visibleRow(kind, b));
+
+      editRemove.hidden = false;
+      editRemove.textContent = 'Remove';
+      actionsRow.classList.remove('sheet-actions--end');
+      editSave.textContent = 'Done';
       openEdit(true);
+    }
+
+    /* The dialog wears the icon of the row it was opened from, so the two
+       read as the same thing seen twice. Only a kind with no row of its own
+       falls back to the generic one. */
+    function typeIcon(kind, blockKey) {
+      const sel = blockKey
+        ? '[data-block="' + blockKey + '"] .edit-row-icon'
+        : '#row' + kind.charAt(0).toUpperCase() + kind.slice(1) + ' .edit-row-icon';
+      const el = document.querySelector(sel);
+      return el ? el.outerHTML : iconFor((TYPES[kind] || TYPES.mainlink).kind);
+    }
+
+    function labelOf(kind, b) {
+      if (b) return b.label;
+      return (META[kind] && META[kind].label) || (TYPES[kind] && TYPES[kind].type) || '';
+    }
+
+    function field(label, type, value) {
+      const wrap = document.createElement('label');
+      wrap.className = 'sheet-field';
+      const l = document.createElement('span');
+      l.className = 'sheet-label';
+      l.textContent = label;
+      const i = document.createElement('input');
+      i.className = 'form-input';
+      i.type = type;
+      i.value = value || '';
+      wrap.append(l, i);
+      return wrap;
+    }
+
+    /* The grey box that says what a button points at: the thing's name, the
+       kind of thing it is, and a way into it. */
+    function refBox(title, type, kind, blockKey) {
+      const el = document.createElement('button');
+      el.type = 'button';
+      el.className = 'sheet-ref';
+      el.setAttribute('data-no-phrase', '');
+      el.innerHTML =
+        '<span class="sheet-ref-copy">' +
+          '<span class="sheet-ref-title"></span>' +
+          '<span class="sheet-ref-type"></span>' +
+        '</span>' +
+        '<svg class="sheet-ref-more" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+          '<path d="M5.99977 9.00005L11.9998 15L17.9998 9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>';
+      el.querySelector('.sheet-ref-title').textContent = title;
+      el.querySelector('.sheet-ref-type').textContent = type;
+      // A booking opens its own fields; a form opens the form it made. A
+      // website page is the CMS's, and there is nothing of ours to open.
+      if (kind === 'offer') {
+        el.addEventListener('click', () => showEditor('offer', blockKey, { thing: true }));
+      } else if (kind === 'form') {
+        el.addEventListener('click', () => { openEdit(false); openForm(true); });
+      } else {
+        el.classList.add('sheet-ref--flat');
+      }
+      return el;
+    }
+
+    function visibleRow(kind, b) {
+      const row = document.createElement('div');
+      row.className = 'sheet-toggle';
+      const label = document.createElement('span');
+      label.className = 'sheet-toggle-label';
+      label.setAttribute('data-inspect-phrase', '');
+      label.textContent = 'Visible';
+      const wrap = document.createElement('span');
+      wrap.className = 'jui-toggle';
+      wrap.innerHTML =
+        '<input type="checkbox" id="editVisible" aria-label="Visible">' +
+        '<span class="jui-toggle-indicator"><span class="jui-toggle-circle">' +
+        '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+        '<path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>' +
+        '</svg></span></span>';
+      const input = wrap.querySelector('input');
+      input.checked = b ? b.visible !== false : !(META[kind] && META[kind].visible === false);
+      input.addEventListener('change', () => {
+        if (b) b.visible = input.checked;
+        else if (META[kind]) META[kind].visible = input.checked;
+        refresh();
+        split.sync();
+      });
+      row.append(label, wrap);
+      return row;
     }
 
     /* A booking can be more than one date, which the dialog had no way to
@@ -824,6 +955,17 @@
       });
       Object.keys(SECTIONS).forEach((id) => {
         document.getElementById(id).hidden = !SECTIONS[id].some((k) => ON[k]);
+      });
+
+      // A row the seller has hidden is still theirs to reorder and edit, so
+      // it stays where it is and says so instead of disappearing.
+      Object.keys(META).forEach((k) => {
+        const row = document.getElementById('row' + k.charAt(0).toUpperCase() + k.slice(1));
+        if (row) row.toggleAttribute('data-off', META[k].visible === false);
+      });
+      BLOCKS.forEach((b, key) => {
+        const row = document.querySelector('[data-block="' + key + '"]');
+        if (row) row.toggleAttribute('data-off', b.visible === false);
       });
 
       const capped = limitReached();
@@ -913,41 +1055,71 @@
     /* Saving the setup of a suggestion is what finishes it. The same sheet
        saves an ordinary row, where there is nothing to finish — and renames
        it, since the first field is the row's own name. */
-    /* Changing a row is instant — the page already has it. Making one is
-       not: there is a booking page to create behind it, and the button that
-       asked for it is where the wait belongs, not the row that does not
-       exist yet. */
+    /* Done means something different in each of the dialog's jobs: finish
+       making the thing, finish editing the thing, finish editing the button
+       that points at it. Only the first has a page to build behind it, so
+       only the first waits. */
     editSave.addEventListener('click', () => {
       const named = editFields.querySelector('.form-input');
+      const value = named && named.value.trim();
 
+      // Editing the thing itself, from a button that already exists: its
+      // name is the button's name, and the way back is the button.
+      if (editingThing && activeBlock && BLOCKS.has(activeBlock)) {
+        const b = BLOCKS.get(activeBlock);
+        if (value) { b.label = value; paintRow(activeBlock); }
+        refresh();
+        split.sync();
+        showEditor(activeEditor, activeBlock);
+        return;
+      }
+
+      // Editing the button.
       if (activeBlock && BLOCKS.has(activeBlock)) {
         const b = BLOCKS.get(activeBlock);
-        if (named && named.value.trim()) b.label = named.value.trim();
-        const row = document.querySelector('[data-block="' + activeBlock + '"] .edit-row-label');
-        if (row) row.textContent = b.label;
+        if (value && !TYPES[activeEditor].noLabel) { b.label = value; paintRow(activeBlock); }
         openEdit(false);
         refresh();
         split.sync();
         return;
       }
 
+      // Editing one of the switch-backed pieces.
+      const meta = META[activeEditor];
+      if (meta) {
+        if (value && !TYPES[activeEditor].noLabel) meta.label = value;
+        openEdit(false);
+        refresh();
+        split.sync();
+        return;
+      }
+
+      // Making the thing for the first time.
       const match = Object.keys(SUGGESTIONS).find((k) => SUGGESTIONS[k].editor === activeEditor && !SUGGESTIONS[k].done);
       if (!match) { openEdit(false); return; }
-
-      const label = named && named.value.trim();
       editSave.setAttribute('data-busy', 'true');
       setTimeout(() => {
         editSave.removeAttribute('data-busy');
         openEdit(false);
-        if (label) SUGGESTIONS[match].card.title = label;
+        if (value) SUGGESTIONS[match].card.title = value;
         // The wait already happened on the button, so the row it makes
         // arrives finished rather than waiting a second time.
         finishSuggestion(match, { creating: false });
       }, CREATE_MS);
     });
+
+    function paintRow(key) {
+      const el = document.querySelector('[data-block="' + key + '"] .edit-row-label');
+      if (el) el.textContent = BLOCKS.get(key).label;
+    }
+
     editRemove.addEventListener('click', () => {
       if (activeBlock && BLOCKS.has(activeBlock)) {
         dropBlock(activeBlock);
+      } else if (activeEditor in ON) {
+        // A switch-backed piece is removed by switching it off; there is
+        // one of each, and the add list is how it comes back.
+        ON[activeEditor] = false;
       } else {
         const match = Object.keys(SUGGESTIONS).find((k) => SUGGESTIONS[k].editor === activeEditor);
         if (match) SUGGESTIONS[match].removed = true;
@@ -1329,11 +1501,10 @@
 
     const emptySheet = document.getElementById('emptySheet');
     const doneBtn = document.querySelector('.setup-editor-header .btn-primary');
-    let leavingEmptyIsFine = false;
 
     // Capture, so this runs before the shared nav handler on document sees it.
     doneBtn.addEventListener('click', (e) => {
-      if (leavingEmptyIsFine || !pageIsEmpty()) return;
+      if (!pageIsEmpty()) return;
       e.preventDefault();
       e.stopPropagation();
       emptySheet.setAttribute('data-open', 'true');
@@ -1342,10 +1513,13 @@
     document.getElementById('emptyCancel').addEventListener('click', () => {
       emptySheet.setAttribute('data-open', 'false');
     });
+    /* Leaving a page with nothing on it is the one moment the plan is worth
+       showing: there is nothing to go back and look at. Closing the pricing
+       page puts them home, not back in the editor they just left — which is
+       what `from=home` says. */
     document.getElementById('emptyGo').addEventListener('click', () => {
       emptySheet.setAttribute('data-open', 'false');
-      leavingEmptyIsFine = true;
-      doneBtn.click();
+      location.href = PAYWALL.split('?')[0] + '?from=home';
     });
     emptySheet.addEventListener('click', (e) => {
       if (e.target === emptySheet) emptySheet.setAttribute('data-open', 'false');

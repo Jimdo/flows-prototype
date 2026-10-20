@@ -5305,6 +5305,93 @@ body {
   color: var(--jui-color-typography-gray-on-light-default);
 }
 
+/* ── The button editor ──
+   Figma 11241:80504. A button that points at something — a booking, a form,
+   a page — is edited as two separate things: the button, which is a label
+   and whether it shows, and the thing behind it, which has its own dialog.
+   The grey box is the seam between them. */
+.sheet-type-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+.sheet-type-icon svg { width: 100%; height: 100%; display: block; }
+/* Icon and title are one phrase; the close button keeps its distance by
+   taking the room the title gives up. */
+.sheet-head:has(.sheet-type-icon) { gap: var(--jui-layout-gap-xs); }
+
+.sheet-ref {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-s);
+  width: 100%;
+  padding: var(--jui-layout-padding-s);
+  border: 1px solid var(--jui-color-stroke-gray-default);
+  border-radius: var(--jui-style-radius-8);
+  background: var(--jui-color-gray-50);
+  text-align: left;
+  cursor: pointer;
+}
+.sheet-ref:hover { background: var(--jui-color-gray-100); }
+.sheet-ref:focus-visible {
+  outline: 2px solid var(--jui-color-actions-primary-rest);
+  outline-offset: 2px;
+}
+/* A website page is the website's, not ours — there is nothing here to
+   open, so the box says what it is and stops pretending to be a button. */
+.sheet-ref--flat { cursor: default; }
+.sheet-ref--flat:hover { background: var(--jui-color-gray-50); }
+.sheet-ref--flat .sheet-ref-more { display: none; }
+
+.sheet-ref-copy {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xxs);
+}
+.sheet-ref-title {
+  font-size: var(--jui-typography-sub-headline-small-size);
+  font-weight: var(--jui-typography-sub-headline-small-weight);
+  line-height: var(--jui-typography-sub-headline-small-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sheet-ref-type {
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-gray-400);
+}
+.sheet-ref-more {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+
+.sheet-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--jui-layout-gap-s);
+}
+.sheet-toggle-label {
+  font-size: var(--jui-typography-body-small-medium-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  line-height: var(--jui-typography-body-small-medium-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+
+/* Hidden, not gone. The row keeps its place in the list so it can be
+   switched back on; the page is where it stops appearing. */
+.edit-row[data-off] .edit-row-label,
+.edit-row[data-off] .edit-row-mark { opacity: 0.4; }
+
 /* Save sits on the right where a primary belongs; remove sits apart from it
    on the left, because the one thing worse than a hard-to-find delete is a
    delete next to the button you meant to press. */

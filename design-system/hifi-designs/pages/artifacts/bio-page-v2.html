@@ -1506,9 +1506,15 @@
         // one authored here rather than built from a string, so the arrow and
         // its markup stay this file's business.
         var group = document.getElementById('bio-links');
-        var proto = group && group.querySelector('.bio-link-btn');
-        if (group && proto) {
-          var model = proto.cloneNode(true);
+        // Kept, not looked up each time. An empty list empties the group,
+        // and after that there is no button left to clone the next one
+        // from — hiding the last link used to be a one-way door.
+        if (group && !group.linkModel) {
+          var proto = group.querySelector('.bio-link-btn');
+          if (proto) group.linkModel = proto.cloneNode(true);
+        }
+        if (group && group.linkModel) {
+          var model = group.linkModel;
           group.innerHTML = '';
           d.links.forEach(function (l) {
             var btn = model.cloneNode(true);
