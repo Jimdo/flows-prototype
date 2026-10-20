@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Onboarding — Name</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=6791cd7">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=6791cd7">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=086e0f4">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=086e0f4">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=6791cd7">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=086e0f4">
 <style>
   /* ─── Screen overrides ───
      Layout, preview stage, drawer, progress pill and field sizing all come
@@ -133,17 +133,14 @@
                  the dialog says when. Replaces the "you can get your own
                  domain later" hint, which said the same thing without
                  saying which domain or when. -->
-            <button type="button" class="setup-domain-offer" id="domainOffer" data-no-phrase
-              data-inspect-label="Custom domain offer"
-              data-inspect-tokens='[{"prop":"state colour","figma":"$jui-color-actions-positive-hover","css":"--jui-color-actions-positive-hover","value":"#07754d"},{"prop":"padding","figma":"$jui-layout-padding-xs","css":"--jui-layout-padding-xs","value":"8px 12px"},{"prop":"type","figma":"Body/Small/Medium","css":"--jui-typography-body-small-medium-size","value":"14 / 500"}]'>
-              <span class="setup-domain-offer-mark" aria-hidden="true"><span class="setup-status-spinner setup-status-spinner--upgrade"></span><svg class="setup-domain-offer-rocket" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M10.9398 7.13563L13.7862 4.50451C15.4589 2.83179 19.0233 1.97655 21.9993 2.00049C21.9993 5.50049 21.1681 8.54101 19.4954 10.2137L16.8643 13.0601C16.6137 13.3312 16.5328 13.7183 16.654 14.067L17.088 15.3164C17.3396 16.0405 17.155 16.8448 16.613 17.3869L15.4993 18.5005L5.5 8.50049L6.61351 7.38698C7.15565 6.84484 7.96 6.66034 8.68422 6.91201L9.93277 7.34589C10.2815 7.46709 10.6687 7.38625 10.9398 7.13563Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/><path d="M17.4922 6.49414L17.4985 6.50049" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M2 22.0005L8 16M8 22.0005L11 19M2 16.0005L5 13" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/></svg></span>
-              <span class="setup-domain-offer-checking" data-inspect-phrase="businessInfo.domain.checking">Checking for a custom domain</span>
-              <span class="setup-domain-offer-copy">
-                <span class="setup-domain-offer-value" id="domainOfferValue">yourname.com</span>
-                <span class="setup-domain-offer-state" data-inspect-phrase="businessInfo.domain.available">available</span>
-              </span>
-              <svg class="setup-domain-offer-more" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
+            <!-- Contextual trigger, same shell and same crown as the other two.
+                 Was a padded row naming the domain and its availability — the
+                 name is still what the dialog opens with, but the trigger
+                 itself is one line like every other tier-1 offer. -->
+            <button type="button" class="upgrade-link" id="domainOffer"
+              data-inspect-label="Custom domain — contextual upgrade trigger"
+              data-inspect-tokens='[{"prop":"color","figma":"$jui-color-typography-upgrade-on-light","css":"--jui-color-typography-upgrade-on-light","value":"#4e0079"},{"prop":"icon","figma":"crown","css":"--jui-color-decorative-upgrade","value":"16px #a350d9"}]'
+              data-inspect-phrase="businessInfo.domain.upsell"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg><span>Get a custom domain for more clicks</span></button>
           </div>
           </div>
         </div>
@@ -182,8 +179,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=6791cd7"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=6791cd7"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=086e0f4"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=086e0f4"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
 
@@ -260,24 +257,14 @@
     // the same value, because a dialog that renamed it would be about a
     // different domain than the row that opened it.
     const domainOffer = document.getElementById('domainOffer');
-    const domainValue = document.getElementById('domainOfferValue');
+
     const domainName  = document.getElementById('domainSheetName');
     const domainSheet = document.getElementById('domainSheet');
 
-    // Name and suffix are two spans, the same way the jim.do row is built.
-    // One string breaks wherever it runs out of room, which on a long name
-    // put the `m` of `.com` alone on the second line.
+    // The trigger no longer shows the domain, but the dialog it opens still
+    // names the real one — which is the moment the name matters.
     function syncDomain() {
-      const stem = handle.textContent || 'yourname';
-      domainValue.innerHTML = '';
-      const nameEl = document.createElement('span');
-      nameEl.className = 'setup-domain-offer-name';
-      nameEl.textContent = stem;
-      const tldEl = document.createElement('span');
-      tldEl.className = 'setup-domain-offer-tld';
-      tldEl.textContent = '.com';
-      domainValue.append(nameEl, tldEl);
-      domainName.textContent = stem + '.com';
+      domainName.textContent = (handle.textContent || 'yourname') + '.com';
     }
 
     // ─── Checking ───
@@ -295,11 +282,9 @@
 
     function check() {
       linkRow.setAttribute('data-state', 'checking');
-      domainOffer.setAttribute('data-state', 'checking');
       clearTimeout(checkTimer);
       checkTimer = setTimeout(() => {
         linkRow.setAttribute('data-state', 'ready');
-        domainOffer.setAttribute('data-state', 'ready');
       }, CHECK_DEBOUNCE_MS + CHECK_REQUEST_MS);
     }
 

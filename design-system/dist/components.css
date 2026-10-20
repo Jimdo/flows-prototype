@@ -1757,7 +1757,16 @@ body {
   color: var(--jui-color-typography-upgrade-on-light);
   cursor: pointer;
 }
-.upgrade-link svg { flex: 0 0 auto; width: 16px; height: 16px; }
+/* Always the crown, always decorative-upgrade. One mark for every
+   contextual trigger: six different glyphs across six features taught the
+   seller nothing, because the only thing they have in common is the price.
+   The crown says that, and the label says which feature. */
+.upgrade-link svg {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  color: var(--jui-color-decorative-upgrade);
+}
 .upgrade-link:hover { text-decoration: underline; }
 .upgrade-link:focus-visible {
   outline: 2px solid var(--jui-color-actions-upgrade-rest);
