@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Paywall — Upgrade</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=088d811">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=088d811">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=fd08ea2">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=fd08ea2">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=088d811">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=fd08ea2">
 <style>
   /* ─── Screen overrides ───
      The three explorations differ only in what sits between the list and the
@@ -108,7 +108,7 @@
                   data-inspect-label="Upgrade Button"
                   data-inspect-tokens='[{"prop":"background","figma":"$jui-color-actions-upgrade-rest","css":"--jui-color-actions-upgrade-rest","value":"#8733be"},{"prop":"color","figma":"$jui-color-typography-upgrade-on-dark","css":"--jui-color-typography-upgrade-on-dark","value":"#fcecff"},{"prop":"height","figma":"$jui-layout-dimension-m","css":"--jui-layout-dimension-m","value":"48px"}]'
                   data-inspect-phrase="paywall.pro.cta"
-                  data-trigger="primary-cta">Upgrade</button>
+                  data-trigger="primary-cta"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg>Upgrade</button>
                 <ul class="plan-feature-list">
                   <li class="plan-feature"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span data-inspect-phrase="upgrade.paid.feature1">Get booked for everything you offer</span></li>
                   <li class="plan-feature"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span data-inspect-phrase="upgrade.paid.feature2">Get enquiries with the details you need</span></li>
@@ -148,7 +148,7 @@
                   data-inspect-label="Upgrade Button — secondary"
                   data-inspect-tokens='[{"prop":"background","figma":"$jui-color-background-gray-light","css":"--jui-color-gray-white","value":"#ffffff"},{"prop":"border","figma":"$jui-color-stroke-upgrade-on-light","css":"--jui-color-stroke-upgrade-on-light","value":"1px #e4b5ff"},{"prop":"color","figma":"$jui-color-typography-upgrade-on-light","css":"--jui-color-typography-upgrade-on-light","value":"#4e0079"},{"prop":"height","figma":"$jui-layout-dimension-m","css":"--jui-layout-dimension-m","value":"48px"}]'
                   data-inspect-phrase="paywall.plan.grow.cta"
-                  data-trigger="primary-cta">Upgrade</button>
+                  data-trigger="primary-cta"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg>Upgrade</button>
                 <ul class="plan-feature-list">
                   <li class="plan-feature plan-feature--carry"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span data-inspect-phrase="paywall.plan.grow.f1">Everything in Jimdo Start</span></li>
                   <li class="plan-feature"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span data-inspect-phrase="paywall.plan.grow.f2">An imprint and a privacy policy, written for your business</span></li>
@@ -173,8 +173,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=088d811"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=088d811"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=fd08ea2"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=fd08ea2"></script>
   <script>
     /* ── Closing goes back, not home ──
        The paywall is reached from several places: the legal trigger in the

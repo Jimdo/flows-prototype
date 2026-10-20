@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Onboarding — Name</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=088d811">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=088d811">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=fd08ea2">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=fd08ea2">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=088d811">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=fd08ea2">
 <style>
   /* ─── Screen overrides ───
      Layout, preview stage, drawer, progress pill and field sizing all come
@@ -137,7 +137,7 @@
                  Was a padded row naming the domain and its availability — the
                  name is still what the dialog opens with, but the trigger
                  itself is one line like every other tier-1 offer. -->
-            <button type="button" class="upgrade-link" id="domainOffer"
+            <button type="button" class="upgrade-link upgrade-link--keyline" id="domainOffer"
               data-inspect-label="Custom domain — contextual upgrade trigger"
               data-inspect-tokens='[{"prop":"color","figma":"$jui-color-typography-upgrade-on-light","css":"--jui-color-typography-upgrade-on-light","value":"#4e0079"},{"prop":"icon","figma":"crown","css":"--jui-color-decorative-upgrade","value":"16px #a350d9"}]'
               data-inspect-phrase="businessInfo.domain.upsell"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg><span>Get a custom domain for more clicks</span></button>
@@ -179,8 +179,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=088d811"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=088d811"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=fd08ea2"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=fd08ea2"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
 

@@ -1770,12 +1770,30 @@ body {
   height: 16px;
   color: var(--jui-color-decorative-upgrade);
 }
+/* ── Keyline, not container edge ──
+   Under a padded row — a field, an address bar, a list item — the crown has
+   to land on the same vertical as that row's own icon, or the column grows
+   a second left edge and the eye reads two columns where there is one.
+   Material's lists call this a keyline: any element can anchor the column,
+   and scannability comes from putting things in consistent places.
+
+   The inset is the neighbouring row's own padding, so a screen whose rows
+   are padded differently overrides the variable rather than the rule. */
+.upgrade-link--keyline {
+  padding-left: var(--upgrade-link-keyline, var(--jui-layout-padding-s));
+}
+
 .upgrade-link:hover { text-decoration: underline; }
 .upgrade-link:focus-visible {
   outline: 2px solid var(--jui-color-actions-upgrade-rest);
   outline-offset: 2px;
   border-radius: var(--jui-style-radius-4);
 }
+
+/* The crown on a button is not the contextual crown: it sits on a purple
+   fill or beside purple-800 text, where decorative-upgrade would disappear.
+   It takes the button's own colour and the size the button gives its icons. */
+.btn-upgrade svg { color: currentColor; }
 
 .btn-secondary.btn-upgrade {
   background: var(--jui-color-gray-white);
