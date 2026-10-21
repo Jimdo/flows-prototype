@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=fef4910">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=fef4910">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=a2e6cb8">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=a2e6cb8">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=fef4910">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=a2e6cb8">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -23,11 +23,11 @@
 
   <div class="app-shell app-shell-setup-split" id="shell" data-drawer="default" data-view="list" data-mode="editor" data-layout="step">
 
-    <!-- The onboarding bar, with the editor's own occupants: the way out
-         at the left and what you are editing at the right. The step screens
-         centre a progress bar between those two ends; an editor has no
-         progress to report, and a switch sitting next to the back button
-         read as a label for it rather than as the screen's own mode. -->
+    <!-- The onboarding bar, with the editor's own occupant in the slot the
+         step screens give their progress bar. On a phone it sits where that
+         bar sits, centred over the preview between back and the spacer; on
+         desktop the spacer drops and it goes to the end, because beside the
+         back button at that width it read as a label for it. -->
     <div class="setup-split-header"
       data-inspect-label="Setup Header — back + editor switch"
       data-inspect-tokens='[{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px (desktop) / 48px (mobile)"},{"prop":"padding-inline","figma":"$jui-layout-padding-l","css":"--layout-spacing-lg","value":"24px (desktop) / 0 (mobile)"}]'>
@@ -47,6 +47,8 @@
           data-nav-to="flows/design-editor-onboarding.html" data-nav-screen-id="scr-479"
           data-inspect-phrase="biopage.editor.design">Design</button>
       </div>
+
+      <div class="header-spacer"></div>
 
     </div>
 
@@ -225,13 +227,14 @@
           </div>
 
           <!-- Add link ends the list rather than standing over it: it is a
-               list operation, and the footer below now belongs to the step.
-               Dashed, so it reads as the next empty slot in the column it
-               closes. -->
-          <button type="button" class="add-row-inline" id="addBtn"
-            data-inspect-label="Add link — end of list"
-            data-inspect-tokens='[{"prop":"border","figma":"$jui-color-stroke-primary-on-light","css":"--jui-color-stroke-primary-on-light","value":"1px dashed #b4c4ff"},{"prop":"height","figma":"$jui-layout-dimension-m","css":"--jui-layout-dimension-m","value":"48px"},{"prop":"radius","figma":"style/radius/12","css":"--jui-style-radius-12","value":"12px"}]'
-            data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 4V20M20 12H4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span>Add link</span></button>
+               list operation, and the footer below belongs to the step. The
+               design system's own secondary button, unchanged — a dashed
+               custom row read as a drop zone and carried a radius four
+               bigger than every other control on the screen. -->
+          <button type="button" class="btn btn-secondary" id="addBtn"
+            data-inspect-label="Secondary Button — Add link"
+            data-inspect-tokens='[{"prop":"border","figma":"color/blue/100","css":"--jui-color-blue-100","value":"1px #b4c4ff"},{"prop":"height","figma":"$jui-layout-dimension-m","css":"--jui-layout-dimension-m","value":"48px"},{"prop":"border-radius","figma":"button/radius","css":"--jui-component-button-radius","value":"8px"},{"prop":"width","value":"100%"}]'
+            data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>Add link</button>
 
         </div>
 
@@ -549,8 +552,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=fef4910"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=fef4910"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=a2e6cb8"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=a2e6cb8"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';

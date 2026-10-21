@@ -5325,23 +5325,28 @@ body {
    the title, and Add link leaves the footer for the end of the list it
    adds to. Declared after the editor rules it narrows. */
 
-/* At the end of the bar, not beside the back button. Centred it read as a
-   label for the control next to it rather than as the screen's own mode;
-   pushed to the other end the bar states three separate jobs in three
-   separate places — the way out at the left, what you are editing at the
-   right, the way on at the foot.
-   The 12 is optical: the back button is a 48 box with its glyph inset 12,
-   and the switch is a bare box that would otherwise sit 12 closer to the
-   edge than the thing opposite it. Desktop drops it — the bar's own 24
-   already puts the two boxes on the same inset. */
-.seg-control--header {
-  flex-shrink: 0;
-  margin-left: auto;
-  margin-right: var(--jui-layout-padding-s);
-}
+/* On a phone it takes the slot and the geometry of the progress bar it
+   stands in for: centred against the bar by the spacer at the far end,
+   sitting over the preview rather than over the drawer. Nothing to do here
+   — the header is already space-between and the spacer already balances
+   the back button. */
+.seg-control--header { flex-shrink: 0; }
 
 @media (min-width: 768px) {
-  .seg-control--header { margin-right: var(--jui-layout-padding-xs); }
+  /* The spacer drops at this width (see .setup-split-header .header-spacer),
+     which would leave the switch sitting next to the back button, reading as
+     a label for it rather than as the screen's own mode. It goes to the far
+     end instead, and the bar states three separate jobs in three separate
+     places: the way out at the left, what you are editing at the right, the
+     way on at the foot.
+     The 8 is optical. The back button is a 32 box with its glyph inset 8;
+     the switch is a filled tray, so its box lands on that glyph's keyline
+     rather than on the bar's padding edge, where a tray would read as
+     sitting further out than the airy button opposite it. */
+  .seg-control--header {
+    margin-left: auto;
+    margin-right: var(--jui-layout-padding-xs);
+  }
 }
 
 @media (min-width: 768px) {
@@ -5370,39 +5375,6 @@ body {
     flex: 0 0 auto;
   }
 }
-
-/* Add link is a list operation, so it ends the list rather than standing
-   over it. Full width and dashed, it reads as the next empty slot in the
-   column it closes rather than as a second screen-level action. */
-.add-row-inline {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--jui-layout-gap-xs);
-  width: 100%;
-  min-height: var(--jui-layout-dimension-m);
-  padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-s);
-  border: 1px dashed var(--jui-color-stroke-primary-on-light);
-  border-radius: var(--jui-style-radius-12);
-  background: transparent;
-  font-family: inherit;
-  font-size: var(--jui-typography-body-small-medium-size);
-  font-weight: var(--jui-typography-body-small-medium-weight);
-  letter-spacing: var(--jui-typography-link-small-ls);
-  line-height: var(--jui-typography-body-small-medium-lh);
-  color: var(--jui-color-actions-primary-rest);
-  cursor: pointer;
-  transition: background-color 160ms ease-out, border-color 160ms ease-out;
-}
-.add-row-inline:hover {
-  background: var(--jui-color-background-primary-light);
-  border-color: var(--jui-color-stroke-primary-actionable);
-}
-.add-row-inline:focus-visible {
-  outline: 2px solid var(--jui-color-actions-primary-rest);
-  outline-offset: 2px;
-}
-.add-row-inline svg { width: 20px; height: 20px; flex-shrink: 0; }
 
 /* ── The peek keeps its 72 and stays empty ──
    The drawer used to carry its own title because the bar had no room for
