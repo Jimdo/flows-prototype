@@ -6123,27 +6123,31 @@ body {
   .edit-list li { transition: none !important; }
 }
 
-/* ═══ Paywall header ═══════════════════════════════════════════════════════
-   Ported from loops-frontend's PageHeader: space-between, 16 inline / 12
-   block, and no rule under it — the body below is already on its own surface
-   and a border was drawing a line between two things that are one page. */
-.paywall-header {
-  /* The header row this sits in is justified to its end for the screens that
-     carry only a close; this one carries both edges and needs the span. */
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--jui-layout-gap-s);
-  flex-shrink: 0;
-  padding: var(--jui-layout-padding-s) var(--jui-layout-padding-m);
-}
+/* ═══ Paywall header ═══════════════════════════════════════════════════════════
+   Production's PageHeader puts the wordmark opposite the close. The bar it
+   sits in here is the onboarding header itself rather than a second one
+   stacked inside it: same height, same inline padding, same button. A seller
+   who opens pricing mid-setup should not watch the chrome change size.
+   The layout rules that give it two edges back live in layout.css beside the
+   single-column header they override. */
 .paywall-logo {
   display: flex;
   align-items: center;
-  color: var(--jui-color-typography-gray-on-light-default);
+  /* LogoColored's own navy — blue-800, not the near-black the close uses. */
+  color: var(--jui-color-typography-primary-on-light);
+  /* The bar carries no inline padding on mobile, because its controls are
+     48px tap targets with their glyphs already inset 12. A wordmark has no
+     such box, so it borrows the same inset and lands on that keyline. */
+  padding-inline-start: var(--jui-layout-padding-s);
 }
-.paywall-logo svg { width: 58px; height: auto; display: block; }
+.paywall-logo svg { width: 80px; height: auto; display: block; }
+
+@media (min-width: 768px) {
+  /* 24 from the bar plus 8 here is where an onboarding step's back arrow
+     starts its glyph. */
+  .paywall-logo { padding-inline-start: var(--jui-layout-padding-xs); }
+  .paywall-logo svg { width: 58px; }
+}
 
 /* ── The line the lawyers need ──
    Under the cards, quiet. It is not a disclaimer to be buried: a price that

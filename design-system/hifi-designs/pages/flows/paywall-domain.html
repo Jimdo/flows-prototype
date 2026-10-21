@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Paywall — Upgrade</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=4a25c4b">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=4a25c4b">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=f5ff84d">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=f5ff84d">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=4a25c4b">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=f5ff84d">
 <style>
   /* ─── Screen overrides ───
      The three explorations differ only in what sits between the list and the
@@ -32,11 +32,22 @@
 
   <div class="app-shell app-shell-setup-split app-shell-setup-single" id="shell" data-explore="unlock">
 
-    <div class="setup-split-header">
-      <div class="header-spacer"></div>
-      <button class="setup-back-btn" aria-label="Close" data-no-phrase id="paywallClose"
+    <!-- Production's PageHeader carries the wordmark beside the close. The bar
+         itself is the onboarding one — same 48/32 height, same inline
+         padding, same close button — so opening pricing mid-setup does not
+         change the chrome's height under the seller. -->
+    <div class="setup-split-header setup-split-header--paywall"
+      data-inspect-label="Paywall Header — wordmark + close"
+      data-inspect-tokens='[{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px (desktop) / 48px (mobile)"},{"prop":"padding-inline","figma":"$jui-layout-padding-l","css":"--layout-spacing-md","value":"16px (desktop) / 0 (mobile)"},{"prop":"logo","figma":"LogoColored","css":"--jui-color-typography-primary-on-light","value":"58px wide (desktop) / 80px (mobile)"}]'>
+      <span class="paywall-logo" aria-label="Jimdo"><svg aria-hidden="true" viewBox="0 0 650 241" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M536 64.9905C505.071 64.9905 480 89.8375 480 120.49C480 151.143 505.071 175.99 536 175.99C566.929 175.99 592 151.143 592 120.49C592.01 89.8474 566.929 64.9905 536 64.9905ZM536 151.621C518.656 151.621 504.589 137.689 504.589 120.49C504.589 103.302 518.646 89.3595 536 89.3595C553.344 89.3595 567.411 103.292 567.411 120.49C567.411 137.689 553.354 151.621 536 151.621Z" fill="currentColor"/><path d="M228 67.9905H251.456L287.001 134.519L322.385 67.9905H346.002V174.99H319.633V117.819L289.613 174.99H284.399L254.378 117.969V174.99H228.01V67.9905H228Z" fill="currentColor"/><path d="M149 67.9905H122.515V132.046C122.515 142.257 114.224 150.538 104 150.538C93.7764 150.538 85.4853 142.257 85.4853 132.046H59C59 156.869 79.1469 176.99 104 176.99C128.853 176.99 149 156.869 149 132.046V67.9905Z" fill="currentColor"/><path d="M412.514 67.9905H373V174.99H412.514C442.054 174.99 466 151.039 466 121.49C466 91.9423 442.054 67.9905 412.514 67.9905ZM409.302 152.665H399.289V90.2963H409.302C426.516 90.2963 440.479 104.252 440.479 121.48C440.479 138.709 426.526 152.665 409.302 152.665Z" fill="currentColor"/><path d="M202 67.9905H175V173.99H202V67.9905Z" fill="currentColor"/><path d="M633.989 16.9798V225.001H16.0111V16.9798H633.989ZM650 0.990479H0V240.99H650V0.990479Z" fill="currentColor"/></svg></span>
+      <button class="setup-back-btn" aria-label="Close" type="button" data-no-phrase id="paywallClose"
+        data-inspect-label="Close — Subtle Icon Only"
+        data-inspect-tokens='[{"prop":"size","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px (desktop) / 48px (mobile)"},{"prop":"icon","figma":"Cancel01","value":"16px (desktop) / 24px (mobile)"}]'
         data-nav-to="flows/home-dashboard-v2.html" data-nav-screen-id="scr-131">
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M5.00049 4.99988L19.0005 18.9999" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+          <path d="M19.0005 4.99988L5.00049 18.9999" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+        </svg>
       </button>
     </div>
 
@@ -181,8 +192,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=4a25c4b"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=4a25c4b"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=f5ff84d"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=f5ff84d"></script>
   <script>
     /* ── Closing goes back, not home ──
        The paywall is reached from several places: the legal trigger in the

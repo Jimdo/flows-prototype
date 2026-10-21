@@ -540,6 +540,13 @@
    lone close button sitting at the start of a space-between row — on the
    left, where a dismiss never belongs. */
 .app-shell-setup-single[data-explore] .setup-split-header { justify-content: flex-end; }
+/* … unless the bar carries a wordmark at the other end, which gives it two
+   edges again: the close goes back to the end rather than being pushed
+   there. The padding is left alone, so the bar keeps the inset every other
+   single-column step's header uses — 0 on mobile, 16 on desktop. */
+.app-shell-setup-single[data-explore] .setup-split-header--paywall {
+  justify-content: space-between;
+}
 
 /* ── Edit column — a drawer on mobile ── */
 .setup-split-form {
@@ -699,6 +706,7 @@
     padding: 0 var(--layout-spacing-md);
     justify-content: flex-start;
   }
+
   .app-shell-setup-single .setup-split-form { width: 100%; }
 
   .app-shell-setup-single .setup-split-fields {
