@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>design-editor-onboarding</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=1427872">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=1427872">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=fef4910">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=fef4910">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=1427872">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=fef4910">
 <style>
   /* ─── Screen overrides ───
      The frame is the setup split in editor mode, same as the link editor.
@@ -592,10 +592,11 @@
 
   <div class="app-shell app-shell-setup-split" id="shell" data-drawer="default" data-mode="editor" data-layout="step">
 
-    <!-- The onboarding header, occupant for occupant: the way out at the
-         left, where the flow is in the middle, and a spacer that centres it.
-         What the step screens put in that middle slot is a progress bar;
-         what an editor puts there is which half of itself you are in. -->
+    <!-- The onboarding bar, with the editor's own occupants: the way out
+         at the left and what you are editing at the right. The step screens
+         centre a progress bar between those two ends; an editor has no
+         progress to report, and a switch sitting next to the back button
+         read as a label for it rather than as the screen's own mode. -->
     <div class="setup-split-header"
       data-inspect-label="Setup Header — back + editor switch"
       data-inspect-tokens='[{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px (desktop) / 48px (mobile)"},{"prop":"padding-inline","figma":"$jui-layout-padding-l","css":"--layout-spacing-lg","value":"24px (desktop) / 0 (mobile)"}]'>
@@ -616,7 +617,6 @@
           data-inspect-phrase="biopage.editor.design">Design</button>
       </div>
 
-      <div class="header-spacer"></div>
     </div>
 
     <div class="setup-split-main">
@@ -648,14 +648,17 @@
              clipped everything past its own height on a phone. -->
         <div class="setup-split-fields setup-split-fields--scroll">
 
-          <div class="seg-control" role="tablist" aria-label="Design sections">
-            <button type="button" class="seg-control-item active" role="tab" aria-selected="true" aria-pressed="true"
-              onclick="switchPanelView('style', this)" data-inspect-phrase="flows.designEditor.style">Style</button>
-            <button type="button" class="seg-control-item" role="tab" aria-selected="false" aria-pressed="false"
-              onclick="switchPanelView('layout', this)" data-inspect-phrase="flows.designEditor.layout">Layout</button>
-          </div>
-
-<div id="panel-view-style" class="de-panel-view is-active">
+          <!-- No tabs in here. The bar above already carries one, and a
+               segmented control inside the panel a segmented control switches
+               makes the seller ask which of the two they are reading. The
+               links editor settled this for itself: "Buttons, quick actions
+               and social used to be three tabs, which made one page look like
+               three collections and hid two thirds of it at any moment."
+               Style and Layout are four headings between them, so they fit in
+               one scroll the way that list does — and the thing you came to
+               change is now always on screen rather than behind a 50/50
+               guess. -->
+          <div id="panel-view-style" class="de-panel-view is-active">
 
             <h3 class="de-panel-heading" data-inspect-phrase="flows.designEditor.backgroundColor">Pick Background Color</h3>
             <div class="de-bg-card">
@@ -747,8 +750,9 @@
             </div>
           </div>
 
-          <!-- ── LAYOUT VIEW ── -->
-          <div id="panel-view-layout" class="de-panel-view">
+          <!-- The fourth heading, not a second tab. -->
+          <div id="panel-view-layout" class="de-panel-view is-active">
+            <h3 class="de-panel-heading" data-inspect-phrase="flows.designEditor.layout">Layout</h3>
             <div class="layout-grid">
               <button type="button" class="layout-card is-active" onclick="selectLayout(this)" data-inspect-phrase="flows.designEditor.centered">
                 <div class="layout-card-thumb"></div>
@@ -771,10 +775,9 @@
 
         </div>
 
-        <!-- The step's way on, where every onboarding step keeps it. Not the
-             full-width bar the editor footer used for Add link: at the foot
-             of a drawer that is the largest accidental target a phone can
-             offer, and this one ends the step. -->
+        <!-- The step's way on, sized and placed exactly as every onboarding
+             step sizes and places its own: full width on a phone, as wide as
+             its words on desktop. -->
         <div class="setup-split-actions">
           <button class="btn btn-primary"
             data-inspect-label="Primary Button — Save and continue"
@@ -789,8 +792,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=1427872"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=1427872"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=fef4910"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=fef4910"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     initSetupSplit({
@@ -880,20 +883,6 @@ function selectBgSwatch(el) {
 }
 
 /* Desktop panel: Style | Layout view switch */
-function switchPanelView(view, triggerEl) {
-  document.querySelectorAll('#de-panel .seg-tab').forEach(function (t) {
-    t.classList.remove('is-active');
-    t.setAttribute('aria-selected', 'false');
-  });
-  triggerEl.classList.add('is-active');
-  triggerEl.setAttribute('aria-selected', 'true');
-
-  document.querySelectorAll('#de-panel .de-panel-view').forEach(function (v) {
-    v.classList.remove('is-active');
-  });
-  var panel = document.getElementById('panel-view-' + view);
-  if (panel) panel.classList.add('is-active');
-}
 
 function selectShapeCard(el) {
   el.closest('.de-shape-row').querySelectorAll('.de-shape-card').forEach(function (c) {

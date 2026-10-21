@@ -5325,10 +5325,24 @@ body {
    the title, and Add link leaves the footer for the end of the list it
    adds to. Declared after the editor rules it narrows. */
 
-/* Centred against the bar rather than against the back button beside it,
-   the same way the progress bar is — which is what the spacer at the other
-   end is for. */
-.seg-control--header { flex-shrink: 0; }
+/* At the end of the bar, not beside the back button. Centred it read as a
+   label for the control next to it rather than as the screen's own mode;
+   pushed to the other end the bar states three separate jobs in three
+   separate places — the way out at the left, what you are editing at the
+   right, the way on at the foot.
+   The 12 is optical: the back button is a 48 box with its glyph inset 12,
+   and the switch is a bare box that would otherwise sit 12 closer to the
+   edge than the thing opposite it. Desktop drops it — the bar's own 24
+   already puts the two boxes on the same inset. */
+.seg-control--header {
+  flex-shrink: 0;
+  margin-left: auto;
+  margin-right: var(--jui-layout-padding-s);
+}
+
+@media (min-width: 768px) {
+  .seg-control--header { margin-right: var(--jui-layout-padding-xs); }
+}
 
 @media (min-width: 768px) {
   /* The desktop bar is 32 high and the control has to fit inside it, not
@@ -5340,25 +5354,21 @@ body {
   }
 }
 
-/* The list runs under the footer, so the footer has to say where it stops.
-   The onboarding steps need no such line — their fields are short and
-   nothing ever passes behind the control. An editor's list always does, and
-   the full-width button the editor footer used to carry was drawing that
-   boundary by accident; a button only as wide as its words does not. */
-.app-shell-setup-split[data-layout="step"] .setup-split-actions {
-  border-top: 1px solid var(--jui-color-stroke-gray-default);
-  background: var(--jui-color-gray-white);
-}
 
-/* The step's own control is auto-width at the right, not the full-width bar
-   the editor footer uses for Add link. Two reasons, and the second is the
-   one that matters: an action row at the foot of a drawer is in the thumb's
-   path, and a button spanning the whole edge is the largest accidental
-   target a screen can offer. Right-aligned and only as wide as its words,
-   it sits off the centre of the arc a scroll-fling ends on. */
-.app-shell-setup-split[data-layout="step"] .setup-split-actions .btn {
-  width: auto;
-  flex: 0 0 auto;
+/* The control takes exactly what the onboarding steps give theirs — full
+   width on a phone, only as wide as its words on desktop — which is also
+   why the row needs no rule above it: a button spanning the whole edge is
+   the boundary, so a hairline was drawing the same line twice. (An earlier
+   pass narrowed it on mobile too, to shrink the accidental target at the
+   foot of a scrolling drawer. Consistency with the steps either side of it
+   won; the risk is noted in the screens' own history.)
+   Desktop needs the one line back, because the editor's own footer rule
+   stretches its button for Add link — and Add link no longer lives there. */
+@media (min-width: 768px) {
+  .app-shell-setup-split[data-layout="step"] .setup-split-actions .btn {
+    width: auto;
+    flex: 0 0 auto;
+  }
 }
 
 /* Add link is a list operation, so it ends the list rather than standing
