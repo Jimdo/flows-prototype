@@ -5851,19 +5851,25 @@ body {
    Regenerate carries its own optical pull, so the row is padded like every
    other band in the list and the icon still lands on the cards' left edge.
    The text action drops the margin it carried when it stood alone. */
-/* Stacked, not side by side. The two are alternatives to the same three
-   cards — another go, or a go at something else — and a row made them look
-   like a step and its qualifier. One under the other, both starting on the
-   cards' own left edge, they read as two doors of equal size. */
+/* Side by side, centred on one line. The two are alternatives to the same
+   three cards — another go, or a go at something else — so they read as one
+   choice rather than two steps. Wrapping is kept for the narrow case; on a
+   phone the second drops under the first rather than being cut off.
+   Only the first keeps the negative margin that puts its icon on the cards'
+   left edge; on the second that margin would just eat the gap. */
 .add-group-actions {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--jui-layout-gap-xxs);
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--jui-layout-gap-xxs) var(--jui-layout-gap-s);
   margin-top: var(--jui-layout-gap-s);
 }
+.add-group-actions > .regen ~ .regen { margin-left: 0; }
 .add-group-actions .text-action { margin: 0; }
-.add-host .add-group-actions { padding-left: var(--jui-layout-padding-m); }
+/* Follows the idea cards own padding, so the rows first icon lands on the
+   keyline the three card icons sit on. It was 16 while the cards were; when
+   they came down to 12 this stayed behind and the row sat 4px inside them. */
+.add-host .add-group-actions { padding-left: var(--jui-layout-padding-s); }
 .add-host .add-group-actions .text-action { padding-left: 0; }
 
 /* ── The pieces that take money ──
