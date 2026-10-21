@@ -1,0 +1,922 @@
+<!-- Cloned from design-system/hifi-designs/pages/flows/design-editor.html — adapt as needed -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>design-editor-onboarding</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=1427872">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=1427872">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=1427872">
+<style>
+  /* ─── Screen overrides ───
+     The frame is the setup split in editor mode, same as the link editor.
+     What follows is the controls only — swatches, shapes, font cards — kept
+     from the previous version of this screen; its own shell, drawer and
+     panel chrome went with the frame it belonged to. */
+  .app-shell-setup-split { --setup-drawer-rest-h: 380px; }
+
+  .de-views { display: contents; }
+  .de-panel-view { display: none; flex-direction: column; gap: var(--jui-layout-gap-l); }
+  .de-panel-view.is-active { display: flex; }
+
+  /* Three .de-panel-* rules are controls, not frame — the section heading,
+     its row and the inline link beside it. They went out with the old shell
+     and come back here. */
+  .de-panel-heading {
+    font-size: var(--jui-typography-sub-headline-small-size);
+    font-weight: var(--jui-typography-sub-headline-small-weight);
+    line-height: var(--jui-typography-sub-headline-small-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+    margin: 0;
+  }
+  .de-panel-heading-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--jui-layout-gap-s);
+  }
+  .de-panel-link {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: var(--jui-typography-body-small-medium-size);
+    font-weight: var(--jui-typography-body-small-medium-weight);
+    line-height: var(--jui-typography-body-small-medium-lh);
+    letter-spacing: var(--jui-typography-link-small-ls);
+    color: var(--jui-color-actions-primary-rest);
+    white-space: nowrap;
+  }
+
+  /* The section switch sizes to its labels; the column stretches its
+     children by default. */
+  .setup-split-fields > .seg-control { align-self: flex-start; }
+
+
+  [hidden] { display: none !important; }
+  /* ═══════════════════════════════════════════════
+     PAGE SHELL
+     ═══════════════════════════════════════════════ */
+
+  body,
+  .app-shell {
+    background: var(--jui-color-background-gray-medium);
+  }
+  /* ─────────────────────────────────────────────
+     IFRAME STAGE
+     Centers the page wrapper with side padding.
+     Scales to 0.5 when a drawer is open (Figma 7748:51151).
+     ───────────────────────────────────────────── */
+
+  .de-stage {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    height: 100%;
+    padding: 0 var(--jui-layout-padding-xxs);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center top;
+  }
+  .de-stage.is-scaled {
+    transform: scale(0.5);
+  }
+  .de-iframe-wrapper {
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--jui-color-background-gray-light);
+    border: 1px solid var(--jui-color-gray-100);
+    border-radius: var(--jui-style-radius-20);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  }
+  .de-iframe {
+    width: 100%;
+    flex: 1;
+    border: 0;
+    min-height: 0;
+  }
+  @media (min-width: 768px) {
+    .de-footer .screen-footer-actions {
+      justify-content: flex-start;
+    }
+  }
+  @media (min-width: 768px) {
+    .de-drawer.drawer--desktop-modal .drawer-sheet {
+      border-radius: var(--jui-style-radius-l);
+    }
+  }
+  /* ─────────────────────────────────────────────
+     SEGMENTED CONTROL — pill tabs (Figma 7748:51212)
+     Container: 36px, gray-50 bg, 24px radius.
+     Active: white bg, blue border, 24px radius.
+     ───────────────────────────────────────────── */
+
+  .seg-control {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 2px;
+    height: 36px;
+    background: var(--jui-color-background-gray-canvas);
+    border-radius: var(--jui-style-radius-24);
+  }
+  .seg-tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1 1 0;
+    height: 32px;
+    padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-s);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: var(--jui-typography-body-small-medium-size);
+    font-weight: var(--jui-typography-body-small-medium-weight);
+    line-height: var(--jui-typography-body-small-medium-lh);
+    color: var(--jui-color-typography-gray-on-light-default);
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+  }
+  .seg-tab.is-active {
+    background: var(--jui-color-background-gray-light);
+    border-color: var(--jui-color-stroke-primary-on-light);
+    border-radius: var(--jui-style-radius-24);
+    color: var(--jui-color-actions-primary-rest);
+  }
+  /* ═══════════════════════════════════════
+     UPGRADE BANNER — same component as Home (home-dashboard-v2 .domain-banner,
+     Figma "Domain Upgrade" 15931:22289; placed here per Figma 15841:73973).
+     Full-surface interactive button: upgrade-light fill, 16px radius, h44,
+     px16 py12, gap12. Hover/Active/Focus darken + decorative-upgrade border.
+     ═══════════════════════════════════════ */
+  .domain-banner {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-s);
+    width: 100%;
+    min-height: 44px;
+    padding: var(--jui-layout-padding-s) var(--jui-layout-padding-m);
+    background: var(--jui-color-background-upgrade-light);
+    border: 1px solid transparent;
+    border-radius: var(--jui-style-radius-16);
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.12s ease, border-color 0.12s ease;
+  }
+  .domain-banner:hover {
+    background: var(--jui-color-background-upgrade-medium);
+    border-color: var(--jui-color-decorative-upgrade);
+  }
+  .domain-banner:active {
+    background: var(--jui-color-background-upgrade-dark);
+    border-color: var(--jui-color-decorative-upgrade);
+  }
+  .domain-banner:focus-visible {
+    background: var(--jui-color-background-upgrade-medium);
+    border-color: var(--jui-color-decorative-upgrade);
+    outline: 2px solid var(--jui-color-blue-500);
+    outline-offset: 2px;
+  }
+  .domain-banner-status {
+    display: flex;
+    flex: 1 0 0;
+    align-items: center;
+    gap: var(--jui-layout-gap-xs);
+    min-width: 0;
+  }
+  .domain-banner-status-text {
+    font-size: var(--jui-typography-body-small-regular-size);
+    font-weight: var(--jui-typography-body-small-regular-weight);
+    line-height: var(--jui-typography-body-small-regular-lh);
+    color: var(--jui-color-typography-upgrade-on-light);
+  }
+  /* Right-side label — uppercase; the whole banner is the interactive surface. */
+  .domain-banner-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-xs);
+    font-size: var(--jui-typography-label-small-size);
+    font-weight: var(--jui-typography-label-small-weight);
+    letter-spacing: var(--jui-typography-label-small-ls);
+    line-height: var(--jui-typography-label-small-lh);
+    text-transform: uppercase;
+    color: var(--jui-color-typography-upgrade-on-light);
+    white-space: nowrap;
+  }
+  .domain-banner-cta svg { width: 16px; height: 16px; flex-shrink: 0; }
+  /* Editor context: sit below the tab control, gap before the content below. */
+  .domain-banner--editor { margin-bottom: var(--jui-layout-gap-s); }
+  /* Narrow drawer/panel: drop the CTA to its own line (mirrors Home's mobile wrap). */
+  @media (max-width: 767px) {
+    .domain-banner--editor { flex-wrap: wrap; }
+    .domain-banner--editor .domain-banner-status { flex: 1 0 auto; }
+    .domain-banner--editor .domain-banner-cta { flex-basis: 100%; }
+  }
+  /* ─────────────────────────────────────────────
+     TAB PANELS — show/hide within Style drawer
+     ───────────────────────────────────────────── */
+
+  .de-tab-panel { display: none; }
+  .de-tab-panel.is-active { display: block; }
+  /* ─────────────────────────────────────────────
+     SECTION HEADING (e.g. "Background Color")
+     Figma: 18px/500, pt-24 pb-12 px-16
+     ───────────────────────────────────────────── */
+
+  .de-section-heading {
+    padding: var(--jui-layout-padding-l) 0 var(--jui-layout-padding-s);
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--jui-color-typography-gray-on-light-default);
+    margin: 0;
+  }
+  /* ─────────────────────────────────────────────
+     COLOR SWATCHES — Figma 7768:52220
+     6 swatches in a row (4 + divider + 2), each 64px tall.
+     ───────────────────────────────────────────── */
+
+  .de-color-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--jui-layout-gap-s);
+  }
+  .de-color-swatch {
+    flex: 1 1 0;
+    height: 64px;
+    padding: 2px;
+    border: 1px solid var(--jui-color-gray-100);
+    border-radius: var(--jui-style-radius-m);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    font-family: inherit;
+    transition: border-color 0.12s ease;
+  }
+  .de-color-swatch.is-active {
+    border: 2px solid var(--jui-color-blue-400);
+  }
+  .de-color-swatch-inner {
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    border-radius: 6px;
+    border: 1px solid var(--jui-color-gray-300);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .de-color-swatch-inner svg {
+    opacity: 0;
+    width: 16px;
+    height: 16px;
+  }
+  .de-color-swatch.is-active .de-color-swatch-inner svg {
+    opacity: 1;
+  }
+  .de-color-divider {
+    width: 1px;
+    height: 40px;
+    background: var(--jui-color-gray-100);
+    flex-shrink: 0;
+  }
+  /* ─────────────────────────────────────────────
+     FONT PICKER — horizontal scroll (Figma 7537:22479)
+     Cards: 128px wide, Aa preview, font name label.
+     ───────────────────────────────────────────── */
+
+  .de-font-scroll {
+    display: flex;
+    gap: var(--jui-layout-gap-s);
+    padding: var(--jui-layout-padding-m) 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .de-font-card {
+    flex: 0 0 auto;
+    width: 128px;
+    min-width: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid var(--jui-color-gray-200);
+    border-radius: var(--jui-style-radius-m);
+    cursor: pointer;
+    background: none;
+    font-family: inherit;
+    transition: border-color 0.12s ease;
+    position: relative;
+  }
+  .de-font-card.is-active {
+    border: 2px solid var(--jui-color-blue-400);
+  }
+  .de-font-card-check {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 16px;
+    height: 16px;
+    color: var(--jui-color-actions-primary-rest);
+    opacity: 0;
+  }
+  .de-font-card.is-active .de-font-card-check {
+    opacity: 1;
+  }
+  .de-font-card-preview {
+    font-size: 28px;
+    letter-spacing: 0.56px;
+    line-height: 1;
+    padding: 24px 8px 8px;
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+  .de-font-card-name {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.24px;
+    color: var(--jui-color-typography-gray-on-light-default);
+    padding-bottom: 24px;
+  }
+  /* ─────────────────────────────────────────────
+     SHAPE PICKER — 3 options (Figma 7537:22581)
+     Squared / Rounded / Pill button shapes.
+     ───────────────────────────────────────────── */
+
+  .de-shape-row {
+    display: flex;
+    gap: var(--jui-layout-gap-s);
+    padding: var(--jui-layout-padding-m) 0;
+  }
+  .de-shape-card {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--jui-layout-padding-m);
+    padding: 0;
+    min-width: 80px;
+    border: 1px solid var(--jui-color-gray-200);
+    border-radius: var(--jui-style-radius-m);
+    cursor: pointer;
+    background: none;
+    font-family: inherit;
+    transition: border-color 0.12s ease;
+    position: relative;
+  }
+  .de-shape-card.is-active {
+    border: 2px solid var(--jui-color-blue-400);
+  }
+  .de-shape-card-check {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    width: 16px;
+    height: 16px;
+    color: var(--jui-color-actions-primary-rest);
+    opacity: 0;
+  }
+  .de-shape-card.is-active .de-shape-card-check {
+    opacity: 1;
+  }
+  .de-shape-thumb {
+    width: 56px;
+    height: 24px;
+    border: 2px solid var(--jui-color-gray-400);
+    margin-top: 24px;
+  }
+  .de-shape-card.is-active .de-shape-thumb {
+    border-color: var(--jui-color-typography-gray-on-light-default);
+  }
+  .de-shape-label {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.24px;
+    color: var(--jui-color-gray-400);
+    padding-bottom: var(--jui-layout-padding-s);
+    text-align: center;
+  }
+  .de-shape-card.is-active .de-shape-label {
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+  /* ─────────────────────────────────────────────
+     INFO NOTICE — Figma 7796:53536
+     "Your website and flows share these styles"
+     ───────────────────────────────────────────── */
+
+  .de-info-notice {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-s);
+    padding: var(--jui-layout-padding-s);
+    background: var(--jui-color-gray-10);
+    border: 1px solid var(--jui-color-gray-50);
+    border-radius: var(--jui-style-radius-m);
+    color: var(--jui-color-typography-gray-on-light-subdued);
+    font-size: var(--jui-typography-body-small-regular-size);
+    font-weight: var(--jui-typography-body-small-regular-weight);
+    line-height: var(--jui-typography-body-small-regular-lh);
+  }
+  .de-info-notice svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+  /* ─────────────────────────────────────────────
+     LAYOUT GRID — 2×2 card picker
+     ───────────────────────────────────────────── */
+
+  .layout-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--jui-layout-gap-s);
+  }
+  .layout-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--jui-layout-gap-xs);
+    padding: var(--jui-layout-padding-m);
+    background: var(--jui-color-background-gray-light);
+    border: 1px solid var(--jui-color-stroke-gray-default);
+    border-radius: var(--jui-style-radius-m);
+    cursor: pointer;
+    font-family: inherit;
+    text-align: center;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+  }
+  .layout-card:hover { border-color: var(--jui-color-gray-300); }
+  .layout-card.is-active {
+    border-color: var(--jui-color-stroke-primary-on-light);
+    background: var(--jui-color-background-primary-light);
+  }
+  .layout-card-thumb {
+    width: 48px;
+    height: 64px;
+    background: var(--jui-color-background-gray-canvas);
+    border-radius: var(--jui-style-radius-xs);
+    border: 1px solid var(--jui-color-gray-100);
+  }
+  .layout-card-label {
+    font-size: var(--jui-typography-body-small-medium-size);
+    font-weight: var(--jui-typography-body-small-medium-weight);
+    color: var(--jui-color-typography-gray-on-light-default);
+  }
+  /* ═══════════════════════════════════════════════
+     DESKTOP EDITING PANEL — companion rail (Figma 16080:20140)
+     Visible ≥768px only. Mobile keeps footer pills + bottom drawers.
+     ═══════════════════════════════════════════════ */
+
+  @media (max-width: 767px) {
+    .de-panel { display: none; }
+  }
+  @media (min-width: 768px) {
+    /* Editing panel takes half the screen; preview takes the other half.
+       Both .shell-working-area (flex:1) and .de-panel (flex:1) split 50/50. */
+    .de-panel { flex: 1 1 0; width: auto; }
+    /* The panel supplies its own header + tab controls, so the global
+       app header and the mobile footer/drawers are redundant on desktop. */
+    .shell-header { display: none; }
+    /* Working area shows a centered phone-shaped preview */
+    .de-stage { padding: var(--jui-layout-padding-l) 0; }
+    .de-iframe-wrapper { max-width: 320px; margin: 0 auto; }
+  }
+  /* ── Background colour card — lavender wrapper (Figma 7768:52220 desktop) ── */
+  .de-bg-card {
+    background: var(--jui-color-blue-10);
+    border: 1px solid var(--jui-color-gray-10);
+    border-radius: var(--jui-style-radius-12);
+    padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-xxs) 0;
+    overflow: hidden;
+  }
+  .de-bg-card-body {
+    background: var(--jui-color-background-gray-light);
+    border-radius: var(--jui-style-radius-8);
+    padding: var(--jui-layout-padding-m);
+  }
+  .de-bg-swatches {
+    display: flex;
+    align-items: center;
+    gap: var(--jui-layout-gap-s);
+  }
+  .de-bg-swatch {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 2px;
+    border: 1px solid var(--jui-color-gray-100);
+    border-radius: var(--jui-style-radius-8);
+    background: none;
+    cursor: pointer;
+    transition: border-color 0.12s ease;
+  }
+  .de-bg-swatch.is-active {
+    border: 2px solid var(--jui-color-blue-400);
+    padding: 1px;
+  }
+  .de-bg-swatch-inner {
+    width: 100%;
+    height: 32px;
+    border-radius: 6px;
+    border: 1px solid var(--jui-color-gray-300);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .de-bg-swatch-inner svg { opacity: 0; width: 16px; height: 16px; }
+  .de-bg-swatch.is-active .de-bg-swatch-inner svg { opacity: 1; }
+  .de-bg-divider {
+    width: 1px;
+    height: 20px;
+    background: var(--jui-color-gray-100);
+    flex-shrink: 0;
+  }
+  /* "EDIT BRAND COLORS" row inside the lavender card */
+  .de-bg-card-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: var(--jui-layout-padding-s) var(--jui-layout-padding-m);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+  }
+  .de-bg-card-link-label {
+    font-size: var(--jui-typography-label-small-size);
+    font-weight: var(--jui-typography-label-small-weight);
+    letter-spacing: var(--jui-typography-label-small-ls);
+    line-height: var(--jui-typography-label-small-lh);
+    text-transform: uppercase;
+    color: var(--jui-color-actions-primary-rest);
+  }
+  .de-bg-card-link svg {
+    width: 16px;
+    height: 16px;
+    color: var(--jui-color-actions-primary-rest);
+    flex-shrink: 0;
+  }
+  /* ── Font grid — wrapping cards (reuses .de-font-card internals) ── */
+  .de-font-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--jui-layout-gap-s);
+  }
+  .de-font-grid .de-font-card {
+    width: auto;
+    flex: 1 1 124px;
+    min-width: 124px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="app-shell app-shell-setup-split" id="shell" data-drawer="default" data-mode="editor" data-layout="step">
+
+    <!-- The onboarding header, occupant for occupant: the way out at the
+         left, where the flow is in the middle, and a spacer that centres it.
+         What the step screens put in that middle slot is a progress bar;
+         what an editor puts there is which half of itself you are in. -->
+    <div class="setup-split-header"
+      data-inspect-label="Setup Header — back + editor switch"
+      data-inspect-tokens='[{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px (desktop) / 48px (mobile)"},{"prop":"padding-inline","figma":"$jui-layout-padding-l","css":"--layout-spacing-lg","value":"24px (desktop) / 0 (mobile)"}]'>
+      <button type="button" class="setup-back-btn" aria-label="Back" data-no-phrase
+        data-nav-to="flows/onboarding-offer.html" data-nav-screen-id="scr-013"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+
+      <!-- One switch for the two things you can edit about a page: what is on
+           it, and what it looks like. A screen-level control in the
+           screen-level bar — the design editor's own Style/Layout stays down
+           in the panel it switches, which is why the two never stack. -->
+      <div class="seg-control seg-control--header" role="tablist" aria-label="What to edit"
+        data-inspect-label="Segmented Control — what to edit"
+        data-inspect-tokens='[{"prop":"background","figma":"color/background/gray/canvas","css":"--jui-color-background-gray-canvas","value":"#f8f8f8"},{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px"},{"prop":"radius","figma":"$jui-style-radius-s","css":"--jui-style-radius-s","value":"8px"}]'>
+        <button type="button" class="seg-control-item" role="tab" aria-selected="false" aria-pressed="false"
+          data-nav-to="flows/bio-page-links-edit-onboarding.html" data-nav-screen-id="scr-477"
+          data-inspect-phrase="biopage.editor.links">Links</button>
+        <button type="button" class="seg-control-item active" role="tab" aria-selected="true" aria-pressed="true"
+          data-inspect-phrase="biopage.editor.design">Design</button>
+      </div>
+
+      <div class="header-spacer"></div>
+    </div>
+
+    <div class="setup-split-main">
+
+      <div class="setup-split-preview">
+        <div class="setup-preview-panel">
+          <span class="setup-preview-tag" data-no-phrase>Preview</span>
+          <div class="bp-stage">
+            <div class="bp-frame">
+              <iframe id="bioPreview" title="Bio page preview" tabindex="-1"
+                src="/flows-prototype/design-system/hifi-designs/pages/artifacts/bio-page-v2.html"></iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-split-form">
+
+        <button class="setup-drawer-grip" id="grip" aria-label="Resize the panel" data-no-phrase>
+          <span class="setup-drawer-grip-shape"></span>
+        </button>
+
+        <!-- Outside the scrolling list, like the links tab's. Expanded, the
+           drawer covers the page it is about, so it has to say which of the
+           two the seller is in; out here it also lands on the top edge of
+           the preview panel, so switching tabs does not move the title. -->
+
+        <!-- --scroll, because this panel holds a list: without it the drawer
+             clipped everything past its own height on a phone. -->
+        <div class="setup-split-fields setup-split-fields--scroll">
+
+          <div class="seg-control" role="tablist" aria-label="Design sections">
+            <button type="button" class="seg-control-item active" role="tab" aria-selected="true" aria-pressed="true"
+              onclick="switchPanelView('style', this)" data-inspect-phrase="flows.designEditor.style">Style</button>
+            <button type="button" class="seg-control-item" role="tab" aria-selected="false" aria-pressed="false"
+              onclick="switchPanelView('layout', this)" data-inspect-phrase="flows.designEditor.layout">Layout</button>
+          </div>
+
+<div id="panel-view-style" class="de-panel-view is-active">
+
+            <h3 class="de-panel-heading" data-inspect-phrase="flows.designEditor.backgroundColor">Pick Background Color</h3>
+            <div class="de-bg-card">
+              <div class="de-bg-card-body">
+                <div class="de-bg-swatches">
+                  <button type="button" class="de-bg-swatch is-active" onclick="selectBgSwatch(this)" aria-label="White background">
+                    <div class="de-bg-swatch-inner" style="background: #ffffff;">
+                      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="var(--jui-color-actions-primary-rest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                    </div>
+                  </button>
+                  <button type="button" class="de-bg-swatch" onclick="selectBgSwatch(this)" aria-label="Black background">
+                    <div class="de-bg-swatch-inner" style="background: #000000;">
+                      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="var(--jui-color-actions-primary-rest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                    </div>
+                  </button>
+                  <button type="button" class="de-bg-swatch" onclick="selectBgSwatch(this)" aria-label="Light background">
+                    <div class="de-bg-swatch-inner" style="background: #ffffff;">
+                      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="var(--jui-color-actions-primary-rest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                    </div>
+                  </button>
+                  <button type="button" class="de-bg-swatch" onclick="selectBgSwatch(this)" aria-label="Tinted background">
+                    <div class="de-bg-swatch-inner" style="background: #ffffff;">
+                      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="var(--jui-color-actions-primary-rest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                    </div>
+                  </button>
+                  <div class="de-bg-divider"></div>
+                  <button type="button" class="de-bg-swatch" onclick="selectBgSwatch(this)" aria-label="Brand light background">
+                    <div class="de-bg-swatch-inner" style="background: #ffffff;">
+                      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="var(--jui-color-actions-primary-rest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                    </div>
+                  </button>
+                  <button type="button" class="de-bg-swatch" onclick="selectBgSwatch(this)" aria-label="Brand dark background">
+                    <div class="de-bg-swatch-inner" style="background: #000000;">
+                      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="var(--jui-color-actions-primary-rest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                    </div>
+                  </button>
+                </div>
+              </div>
+              <button type="button" class="de-bg-card-link" aria-label="Edit brand colors">
+                <span class="de-bg-card-link-label" data-inspect-phrase="flows.designEditor.editBrandColors">Edit brand colors</span>
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 6L15 12L9 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+              </button>
+            </div>
+
+            <h3 class="de-panel-heading" data-inspect-phrase="flows.designEditor.buttonShape">Button Shape</h3>
+            <div class="de-shape-row">
+              <button type="button" class="de-shape-card is-active" onclick="selectShapeCard(this)" data-inspect-phrase="flows.designEditor.squared">
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="de-shape-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                <div class="de-shape-thumb" style="border-radius: 0;"></div>
+                <span class="de-shape-label">Squared</span>
+              </button>
+              <button type="button" class="de-shape-card" onclick="selectShapeCard(this)" data-inspect-phrase="flows.designEditor.rounded">
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="de-shape-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                <div class="de-shape-thumb" style="border-radius: 8px;"></div>
+                <span class="de-shape-label">Rounded</span>
+              </button>
+              <button type="button" class="de-shape-card" onclick="selectShapeCard(this)" data-inspect-phrase="flows.designEditor.pill">
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="de-shape-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                <div class="de-shape-thumb" style="border-radius: 12px;"></div>
+                <span class="de-shape-label">Pill</span>
+              </button>
+            </div>
+
+            <div class="de-panel-heading-row">
+              <h3 class="de-panel-heading" data-inspect-phrase="flows.designEditor.fontPairing">Font pairing</h3>
+              <button type="button" class="de-panel-link" data-inspect-phrase="flows.designEditor.editFontPairings">Edit pairing</button>
+            </div>
+            <div class="de-font-grid">
+              <button type="button" class="de-font-card is-active" onclick="selectFontCard(this)" data-inspect-phrase="flows.designEditor.aaSofiaSans">
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="de-font-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                <span class="de-font-card-preview" style="font-family: 'Sofia Sans', sans-serif; font-weight: 700;">Aa</span>
+                <span class="de-font-card-name">Sofia Sans</span>
+              </button>
+              <button type="button" class="de-font-card" onclick="selectFontCard(this)" data-inspect-phrase="flows.designEditor.aaPlayfair">
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="de-font-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                <span class="de-font-card-preview" style="font-family: 'Playfair Display', serif; font-weight: 500;">Aa</span>
+                <span class="de-font-card-name">Playfair</span>
+              </button>
+              <button type="button" class="de-font-card" onclick="selectFontCard(this)" data-inspect-phrase="flows.designEditor.aaPoppins">
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="de-font-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                <span class="de-font-card-preview" style="font-family: 'Poppins', sans-serif; font-weight: 500;">Aa</span>
+                <span class="de-font-card-name">Poppins</span>
+              </button>
+              <button type="button" class="de-font-card" onclick="selectFontCard(this)" data-inspect-phrase="flows.designEditor.aaDmSans">
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="de-font-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                <span class="de-font-card-preview" style="font-family: 'DM Sans', sans-serif; font-weight: 500;">Aa</span>
+                <span class="de-font-card-name">DM Sans</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- ── LAYOUT VIEW ── -->
+          <div id="panel-view-layout" class="de-panel-view">
+            <div class="layout-grid">
+              <button type="button" class="layout-card is-active" onclick="selectLayout(this)" data-inspect-phrase="flows.designEditor.centered">
+                <div class="layout-card-thumb"></div>
+                <span class="layout-card-label">Centered</span>
+              </button>
+              <button type="button" class="layout-card" onclick="selectLayout(this)" data-inspect-phrase="flows.designEditor.leftaligned">
+                <div class="layout-card-thumb"></div>
+                <span class="layout-card-label">Left-aligned</span>
+              </button>
+              <button type="button" class="layout-card" onclick="selectLayout(this)" data-inspect-phrase="flows.designEditor.split">
+                <div class="layout-card-thumb"></div>
+                <span class="layout-card-label">Split</span>
+              </button>
+              <button type="button" class="layout-card" onclick="selectLayout(this)" data-inspect-phrase="flows.designEditor.minimal">
+                <div class="layout-card-thumb"></div>
+                <span class="layout-card-label">Minimal</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- The step's way on, where every onboarding step keeps it. Not the
+             full-width bar the editor footer used for Add link: at the foot
+             of a drawer that is the largest accidental target a phone can
+             offer, and this one ends the step. -->
+        <div class="setup-split-actions">
+          <button class="btn btn-primary"
+            data-inspect-label="Primary Button — Save and continue"
+            data-inspect-tokens='[{"prop":"background","figma":"color/actions/primary/rest","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"height","figma":"$jui-layout-dimension-m","css":"--jui-layout-dimension-m","value":"48px"}]'
+            data-inspect-phrase="biopage.editor.saveContinue"
+            data-trigger="primary-cta"
+            data-nav-to="flows/onboarding-share.html"
+            data-nav-screen-id="scr-030">Save and continue</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=1427872"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=1427872"></script>
+  <script type="module">
+    import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
+    initSetupSplit({
+      state: () => ({
+        title: 'Clara and Stone',
+        subtitle: 'Yoga and mindfulness workshops for women',
+        image: 'photo',
+        contact: [{ id: 'whatsapp', on: true }, { id: 'email', on: true }],
+        links: 'default',
+        mainlink: 'My website',
+        address: { on: true, value: 'Elbe Einkaufszentrum' },
+        ghost: ['socials'],
+        offer: { on: false },
+      }),
+    });
+  </script>
+  <script>
+
+/* ══════════════════════════════════════════
+   ARTIFACT ROUTING
+   ══════════════════════════════════════════ */
+(function () {
+  var params = new URLSearchParams(window.location.search);
+  var page = params.get('page') || 'flow-page';
+  var iframe = document.getElementById('de-iframe');
+  if (iframe) iframe.src = '../artifacts/' + page + '.html';
+
+  if (page === 'bio-page') {
+    document.querySelectorAll('.btn-primary.btn-sm[data-nav-to]').forEach(function (doneEl) {
+      doneEl.setAttribute('data-nav-to', 'flows/bio-page-preview.html');
+      doneEl.setAttribute('data-nav-display-url', 'ama-wellness.jimdo.site');
+      doneEl.setAttribute('data-nav-screen-id', 'scr-119');
+    });
+  }
+})();
+
+/* ══════════════════════════════════════════
+   DRAWER MANAGEMENT
+   Only one drawer can be open at a time.
+   Opening a drawer scales the preview to 0.5.
+   ══════════════════════════════════════════ */
+var activeDrawer = null;
+
+
+
+
+/* ══════════════════════════════════════════
+   STYLE TAB SWITCHING (Colors / Fonts / Shape)
+   ══════════════════════════════════════════ */
+function switchStyleTab(tabName, triggerEl) {
+  document.querySelectorAll('#style-drawer .seg-tab').forEach(function (t) {
+    t.classList.remove('is-active');
+    t.setAttribute('aria-selected', 'false');
+  });
+  triggerEl.classList.add('is-active');
+  triggerEl.setAttribute('aria-selected', 'true');
+
+  document.querySelectorAll('#style-drawer .de-tab-panel').forEach(function (p) {
+    p.classList.remove('is-active');
+  });
+  var panel = document.getElementById('panel-' + tabName);
+  if (panel) panel.classList.add('is-active');
+}
+
+/* ══════════════════════════════════════════
+   SELECTION HELPERS
+   ══════════════════════════════════════════ */
+function selectSwatch(el) {
+  el.closest('.de-color-row').querySelectorAll('.de-color-swatch').forEach(function (s) {
+    s.classList.remove('is-active');
+  });
+  el.classList.add('is-active');
+}
+
+function selectFontCard(el) {
+  el.closest('.de-font-scroll, .de-font-grid').querySelectorAll('.de-font-card').forEach(function (c) {
+    c.classList.remove('is-active');
+  });
+  el.classList.add('is-active');
+}
+
+function selectBgSwatch(el) {
+  el.closest('.de-bg-swatches').querySelectorAll('.de-bg-swatch').forEach(function (s) {
+    s.classList.remove('is-active');
+  });
+  el.classList.add('is-active');
+}
+
+/* Desktop panel: Style | Layout view switch */
+function switchPanelView(view, triggerEl) {
+  document.querySelectorAll('#de-panel .seg-tab').forEach(function (t) {
+    t.classList.remove('is-active');
+    t.setAttribute('aria-selected', 'false');
+  });
+  triggerEl.classList.add('is-active');
+  triggerEl.setAttribute('aria-selected', 'true');
+
+  document.querySelectorAll('#de-panel .de-panel-view').forEach(function (v) {
+    v.classList.remove('is-active');
+  });
+  var panel = document.getElementById('panel-view-' + view);
+  if (panel) panel.classList.add('is-active');
+}
+
+function selectShapeCard(el) {
+  el.closest('.de-shape-row').querySelectorAll('.de-shape-card').forEach(function (c) {
+    c.classList.remove('is-active');
+  });
+  el.classList.add('is-active');
+}
+
+function selectLayout(el) {
+  var grid = el.closest('.layout-grid');
+  if (!grid) return;
+  grid.querySelectorAll('.layout-card').forEach(function (card) {
+    card.classList.remove('is-active');
+  });
+  el.classList.add('is-active');
+}
+
+/* Escape key: close whichever drawer is open */
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape' && activeDrawer) closeDrawer(activeDrawer);
+});
+
+  </script>
+
+</body>
+</html>

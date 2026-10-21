@@ -1,0 +1,1455 @@
+<!-- Cloned from design-system/hifi-designs/pages/flows/bio-page-links-edit-limit.html — adapt as needed -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bio-page-links-edit-limit-v2</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=1427872">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=1427872">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=1427872">
+<style>
+  /* ─── Screen overrides ───
+     The drawer rests taller here than on an onboarding step: this panel
+     holds a list rather than one field, and a list cut off after two rows
+     is a list you cannot judge. */
+  .app-shell-setup-split { --setup-drawer-rest-h: 360px; }
+</style>
+</head>
+<body>
+
+  <div class="app-shell app-shell-setup-split" id="shell" data-drawer="default" data-view="list" data-mode="editor" data-layout="step">
+
+    <!-- The onboarding header, occupant for occupant: the way out at the
+         left, where the flow is in the middle, and a spacer that centres it.
+         What the step screens put in that middle slot is a progress bar;
+         what an editor puts there is which half of itself you are in. -->
+    <div class="setup-split-header"
+      data-inspect-label="Setup Header — back + editor switch"
+      data-inspect-tokens='[{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px (desktop) / 48px (mobile)"},{"prop":"padding-inline","figma":"$jui-layout-padding-l","css":"--layout-spacing-lg","value":"24px (desktop) / 0 (mobile)"}]'>
+      <button type="button" class="setup-back-btn" aria-label="Back" data-no-phrase
+        data-nav-to="flows/onboarding-offer.html" data-nav-screen-id="scr-013"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+
+      <!-- One switch for the two things you can edit about a page: what is on
+           it, and what it looks like. A screen-level control in the
+           screen-level bar — the design editor's own Style/Layout stays down
+           in the panel it switches, which is why the two never stack. -->
+      <div class="seg-control seg-control--header" role="tablist" aria-label="What to edit"
+        data-inspect-label="Segmented Control — what to edit"
+        data-inspect-tokens='[{"prop":"background","figma":"color/background/gray/canvas","css":"--jui-color-background-gray-canvas","value":"#f8f8f8"},{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px"},{"prop":"radius","figma":"$jui-style-radius-s","css":"--jui-style-radius-s","value":"8px"}]'>
+        <button type="button" class="seg-control-item active" role="tab" aria-selected="true" aria-pressed="true"
+          data-inspect-phrase="biopage.editor.links">Links</button>
+        <button type="button" class="seg-control-item" role="tab" aria-selected="false" aria-pressed="false"
+          data-nav-to="flows/design-editor-onboarding.html" data-nav-screen-id="scr-479"
+          data-inspect-phrase="biopage.editor.design">Design</button>
+      </div>
+
+      <div class="header-spacer"></div>
+    </div>
+
+    <div class="setup-split-main">
+
+      <div class="setup-split-preview">
+        <div class="setup-preview-panel">
+          <span class="setup-preview-tag" data-no-phrase>Preview</span>
+          <div class="bp-stage">
+            <div class="bp-frame">
+              <iframe id="bioPreview" title="Bio page preview" tabindex="-1"
+                src="/flows-prototype/design-system/hifi-designs/pages/artifacts/bio-page-v2.html"></iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-split-form">
+
+        <button class="setup-drawer-grip" id="grip" aria-label="Resize the panel" data-no-phrase>
+          <span class="setup-drawer-grip-shape"></span>
+        </button>
+
+        <!-- Outside the scrolling list on purpose. Expanded, the drawer
+           covers the page it is about, so it has to say what it is; it is
+           also the only thing the peek shows, which gives that bar
+           something to be. Out here it can be ordered against the list and
+           the Add row — see data-mode="editor" in components.css. -->
+        <div class="setup-split-intro setup-split-intro--back" data-view-only="add">
+          <button type="button" class="setup-back-btn add-head-back" data-add-back aria-label="Back" data-no-phrase hidden><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+          <h1 class="setup-split-title" data-inspect-phrase="biopage.add.title">Add to your page</h1>
+        </div>
+
+        <!-- --scroll, because this panel holds a list: without it the drawer
+             clipped everything past its own height on a phone and there was
+             no way to reach the foot of the page. -->
+        <div class="setup-split-fields setup-split-fields--scroll">
+
+          <!-- One list, in the order the pieces appear on the page. Buttons,
+               quick actions and social used to be three tabs, which made one
+               page look like three collections and hid two thirds of it at
+               any moment.
+
+               A new page opens on the two suggestions and nothing else — no
+               rows, no section headings, not even the one the suggestions
+               belong to. Each heading arrives with its section's first real
+               item, so the panel grows into a list the seller recognises
+               rather than starting as empty scaffolding. -->
+
+          <div class="edit-section" id="sectionContact" data-edits="contact" data-view-only="list" hidden>
+            <div class="edit-section-head">
+              <p class="edit-section-title" data-inspect-phrase="biopage.edit.section.contact">Contact buttons</p>
+            </div>
+            <ul class="edit-list">
+              <li>
+                <button type="button" class="edit-row" id="rowWhatsapp" data-no-phrase data-editor="whatsapp" hidden>
+                  <span class="edit-row-mark"><span class="edit-row-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 21a9 9 0 1 0-7.8-4.5L3 21l4.5-1.2A9 9 0 0 0 12 21Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="edit-row-grip" aria-label="Drag to reorder"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></span></span>
+                  <span class="edit-row-label">WhatsApp</span>
+                  <span class="edit-row-edit"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                </button>
+              </li>
+              <li>
+                <button type="button" class="edit-row" id="rowEmail" data-no-phrase data-editor="email" hidden>
+                  <span class="edit-row-mark"><span class="edit-row-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="m22 7-10 5L2 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="edit-row-grip" aria-label="Drag to reorder"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></span></span>
+                  <span class="edit-row-label">Email me</span>
+                  <span class="edit-row-edit"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                </button>
+              </li>
+              <li>
+                <button type="button" class="edit-row" id="rowCall" data-no-phrase data-editor="call" hidden>
+                  <span class="edit-row-mark"><span class="edit-row-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1.1 1A16 16 0 0 1 4 5.1 1 1 0 0 1 5 4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="edit-row-grip" aria-label="Drag to reorder"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></span></span>
+                  <span class="edit-row-label">Call</span>
+                  <span class="edit-row-edit"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          <div class="edit-section" id="sectionBlocks" data-view-only="list">
+            <div class="edit-section-head" id="headBlocks" hidden>
+              <p class="edit-section-title" data-inspect-phrase="biopage.edit.section.blocks">On your page</p>
+            </div>
+
+            <!-- No suggestions here. The seller has already made the one
+                 action page the plan allows, so there is nothing to put
+                 forward — what is left to offer costs money, and that belongs
+                 in the add list where the price is visible. -->
+            <ul class="edit-list" id="suggestionList" hidden></ul>
+
+            <ul class="edit-list" id="blockList">
+              <li>
+                <!-- The booking that used the plan up is the one onboarding
+                     made, so it is the one nobody has looked at. -->
+                <button type="button" class="edit-row" id="rowOffer" data-edits="offer" data-no-phrase data-editor="offer" data-review>
+                  <span class="edit-row-mark"><span class="edit-row-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 2v4M16 2v4M3 9h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="edit-row-grip" aria-label="Drag to reorder"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></span></span>
+                  <span class="edit-row-label">Beginner workshop</span>
+                  <span class="status-badge status-badge--notice edit-row-status" data-inspect-phrase="flowCard.draftLabel">Ready to review</span>
+                  <span class="edit-row-edit"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                </button>
+              </li>
+              <li>
+                <button type="button" class="edit-row" id="rowMainlink" data-edits="mainlink" data-no-phrase data-editor="mainlink" hidden>
+                  <span class="edit-row-mark"><span class="edit-row-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M10 14L15 9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M12.5 15.5C13.0523 16.0523 13.0523 16.9477 12.5 17.5L8.91422 21.0858C8.13317 21.8668 6.86684 21.8668 6.08579 21.0858L2.91422 17.9142C2.13317 17.1332 2.13317 15.8668 2.91422 15.0858L6.5 11.5C7.05229 10.9477 7.94772 10.9477 8.5 11.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M11.5 8.5C10.9477 7.94771 10.9477 7.05228 11.5 6.5L15.0858 2.91421C15.8668 2.13316 17.1331 2.13316 17.9142 2.91421L21.0858 6.08579C21.8668 6.86683 21.8668 8.13316 21.0858 8.91421L17.5 12.5C16.9477 13.0523 16.0523 13.0523 15.5 12.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></span><span class="edit-row-grip" aria-label="Drag to reorder"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></span></span>
+                  <span class="edit-row-label">My website</span>
+                  <span class="edit-row-edit"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                </button>
+              </li>
+              <li>
+                <button type="button" class="edit-row" id="rowMap" data-edits="map" data-no-phrase data-editor="map" hidden>
+                  <span class="edit-row-mark"><span class="edit-row-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/></svg></span><span class="edit-row-grip" aria-label="Drag to reorder"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></span></span>
+                  <span class="edit-row-label">Elbe Einkaufszentrum</span>
+                  <span class="edit-row-edit"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          <!-- On a phone the add list moves in here instead of opening over
+               the page. One copy of it, two hosts — see placeAdd(). -->
+          <div class="add-host" id="addDrawerHost" data-view-only="add"></div>
+
+          <div class="edit-section" id="sectionSocial" data-view-only="list" hidden>
+            <div class="edit-section-head">
+              <p class="edit-section-title" data-inspect-phrase="biopage.edit.section.social">Social icons</p>
+              <p class="edit-section-note" data-inspect-phrase="biopage.edit.section.socialNote">A row at the foot</p>
+            </div>
+            <ul class="edit-list">
+              <li>
+                <button type="button" class="edit-row" id="rowSocial" data-no-phrase data-editor="social" hidden>
+                  <span class="edit-row-mark"><span class="edit-row-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M10 14L15 9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M12.5 15.5C13.0523 16.0523 13.0523 16.9477 12.5 17.5L8.91422 21.0858C8.13317 21.8668 6.86684 21.8668 6.08579 21.0858L2.91422 17.9142C2.13317 17.1332 2.13317 15.8668 2.91422 15.0858L6.5 11.5C7.05229 10.9477 7.94772 10.9477 8.5 11.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M11.5 8.5C10.9477 7.94771 10.9477 7.05228 11.5 6.5L15.0858 2.91421C15.8668 2.13316 17.1331 2.13316 17.9142 2.91421L21.0858 6.08579C21.8668 6.86683 21.8668 8.13316 21.0858 8.91421L17.5 12.5C16.9477 13.0523 16.0523 13.0523 15.5 12.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></span><span class="edit-row-grip" aria-label="Drag to reorder"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></span></span>
+                  <span class="edit-row-label">Instagram</span>
+                  <span class="edit-row-edit"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                </button>
+              </li>
+            </ul>
+          </div>
+
+
+          <!-- Add link ends the list rather than standing over it: it is a
+               list operation, and the footer below now belongs to the step.
+               Dashed, so it reads as the next empty slot in the column it
+               closes. -->
+          <button type="button" class="add-row-inline" id="addBtn"
+            data-inspect-label="Add link — end of list"
+            data-inspect-tokens='[{"prop":"border","figma":"$jui-color-stroke-primary-on-light","css":"--jui-color-stroke-primary-on-light","value":"1px dashed #b4c4ff"},{"prop":"height","figma":"$jui-layout-dimension-m","css":"--jui-layout-dimension-m","value":"48px"},{"prop":"radius","figma":"style/radius/12","css":"--jui-style-radius-12","value":"12px"}]'
+            data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 4V20M20 12H4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span>Add link</span></button>
+
+        </div>
+
+
+        <div class="setup-split-actions" data-view-only="add">
+          <button class="btn btn-secondary" id="addBack" data-inspect-phrase="">Back</button>
+        </div>
+
+        <!-- The step's way on, where every onboarding step keeps it. Not the
+             full-width bar the editor footer used for Add link: at the foot
+             of a drawer that is the largest accidental target a phone can
+             offer, and this one ends the step. -->
+        <div class="setup-split-actions" data-view-only="list">
+          <button class="btn btn-primary"
+            data-inspect-label="Primary Button — Save and continue"
+            data-inspect-tokens='[{"prop":"background","figma":"color/actions/primary/rest","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"height","figma":"$jui-layout-dimension-m","css":"--jui-layout-dimension-m","value":"48px"}]'
+            data-inspect-phrase="biopage.editor.saveContinue"
+            data-trigger="primary-cta"
+            data-nav-to="flows/onboarding-share.html"
+            data-nav-screen-id="scr-030">Save and continue</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Add sheet. Grouped by what the thing does for the seller, in the words
+       the onboarding steps used, so the same four ideas are met twice in the
+       same language. -->
+  <div class="sheet-backdrop" id="addSheet" data-open="false" role="dialog" aria-modal="true" aria-labelledby="addSheetTitle">
+    <div class="sheet sheet--tall">
+      <div class="sheet-head">
+        <button type="button" class="setup-back-btn add-head-back" data-add-back aria-label="Back" data-no-phrase hidden><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+        <p class="sheet-title" id="addSheetTitle" data-inspect-phrase="biopage.add.title">Add to your page</p>
+        <button type="button" class="setup-back-btn" id="addClose" aria-label="Close" data-no-phrase><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+      </div>
+      <div class="sheet-body" id="addSheetBody">
+        <div class="add-host" id="addContent" data-level="root">
+          <div class="add-level" data-level-only="root">
+          <!-- Three ideas first, built from what the seller said they do:
+               two things people book, one thing people ask about. Each says
+               what it builds in its own title, the way the dashed rows in
+               the list do, and carries the same Set it up. Below them, the
+               way to say what the three guesses missed. -->
+          <div class="add-group">
+            <p class="add-group-title" data-inspect-phrase="">Ideas for your page</p>
+            <div class="add-grid" id="ideaGrid"></div>
+
+            <div class="add-group-actions">
+              <button type="button" class="regen regen--smart" id="regenIdeas" data-busy="false"
+                data-inspect-label="Regenerate — smart"
+                data-inspect-tokens='[{"prop":"label","figma":"@jimdo/ui smartSecondaryButton","css":"--jui-gradient-smart","value":"gradient 111deg blue-500 \u2192 red-300 \u2192 yellow-300"},{"prop":"icon","figma":"reload","css":"--jui-color-blue-500","value":"16px #004ced"}]'
+                data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="smartRegenIdeas" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><path d="M14.5 1.99976L15.5 4.54791C14.3079 3.91092 12.9461 3.5498 11.5 3.5498C6.80558 3.5498 3 7.35538 3 12.0498C3 13.8409 3.554 15.6294 4.5 16.9998" stroke="url(#smartRegenIdeas)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M8.5 21.9997L7.5 19.4516C8.69215 20.0885 10.0539 20.4497 11.5 20.4497C16.1944 20.4497 20 16.6441 20 11.9497C20 10.1585 19.446 8.37009 18.5 6.99976" stroke="url(#smartRegenIdeas)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span class="regen-label">Regenerate</span></button>
+              <button type="button" class="regen regen--smart" id="askOpen"
+                data-inspect-label="Offer something else — smart"
+                data-inspect-tokens='[{"prop":"label","figma":"@jimdo/ui smartSecondaryButton","css":"--jui-gradient-smart","value":"gradient 111deg blue-500 \u2192 red-300 \u2192 yellow-300"},{"prop":"icon","figma":"pencil-edit-02","value":"16px, gradient-stroked"}]'
+                data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="smartAskIdeasLimit" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><path d="M15.7071 5.29289L17.5 3.5C17.8905 3.10948 18.5237 3.10948 18.9142 3.5L20.5 5.08579C20.8905 5.47631 20.8905 6.10947 20.5 6.5L18.7071 8.29289M15.7071 5.29289L9.59886 11.4012C9.34255 11.6575 9.16071 11.9787 9.07279 12.3303L8.20715 15.7929L11.6697 14.9272C12.0214 14.8393 12.3425 14.6575 12.5989 14.4012L18.7071 8.29289M15.7071 5.29289L18.7071 8.29289" stroke="url(#smartAskIdeasLimit)" stroke-linejoin="round" stroke-width="1.5"/><path d="M10.7071 4.79289H5.20715C4.10258 4.79289 3.20715 5.68832 3.20715 6.79289V18.7929C3.20715 19.8975 4.10258 20.7929 5.20715 20.7929H17.2071C18.3117 20.7929 19.2071 19.8975 19.2071 18.7929V13.2929" stroke="url(#smartAskIdeasLimit)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span class="regen-label">Offer something else</span></button>
+            </div>
+          </div>
+
+          <div class="add-group">
+            <p class="add-group-title" data-inspect-phrase="biopage.add.group.link">Links and pages</p>
+            <button type="button" class="add-option" data-add="mainlink" data-no-phrase>
+              <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M10 14L15 9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M12.5 15.5C13.0523 16.0523 13.0523 16.9477 12.5 17.5L8.91422 21.0858C8.13317 21.8668 6.86684 21.8668 6.08579 21.0858L2.91422 17.9142C2.13317 17.1332 2.13317 15.8668 2.91422 15.0858L6.5 11.5C7.05229 10.9477 7.94772 10.9477 8.5 11.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M11.5 8.5C10.9477 7.94771 10.9477 7.05228 11.5 6.5L15.0858 2.91421C15.8668 2.13316 17.1331 2.13316 17.9142 2.91421L21.0858 6.08579C21.8668 6.86683 21.8668 8.13316 21.0858 8.91421L17.5 12.5C16.9477 13.0523 16.0523 13.0523 15.5 12.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></span>
+              <span class="add-option-copy">
+                <span class="add-option-title" data-inspect-phrase="biopage.add.link.title">Link</span>
+                <span class="add-option-detail" data-inspect-phrase="">Anything with a web address</span>
+              </span>
+            </button>
+            <button type="button" class="add-option" data-picker="booking" data-no-phrase>
+              <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 2v4M16 2v4M3 9h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="add-option-copy">
+                <span class="add-option-title" data-inspect-phrase="">Booking</span>
+                <span class="add-option-detail" data-inspect-phrase="">Fixed event or open booking slots</span>
+              </span>
+              <svg class="add-option-more" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button type="button" class="add-option" data-picker="form" data-no-phrase>
+              <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M11 6L21 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 12L21 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 18L21 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 7.5L4.5 9L8.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 18.5L4.5 20L8.5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="add-option-copy">
+                <span class="add-option-title" data-inspect-phrase="">Form</span>
+                <span class="add-option-detail" data-inspect-phrase="">Questions, signups and requests</span>
+              </span>
+              <svg class="add-option-more" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button type="button" class="add-option" data-picker="pages" data-no-phrase>
+              <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20 20V9l-7-7H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M13 2v5a2 2 0 0 0 2 2h5" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 13h4M8 17h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+              <span class="add-option-copy">
+                <span class="add-option-title" data-inspect-phrase="">Website page</span>
+                <span class="add-option-detail" data-inspect-phrase="">Contact me, store, bookings and more</span>
+              </span>
+              <svg class="add-option-more" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+
+          <!-- Two to start with and the rest behind More options, the way the
+               quick actions step does it: a list that opens at its full
+               length is a list to get through. -->
+          <div class="add-group">
+            <p class="add-group-title" data-inspect-phrase="biopage.add.group.contact">Contact buttons</p>
+            <button type="button" class="add-option" data-add="whatsapp" data-no-phrase>
+              <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 21a9 9 0 1 0-7.8-4.5L3 21l4.5-1.2A9 9 0 0 0 12 21Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="add-option-copy">
+                <span class="add-option-title" data-inspect-phrase="biopage.add.whatsapp.title">WhatsApp</span>
+                <span class="add-option-detail" data-inspect-phrase="biopage.add.whatsapp.detail">Opens a chat with you</span>
+              </span>
+            </button>
+            <button type="button" class="add-option" data-add="email" data-no-phrase>
+              <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="m22 7-10 5L2 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="add-option-copy">
+                <span class="add-option-title" data-inspect-phrase="biopage.add.email.title">Email</span>
+                <span class="add-option-detail" data-inspect-phrase="biopage.add.email.detail">Opens a new message</span>
+              </span>
+            </button>
+            <button type="button" class="add-option" data-add="call" hidden data-no-phrase>
+              <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1.1 1A16 16 0 0 1 4 5.1 1 1 0 0 1 5 4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="add-option-copy">
+                <span class="add-option-title" data-inspect-phrase="biopage.add.call.title">Call</span>
+                <span class="add-option-detail" data-inspect-phrase="biopage.add.call.detail">Dials your number</span>
+              </span>
+            </button>
+            <button type="button" class="add-option" data-add="sms" hidden data-no-phrase>
+              <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M21 12a8 8 0 0 1-8.5 8L7 21l.9-3.4A8 8 0 1 1 21 12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="add-option-copy">
+                <span class="add-option-title" data-inspect-phrase="">Text message</span>
+                <span class="add-option-detail" data-inspect-phrase="">Opens a message to you</span>
+              </span>
+            </button>
+            <button type="button" class="text-action" data-more="contact" data-inspect-phrase="">Show more</button>
+          </div>
+
+          <div class="add-group">
+            <p class="add-group-title" data-inspect-phrase="biopage.add.group.place">Map and location</p>
+            <button type="button" class="add-option" data-add="map" data-no-phrase>
+              <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/></svg></span>
+              <span class="add-option-copy">
+                <span class="add-option-title" data-inspect-phrase="biopage.add.map.title">Your address</span>
+                <span class="add-option-detail" data-inspect-phrase="biopage.add.map.detail">A map people can tap for directions</span>
+              </span>
+            </button>
+          </div>
+
+          <div class="add-group">
+            <p class="add-group-title" data-inspect-phrase="biopage.edit.section.social">Social icons</p>
+            <button type="button" class="add-option" data-add="social" data-no-phrase>
+              <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M17.5 6.5h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="add-option-copy">
+                <span class="add-option-title" data-inspect-phrase="">Instagram</span>
+                <span class="add-option-detail" data-inspect-phrase="">Your profile</span>
+              </span>
+            </button>
+            <button type="button" class="add-option" data-add="tiktok" data-no-phrase>
+              <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M19.5 2.5A2 2 0 0 1 21.5 4.5v15a2 2 0 0 1-2 2h-15a2 2 0 0 1-2-2v-15a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M17.5 9.5c-2 0-4-1.5-4-3.5v8.5a3.5 3.5 0 1 1-3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="add-option-copy">
+                <span class="add-option-title" data-inspect-phrase="">TikTok</span>
+                <span class="add-option-detail" data-inspect-phrase="">Your profile</span>
+              </span>
+            </button>
+            <button type="button" class="add-option" data-add="facebook" data-no-phrase>
+              <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M14 8.5V7a1.5 1.5 0 0 1 1.5-1.5H17V2.5h-2.5A4.5 4.5 0 0 0 10 7v1.5H7.5V12H10v9.5h4V12h2.5l.5-3.5H14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="add-option-copy">
+                <span class="add-option-title" data-inspect-phrase="">Facebook</span>
+                <span class="add-option-detail" data-inspect-phrase="">Your page</span>
+              </span>
+            </button>
+            <button type="button" class="add-option" data-add="youtube" hidden data-no-phrase>
+              <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2.5" y="5.5" width="19" height="13" rx="4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="m10.5 9.5 5 2.5-5 2.5v-5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="add-option-copy">
+                <span class="add-option-title" data-inspect-phrase="">YouTube</span>
+                <span class="add-option-detail" data-inspect-phrase="">Your channel</span>
+              </span>
+            </button>
+            <button type="button" class="add-option" data-add="linkedin" hidden data-no-phrase>
+              <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M7.5 10.5V17M7.5 7.5v.01M11.5 17v-3.5a2 2 0 0 1 4 0V17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="add-option-copy">
+                <span class="add-option-title" data-inspect-phrase="">LinkedIn</span>
+                <span class="add-option-detail" data-inspect-phrase="">Your profile</span>
+              </span>
+            </button>
+            <button type="button" class="text-action" data-more="social" data-inspect-phrase="">Show more</button>
+            </div>
+            <!-- Last in the list, and the only thing here the plan does not
+                 already include. An imprint and a privacy policy are not
+                 optional in Germany, so it is stated as a fact rather than
+                 sold — Figma 11944:93209 for the card, 11769:69136 for the
+                 words. -->
+            <div class="upgrade-banner upgrade-banner--light" id="legalTrigger"
+              data-inspect-label="Legal pages upgrade"
+              data-inspect-tokens='[{"prop":"background","figma":"$jui-color-background-upgrade-light","css":"--jui-color-background-upgrade-light","value":"#fcecff"},{"prop":"border-radius","figma":"$jui-style-radius-l","css":"--jui-style-radius-l","value":"16px"},{"prop":"padding","figma":"$jui-layout-padding-xxs","css":"--jui-layout-padding-xxs","value":"4px"}]'>
+              <div class="upgrade-banner-header">
+                <p class="upgrade-banner-eyebrow" data-inspect-phrase="">Stay legally compliant</p>
+              </div>
+              <div class="upgrade-banner-body upgrade-banner-body--row">
+                <div class="upgrade-banner-headline">
+                  <p class="upgrade-banner-title" data-inspect-phrase="">Add an imprint and a privacy policy</p>
+                  <p class="upgrade-banner-subtitle" data-inspect-phrase="">Written for your business, so warning notices never reach you.</p>
+                </div>
+                <div class="upgrade-banner-cta">
+                  <button type="button" class="btn btn-primary btn-upgrade"
+                    data-inspect-phrase=""
+                    data-nav-to="flows/paywall-domain.html?from=bio-page-links-edit-limit"
+                    data-nav-screen-id="scr-054"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg>Get legal texts</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Say what the three guesses missed. A level rather than a
+               field that unfolds in place: typing is the only thing to do
+               here, and the list behind it is not something to read while
+               doing it. -->
+          <div class="add-picker" data-level-only="ask">
+            <div class="add-group">
+              <p class="add-group-title" data-inspect-phrase="">What else do you want to offer?</p>
+              <div class="add-ask">
+                <div class="add-ask-row">
+                  <input class="form-input" id="askInput" type="text" placeholder="Gift vouchers" autocomplete="off">
+                  <button type="button" class="btn btn-secondary btn-sm" id="askGo" data-inspect-phrase="">Get ideas</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Second level: what the seller already has. The CMS pages come
+               from Dolphin, the action pages from Flows; both are things
+               that exist, so the job here is choosing one, not making one. -->
+          <div class="add-picker" data-level-only="picker">
+            <!-- Making a new one is its own thing, not one of the ones you
+                 have. It sits above the list with nothing over it, so the
+                 label below belongs only to what already exists. -->
+            <div class="add-group" id="pickerMakeGroup">
+              <div id="pickerMake"></div>
+            </div>
+            <!-- The groups are built, not written: a booking submenu holds two
+                 kinds of thing — one booking each, or a page with all of
+                 them — and the label over each says which. -->
+            <div class="add-group-stack" id="pickerGroups"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaving with nothing on the page. Not an error and not destructive, so
+       it is calm and short: what is missing, what that means for a visitor,
+       and both ways out. Cancel is the primary because going back and adding
+       something is the thing worth doing; carrying on is still one tap. -->
+  <div class="sheet-backdrop" id="emptySheet" data-open="false" role="dialog" aria-modal="true" aria-labelledby="emptyTitle">
+    <div class="sheet sheet--compact">
+      <div class="sheet-body">
+        <span class="dialog-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/><path d="M12 8.5V12.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M12 15.5H12.009H12Z" fill="currentColor" fill-rule="evenodd"/><path d="M12 15.5H12.009" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg></span>
+        <div class="dialog-copy">
+          <p class="dialog-title" id="emptyTitle" data-inspect-phrase="">Leave without any buttons?</p>
+          <p class="sheet-copy" data-inspect-phrase="">People can read your page, but not reach you.</p>
+        </div>
+      </div>
+      <div class="sheet-actions sheet-actions--end">
+        <button type="button" class="btn btn-subtle" id="emptyGo" data-inspect-phrase="">Leave anyway</button>
+        <button type="button" class="btn btn-primary" id="emptyCancel" data-inspect-phrase="">Keep editing</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit sheet. One surface, fields swapped by what is being edited —
+       six near-identical dialogs would be six things to keep in step. -->
+  <div class="sheet-backdrop" id="editSheet" data-open="false" role="dialog" aria-modal="true" aria-labelledby="editSheetTitle">
+    <div class="sheet">
+      <div class="sheet-head">
+        <span class="sheet-type-icon" id="editTypeIcon" aria-hidden="true"></span>
+        <p class="sheet-title" id="editSheetTitle" data-no-phrase>Edit</p>
+        <button type="button" class="setup-back-btn" id="editClose" aria-label="Close" data-no-phrase><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+      </div>
+      <div class="sheet-body">
+        <div class="sheet-form" id="editFields"></div>
+      </div>
+      <div class="sheet-actions">
+        <button type="button" class="btn-danger-subtle" id="editRemove"
+          data-inspect-label="Subtle Button — Remove"
+          data-inspect-tokens='[{"prop":"color","figma":"$jui-color-actions-negative-rest","css":"--jui-color-actions-negative-rest","value":"#b21d18"},{"prop":"padding","figma":"$jui-layout-padding-l","css":"--jui-layout-padding-l","value":"24px"},{"prop":"gap","figma":"$jui-layout-padding-s","css":"--jui-layout-gap-s","value":"12px"},{"prop":"height","figma":"$jui-layout-dimension-m","css":"--jui-layout-dimension-m","value":"48px"}]'
+          data-inspect-phrase="biopage.edit.remove"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M19.5 5.5L18.6139 20.121C18.5499 21.1766 17.6751 22 16.6175 22H7.38246C6.32488 22 5.4501 21.1766 5.38612 20.121L4.5 5.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M3 5.5H8M21 5.5H16M16 5.5L14.7597 2.60608C14.6022 2.2384 14.2406 2 13.8406 2H10.1594C9.75937 2 9.39783 2.2384 9.24025 2.60608L8 5.5M16 5.5H8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M9.5 16.5L9.5 10.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M14.5 16.5L14.5 10.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>Remove</button>
+        <button type="button" class="btn btn-primary" id="editSave"
+          data-inspect-label="Save"
+          data-inspect-tokens='[{"prop":"background","figma":"color/actions/primary/rest","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"height","figma":"$jui-layout-dimension-m","css":"--jui-layout-dimension-m","value":"48px"}]'
+          data-inspect-phrase="biopage.edit.save">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=1427872"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=1427872"></script>
+  <script type="module">
+    import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
+    import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
+
+    initDragList(document);
+
+    /* What is on the page, and what is only suggested. A new page starts
+       with nothing added and two suggestions standing in. */
+    const ON = { whatsapp: false, email: true, call: false, mainlink: true, map: false, social: false };
+
+    /* Nothing is being suggested at the limit. The booking the seller
+       already made is an authored row in the list, not a suggestion that
+       happens to be finished — there is no proposal left to make. */
+    const SUGGESTIONS = {};
+
+    // Still on the page at all — a set-up suggestion is a real piece, and
+    // the preview draws it as one.
+    const live = () => Object.keys(SUGGESTIONS).filter((k) => !SUGGESTIONS[k].removed);
+    // Still only a suggestion. The note is about these: once a piece is set
+    // up it is no longer something being proposed, so a line recommending
+    // it would be arguing for what is already there.
+    const pending = () => live().filter((k) => !SUGGESTIONS[k].done);
+
+    /* ── What a button is made of ──
+       Same model as bio-page-links-edit.html. Every button carries a label
+       and whether it shows; what sits between the two depends on whether
+       the button points at something of its own (a booking, a form, a
+       website page — the grey reference box) or holds the thing itself (an
+       address, a number, a location to search for). */
+    const TYPES = {
+      offer:    { type: 'Booking',      kind: 'book', ref: 'Booking' },
+      form:     { type: 'Form',         kind: 'form', ref: 'Form' },
+      page:     { type: 'Website page', kind: 'page', ref: 'Website page' },
+      mainlink: { type: 'Link',         kind: 'link',
+                  fields: [['Address', 'url', 'https://claraandstone.com']] },
+      whatsapp: { type: 'WhatsApp',     kind: 'link',
+                  fields: [['Your number', 'tel', '+49 170 1234567']] },
+      email:    { type: 'Email',        kind: 'link',
+                  fields: [['Your email', 'email', 'hello@claraandstone.com']] },
+      call:     { type: 'Call',         kind: 'link',
+                  fields: [['Your number', 'tel', '+49 170 1234567']] },
+      map:      { type: 'Your address', kind: 'link', noLabel: true,
+                  fields: [['Search for a place', 'text', 'Elbe Einkaufszentrum, Hamburg']] },
+      social:   { type: 'Social icons', kind: 'link', noLabel: true,
+                  fields: [['Instagram', 'url', ''], ['TikTok', 'url', '']] },
+    };
+
+    // The things a button can point at, and what they are made of.
+    const THINGS = { offer: { title: 'Booking', fields: [
+      ['Name', 'text', 'Beginner workshop'], ['When', 'text', 'Sat 10 May, 14:00'],
+      ['Where', 'text', ''], ['Price', 'text', '€45']] } };
+
+    // The pieces the page switches on and off rather than adds: they have
+    // one each, so their label and visibility live here instead of in a
+    // block.
+    const META = {
+      whatsapp: { label: 'WhatsApp', visible: true },
+      email:    { label: 'Email me', visible: true },
+      call:     { label: 'Call me',  visible: true },
+      map:      { visible: true },
+      social:   { visible: true },
+    };
+
+    /* Everything the page carries as a button, in the order it carries it.
+       A list, not a set of switches — see the note on the same model in
+       bio-page-links-edit.html. The two rows authored into the markup are
+       registered as blocks at the end of this script, so one list covers
+       what was here at the start and what the seller adds. */
+    const BLOCKS = new Map();   // key -> { label, kind, editor, creating }
+    let blockSeq = 0;
+
+    function links() {
+      const out = [];
+      // DOM order, not insertion order: the drag moves the node, and this is
+      // what makes the page follow it.
+      document.querySelectorAll('#blockList > li').forEach((li) => {
+        const row = li.querySelector('.edit-row');
+        const key = row && row.getAttribute('data-block');
+        const b = key && BLOCKS.get(key);
+        // Hidden is not removed: the row stays in the list, where it can be
+        // switched back on, and only the page stops carrying it.
+        if (!b || li.hidden || row.hidden || b.visible === false) return;
+        out.push({ id: key, label: b.label, pending: !!b.creating });
+      });
+      return out;
+    }
+
+    /* The region being dragged, which the preview outlines and scrolls to.
+       Returned only while a drag is in flight: left out, the shared module's
+       own focus-driven highlight is what applies. */
+    let dragRegion = null;
+
+    const shell = document.getElementById('shell');
+
+    const split = initSetupSplit({
+      state: () => {
+        // On the list and showing on the page are two different states: a
+        // contact button switched off in its editor keeps its row and loses
+        // its place on the page.
+        const shown = (k) => ON[k] && META[k].visible !== false;
+        const hasContact = shown('whatsapp') || shown('email') || shown('call');
+        const config = {
+          title: 'Clara and Stone',
+          subtitle: 'Yoga and mindfulness workshops for women',
+          image: 'photo',
+          contact: [
+            { id: 'whatsapp', on: shown('whatsapp') },
+            { id: 'email', on: shown('email') },
+            { id: 'call', on: shown('call') },
+          ],
+          // Plain buttons, not the rich offer card: on the page these are
+          // links like any other, and drawing one as a card would promise a
+          // treatment the seller has not chosen. Order comes from the list
+          // itself, so dragging a suggestion moves it on the page.
+          links: links(),
+          address: { on: shown('map'), value: 'Elbe Einkaufszentrum' },
+          offer: { on: false },
+          ghost: [
+            ...(hasContact ? [] : ['contact']),
+            ...(shown('social') ? [] : ['socials']),
+          ],
+        };
+        if (dragRegion) config.highlight = dragRegion;
+        return config;
+      },
+    });
+
+    /* The page marks what is being moved, not what the pointer passes over.
+       Hover did it for a while and the preview scrolled every time the
+       pointer crossed a row on its way somewhere else — a page that jumps
+       when you are not asking it to is a page you stop looking at. */
+    const suggestionList = document.getElementById('suggestionList');
+    suggestionList.addEventListener('pointerdown', (e) => {
+      const row = e.target.closest('.edit-suggestion');
+      if (!row || !e.target.closest('.edit-row-grip')) return;
+      dragRegion = row.getAttribute('data-edits');
+      split.sync();
+    });
+    suggestionList.addEventListener('pointerup', () => {
+      dragRegion = null;
+    });
+
+    /* A drag ends with the node somewhere new, and the page has to follow.
+       pointerup fires before the module's own handler moves it, so the sync
+       waits a frame. */
+    document.getElementById('suggestionList').addEventListener('pointerup', () => {
+      requestAnimationFrame(() => split.sync());
+    });
+
+    /* ── Adding ──
+       One row builder for every kind of thing that can land on the page.
+       Creating takes a beat on purpose: the real thing has a page to make
+       behind it, and a row that arrives finished before it is tells the
+       seller the work is done when it is not. */
+    const CREATE_MS = 900;
+
+    function iconFor(kind) {
+      const from = {
+        book: '#rowOffer .edit-row-icon',
+        page: '[data-picker="pages"] .add-option-icon',
+      }[kind] || '#rowMainlink .edit-row-icon';
+      const el = document.querySelector(from);
+      return el ? el.outerHTML : '';
+    }
+
+    function addBlock({ label, kind = 'link', editor = 'mainlink', creating = true, review = false }) {
+      const key = 'blk' + (++blockSeq);
+      BLOCKS.set(key, { label, kind, editor, creating, review });
+
+      const li = document.createElement('li');
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'edit-row';
+      btn.setAttribute('data-block', key);
+      btn.setAttribute('data-no-phrase', '');
+      btn.setAttribute('data-edits', 'mainlink');
+      if (creating) btn.setAttribute('data-state', 'creating');
+      btn.innerHTML =
+        '<span class="edit-row-mark">' + iconFor(kind) +
+          document.querySelector('#rowMainlink .edit-row-grip').outerHTML +
+          '<span class="setup-status-spinner" aria-hidden="true"></span></span>' +
+        '<span class="edit-row-label">' + label + '</span>' +
+        /* An action page made here is published for review, because the
+           seller never saw the dates, the questions or the reply that
+           went out with it. The row says so in the same badge the
+           action pages list uses. */
+        (review ? '<span class="status-badge status-badge--notice edit-row-status">Ready to review</span>' : '') +
+        document.querySelector('#rowMainlink .edit-row-edit').outerHTML;
+      btn.addEventListener('click', () => {
+        if (BLOCKS.get(key).creating) return;
+        showEditor(BLOCKS.get(key).editor, key);
+      });
+      li.appendChild(btn);
+      document.getElementById('blockList').appendChild(li);
+
+      refresh();
+      split.sync();
+
+      if (creating) {
+        setTimeout(() => {
+          const b = BLOCKS.get(key);
+          if (!b) return;
+          b.creating = false;
+          btn.removeAttribute('data-state');
+          refresh();
+          split.sync();
+        }, CREATE_MS);
+      }
+      return key;
+    }
+
+    function dropBlock(key) {
+      const row = document.querySelector('[data-block="' + key + '"]');
+      if (row) row.closest('li').remove();
+      BLOCKS.delete(key);
+      refresh();
+      split.sync();
+    }
+
+    const editSheet = document.getElementById('editSheet');
+    const editTitle = document.getElementById('editSheetTitle');
+    const editFields = document.getElementById('editFields');
+    const editRemove = document.getElementById('editRemove');
+    const editSave = document.getElementById('editSave');
+    const editTypeIcon = document.getElementById('editTypeIcon');
+    const actionsRow = editSheet.querySelector('.sheet-actions');
+    let editingThing = false;
+    const openEdit = (on) => editSheet.setAttribute('data-open', String(on));
+
+    let activeEditor = null;
+    let activeBlock = null;
+
+    /* ── One dialog, two jobs ──
+       Making a thing and editing the button that points at it are not the
+       same act. The first has nothing to remove yet; the second is the
+       button editor from Figma 11241:80504 — a label, the thing it points
+       at, whether it is showing — and ends in "Done". */
+    function showEditor(kind, blockKey = null, opts = {}) {
+      const t = TYPES[kind] || TYPES.mainlink;
+      activeEditor = kind;
+      activeBlock = blockKey;
+      const b = blockKey ? BLOCKS.get(blockKey) : null;
+      // Nothing to point at yet means there is nothing to edit about the
+      // button either — the first pass through makes the thing itself.
+      const thing = (opts.thing || !blockKey) ? THINGS[kind] : null;
+      editingThing = !!thing;
+
+      editFields.innerHTML = '';
+      editTypeIcon.innerHTML = typeIcon(kind, blockKey);
+
+      // Making the thing itself, from scratch or from its reference box.
+      if (thing) {
+        editTitle.textContent = thing.title;
+        thing.fields.forEach(([label, type, value]) => {
+          editFields.appendChild(field(label, type, b && label === 'Name' ? b.label : value));
+        });
+        addDateControl();
+        editRemove.hidden = true;
+        actionsRow.classList.add('sheet-actions--end');
+        editSave.textContent = blockKey ? 'Done' : 'Create booking';
+        openEdit(true);
+        return;
+      }
+
+      editTitle.textContent = t.type;
+
+      if (b && b.review) editFields.appendChild(reviewNote(kind));
+
+      if (!t.noLabel) {
+        editFields.appendChild(field('Button label', 'text', labelOf(kind, b)));
+      }
+
+      if (t.ref) {
+        // What this button points at. Opening it is how the thing behind the
+        // button gets changed, which is a different dialog from this one.
+        editFields.appendChild(refBox(b ? b.label : t.type, t.ref, kind, blockKey));
+      } else {
+        (t.fields || []).forEach(([label, type, value]) => {
+          editFields.appendChild(field(label, type, value));
+        });
+      }
+
+      editFields.appendChild(visibleRow(kind, b));
+
+      // The label is the markup's, not set here — it never changes, and
+      // writing it back would take the icon with it.
+      editRemove.hidden = false;
+      actionsRow.classList.remove('sheet-actions--end');
+      editSave.textContent = 'Done';
+      openEdit(true);
+    }
+
+    /* What the seller has not seen yet, named rather than counted. The
+       action page was built from three answers and published straight away,
+       so everything past the button's label is still a guess Jimdo made —
+       and the place to change it is the page's own screen, not this dialog,
+       which only owns the button. Sentence case: production's string is
+       title case, which is the odd one out in this product. */
+    const REVIEW_NOTE = {
+      offer: 'The dates, the price and the reply people get are still our suggestions.',
+      form: 'The questions and the reply people get are still our suggestions.',
+    };
+
+    function reviewNote(kind) {
+      const el = document.createElement('div');
+      el.className = 'sheet-notice';
+      el.innerHTML =
+        '<span class="status-badge status-badge--notice">Ready to review</span>' +
+        '<p class="sheet-notice-copy" data-inspect-phrase=""></p>' +
+        '<button type="button" class="text-action" data-no-phrase ' +
+          'data-nav-to="flows/solo-pages.html" data-nav-screen-id="scr-139">' +
+          'Review it on your action pages</button>';
+      el.querySelector('.sheet-notice-copy').textContent =
+        REVIEW_NOTE[kind] || REVIEW_NOTE.offer;
+      return el;
+    }
+
+    /* The dialog wears the icon of the row it was opened from, so the two
+       read as the same thing seen twice. Only a kind with no row of its own
+       falls back to the generic one. */
+    function typeIcon(kind, blockKey) {
+      const sel = blockKey
+        ? '[data-block="' + blockKey + '"] .edit-row-icon'
+        : '#row' + kind.charAt(0).toUpperCase() + kind.slice(1) + ' .edit-row-icon';
+      const el = document.querySelector(sel);
+      return el ? el.outerHTML : iconFor((TYPES[kind] || TYPES.mainlink).kind);
+    }
+
+    function labelOf(kind, b) {
+      if (b) return b.label;
+      return (META[kind] && META[kind].label) || (TYPES[kind] && TYPES[kind].type) || '';
+    }
+
+    function field(label, type, value) {
+      const wrap = document.createElement('label');
+      wrap.className = 'sheet-field';
+      const l = document.createElement('span');
+      l.className = 'sheet-label';
+      l.textContent = label;
+      const i = document.createElement('input');
+      i.className = 'form-input';
+      i.type = type;
+      i.value = value || '';
+      wrap.append(l, i);
+      return wrap;
+    }
+
+    /* The grey box that says what a button points at: the thing's name, the
+       kind of thing it is, and a pencil. A chevron was there first and said
+       the wrong thing — it reads as going down a level, and what happens is
+       that the thing behind the button opens for editing. */
+    function refBox(title, type, kind, blockKey) {
+      const el = document.createElement('button');
+      el.type = 'button';
+      el.className = 'sheet-ref';
+      el.setAttribute('data-no-phrase', '');
+      el.innerHTML =
+        '<span class="sheet-ref-copy">' +
+          '<span class="sheet-ref-title"></span>' +
+          '<span class="sheet-ref-type"></span>' +
+        '</span>' +
+        '<svg class="sheet-ref-more" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+          '<g transform="translate(2.75 2.75) scale(1.4999)">' +
+          '<path d="M9.71585 0.00602053C10.0318 0.0344793 10.2865 0.179546 10.5166 0.360513C10.7325 0.530278 10.9714 0.768376 11.2481 1.04508L11.2891 1.0861C11.5658 1.36274 11.8039 1.60168 11.9737 1.81754C12.1546 2.04765 12.2997 2.30243 12.3282 2.61833C12.3362 2.70764 12.3362 2.79756 12.3282 2.88688C12.2997 3.20274 12.1546 3.45757 11.9737 3.68766C11.8039 3.90351 11.5657 4.14249 11.2891 4.41911L4.62503 11.0832C4.1127 11.596 3.75667 11.9528 3.29593 12.1437C2.83503 12.3346 2.33063 12.3335 1.6055 12.3332H0.501005C0.224863 12.3332 0.00100497 12.1093 0.00100497 11.8332V10.8234C0.00100487 10.7914 4.32922e-05 10.7598 2.84045e-05 10.7287C-0.000317779 10.0035 -0.000459922 9.49916 0.190458 9.03825C0.381362 8.57748 0.738172 8.22149 1.251 7.70915L7.91507 1.04508C8.19169 0.768434 8.43067 0.530247 8.64651 0.360513C8.8766 0.17961 9.13144 0.0344721 9.44729 0.00602053C9.53662 -0.00199738 9.62652 -0.0020163 9.71585 0.00602053ZM2.02542 8.34879C1.41861 8.95561 1.21961 9.1668 1.11429 9.42106C1.00897 9.67532 1.00101 9.96536 1.001 10.8234V11.3332H1.51077C2.36874 11.3332 2.65887 11.3242 2.91311 11.2189C3.1672 11.1135 3.37888 10.9153 3.98538 10.3088L9.12698 5.16715L7.16702 3.20719L2.02542 8.34879ZM9.53616 1.00211C9.49103 1.00625 9.41845 1.02575 9.26468 1.14665C9.10144 1.27501 8.90449 1.46972 8.60159 1.77262L7.87405 2.50016L9.83401 4.46012L10.5616 3.73258C10.8645 3.42968 11.0592 3.23274 11.1875 3.0695C11.3088 2.91528 11.328 2.84214 11.3321 2.79704C11.3347 2.76748 11.3347 2.73772 11.3321 2.70817C11.328 2.66306 11.3088 2.58998 11.1875 2.43571C11.0592 2.27246 10.8645 2.07555 10.5616 1.77262C10.2586 1.46968 10.0617 1.27503 9.89847 1.14665C9.74415 1.02529 9.67112 1.00618 9.626 1.00211C9.59625 0.99945 9.56592 0.999434 9.53616 1.00211Z" fill="currentColor"/>' +
+          '</g></svg>';
+      el.querySelector('.sheet-ref-title').textContent = title;
+      el.querySelector('.sheet-ref-type').textContent = type;
+      // A booking opens its own fields. A form and a website page are made
+      // elsewhere, and there is nothing of this screen's to open.
+      if (kind === 'offer') {
+        el.addEventListener('click', () => showEditor('offer', blockKey, { thing: true }));
+      } else {
+        el.classList.add('sheet-ref--flat');
+      }
+      return el;
+    }
+
+    function visibleRow(kind, b) {
+      const row = document.createElement('div');
+      row.className = 'sheet-toggle';
+      const label = document.createElement('span');
+      label.className = 'sheet-toggle-label';
+      label.setAttribute('data-inspect-phrase', '');
+      label.textContent = 'Visible';
+      const wrap = document.createElement('span');
+      wrap.className = 'jui-toggle';
+      wrap.innerHTML =
+        '<input type="checkbox" id="editVisible" aria-label="Visible">' +
+        '<span class="jui-toggle-indicator"><span class="jui-toggle-circle">' +
+        '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+        '<path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>' +
+        '</svg></span></span>';
+      const input = wrap.querySelector('input');
+      input.checked = b ? b.visible !== false : !(META[kind] && META[kind].visible === false);
+      input.addEventListener('change', () => {
+        if (b) b.visible = input.checked;
+        else if (META[kind]) META[kind].visible = input.checked;
+        refresh();
+        split.sync();
+      });
+      row.append(label, wrap);
+      return row;
+    }
+
+    /* A booking can be more than one date, which the dialog had no way to
+       say. Each extra date is another field, added where the last one is. */
+    function addDateControl() {
+      const more = document.createElement('button');
+      more.type = 'button';
+      more.className = 'text-action';
+      more.textContent = 'Add another date';
+      more.setAttribute('data-inspect-phrase', '');
+      more.addEventListener('click', () => {
+        const wrap = document.createElement('label');
+        wrap.className = 'sheet-field';
+        const l = document.createElement('span');
+        l.className = 'sheet-label';
+        l.textContent = 'And also';
+        const i = document.createElement('input');
+        i.className = 'form-input';
+        i.type = 'text';
+        i.placeholder = 'Sat 17 May, 14:00';
+        wrap.append(l, i);
+        editFields.insertBefore(wrap, more);
+        i.focus();
+      });
+      editFields.appendChild(more);
+    }
+
+    /* ── What shows ──
+       A section heading arrives with its first real item. The suggestions
+       sit in the page's own section but do not bring its heading with them:
+       they are not yet things the seller put there. */
+    const SECTIONS = {
+      sectionContact: ['whatsapp', 'email', 'call'],
+      sectionSocial: ['social'],
+    };
+    const BLOCK_ROWS = { rowMainlink: 'mainlink', rowMap: 'map' };
+
+    function refresh() {
+      Object.keys(ON).forEach((k) => {
+        const row = document.getElementById('row' + k.charAt(0).toUpperCase() + k.slice(1));
+        if (row) row.hidden = !ON[k];
+      });
+      Object.keys(SECTIONS).forEach((id) => {
+        document.getElementById(id).hidden = !SECTIONS[id].some((k) => ON[k]);
+      });
+
+      // A row the seller has hidden is still theirs to reorder and edit, so
+      // it stays where it is and says so instead of disappearing.
+      Object.keys(META).forEach((k) => {
+        const row = document.getElementById('row' + k.charAt(0).toUpperCase() + k.slice(1));
+        if (row) row.toggleAttribute('data-off', META[k].visible === false);
+      });
+      BLOCKS.forEach((b, key) => {
+        const row = document.querySelector('[data-block="' + key + '"]');
+        if (row) row.toggleAttribute('data-off', b.visible === false);
+      });
+
+      const hasBlockRow = BLOCKS.size > 0;
+      document.getElementById('headBlocks').hidden = !hasBlockRow;
+      const suggestHead = document.getElementById('headSuggest');
+      if (suggestHead) suggestHead.hidden = pending().length === 0;
+
+    }
+
+    document.querySelectorAll('.edit-row').forEach((row) => {
+      // Rows in the page list are blocks and wire their own click, with the
+      // key the editor needs to know which row it was opened from.
+      if (row.closest('#blockList')) return;
+      row.addEventListener('click', () => showEditor(row.getAttribute('data-editor')));
+    });
+
+    document.querySelectorAll('[data-drop]').forEach((btn) =>
+      btn.addEventListener('click', () => {
+        SUGGESTIONS[btn.getAttribute('data-drop')].removed = true;
+        refresh();
+        split.sync();
+      }));
+
+    document.getElementById('editClose').addEventListener('click', () => openEdit(false));
+    /* Saving the setup of a suggestion is what finishes it. The same sheet
+       saves an ordinary row, where there is nothing to finish. */
+    /* The same sheet saves an ordinary row and renames it, since the first
+       field is the row's own name. */
+    /* Done means something different in each of the dialog's jobs: finish
+       editing the thing, or finish editing the button that points at it. */
+    editSave.addEventListener('click', () => {
+      const named = editFields.querySelector('.form-input');
+      const value = named && named.value.trim();
+
+      // Editing the thing itself, from a button that already exists: its
+      // name is the button's name, and the way back is the button.
+      if (editingThing && activeBlock && BLOCKS.has(activeBlock)) {
+        const b = BLOCKS.get(activeBlock);
+        if (value) { b.label = value; paintRow(activeBlock); }
+        refresh();
+        split.sync();
+        showEditor(activeEditor, activeBlock);
+        return;
+      }
+
+      // Editing the button.
+      if (activeBlock && BLOCKS.has(activeBlock)) {
+        const b = BLOCKS.get(activeBlock);
+        if (value && !TYPES[activeEditor].noLabel) { b.label = value; paintRow(activeBlock); }
+      } else if (META[activeEditor]) {
+        // Editing one of the switch-backed pieces.
+        if (value && !TYPES[activeEditor].noLabel) META[activeEditor].label = value;
+      }
+      openEdit(false);
+      refresh();
+      split.sync();
+    });
+
+    function paintRow(key) {
+      const el = document.querySelector('[data-block="' + key + '"] .edit-row-label');
+      if (el) el.textContent = BLOCKS.get(key).label;
+    }
+    editRemove.addEventListener('click', () => {
+      if (activeBlock && BLOCKS.has(activeBlock)) dropBlock(activeBlock);
+      else if (activeEditor in ON) ON[activeEditor] = false;
+      openEdit(false);
+      refresh();
+      split.sync();
+    });
+    editSheet.addEventListener('click', (e) => { if (e.target === editSheet) openEdit(false); });
+
+    /* ── Ideas ──
+       Three guesses at what the seller could sell, each naming what it
+       builds the way the dashed rows do — the type word is in the title, not
+       in a tag beside it. The first set comes from what they told us; the
+       rest come from whatever they type when the first set misses.
+
+       The wording here is a template. In the product the three would be
+       written for the thing asked about; the shape of the answer is what
+       this is showing — same thing, three ways to sell it. */
+    const IDEA_ICONS = {
+      book: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 2v4M16 2v4M3 9h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+      form: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M11 6L21 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 12L21 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 18L21 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 7.5L4.5 9L8.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 18.5L4.5 20L8.5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    };
+
+    /* Rounds, so the three can be refused. Same sets as
+       bio-page-links-edit.html — two ways to be booked and one way to be
+       asked, moving from the obvious thing to the ones nobody thinks to put
+       on a page. */
+    const FIRST_IDEA_ROUNDS = [
+      [
+        { shape: 'book',  title: 'Weekend retreat booking',       detail: 'A date people sign up for' },
+        { shape: 'book',  title: 'One-to-one session booking',    detail: 'They pick a time' },
+        { shape: 'form',  title: 'Tell me what you need form',    detail: 'Questions before booking' },
+      ],
+      [
+        { shape: 'book',  title: 'Taster class booking',          detail: 'A short first try' },
+        { shape: 'book',  title: 'Monthly class pass booking',    detail: 'They pay once for the month' },
+        { shape: 'form',  title: 'What does it cost form',        detail: 'The question that comes first' },
+      ],
+      [
+        { shape: 'book',  title: 'Beginner course booking',       detail: 'Several dates, one sign-up' },
+        { shape: 'book',  title: 'Team session booking',          detail: 'A company books for its people' },
+        { shape: 'form',  title: 'Tell me when a date opens form', detail: 'For the ones you are full for' },
+      ],
+    ];
+
+    const ASKED_IDEA_ROUNDS = [
+      [['book', ' booking', 'A date people sign up for'],
+       ['book', ' slots booking', 'They pick a time'],
+       ['form', ' enquiry form', 'Questions before booking']],
+      [['book', ' taster booking', 'A short first try'],
+       ['book', ' course booking', 'Several dates, one sign-up'],
+       ['form', ' price form', 'What it costs, before they commit']],
+      [['book', ' group booking', 'They bring their own people'],
+       ['book', ' one-to-one booking', 'Just them and you'],
+       ['form', ' waitlist form', 'For the dates you are full for']],
+    ];
+
+    function ideasFor(prompt, round = 0) {
+      const thing = prompt.trim().replace(/^(a|an|the)\s+/i, '').replace(/\s+/g, ' ');
+      const Thing = thing.charAt(0).toUpperCase() + thing.slice(1);
+      return ASKED_IDEA_ROUNDS[round % ASKED_IDEA_ROUNDS.length]
+        .map(([shape, suffix, detail]) => ({ shape, title: Thing + suffix, detail }));
+    }
+
+    const ideaGrid = document.getElementById('ideaGrid');
+
+    function renderIdeas(ideas) {
+      ideaGrid.innerHTML = '';
+      ideas.forEach((idea) => {
+        const card = document.createElement('div');
+        card.className = 'add-card add-card--upgrade';
+        card.innerHTML =
+          '<span class="add-card-icon">' + IDEA_ICONS[idea.shape] + '</span>' +
+          '<span class="add-card-copy">' +
+            '<span class="add-card-title">' + idea.title + '</span>' +
+            '<span class="add-card-detail">' + idea.detail + '</span>' +
+          '</span>' +
+          '<span class="add-card-action"><button type="button" class="btn btn-secondary btn-upgrade btn-sm" data-add="idea" data-inspect-phrase="">' + '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg>' + 'Upgrade and set up</button></span>';
+        /* An upgrade CTA goes to the upgrade. It used to add a plain link
+           and close, which told the seller the limit had been lifted. */
+        card.querySelector('button').addEventListener('click', () => {
+          closeAdd();
+          window.location.href = PAYWALL;
+        });
+        ideaGrid.appendChild(card);
+      });
+    }
+
+    renderIdeas(FIRST_IDEA_ROUNDS[0]);
+
+    /* What the three are built from, so another go knows what to vary:
+       nothing yet means the first rounds, a prompt means that prompt again
+       with a different three. */
+    let askedFor = null;
+    let ideaRound = 0;
+    const REGEN_MS = 900;
+    const regenIdeas = document.getElementById('regenIdeas');
+
+    regenIdeas.addEventListener('click', () => {
+      if (regenIdeas.getAttribute('data-busy') === 'true') return;
+      regenIdeas.setAttribute('data-busy', 'true');
+      ideaGrid.setAttribute('data-regenerating', 'true');
+      window.setTimeout(() => {
+        ideaRound += 1;
+        renderIdeas(askedFor
+          ? ideasFor(askedFor, ideaRound)
+          : FIRST_IDEA_ROUNDS[ideaRound % FIRST_IDEA_ROUNDS.length]);
+        ideaGrid.removeAttribute('data-regenerating');
+        regenIdeas.setAttribute('data-busy', 'false');
+      }, REGEN_MS);
+    });
+
+    const askInput = document.getElementById('askInput');
+
+    document.getElementById('askOpen').addEventListener('click', () => {
+      headBacks.forEach((b) => { b.hidden = false; });
+      addContent.setAttribute('data-level', 'ask');
+      scrollAddToTop();
+      askInput.focus();
+    });
+
+    /* The answer belongs where ideas live, so this hands three back to the
+       root rather than showing them a level down. */
+    function ask() {
+      const prompt = askInput.value.trim();
+      if (!prompt) return;
+      askedFor = prompt;
+      ideaRound = 0;
+      renderIdeas(ideasFor(prompt, ideaRound));
+      askInput.value = '';
+      closePicker();
+    }
+    document.getElementById('askGo').addEventListener('click', ask);
+    askInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') ask(); });
+
+    /* ── Second level: what the seller already has ──
+       Website pages come from the CMS, action pages from Flows. Both already
+       exist, so the job is choosing one rather than making one — which is
+       why they are a list a level down and not another thing in the list of
+       things to make. */
+    const PICKER_ICONS = {
+      booking: '<rect x="3" y="4" width="18" height="17" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 2v4M16 2v4M3 9h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>',
+      form: '<path d="M11 6L21 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 12L21 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 18L21 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 7.5L4.5 9L8.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 18.5L4.5 20L8.5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>',
+      page: '<path d="M20 20V9l-7-7H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M13 2v5a2 2 0 0 0 2 2h5" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 13h4M8 17h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+      plus: '<path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>',
+    };
+
+    const PICKERS = {
+      booking: {
+        icon: PICKER_ICONS.booking,
+        make: { title: 'Upgrade and create new', detail: 'A new date or set of slots' },
+        groups: [
+          /* Two kinds of thing live here. A booking link puts one bookable
+             thing on the page as its own button; a booking action page is a
+             page of its own that holds them all. The label is the only way
+             to tell them apart once they are rows in the same list. */
+          { title: 'Booking links', items: [
+            { title: 'Summer retreat', detail: 'Fixed event' },
+            { title: 'Autumn course', detail: 'Open slots' },
+          ] },
+          { title: 'Booking action pages', items: [
+            { title: 'Yoga sessions', detail: 'Everything you offer, on one page' },
+          ] },
+        ],
+      },
+      form: {
+        icon: PICKER_ICONS.form,
+        make: { title: 'Upgrade and create new', detail: 'A new set of questions' },
+        groups: [
+          { title: 'Your forms', items: [
+            { title: 'Newsletter signup', detail: 'Email and name' },
+          ] },
+        ],
+      },
+      pages: {
+        icon: PICKER_ICONS.page,
+        groups: [
+          { title: 'Your website pages', items: [
+            { title: 'Home', detail: 'claraandstone.com' },
+            { title: 'About me', detail: 'claraandstone.com/about' },
+            { title: 'Classes', detail: 'claraandstone.com/classes' },
+            { title: 'Contact', detail: 'claraandstone.com/contact' },
+            { title: 'Journal', detail: 'claraandstone.com/journal' },
+          ] },
+        ],
+      },
+    };
+
+    /* Every upgrade path says where it came from, so closing the
+       pricing page puts the seller back in the screen they left. */
+    const PAYWALL = '/flows-prototype/design-system/hifi-designs/pages/flows/paywall-domain.html?from=bio-page-links-edit-limit';
+
+    const PICKER_KIND = { booking: 'book', form: 'form', pages: 'page' };
+    const PICKER_EDITOR = { booking: 'offer', form: 'form', pages: 'mainlink' };
+
+    const pickerGroups = document.getElementById('pickerGroups');
+    const pickerMake = document.getElementById('pickerMake');
+    const pickerMakeGroup = document.getElementById('pickerMakeGroup');
+
+    const headBacks = Array.from(document.querySelectorAll('[data-add-back]'));
+
+    function openPicker(kind) {
+      const p = PICKERS[kind];
+      if (!p) return;
+      pickerGroups.innerHTML = '';
+
+      const row = (item, icon, isMake) => {
+        const el = document.createElement('button');
+        el.type = 'button';
+        el.className = 'add-option';
+        el.setAttribute('data-no-phrase', '');
+        el.innerHTML =
+          '<span class="add-option-icon">' +
+            '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">' + icon + '</svg>' +
+          '</span>' +
+          '<span class="add-option-copy">' +
+            '<span class="add-option-title">' + item.title + '</span>' +
+            '<span class="add-option-detail">' + item.detail + '</span>' +
+          '</span>';
+        if (isMake) el.classList.add('add-option--make', 'add-option--upgrade');
+        el.addEventListener('click', () => {
+          closeAdd();
+          // Making a new one is what the plan does not allow; picking one
+          // that already exists is not, so only the first leads away.
+          if (isMake) {
+            window.location.href = PAYWALL;
+            return;
+          }
+          addBlock({
+            label: item.title,
+            kind: PICKER_KIND[kind] || 'link',
+            editor: PICKER_EDITOR[kind] || 'mainlink',
+            // One made here has never been looked at. One picked from the
+            // list was reviewed where it was built.
+            review: isMake && kind !== 'pages',
+          });
+        });
+        return el;
+      };
+
+      pickerMake.innerHTML = '';
+      pickerMakeGroup.hidden = !p.make;
+      if (p.make) pickerMake.appendChild(row(p.make, PICKER_ICONS.plus, true));
+
+      /* One labelled group per kind. The booking submenu holds two; the
+         others hold one, and read as the list they always were. */
+      p.groups.forEach((group) => {
+        const el = document.createElement('div');
+        el.className = 'add-group';
+        const title = document.createElement('p');
+        title.className = 'add-group-title';
+        title.setAttribute('data-no-phrase', '');
+        title.textContent = group.title;
+        el.appendChild(title);
+        group.items.forEach((item) => el.appendChild(row(item, p.icon, false)));
+        pickerGroups.appendChild(el);
+      });
+
+      headBacks.forEach((b) => { b.hidden = false; });
+      addContent.setAttribute('data-level', 'picker');
+      scrollAddToTop();
+    }
+
+    function closePicker() {
+      headBacks.forEach((b) => { b.hidden = true; });
+      addContent.setAttribute('data-level', 'root');
+      scrollAddToTop();
+    }
+
+    function scrollAddToTop() {
+      const scroller = addContent.closest('.sheet-body') || shell.querySelector('.setup-split-fields');
+      if (scroller) scroller.scrollTop = 0;
+    }
+
+    /* ── Add: one list, two hosts ──
+       A modal on desktop, where there is room beside the page for one. On a
+       phone it takes the drawer over instead: a sheet on top of a sheet is
+       two things to dismiss and covers the page they are both about. The
+       list is moved rather than written twice, so there is one of everything
+       to wire up and one of everything to keep right. */
+    const sheet = document.getElementById('addSheet');
+    const addContent = document.getElementById('addContent');
+    const sheetHost = document.getElementById('addSheetBody');
+    const drawerHost = document.getElementById('addDrawerHost');
+    const phone = window.matchMedia('(max-width: 767px)');
+
+    function placeAdd() {
+      (phone.matches ? drawerHost : sheetHost).appendChild(addContent);
+    }
+    phone.addEventListener('change', () => { placeAdd(); closeAdd(); });
+    placeAdd();
+
+    function openAdd() {
+      closePicker();
+      if (phone.matches) {
+        shell.setAttribute('data-view', 'add');
+        const fields = shell.querySelector('.setup-split-fields');
+        if (fields) fields.scrollTop = 0;
+        if (shell.getAttribute('data-drawer') === 'collapsed') split.setState('default');
+      } else {
+        sheet.setAttribute('data-open', 'true');
+      }
+    }
+
+    function closeAdd() {
+      closePicker();
+      shell.setAttribute('data-view', 'list');
+      sheet.setAttribute('data-open', 'false');
+    }
+
+    addContent.querySelectorAll('[data-picker]').forEach((row) =>
+      row.addEventListener('click', () => openPicker(row.getAttribute('data-picker'))));
+    headBacks.forEach((b) => b.addEventListener('click', closePicker));
+
+    document.getElementById('addBtn').addEventListener('click', openAdd);
+    document.getElementById('addBack').addEventListener('click', closeAdd);
+    document.getElementById('addClose').addEventListener('click', closeAdd);
+    sheet.addEventListener('click', (e) => { if (e.target === sheet) closeAdd(); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      closeAdd();
+      openEdit(false);
+    });
+
+    /* The rest of a list that opens showing its most-used few. The button
+       goes with the reveal: there is nothing left behind it to ask for. */
+    document.querySelectorAll('[data-more]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        btn.closest('.add-group').querySelectorAll('.add-option[hidden]')
+          .forEach((o) => { o.hidden = false; });
+        btn.hidden = true;
+      });
+    });
+
+    /* Picking something puts it on the page and brings its heading with it.
+       An idea and the piece it is built from land in the same place; in the
+       product the idea would arrive named and the bare piece would not. */
+    /* A link is a thing the page can hold any number of, so it is added as
+       one. The rest are slots the page has exactly one of; sms and the
+       social names alias onto the nearest button the artifact renders. */
+    const ADD_ALIAS = {
+      sms: 'call', tiktok: 'social', facebook: 'social', youtube: 'social', linkedin: 'social',
+    };
+    addContent.querySelectorAll('[data-add]:not([data-picker])').forEach((o) =>
+      o.addEventListener('click', () => {
+        const key = o.getAttribute('data-add');
+        if (key === 'idea') return;             // the card wires its own
+        closeAdd();
+        if (key === 'mainlink') {
+          addBlock({ label: 'My website', kind: 'link', editor: 'mainlink' });
+          return;
+        }
+        const slot = ADD_ALIAS[key] || key;
+        if (!(slot in ON)) return;
+        ON[slot] = true;
+        refresh();
+        split.sync();
+      }));
+
+    /* ── The rows the markup starts with ──
+       Registered as blocks so one list covers what was already on the page
+       and what the seller adds: same drag, same editor, same removal. */
+    document.querySelectorAll('#blockList .edit-row').forEach((row) => {
+      if (row.getAttribute('data-block')) return;
+      const key = 'blk' + (++blockSeq);
+      const label = row.querySelector('.edit-row-label');
+      BLOCKS.set(key, {
+        label: label ? label.textContent.trim() : 'Link',
+        kind: row.id === 'rowOffer' ? 'book' : 'link',
+        editor: row.getAttribute('data-editor') || 'mainlink',
+        creating: false,
+        review: row.hasAttribute('data-review'),
+      });
+      row.setAttribute('data-block', key);
+      row.addEventListener('click', () => showEditor(BLOCKS.get(key).editor, key));
+    });
+
+    ['suggestionList', 'blockList'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('pointerup', () => requestAnimationFrame(() => split.sync()));
+    });
+
+    const VARIANTS = {
+      'first-view':       { drawer: 'default',   add: false, on: [],                                  removed: [],                     done: [] },
+      'setting-up':       { drawer: 'default',   add: false, on: [],                                  removed: [],                     done: [],           edit: 'offer' },
+      'booking-done':     { drawer: 'default',   add: false, on: [],                                  removed: [],                     done: ['sugEvent'] },
+      'suggestions-gone': { drawer: 'default',   add: false, on: ['mainlink'],                        removed: ['sugEvent','sugForm'], done: [] },
+      'adding':           { drawer: 'default',   add: true,  on: [],                                  removed: [],                     done: [] },
+      'full-page':        { drawer: 'default',   add: false, on: ['whatsapp','email','mainlink','map','social'], removed: [],           done: ['sugEvent'] },
+      'preview-peek':     { drawer: 'collapsed', add: false, on: [],                                  removed: [],                     done: ['sugEvent'] },
+    };
+    window.addEventListener('message', (e) => {
+      if (!e.data || e.data.type !== 'set-variant') return;
+      const v = VARIANTS[e.data.variant];
+      if (!v) return;
+      Object.keys(ON).forEach((k) => { ON[k] = v.on.indexOf(k) !== -1; });
+      Object.keys(SUGGESTIONS).forEach((k) => {
+        SUGGESTIONS[k].removed = v.removed.indexOf(k) !== -1;
+        SUGGESTIONS[k].done = v.done.indexOf(k) !== -1;
+      });
+      refresh();
+      split.setState(v.drawer);
+      if (v.add) openAdd(); else closeAdd();
+      if (v.edit) showEditor(v.edit); else openEdit(false);
+      split.sync();
+    });
+
+    /* ── Leaving with an empty page ──
+       A suggestion that has not been set up is not something on the page, so
+       it does not count here: the whole point of the question is that a
+       visitor would find nothing to press. */
+    function pageIsEmpty() {
+      const anyAdded = Object.keys(ON).some((k) => ON[k]);
+      const anyDone = Object.keys(SUGGESTIONS).some((k) => SUGGESTIONS[k].done && !SUGGESTIONS[k].removed);
+      return !anyAdded && !anyDone;
+    }
+
+    const emptySheet = document.getElementById('emptySheet');
+    /* The step's own control, at the foot of the column now rather than
+       in the bar. Same guard: leaving a page with nothing on it is still
+       worth a word, and continuing past it is still leaving. */
+    const doneBtn = document.querySelector('.setup-split-actions .btn-primary');
+
+    // Capture, so this runs before the shared nav handler on document sees it.
+    doneBtn.addEventListener('click', (e) => {
+      if (!pageIsEmpty()) return;
+      e.preventDefault();
+      e.stopPropagation();
+      emptySheet.setAttribute('data-open', 'true');
+    }, true);
+
+    document.getElementById('emptyCancel').addEventListener('click', () => {
+      emptySheet.setAttribute('data-open', 'false');
+    });
+    /* Leaving a page with nothing on it is the one moment the plan is worth
+       showing: there is nothing to go back and look at. Closing the pricing
+       page puts them home, not back in the editor they just left — which is
+       what `from=home` says. */
+    document.getElementById('emptyGo').addEventListener('click', () => {
+      emptySheet.setAttribute('data-open', 'false');
+      location.href = PAYWALL.split('?')[0] + '?from=home';
+    });
+    emptySheet.addEventListener('click', (e) => {
+      if (e.target === emptySheet) emptySheet.setAttribute('data-open', 'false');
+    });
+
+    refresh();
+  </script>
+
+</body>
+</html>

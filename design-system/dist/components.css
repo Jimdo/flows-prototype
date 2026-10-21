@@ -5310,6 +5310,100 @@ body {
   }
 }
 
+/* ═══ Editor as an onboarding step ═══════════════════════════════════════
+   The editor bar dropped its Links/Design switch because back + switch +
+   Done was one occupant too many for it. Sending the finish control to the
+   foot of the column is what gives that slot back — and it is the slot the
+   onboarding header already reserves for the progress bar, so the two
+   screens end up the same shape rather than merely similar:
+
+     back · state-of-the-flow · spacer      header
+     … what you are editing …              column
+     ………………………………… the way on       footer
+
+   Nothing is added: the title leaves the panel because the active tab is
+   the title, and Add link leaves the footer for the end of the list it
+   adds to. Declared after the editor rules it narrows. */
+
+/* Centred against the bar rather than against the back button beside it,
+   the same way the progress bar is — which is what the spacer at the other
+   end is for. */
+.seg-control--header { flex-shrink: 0; }
+
+@media (min-width: 768px) {
+  /* The desktop bar is 32 high and the control has to fit inside it, not
+     set it: at dimension-s per item plus its own 2px tray the bar grew to
+     36 and stopped matching the step screens' beside it. The item gives the
+     tray back rather than the tray giving up its inset. */
+  .seg-control--header .seg-control-item {
+    height: calc(var(--jui-layout-dimension-s) - 4px);
+  }
+}
+
+/* The list runs under the footer, so the footer has to say where it stops.
+   The onboarding steps need no such line — their fields are short and
+   nothing ever passes behind the control. An editor's list always does, and
+   the full-width button the editor footer used to carry was drawing that
+   boundary by accident; a button only as wide as its words does not. */
+.app-shell-setup-split[data-layout="step"] .setup-split-actions {
+  border-top: 1px solid var(--jui-color-stroke-gray-default);
+  background: var(--jui-color-gray-white);
+}
+
+/* The step's own control is auto-width at the right, not the full-width bar
+   the editor footer uses for Add link. Two reasons, and the second is the
+   one that matters: an action row at the foot of a drawer is in the thumb's
+   path, and a button spanning the whole edge is the largest accidental
+   target a screen can offer. Right-aligned and only as wide as its words,
+   it sits off the centre of the arc a scroll-fling ends on. */
+.app-shell-setup-split[data-layout="step"] .setup-split-actions .btn {
+  width: auto;
+  flex: 0 0 auto;
+}
+
+/* Add link is a list operation, so it ends the list rather than standing
+   over it. Full width and dashed, it reads as the next empty slot in the
+   column it closes rather than as a second screen-level action. */
+.add-row-inline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--jui-layout-gap-xs);
+  width: 100%;
+  min-height: var(--jui-layout-dimension-m);
+  padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-s);
+  border: 1px dashed var(--jui-color-stroke-primary-on-light);
+  border-radius: var(--jui-style-radius-12);
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--jui-typography-body-small-medium-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  letter-spacing: var(--jui-typography-link-small-ls);
+  line-height: var(--jui-typography-body-small-medium-lh);
+  color: var(--jui-color-actions-primary-rest);
+  cursor: pointer;
+  transition: background-color 160ms ease-out, border-color 160ms ease-out;
+}
+.add-row-inline:hover {
+  background: var(--jui-color-background-primary-light);
+  border-color: var(--jui-color-stroke-primary-actionable);
+}
+.add-row-inline:focus-visible {
+  outline: 2px solid var(--jui-color-actions-primary-rest);
+  outline-offset: 2px;
+}
+.add-row-inline svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+/* ── The peek keeps its 72 and stays empty ──
+   The drawer used to carry its own title because the bar had no room for
+   one; collapsed, that title was the only thing the peek had to show. The
+   switch now says which half of the editor you are in from the bar, at
+   every drawer height, so the peek has nothing left to repeat.
+   It does not take the step's control either, tempting as that is. The
+   collapsed bar is already a tap target — tapping it pulls the drawer back
+   up — and the layout holds the line that no action is reachable until it
+   is up. A surface that both reopens the drawer and leaves the step is one
+   surface with two meanings. */
 /* A section heading arrives with the section's first item. Empty labelled
    sections on a first view are a form to work through; nothing but the
    suggestions is an offer to act on. */
