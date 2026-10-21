@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bio Page — Edit Links (At the limit)</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=7a02c7f">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=7a02c7f">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=df56f1b">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=df56f1b">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=7a02c7f">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=df56f1b">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -129,9 +129,12 @@
 
             <ul class="edit-list" id="blockList">
               <li>
-                <button type="button" class="edit-row" id="rowOffer" data-edits="offer" data-no-phrase data-editor="offer">
+                <!-- The booking that used the plan up is the one onboarding
+                     made, so it is the one nobody has looked at. -->
+                <button type="button" class="edit-row" id="rowOffer" data-edits="offer" data-no-phrase data-editor="offer" data-review>
                   <span class="edit-row-mark"><span class="edit-row-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 2v4M16 2v4M3 9h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="edit-row-grip" aria-label="Drag to reorder"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></span></span>
                   <span class="edit-row-label">Beginner workshop</span>
+                  <span class="status-badge status-badge--notice edit-row-status" data-inspect-phrase="flowCard.draftLabel">Ready to review</span>
                   <span class="edit-row-edit"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
                 </button>
               </li>
@@ -223,7 +226,10 @@
                 data-inspect-label="Regenerate — smart"
                 data-inspect-tokens='[{"prop":"label","figma":"@jimdo/ui smartSecondaryButton","css":"--jui-gradient-smart","value":"gradient 111deg blue-500 \u2192 red-300 \u2192 yellow-300"},{"prop":"icon","figma":"reload","css":"--jui-color-blue-500","value":"16px #004ced"}]'
                 data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="smartRegenIdeas" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><path d="M14.5 1.99976L15.5 4.54791C14.3079 3.91092 12.9461 3.5498 11.5 3.5498C6.80558 3.5498 3 7.35538 3 12.0498C3 13.8409 3.554 15.6294 4.5 16.9998" stroke="url(#smartRegenIdeas)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M8.5 21.9997L7.5 19.4516C8.69215 20.0885 10.0539 20.4497 11.5 20.4497C16.1944 20.4497 20 16.6441 20 11.9497C20 10.1585 19.446 8.37009 18.5 6.99976" stroke="url(#smartRegenIdeas)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span class="regen-label">Regenerate</span></button>
-              <button type="button" class="text-action" id="askOpen" data-inspect-phrase="">Offer something else</button>
+              <button type="button" class="regen regen--smart" id="askOpen"
+                data-inspect-label="Offer something else — smart"
+                data-inspect-tokens='[{"prop":"label","figma":"@jimdo/ui smartSecondaryButton","css":"--jui-gradient-smart","value":"gradient 111deg blue-500 \u2192 red-300 \u2192 yellow-300"},{"prop":"icon","figma":"pencil-edit-02","value":"16px, gradient-stroked"}]'
+                data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="smartAskIdeasLimit" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><path d="M15.7071 5.29289L17.5 3.5C17.8905 3.10948 18.5237 3.10948 18.9142 3.5L20.5 5.08579C20.8905 5.47631 20.8905 6.10947 20.5 6.5L18.7071 8.29289M15.7071 5.29289L9.59886 11.4012C9.34255 11.6575 9.16071 11.9787 9.07279 12.3303L8.20715 15.7929L11.6697 14.9272C12.0214 14.8393 12.3425 14.6575 12.5989 14.4012L18.7071 8.29289M15.7071 5.29289L18.7071 8.29289" stroke="url(#smartAskIdeasLimit)" stroke-linejoin="round" stroke-width="1.5"/><path d="M10.7071 4.79289H5.20715C4.10258 4.79289 3.20715 5.68832 3.20715 6.79289V18.7929C3.20715 19.8975 4.10258 20.7929 5.20715 20.7929H17.2071C18.3117 20.7929 19.2071 19.8975 19.2071 18.7929V13.2929" stroke="url(#smartAskIdeasLimit)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span class="regen-label">Offer something else</span></button>
             </div>
           </div>
 
@@ -455,8 +461,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=7a02c7f"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=7a02c7f"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=df56f1b"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=df56f1b"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -622,9 +628,9 @@
       return el ? el.outerHTML : '';
     }
 
-    function addBlock({ label, kind = 'link', editor = 'mainlink', creating = true }) {
+    function addBlock({ label, kind = 'link', editor = 'mainlink', creating = true, review = false }) {
       const key = 'blk' + (++blockSeq);
-      BLOCKS.set(key, { label, kind, editor, creating });
+      BLOCKS.set(key, { label, kind, editor, creating, review });
 
       const li = document.createElement('li');
       const btn = document.createElement('button');
@@ -639,6 +645,11 @@
           document.querySelector('#rowMainlink .edit-row-grip').outerHTML +
           '<span class="setup-status-spinner" aria-hidden="true"></span></span>' +
         '<span class="edit-row-label">' + label + '</span>' +
+        /* An action page made here is published for review, because the
+           seller never saw the dates, the questions or the reply that
+           went out with it. The row says so in the same badge the
+           action pages list uses. */
+        (review ? '<span class="status-badge status-badge--notice edit-row-status">Ready to review</span>' : '') +
         document.querySelector('#rowMainlink .edit-row-edit').outerHTML;
       btn.addEventListener('click', () => {
         if (BLOCKS.get(key).creating) return;
@@ -718,6 +729,8 @@
 
       editTitle.textContent = t.type;
 
+      if (b && b.review) editFields.appendChild(reviewNote(kind));
+
       if (!t.noLabel) {
         editFields.appendChild(field('Button label', 'text', labelOf(kind, b)));
       }
@@ -740,6 +753,31 @@
       actionsRow.classList.remove('sheet-actions--end');
       editSave.textContent = 'Done';
       openEdit(true);
+    }
+
+    /* What the seller has not seen yet, named rather than counted. The
+       action page was built from three answers and published straight away,
+       so everything past the button's label is still a guess Jimdo made —
+       and the place to change it is the page's own screen, not this dialog,
+       which only owns the button. Sentence case: production's string is
+       title case, which is the odd one out in this product. */
+    const REVIEW_NOTE = {
+      offer: 'The dates, the price and the reply people get are still our suggestions.',
+      form: 'The questions and the reply people get are still our suggestions.',
+    };
+
+    function reviewNote(kind) {
+      const el = document.createElement('div');
+      el.className = 'sheet-notice';
+      el.innerHTML =
+        '<span class="status-badge status-badge--notice">Ready to review</span>' +
+        '<p class="sheet-notice-copy" data-inspect-phrase=""></p>' +
+        '<button type="button" class="text-action" data-no-phrase ' +
+          'data-nav-to="flows/solo-pages.html" data-nav-screen-id="scr-139">' +
+          'Review it on your action pages</button>';
+      el.querySelector('.sheet-notice-copy').textContent =
+        REVIEW_NOTE[kind] || REVIEW_NOTE.offer;
+      return el;
     }
 
     /* The dialog wears the icon of the row it was opened from, so the two
@@ -1017,8 +1055,10 @@
         card.className = 'add-card add-card--upgrade';
         card.innerHTML =
           '<span class="add-card-icon">' + IDEA_ICONS[idea.shape] + '</span>' +
-          '<span class="add-card-title">' + idea.title + '</span>' +
-          '<span class="add-card-detail">' + idea.detail + '</span>' +
+          '<span class="add-card-copy">' +
+            '<span class="add-card-title">' + idea.title + '</span>' +
+            '<span class="add-card-detail">' + idea.detail + '</span>' +
+          '</span>' +
           '<span class="add-card-action"><button type="button" class="btn btn-secondary btn-upgrade btn-sm" data-add="idea" data-inspect-phrase="">' + '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg>' + 'Upgrade and set up</button></span>';
         /* An upgrade CTA goes to the upgrade. It used to add a plain link
            and close, which told the seller the limit had been lifted. */
@@ -1174,6 +1214,9 @@
             label: item.title,
             kind: PICKER_KIND[kind] || 'link',
             editor: PICKER_EDITOR[kind] || 'mainlink',
+            // One made here has never been looked at. One picked from the
+            // list was reviewed where it was built.
+            review: isMake && kind !== 'pages',
           });
         });
         return el;
@@ -1310,6 +1353,7 @@
         kind: row.id === 'rowOffer' ? 'book' : 'link',
         editor: row.getAttribute('data-editor') || 'mainlink',
         creating: false,
+        review: row.hasAttribute('data-review'),
       });
       row.setAttribute('data-block', key);
       row.addEventListener('click', () => showEditor(BLOCKS.get(key).editor, key));

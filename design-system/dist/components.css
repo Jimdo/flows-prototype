@@ -2258,6 +2258,32 @@ body {
    64px thumbnail, title, then views / clicks / customers.
    ═══════════════════════════════════════════════════════════════ */
 
+/* ═══ Status badge ═════════════════════════════════════════════════════════════
+   @jimdo/ui Status: a 1px outline, a tinted fill and label-small, which is
+   quiet enough to sit inside a card without competing with its title. It
+   names a state the seller is in, not a severity — so it reads as a label
+   on the thing rather than a warning about it. The component tokens carry
+   the pair; nothing here reaches past them to a raw colour. */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  flex-shrink: 0;
+  padding: 0 var(--jui-layout-padding-xs);
+  border: 1px solid transparent;
+  border-radius: var(--jui-style-radius-4);
+  font-size: var(--jui-typography-label-small-size);
+  font-weight: var(--jui-typography-label-small-weight);
+  line-height: var(--jui-typography-label-small-lh);
+  white-space: nowrap;
+}
+.status-badge--notice {
+  background: var(--jui-component-badge-status-notice-background);
+  border-color: var(--jui-component-badge-status-notice-stroke);
+  color: var(--jui-component-badge-status-notice-stroke);
+}
+
 .flow-card-h {
   display: flex;
   align-items: stretch;
@@ -2282,6 +2308,34 @@ body {
   outline: 2px solid var(--jui-color-actions-primary-rest);
   outline-offset: 2px;
 }
+
+/* ── Ready to review ──
+   An action page made from the bio page editor is published with
+   needsReview, because the seller never saw the dates, the questions or the
+   reply that went out with it. FlowCardItem marks that three ways and this
+   keeps all three: a 2px decorative-primary edge, the picture drained so it
+   reads as not-yet-yours, and the share controls swapped for a pen — there
+   is nothing to share until it has been looked at. The stats line goes too;
+   a page nobody has seen has no numbers to show. */
+.flow-card-h--review {
+  border-color: var(--jui-color-decorative-primary);
+  /* 2px against the 1px every other card carries, absorbed by the card's own
+     4px padding rather than by the row, so the list does not jog. */
+  border-width: 2px;
+  padding: calc(var(--jui-layout-padding-xxs) - 1px);
+}
+.flow-card-h--review .flow-card-h-thumb { filter: grayscale(100%) opacity(0.5); }
+.flow-card-h-review-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--jui-layout-dimension-s);
+  height: var(--jui-layout-dimension-s);
+  color: var(--jui-color-actions-primary-rest);
+  /* A mark, not a control — the whole card is the way in. */
+  pointer-events: none;
+}
+.flow-card-h-review-icon svg { width: 16px; height: 16px; display: block; }
 
 /* dimension-xl wide and as tall as the card, the way FlowCardItem has it —
    the fixed 88 was right when the card held a title and a stat line, and left
@@ -5029,6 +5083,14 @@ body {
   color: var(--jui-color-typography-gray-on-light-default);
 }
 
+/* The same badge the action pages list carries, on the row that made the
+   page. One word of state is all a row has room for; the dialog behind it
+   says what is actually unreviewed.
+   The badge defaults to flex-start because it usually hangs under a title;
+   in a row it has to give that back, or it rides 2px above the label and
+   the pencil it sits between. */
+.edit-row-status { margin-left: auto; align-self: center; }
+
 /* A piece that is on the page but cannot do its job yet — the same state the
    handoff screen marks in the preview, said here in words. */
 .edit-row-flag {
@@ -5789,11 +5851,15 @@ body {
    Regenerate carries its own optical pull, so the row is padded like every
    other band in the list and the icon still lands on the cards' left edge.
    The text action drops the margin it carried when it stood alone. */
+/* Stacked, not side by side. The two are alternatives to the same three
+   cards — another go, or a go at something else — and a row made them look
+   like a step and its qualifier. One under the other, both starting on the
+   cards' own left edge, they read as two doors of equal size. */
 .add-group-actions {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--jui-layout-gap-xxs) var(--jui-layout-gap-xs);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--jui-layout-gap-xxs);
   margin-top: var(--jui-layout-gap-s);
 }
 .add-group-actions .text-action { margin: 0; }
@@ -5826,7 +5892,7 @@ body {
   /* 4 between the name and the line under it — they are one thought. The
      icon above and the button below buy their own room back. */
   gap: var(--jui-layout-gap-xxs);
-  padding: var(--jui-layout-padding-m);
+  padding: var(--jui-layout-padding-s);
   border: 1px solid var(--jui-color-stroke-primary-on-light);
   border-radius: var(--jui-style-radius-12);
   /* White, not a tint. The tinted card is the one that costs money — see
@@ -5861,6 +5927,10 @@ body {
 }
 .add-card-icon svg { width: 20px; height: 20px; display: block; }
 .add-card-icon { margin-bottom: var(--jui-layout-gap-xxs); }
+/* Name and line are one sentence in two parts, so they share a box and the
+   card's own 4px gap stops falling between them. The leading already
+   separates them; a gap on top of it read as two statements. */
+.add-card-copy { display: flex; flex-direction: column; }
 .add-card-title {
   margin: 0;
   font-size: var(--jui-typography-body-small-medium-size);
@@ -5925,6 +5995,35 @@ body {
    What the edit sheet holds. Same fields the onboarding steps use, so a
    seller changing their WhatsApp number later meets the control they first
    met when they added it. */
+/* ── Ready-to-review note ──
+   Sits above the fields because it is the reason the dialog looks the way
+   it does: the button is finished, the thing behind it is not. Tinted the
+   same notice the badge is, so the two read as one state seen at two sizes,
+   and quiet — nothing here is broken, it just has not been looked at. */
+.sheet-notice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--jui-layout-gap-xs);
+  padding: var(--jui-layout-padding-s);
+  border-radius: var(--jui-style-radius-12);
+  /* The lightest step of the notice ramp, and no outline. A note is not an
+     error: at the badge's own yellow-100 with a 1px stroke it shouted over
+     the fields it is explaining, and the badge inside it disappeared into
+     its own background. Two steps apart, the badge reads and the band
+     does not. */
+  background: var(--jui-color-background-notice-light);
+}
+.sheet-notice-copy {
+  margin: 0;
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+/* The way out stays the page's blue. It is an ordinary link to an ordinary
+   screen; painting it the notice colour made it look like part of the
+   warning rather than the thing that answers it. */
+
 .sheet-form {
   display: flex;
   flex-direction: column;

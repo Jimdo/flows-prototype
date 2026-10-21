@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Action Pages — Flows Dashboard</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=7a02c7f">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=7a02c7f">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/management-shell.css?v=7a02c7f">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=df56f1b">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=df56f1b">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/management-shell.css?v=df56f1b">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=7a02c7f">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=df56f1b">
 <style>
   /* Shell components (topbar, sidebar) rendered by shell-components.js.
      Extended topbar CSS (bell, account dropdown) and contextual sidebar CSS
@@ -1548,11 +1548,11 @@
     background: rgba(255, 255, 255, 0.7);
   }
 </style>
-<script type="module" src="/flows-prototype/design-system/hifi-designs/shared/shell-components.js?v=7a02c7f"></script>
+<script type="module" src="/flows-prototype/design-system/hifi-designs/shared/shell-components.js?v=df56f1b"></script>
 <!-- The rail's items are buttons carrying data-nav-to, which only move
      when this is loaded. Without it the whole sidebar was inert on this
      screen — it rendered, it highlighted, and it went nowhere. -->
-<script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=7a02c7f"></script>
+<script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=df56f1b"></script>
 </head>
 
 <body class="app-shell management-shell">
@@ -1653,19 +1653,23 @@
                   </div>
                 </div>
               </div>
-              <div class="flow-card-h">
+              <!-- Ready to review. Made from the bio page editor, which publishes
+                   with needsReview because the seller never saw the dates, the
+                   questions or the reply that goes out with it. -->
+              <div class="flow-card-h flow-card-h--review"
+                data-inspect-label="Action Page Card — ready to review"
+                data-inspect-tokens='[{"prop":"border","figma":"$jui-color-decorative-primary","css":"--jui-color-decorative-primary","value":"2px blue-400"},{"prop":"thumbnail","figma":"FlowCardThumbnail.grayscale","value":"grayscale(100%) opacity(0.5)"},{"prop":"badge","figma":"@jimdo/ui Status type=notice","css":"--jui-component-badge-status-notice-background","value":"#ffebd3 on #663300"}]'>
                 <img class="flow-card-h-thumb" src="../images/clara-stone.jpg" alt="" />
                 <div class="flow-card-h-body">
                   <a class="flow-card-h-link" href="#" data-no-phrase>
                     <h3 class="flow-card-h-title" data-inspect-phrase="">Jewellery making for beginners</h3>
-                    <div class="flow-card-h-activity"><span>96 views</span><span>31 clicks</span><span>4 customers</span></div>
+                    <span class="status-badge status-badge--notice" data-inspect-phrase="flowCard.draftLabel">Ready to review</span>
                   </a>
                   <div class="flow-card-h-meta">
                     <span class="flow-card-h-type"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M18 2V4M6 2V4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M3 8H21" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M2.5 12.2432C2.5 7.88594 2.5 5.70728 3.75212 4.35364C5.00424 3 7.01949 3 11.05 3H12.95C16.9805 3 18.9958 3 20.2479 4.35364C21.5 5.70728 21.5 7.88594 21.5 12.2432V12.7568C21.5 17.1141 21.5 19.2927 20.2479 20.6464C18.9958 22 16.9805 22 12.95 22H11.05C7.01949 22 5.00424 22 3.75212 20.6464C2.5 19.2927 2.5 17.1141 2.5 12.7568V12.2432Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span data-inspect-phrase="dashboard.flowCard.typeBooking">Booking</span></span>
-                    <div class="flow-card-h-actions" role="toolbar" aria-label="Share Jewellery making for beginners">
-                      <button type="button" aria-label="Copy link" data-no-phrase><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M13.5 17H17C19.7614 17 22 14.7614 22 12C22 9.23858 19.7614 7 17 7H13.5M10.5 17H7C4.23858 17 2 14.7614 2 12C2 9.23858 4.23858 7 7 7H10.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M8.5 12H15.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
-                      <button type="button" aria-label="Open in a new tab" data-no-phrase><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M10.5 3H4.99995C3.89538 3 2.99995 3.89543 2.99995 5V19C2.99995 20.1046 3.89538 21 4.99995 21H19C20.1045 21 21 20.1046 21 19V13.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M11 13L20.3499 3.64944M21 9V3L15 3" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
-                    </div>
+                    <!-- No share controls: there is nothing worth sharing until
+                         it has been looked at. FlowCardItem swaps them for this. -->
+                    <span class="flow-card-h-review-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M15.7071 5.29289L17.5 3.5C17.8905 3.10948 18.5237 3.10948 18.9142 3.5L20.5 5.08579C20.8905 5.47631 20.8905 6.10947 20.5 6.5L18.7071 8.29289M15.7071 5.29289L9.59886 11.4012C9.34255 11.6575 9.16071 11.9787 9.07279 12.3303L8.20715 15.7929L11.6697 14.9272C12.0214 14.8393 12.3425 14.6575 12.5989 14.4012L18.7071 8.29289M15.7071 5.29289L18.7071 8.29289" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/><path d="M10.7071 4.79289H5.20715C4.10258 4.79289 3.20715 5.68832 3.20715 6.79289V18.7929C3.20715 19.8975 4.10258 20.7929 5.20715 20.7929H17.2071C18.3117 20.7929 19.2071 19.8975 19.2071 18.7929V13.2929" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></span>
                   </div>
                 </div>
               </div>
