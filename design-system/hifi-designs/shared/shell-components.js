@@ -354,6 +354,17 @@ class JimdoSidebar extends HTMLElement {
       if (k && v) targetOverrides[k.trim()] = v.trim();
     });
 
+    // Per-instance screen ids: screen-ids="flows=scr-131;solo-pages=scr-139".
+    // data-nav-to alone moves the iframe but leaves the workbench's right
+    // panel on the screen you came from, because prototype-nav posts
+    // screenId: null. The rail is the main way between these screens, so a
+    // stale panel is most of the time it is wrong.
+    const screenIdOverrides = {};
+    (this.getAttribute('screen-ids') || '').split(';').forEach(pair => {
+      const [k, v] = pair.split('=');
+      if (k && v) screenIdOverrides[k.trim()] = v.trim();
+    });
+
     const CHEVRON_SVG = `<svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>`;
 
     const navItem = ({ id, label, phrase, iconName, hasChevron, badge, badgePhrase, crossProduct, crossScreen, crossScreenId, subNavKey, screen }) => {
@@ -368,11 +379,13 @@ class JimdoSidebar extends HTMLElement {
       // Intra-product nav: render data-nav-to so prototype-nav.js handles the click.
       const navScreen = targetOverrides[id] || screen;
       const navToAttr = navScreen && !crossProduct ? ` data-nav-to="${navScreen}"` : '';
+      const navIdAttr = screenIdOverrides[id] && !crossProduct
+        ? ` data-nav-screen-id="${screenIdOverrides[id]}"` : '';
       return `
         <button
           class="sidebar-nav-item${isActive ? ' active' : ''}${hideIcons ? ' sidebar-nav-item--text' : ''}${hideIcons && activeMarker ? ' sidebar-nav-item--text-marker' : ''}"
           ${isActive ? 'aria-current="page"' : ''}
-          ${phrase ? `data-inspect-phrase="${phrase}"` : 'data-inspect-phrase=""'}${crossAttr}${screenAttr}${screenIdAttr}${subAttr}${navToAttr}
+          ${phrase ? `data-inspect-phrase="${phrase}"` : 'data-inspect-phrase=""'}${crossAttr}${screenAttr}${screenIdAttr}${subAttr}${navToAttr}${navIdAttr}
         >
           ${hideIcons ? '' : iconTag(iconName)}
           <span class="nav-item-label">${navLabel}</span>

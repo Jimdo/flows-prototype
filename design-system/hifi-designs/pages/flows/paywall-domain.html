@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Paywall — Upgrade</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=2a520b4">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=2a520b4">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=4a25c4b">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=4a25c4b">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=2a520b4">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=4a25c4b">
 <style>
   /* ─── Screen overrides ───
      The three explorations differ only in what sits between the list and the
@@ -93,19 +93,19 @@
                 <div class="plan-option-top">
                   <div class="plan-option-head">
                     <p class="plan-option-name" data-inspect-phrase="paywall.plan.pro.name">Jimdo Start</p>
-                    <span class="plan-option-rec" data-inspect-phrase="paywall.plan.recommended">Recommended</span>
+                    <!-- The saving where Recommended used to sit. One chip per
+                         card: this one carries a fact, and the purple fill, the
+                         middle column and the discount already say which plan we
+                         mean. -->
+                    <span class="plan-option-save" id="proSave" data-inspect-phrase="paywall.plan.pro.savings">Save 38%</span>
                   </div>
                   <p class="plan-option-price">
                     <span class="plan-option-amount" id="proAmount" data-no-phrase>€11.50</span>
                     <span class="plan-option-period" data-inspect-phrase="paywall.plan.period">/month</span>
-                  </p>
-                  <!-- loops-frontend #2486: the FLOWS discount, said before
-                       checkout rather than at it. Start only. -->
-                  <p class="plan-option-was" id="proWas"
-                    data-inspect-label="Pre-discount price and savings"
-                    data-inspect-tokens='[{"prop":"strike colour","figma":"$jui-color-typography-gray-on-light-subdued","css":"--jui-color-typography-gray-on-light-subdued","value":"#6a6a6a"},{"prop":"tag background","figma":"$jui-color-background-positive-light","css":"--jui-color-background-positive-light","value":"#f0fff6"},{"prop":"tag colour","figma":"$jui-color-typography-positive-on-light","css":"--jui-color-typography-positive-on-light","value":"#00260d"},{"prop":"tag height","value":"20px"}]'>
+                    <!-- loops-frontend #2486: the FLOWS discount, said before
+                         checkout rather than at it. Start only, and on the
+                         rows the card already has so the three buttons line up. -->
                     <s class="plan-option-was-amount" id="proWasAmount" data-no-phrase>€18.50</s>
-                    <span class="plan-option-save" id="proSave" data-inspect-phrase="paywall.plan.pro.savings">Save 38%</span>
                   </p>
                   <p class="plan-option-note" id="proNote" data-inspect-phrase="paywall.plan.pro.note">For getting booked and paid</p>
                 </div>
@@ -181,8 +181,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=2a520b4"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=2a520b4"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=4a25c4b"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=4a25c4b"></script>
   <script>
     /* ── Closing goes back, not home ──
        The paywall is reached from several places: the legal trigger in the

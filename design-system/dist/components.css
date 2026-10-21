@@ -4544,20 +4544,17 @@ body {
    they decide. Only the Start plan is discounted, which is also the reason
    it is the recommended one.
 
-   Three things changed from the shipped version. The struck price drops the
-   period, because the line above already says /month and the repetition
+   It rides on the rows the card already has rather than adding one of its
+   own. A row only one of three cards carries drops that card's button
+   ~30px below its neighbours, and three plans whose buttons do not line up
+   stop reading as one comparison. So the old price sits on the price line,
+   after the period, and the saving sits in the head where the chip goes.
+
+   Two changes from the shipped version besides that. The struck price drops
+   the period — the line it now shares already says /month, and repeating it
    made the row read as two prices rather than one price twice. The tag is a
-   20px chip rather than a full Tag, so it sits beside a 14px number instead
-   of towering over it. And both get a row of their own with real spacing,
-   which the PR's author flagged as the thing to look at. */
-.plan-option-was {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--jui-layout-gap-xs);
-  margin: var(--jui-layout-gap-xxs) 0 0;
-}
-.plan-option-was[hidden] { display: none; }
+   20px chip rather than a full Tag, so it sits beside a 16px plan name
+   instead of towering over it. */
 .plan-option-was-amount {
   font-size: var(--jui-typography-body-small-regular-size);
   font-weight: var(--jui-typography-body-small-regular-weight);
@@ -4584,6 +4581,9 @@ body {
   text-transform: uppercase;
   white-space: nowrap;
 }
+/* The old price hangs off the end of the price line, with room to read as a
+   separate fact rather than part of the number before it. */
+.plan-option-price .plan-option-was-amount { margin-left: var(--jui-layout-gap-xs); }
 
 .plan-option-note {
   margin: var(--jui-layout-gap-xxs) 0 0;
@@ -5649,8 +5649,16 @@ body {
   border-radius: var(--jui-style-radius-8);
   background: var(--jui-color-background-upgrade-light);
 }
-.plan-line-label {
+/* The label row carries the saving at its far end, the way the plan card's
+   head row does — same two facts in the same two places, one screen apart. */
+.plan-line-head {
   grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--jui-layout-gap-xs);
+}
+.plan-line-label {
   font-size: var(--jui-typography-label-small-size);
   font-weight: var(--jui-typography-label-small-weight);
   letter-spacing: var(--jui-typography-label-small-ls);
@@ -5671,6 +5679,7 @@ body {
   gap: 2px;
   white-space: nowrap;
 }
+.plan-line-price .plan-option-was-amount { margin-left: var(--jui-layout-gap-xs); }
 .plan-line-amount {
   font-size: var(--jui-typography-sub-headline-small-size);
   font-weight: var(--jui-typography-sub-headline-small-weight);
