@@ -4698,13 +4698,13 @@ body {
    air inside them is what separates the two prices from everything else. */
 @media (min-width: 768px) {
   /* loops-frontend's shell sets no vertical padding at all — not on the
-     container, the main, the header or the footer. The only padding-block it
-     carries is env(safe-area-inset-*) on the sticky variants, which is notch
-     handling rather than spacing. A page there owns its own rhythm. This
-     screen is modelled on that page, so it drops the 12/16 the setup shell
-     adds and spaces itself. */
+     container, the main, the header or the footer; its page owns its own
+     rhythm, and the pricing header buys the space back itself with
+     paddingBlock="xs". Ours now sits in the setup shell's own bar, so it
+     keeps the 12 that bar is given everywhere else — with the padding
+     zeroed the wordmark and the close were welded to the top edge. The
+     bottom stays at zero: the plan column below carries its own. */
   .app-shell-setup-single[data-explore] {
-    padding-top: 0;
     padding-bottom: 0;
   }
 
@@ -6140,7 +6140,9 @@ body {
      such box, so it borrows the same inset and lands on that keyline. */
   padding-inline-start: var(--jui-layout-padding-s);
 }
-.paywall-logo svg { width: 80px; height: auto; display: block; }
+/* 24 tall, so the wordmark sits on the same line as the 24px close glyph
+   beside it rather than hanging 3px above it. */
+.paywall-logo svg { width: 65px; height: auto; display: block; }
 
 @media (min-width: 768px) {
   /* 24 from the bar plus 8 here is where an onboarding step's back arrow
