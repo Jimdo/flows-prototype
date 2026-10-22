@@ -5386,6 +5386,170 @@ body {
    up — and the layout holds the line that no action is reachable until it
    is up. A surface that both reopens the drawer and leaves the step is one
    surface with two meanings. */
+/* ═══ Editor step — the mobile frame ═══════════════════════════════════════
+   Figma 17631:1734. The bar stops standing in for an onboarding header and
+   becomes the editor's own: what you are editing at the left, the way to
+   finish at the right, and no way back — this screen is not a step in a
+   line any more, so there is nothing behind it to return to. The column
+   below keeps its title, because the drawer covers the page it is about and
+   has to say what it is.
+   Everything here is scoped to the step layout: scr-120 and scr-472 share
+   these class names and are not part of this design. */
+
+/* 56, not 48: the bar carries two 32px controls with 8 above and below,
+   where the onboarding header carries a 16px progress bar. Right padding is
+   12 against the left's 8, because the toggle is a filled tray that starts
+   at its own edge and the Done button is a bordered box that does not. */
+@media (max-width: 767px) {
+  .app-shell-setup-split[data-layout="step"] .setup-split-header {
+    min-height: 56px;
+    padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-s)
+             var(--jui-layout-padding-xs) var(--jui-layout-padding-xs);
+    justify-content: space-between;
+  }
+  .app-shell-setup-split[data-layout="step"] .seg-control--header {
+    margin: 0;
+  }
+}
+
+/* The tray in the frame is a step up from the one in the panel: radius-m
+   over radius-s, 4 of padding and gap over 2. It holds labelled icons, not
+   bare words, so it needs the room. */
+.seg-control--header {
+  gap: var(--jui-layout-gap-xxs);
+  padding: var(--jui-layout-padding-xxs);
+  background: var(--jui-color-background-gray-dark);
+  border-radius: var(--jui-style-radius-12);
+}
+/* 8 before the icon, 12 after the word — an icon reads as part of the edge
+   it sits against, so it is given less room than the label on the far side. */
+.seg-control--header .seg-control-item {
+  gap: var(--jui-layout-gap-xs);
+  padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-s)
+           var(--jui-layout-padding-xxs) var(--jui-layout-padding-xs);
+}
+.seg-control--header .seg-control-item svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* ── The drawer's own head ──
+   Title at the left, the one thing this list can be given at the right. The
+   title came back when the step footer left: with no Save and continue under
+   it the panel had nothing naming it, and the bar above names the editor
+   rather than the list. */
+.step-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--jui-layout-gap-m);
+  width: 100%;
+}
+.step-drawer-head .setup-split-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  font-size: var(--jui-typography-sub-headline-medium-size);
+  font-weight: var(--jui-typography-sub-headline-medium-weight);
+  line-height: var(--jui-typography-sub-headline-medium-lh);
+}
+
+/* ── SelectCard ──
+   A step up from the suggestion row the other editors carry: 16 of padding
+   inside radius-16, on gray-medium rather than white, and the dashes in the
+   smart gradient. The frame's code export flattens that stroke to
+   color/blue/500, which is Figma's fallback for a paint it cannot write as
+   one value — the card's own style list carries `color/actions/smart-rest`
+   with an empty value, which is what a gradient looks like on the way out.
+   Flat primary would have said the product is offering an ordinary control;
+   the gradient says the product wrote this, which is what a suggestion is. */
+.app-shell-setup-split[data-layout="step"] .edit-suggestion {
+  position: relative;
+  gap: var(--jui-layout-gap-s);
+  padding: var(--jui-layout-padding-m);
+  /* Transparent rather than removed, so the ring drawn over it does not
+     change the box the frame measures. */
+  border: 1px dashed transparent;
+  border-radius: var(--jui-style-radius-16);
+  background: var(--jui-color-background-gray-medium);
+}
+
+/* A gradient cannot be a dashed border: border-image replaces the dashes
+   with a solid edge, and the background-clip ring trick has no dashes at
+   all. So the dashes are drawn. The rect insets itself by half a stroke so
+   the line lands inside the box rather than straddling its edge, and takes
+   the card's radius less that same half. */
+.smart-ring {
+  position: absolute;
+  /* Out by the border width, because an absolutely positioned child measures
+     from the padding box — at inset 0 the ring sat 1px inside the edge it is
+     meant to be. */
+  inset: -1px;
+  width: calc(100% + 2px);
+  height: calc(100% + 2px);
+  overflow: visible;
+  pointer-events: none;
+}
+.smart-ring rect {
+  x: 0.5px;
+  y: 0.5px;
+  width: calc(100% - 1px);
+  height: calc(100% - 1px);
+  rx: calc(var(--jui-style-radius-16) - 0.5px);
+  fill: none;
+  /* One pixel, and short dashes: at 6/4 the ring read as a heavy ticket
+     edge rather than as the light hint that this card is a proposal. */
+  stroke-width: 1px;
+  stroke-dasharray: 3 3;
+}
+/* Icon and tag on one line, the name and its reason under them. The icon
+   labels the card from above now rather than from beside it, so it sits on
+   the tag's centre instead of the name's first line. */
+.app-shell-setup-split[data-layout="step"] .edit-suggestion-head {
+  align-items: center;
+  gap: var(--jui-layout-gap-s);
+}
+.app-shell-setup-split[data-layout="step"] .edit-suggestion-mark {
+  width: 16px;
+  height: 16px;
+  margin-top: 0;
+}
+.app-shell-setup-split[data-layout="step"] .edit-suggestion-copy {
+  gap: var(--jui-layout-gap-xxs);
+}
+.app-shell-setup-split[data-layout="step"] .edit-suggestion-actions {
+  justify-content: flex-end;
+  gap: var(--jui-layout-gap-s);
+}
+
+/* Each card wears a Suggested tag of its own now, so the heading over them
+   says the same word twice. Kept in the markup because the screen's own JS
+   shows and hides it with the list it belongs to. */
+.app-shell-setup-split[data-layout="step"] .edit-section-head--tagged { display: none; }
+/* ── Tag ──
+   @jimdo/ui Tag, which is not Status: it labels the card as one of the
+   product's guesses, it does not report a state the seller has to act on.
+   Hence the positive ramp and no outline — quieter than the notice badge a
+   row in review carries, which is the point. */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0 var(--jui-layout-padding-xs);
+  border-radius: var(--jui-style-radius-4);
+  font-size: var(--jui-typography-label-small-size);
+  font-weight: var(--jui-typography-label-small-weight);
+  line-height: var(--jui-typography-label-small-lh);
+  letter-spacing: var(--jui-typography-label-small-ls);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.tag--positive {
+  background: var(--jui-color-background-positive-medium);
+  color: var(--jui-color-typography-positive-on-light);
+}
 /* A section heading arrives with the section's first item. Empty labelled
    sections on a first view are a form to work through; nothing but the
    suggestions is an offer to act on. */

@@ -23,33 +23,36 @@
 
   <div class="app-shell app-shell-setup-split" id="shell" data-drawer="default" data-view="list" data-mode="editor" data-layout="step">
 
-    <!-- The onboarding bar, with the editor's own occupant in the slot the
-         step screens give their progress bar. On a phone it sits where that
-         bar sits, centred over the preview between back and the spacer; on
-         desktop the spacer drops and it goes to the end, because beside the
-         back button at that width it read as a label for it. -->
+    <!-- Figma 17631:1736 .stepTopBar. Not the onboarding header any more: what
+         you are editing at the left, the way to finish at the right, and no
+         back arrow — this screen is not one of a line of steps, so there is
+         nothing behind it to return to. 56 high, because it carries two 32px
+         controls where a step header carries a 16px progress bar. -->
     <div class="setup-split-header"
-      data-inspect-label="Setup Header — back + editor switch"
-      data-inspect-tokens='[{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px (desktop) / 48px (mobile)"},{"prop":"padding-inline","figma":"$jui-layout-padding-l","css":"--layout-spacing-lg","value":"24px (desktop) / 0 (mobile)"}]'>
-      <button type="button" class="setup-back-btn" aria-label="Back" data-no-phrase
-        data-nav-to="flows/onboarding-offer.html" data-nav-screen-id="scr-013"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+      data-inspect-label="Editor Top Bar — what you are editing + Done"
+      data-inspect-tokens='[{"prop":"height","figma":"17631:1736","value":"56px (mobile) / 32px (desktop)"},{"prop":"padding","figma":"$jui-layout-padding-xs / $jui-layout-padding-s","css":"--jui-layout-padding-xs","value":"8px, 12px right"}]'>
 
       <!-- One switch for the two things you can edit about a page: what is on
-           it, and what it looks like. A screen-level control in the
-           screen-level bar — the design editor's own Style/Layout stays down
-           in the panel it switches, which is why the two never stack. -->
+           it, and what it looks like. The design editor's own Style and Layout
+           headings live down in its panel, so the two never stack. -->
       <div class="seg-control seg-control--header" role="tablist" aria-label="What to edit"
         data-inspect-label="Segmented Control — what to edit"
-        data-inspect-tokens='[{"prop":"background","figma":"color/background/gray/canvas","css":"--jui-color-background-gray-canvas","value":"#f8f8f8"},{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px"},{"prop":"radius","figma":"$jui-style-radius-s","css":"--jui-style-radius-s","value":"8px"}]'>
+        data-inspect-tokens='[{"prop":"background","figma":"$jui-color-background-gray-dark","css":"--jui-color-background-gray-dark","value":"#f8f8f8"},{"prop":"border-radius","figma":"$jui-style-radius-m","css":"--jui-style-radius-12","value":"12px"},{"prop":"padding","figma":"$jui-layout-padding-xxs","css":"--jui-layout-padding-xxs","value":"4px"},{"prop":"item","figma":"Secondary / Subtle, Size=Small","css":"--jui-layout-dimension-s","value":"32px, radius 8"}]'>
         <button type="button" class="seg-control-item active" role="tab" aria-selected="true" aria-pressed="true"
-          data-inspect-phrase="biopage.editor.links">Links</button>
+          data-inspect-phrase="biopage.editor.links"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"> <path d="M21 2H3C2.44772 2 2 2.44772 2 3V5C2 5.55228 2.44772 6 3 6H21C21.5523 6 22 5.55228 22 5V3C22 2.44772 21.5523 2 21 2Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/> <path d="M21 10H3C2.44772 10 2 10.4477 2 11V13C2 13.5523 2.44772 14 3 14H21C21.5523 14 22 13.5523 22 13V11C22 10.4477 21.5523 10 21 10Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/> <path d="M21 18H3C2.44772 18 2 18.4477 2 19V21C2 21.5523 2.44772 22 3 22H21C21.5523 22 22 21.5523 22 21V19C22 18.4477 21.5523 18 21 18Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/> </svg><span>Links</span></button>
         <button type="button" class="seg-control-item" role="tab" aria-selected="false" aria-pressed="false"
           data-nav-to="flows/design-editor-onboarding.html" data-nav-screen-id="scr-479"
-          data-inspect-phrase="biopage.editor.design">Design</button>
+          data-inspect-phrase="biopage.editor.design"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"> <path d="M5 14V12.7296C5 11.9754 5.42422 11.2854 6.09717 10.945L8.84085 9.55694C9.5139 9.21645 9.93814 8.52627 9.93802 7.772L9.93726 3.00016C9.93717 2.44781 10.3849 2 10.9373 2H13.9455C14.4978 2 14.9456 2.44781 14.9455 3.00016L14.9447 7.75902C14.9446 8.52006 15.3764 9.21521 16.0587 9.55236L18.886 10.9495C19.5682 11.2866 20 11.9816 20 12.7425L20 14C20 14.5523 19.5523 15 19 15H6C5.44772 15 5 14.5523 5 14Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/> <path d="M6 15C6 16 6 18.8 4 22C9 22 13 22 15.5 18V21C15.5 21.5523 15.9477 22 16.5 22H19C19.5523 22 20.002 21.5518 19.9972 20.9995C19.9803 19.0494 19.8596 17.5789 19 15" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/> </svg><span>Design</span></button>
       </div>
 
-      <div class="header-spacer"></div>
-
+      <!-- Secondary, Size=Small — the frame's own button. The finish control
+           stays out of the thumb's reach at the top, which is the whole reason
+           this screen does not take the step layout's footer. -->
+      <button type="button" class="btn btn-secondary btn-sm"
+        data-inspect-label="Secondary Button — Done, Size=Small"
+        data-inspect-tokens='[{"prop":"border","figma":"$jui-color-stroke-primary-on-light","css":"--jui-color-stroke-primary-on-light","value":"1px #b4c4ff"},{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px"},{"prop":"border-radius","figma":"button/radius","css":"--jui-component-button-radius","value":"8px"}]'
+        data-inspect-phrase="biopage.editor.done"
+        data-nav-to="flows/home-dashboard-v2.html" data-nav-screen-id="scr-131">Done</button>
     </div>
 
     <div class="setup-split-main">
@@ -72,14 +75,17 @@
           <span class="setup-drawer-grip-shape"></span>
         </button>
 
-        <!-- Outside the scrolling list on purpose. Expanded, the drawer
-           covers the page it is about, so it has to say what it is; it is
-           also the only thing the peek shows, which gives that bar
-           something to be. Out here it can be ordered against the list and
-           the Add row — see data-mode="editor" in components.css. -->
-        <div class="setup-split-intro setup-split-intro--back" data-view-only="add">
-          <button type="button" class="setup-back-btn add-head-back" data-add-back aria-label="Back" data-no-phrase hidden><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
-          <h1 class="setup-split-title" data-inspect-phrase="biopage.add.title">Add to your page</h1>
+        <!-- Figma 17631:1749. The title is back because the step footer left:
+             with no control under it the panel had nothing naming it, and the
+             bar above names the editor rather than the list. -->
+        <div class="setup-split-intro" data-view-only="list">
+          <div class="step-drawer-head">
+            <h1 class="setup-split-title" data-inspect-phrase="">Edit links</h1>
+            <button type="button" class="btn btn-primary btn-sm" id="addBtn"
+              data-inspect-label="Primary Button — Add link, Size=Small"
+              data-inspect-tokens='[{"prop":"background","figma":"$jui-color-actions-primary-rest","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px"}]'
+              data-inspect-phrase="">Add link</button>
+          </div>
         </div>
 
         <!-- --scroll, because this panel holds a list: without it the drawer
@@ -187,15 +193,6 @@
           </div>
 
 
-          <!-- Add link ends the list rather than standing over it: it is a
-               list operation, and the footer below belongs to the step. The
-               design system's own secondary button, unchanged — a dashed
-               custom row read as a drop zone and carried a radius four
-               bigger than every other control on the screen. -->
-          <button type="button" class="btn btn-secondary" id="addBtn"
-            data-inspect-label="Secondary Button — Add link"
-            data-inspect-tokens='[{"prop":"border","figma":"color/blue/100","css":"--jui-color-blue-100","value":"1px #b4c4ff"},{"prop":"height","figma":"$jui-layout-dimension-m","css":"--jui-layout-dimension-m","value":"48px"},{"prop":"border-radius","figma":"button/radius","css":"--jui-component-button-radius","value":"8px"},{"prop":"width","value":"100%"}]'
-            data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>Add link</button>
 
         </div>
 
@@ -204,18 +201,6 @@
           <button class="btn btn-secondary" id="addBack" data-inspect-phrase="">Back</button>
         </div>
 
-        <!-- The step's way on, sized and placed exactly as every onboarding
-             step sizes and places its own: full width on a phone, as wide as
-             its words on desktop. -->
-        <div class="setup-split-actions" data-view-only="list">
-          <button class="btn btn-primary"
-            data-inspect-label="Primary Button — Save and continue"
-            data-inspect-tokens='[{"prop":"background","figma":"color/actions/primary/rest","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"height","figma":"$jui-layout-dimension-m","css":"--jui-layout-dimension-m","value":"48px"}]'
-            data-inspect-phrase="biopage.editor.saveContinue"
-            data-trigger="primary-cta"
-            data-nav-to="flows/onboarding-share.html"
-            data-nav-screen-id="scr-030">Save and continue</button>
-        </div>
 
       </div>
     </div>
@@ -1425,7 +1410,7 @@
     /* The step's own control, at the foot of the column now rather than
        in the bar. Same guard: leaving a page with nothing on it is still
        worth a word, and continuing past it is still leaving. */
-    const doneBtn = document.querySelector('.setup-split-actions .btn-primary');
+    const doneBtn = document.querySelector('.setup-split-header .btn-secondary');
 
     // Capture, so this runs before the shared nav handler on document sees it.
     doneBtn.addEventListener('click', (e) => {
