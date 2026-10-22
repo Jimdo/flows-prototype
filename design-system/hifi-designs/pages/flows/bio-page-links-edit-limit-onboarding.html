@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-limit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=c8c3760">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=c8c3760">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=db8cc5a">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=db8cc5a">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=c8c3760">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=db8cc5a">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -468,8 +468,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=c8c3760"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=c8c3760"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=db8cc5a"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=db8cc5a"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -736,8 +736,6 @@
 
       editTitle.textContent = t.type;
 
-      if (b && b.review) editFields.appendChild(reviewNote(kind));
-
       if (!t.noLabel) {
         editFields.appendChild(field('Button label', 'text', labelOf(kind, b)));
       }
@@ -746,6 +744,9 @@
         // What this button points at. Opening it is how the thing behind the
         // button gets changed, which is a different dialog from this one.
         editFields.appendChild(refBox(b ? b.label : t.type, t.ref, kind, blockKey));
+        // Under the box it is about: the note describes the page behind the
+        // button, which is what that box opens.
+        if (b && b.review) editFields.appendChild(reviewNote(kind));
       } else {
         (t.fields || []).forEach(([label, type, value]) => {
           editFields.appendChild(field(label, type, value));
@@ -762,15 +763,15 @@
       openEdit(true);
     }
 
-    /* What the seller has not seen yet, named rather than counted. The
-       action page was built from three answers and published straight away,
-       so everything past the button's label is still a guess Jimdo made —
-       and the place to change it is the page's own screen, not this dialog,
-       which only owns the button. Sentence case: production's string is
-       title case, which is the odd one out in this product. */
+    /* What the seller has not seen yet, named rather than counted. The page
+       was built from three answers and published straight away, so
+       everything past the button's label is still a guess Jimdo made.
+       No way through to it from here: the screen that owns those fields is
+       not reachable mid-edit, so the note says when they can be changed
+       rather than offering a door that is not there. */
     const REVIEW_NOTE = {
-      offer: 'The dates, the price and the reply people get are still our suggestions.',
-      form: 'The questions and the reply people get are still our suggestions.',
+      offer: 'We filled in the dates, the price and the reply people get. You can go over them once you are done here.',
+      form: 'We filled in the questions and the reply people get. You can go over them once you are done here.',
     };
 
     function reviewNote(kind) {
@@ -778,10 +779,7 @@
       el.className = 'sheet-notice';
       el.innerHTML =
         '<span class="status-badge status-badge--notice">Ready to review</span>' +
-        '<p class="sheet-notice-copy" data-inspect-phrase=""></p>' +
-        '<button type="button" class="text-action" data-no-phrase ' +
-          'data-nav-to="flows/solo-pages.html" data-nav-screen-id="scr-139">' +
-          'Review it on your action pages</button>';
+        '<p class="sheet-notice-copy" data-inspect-phrase=""></p>';
       el.querySelector('.sheet-notice-copy').textContent =
         REVIEW_NOTE[kind] || REVIEW_NOTE.offer;
       return el;

@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=c8c3760">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=c8c3760">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=db8cc5a">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=db8cc5a">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=c8c3760">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=db8cc5a">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -141,6 +141,12 @@
               <p class="edit-section-title" data-inspect-phrase="">Suggested for your page</p>
             </div>
 
+            <!-- First load: the ideas are still being worked out. Not a
+                 skeleton — see .suggest-pending. -->
+            <div class="suggest-pending" id="suggestPending"
+              data-inspect-label="Suggestions — still coming"
+              data-inspect-phrase=""><svg class="smart-ring" aria-hidden="true"><defs><linearGradient id="smartRingPending477" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><rect stroke="url(#smartRingPending477)"/></svg><span class="ai-suggest-dots" aria-hidden="true"><i></i><i></i><i></i></span><p class="suggest-pending-copy">Working out what suits your business…</p></div>
+
             <ul class="edit-list" id="suggestionList">
               <li>
                 <div class="edit-suggestion" id="sugEvent" data-suggestion="sugEvent" data-edits="link-sugEvent"
@@ -240,6 +246,13 @@
             </ul>
           </div>
 
+            <!-- Both suggestions cleared and nothing added. Production never
+                 shows this list empty, so this state is ours. -->
+            <div class="list-empty" id="listEmpty" hidden
+              data-inspect-label="Empty state — nothing on the page">
+              <p class="list-empty-title" data-inspect-phrase="">Nothing on your page yet</p>
+              <p class="list-empty-copy" data-inspect-phrase="">Add a link, a booking or a form — it lands on your page as you go.</p>
+            </div>
 
         </div>
 
@@ -501,6 +514,12 @@
         <button type="button" class="setup-back-btn" id="formClose" aria-label="Close" data-no-phrase><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
       </div>
       <div class="sheet-body">
+        <!-- The sheet opens on the wait, because the form it describes does
+             not exist yet. See .sheet-busy. -->
+        <div class="sheet-busy" id="formBusy" data-inspect-label="Form — being built">
+          <span class="ai-suggest-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <p class="sheet-busy-copy" data-inspect-phrase="">Writing the questions people will answer…</p>
+        </div>
         <p class="sheet-copy" data-inspect-phrase="">It is on your page already. You can change the questions whenever you like.</p>
 
         <div class="form-preview"
@@ -545,8 +564,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=c8c3760"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=c8c3760"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=db8cc5a"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=db8cc5a"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -888,8 +907,6 @@
 
       editTitle.textContent = t.type;
 
-      if (b && b.review) editFields.appendChild(reviewNote(kind));
-
       if (!t.noLabel) {
         editFields.appendChild(field('Button label', 'text', labelOf(kind, b)));
       }
@@ -898,6 +915,9 @@
         // What this button points at. Opening it is how the thing behind the
         // button gets changed, which is a different dialog from this one.
         editFields.appendChild(refBox(b ? b.label : t.type, t.ref, kind, blockKey));
+        // Under the box it is about: the note describes the page behind the
+        // button, which is what that box opens.
+        if (b && b.review) editFields.appendChild(reviewNote(kind));
       } else {
         (t.fields || []).forEach(([label, type, value]) => {
           editFields.appendChild(field(label, type, value));
@@ -914,15 +934,15 @@
       openEdit(true);
     }
 
-    /* What the seller has not seen yet, named rather than counted. The
-       action page was built from three answers and published straight away,
-       so everything past the button's label is still a guess Jimdo made —
-       and the place to change it is the page's own screen, not this dialog,
-       which only owns the button. Sentence case: production's string is
-       title case, which is the odd one out in this product. */
+    /* What the seller has not seen yet, named rather than counted. The page
+       was built from three answers and published straight away, so
+       everything past the button's label is still a guess Jimdo made.
+       No way through to it from here: the screen that owns those fields is
+       not reachable mid-edit, so the note says when they can be changed
+       rather than offering a door that is not there. */
     const REVIEW_NOTE = {
-      offer: 'The dates, the price and the reply people get are still our suggestions.',
-      form: 'The questions and the reply people get are still our suggestions.',
+      offer: 'We filled in the dates, the price and the reply people get. You can go over them once you are done here.',
+      form: 'We filled in the questions and the reply people get. You can go over them once you are done here.',
     };
 
     function reviewNote(kind) {
@@ -930,10 +950,7 @@
       el.className = 'sheet-notice';
       el.innerHTML =
         '<span class="status-badge status-badge--notice">Ready to review</span>' +
-        '<p class="sheet-notice-copy" data-inspect-phrase=""></p>' +
-        '<button type="button" class="text-action" data-no-phrase ' +
-          'data-nav-to="flows/solo-pages.html" data-nav-screen-id="scr-139">' +
-          'Review it on your action pages</button>';
+        '<p class="sheet-notice-copy" data-inspect-phrase=""></p>';
       el.querySelector('.sheet-notice-copy').textContent =
         REVIEW_NOTE[kind] || REVIEW_NOTE.offer;
       return el;
@@ -1072,6 +1089,11 @@
     };
     const BLOCK_ROWS = { rowMainlink: 'mainlink', rowMap: 'map' };
 
+    /* The ideas are asked for when the screen opens and land a moment later.
+       Held in one flag so refresh() can own all three states of the list. */
+    let suggestionsPending = true;
+    const SUGGEST_MS = 1400;
+
     function refresh() {
       Object.keys(ON).forEach((k) => {
         const row = document.getElementById('row' + k.charAt(0).toUpperCase() + k.slice(1));
@@ -1103,7 +1125,10 @@
         // suggestion is a thing to do next, and this is not one any more;
         // the upgrade it would need is offered where they go to add
         // something, not standing in the list of what they have.
-        document.getElementById(id).closest('li').hidden = s.removed || s.done || capped;
+        // While the ideas are still being worked out there are no ideas to
+        // show: the placeholder stands where they will land, not beside them.
+        document.getElementById(id).closest('li').hidden =
+          s.removed || s.done || capped || suggestionsPending;
       });
 
       const hasBlockRow = Object.keys(BLOCK_ROWS).some((id) => ON[BLOCK_ROWS[id]]) ||
@@ -1113,6 +1138,16 @@
       document.getElementById('headSuggest').hidden = noSuggestions;
       // Nothing to ask again about once the pair is gone.
       document.getElementById('regenSuggest').hidden = noSuggestions;
+
+      /* Three states, one list. While the ideas are being worked out the
+         placeholder stands where they will land; once they arrive it goes.
+         Empty is the third: nothing on the page and nothing left to
+         suggest, which is only reachable by clearing both. */
+      const pend = document.getElementById('suggestPending');
+      pend.hidden = !suggestionsPending;
+      if (suggestionsPending) document.getElementById('regenSuggest').hidden = true;
+      document.getElementById('listEmpty').hidden =
+        suggestionsPending || !noSuggestions || hasBlockRow;
 
     }
 
@@ -1151,7 +1186,25 @@
        form itself. The piece is finished at that point — there is nothing
        left for the seller to fill in — so it is marked done on the way. */
     const formSheet = document.getElementById('formSheet');
-    const openForm = (on) => formSheet.setAttribute('data-open', String(on));
+    /* Making a form takes a moment, and the sheet is the only place that can
+       say so: the row behind it is already there, pending, and the page the
+       row points at is what is being built. Opens busy, settles into the
+       form it made. */
+    const formTitle = document.getElementById('formSheetTitle');
+    const FORM_BUILD_MS = 1600;
+    let formTimer = null;
+
+    function openForm(on) {
+      clearTimeout(formTimer);
+      formSheet.setAttribute('data-open', String(on));
+      if (!on) { formSheet.removeAttribute('data-busy'); return; }
+      formSheet.setAttribute('data-busy', 'true');
+      formTitle.textContent = 'Making your form';
+      formTimer = setTimeout(() => {
+        formSheet.removeAttribute('data-busy');
+        formTitle.textContent = 'We made this form for you';
+      }, FORM_BUILD_MS);
+    }
 
     document.querySelectorAll('[data-setup]').forEach((btn) =>
       btn.addEventListener('click', () => {
@@ -1742,6 +1795,14 @@
     });
 
     refresh();
+
+    /* Settles once, on first load. Regenerate has a wait of its own — it
+       dims the pair that is already there rather than replacing the list. */
+    setTimeout(() => {
+      suggestionsPending = false;
+      refresh();
+      split.sync();
+    }, SUGGEST_MS);
   </script>
 
 </body>

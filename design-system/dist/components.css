@@ -5527,6 +5527,92 @@ body {
    says the same word twice. Kept in the markup because the screen's own JS
    shows and hides it with the list it belongs to. */
 .app-shell-setup-split[data-layout="step"] .edit-section-head--tagged { display: none; }
+/* ── Nothing on the page yet ──
+   Reached only when the seller has cleared both suggestions and added
+   nothing — a state production does not have, because production never
+   shows the list empty. Centred and subdued, the way the action pages list
+   states its own empty: it is a fact about the page, not a job to do. No
+   call to action inside it, because Add link is already standing in the
+   drawer's head two rows above. */
+.list-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
+  padding: var(--jui-layout-padding-xl) var(--jui-layout-padding-m);
+  text-align: center;
+}
+.list-empty[hidden] { display: none; }
+.list-empty-title {
+  margin: 0;
+  font-size: var(--jui-typography-sub-headline-small-size);
+  font-weight: var(--jui-typography-sub-headline-small-weight);
+  line-height: var(--jui-typography-sub-headline-small-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+.list-empty-copy {
+  margin: 0;
+  max-width: 36ch;
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
+/* ── Suggestions still coming ──
+   Not a skeleton. This screen already settled that argument for the domain
+   row: a skeleton stands in for text whose shape you already know, and an
+   offer the seller has not seen yet has no shape to stand in for — a bar of
+   nothing says nothing. So the card says what is happening instead, inside
+   the same drawn gradient ring the finished suggestion wears, because the
+   thing being waited for is the product thinking. */
+.suggest-pending {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-s);
+  width: 100%;
+  padding: var(--jui-layout-padding-m);
+  border: 1px dashed transparent;
+  border-radius: var(--jui-style-radius-16);
+  background: var(--jui-color-background-gray-medium);
+}
+.suggest-pending[hidden] { display: none; }
+.suggest-pending-copy {
+  margin: 0;
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
+/* ── A form being built ──
+   The sheet stays open and says so rather than closing on a promise: the
+   page behind the button does not exist until this finishes, and the row
+   the seller lands back on would otherwise appear before the thing it
+   points at. The control it replaces is the one that started the wait. */
+.sheet-busy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--jui-layout-gap-s);
+  padding: var(--jui-layout-padding-xl) var(--jui-layout-padding-m);
+  text-align: center;
+}
+.sheet-busy[hidden] { display: none; }
+/* Busy, the sheet shows the wait and nothing else — the body below it is
+   describing a form that does not exist yet, and the control that would
+   dismiss it would dismiss a promise. */
+.sheet-backdrop:not([data-busy="true"]) .sheet-busy { display: none; }
+.sheet-backdrop[data-busy="true"] .sheet-busy ~ * { display: none; }
+.sheet-backdrop[data-busy="true"] .sheet-actions,
+.sheet-backdrop[data-busy="true"] .sheet-head .setup-back-btn { display: none; }
+.sheet-busy-copy {
+  margin: 0;
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
 /* ── Tag ──
    @jimdo/ui Tag, which is not Status: it labels the card as one of the
    product's guesses, it does not report a state the seller has to act on.
