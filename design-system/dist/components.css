@@ -5350,12 +5350,11 @@ body {
 }
 
 @media (min-width: 768px) {
-  /* The desktop bar is 32 high and the control has to fit inside it, not
-     set it: at dimension-s per item plus its own 2px tray the bar grew to
-     36 and stopped matching the step screens' beside it. The item gives the
-     tray back rather than the tray giving up its inset. */
-  .seg-control--header .seg-control-item {
-    height: calc(var(--jui-layout-dimension-s) - 4px);
+  /* The item was shrunk to fit a 32px bar back when this header stood in for
+     an onboarding one. The editor's own bar is 56, and the frame gives the
+     tray its full 40 — dimension-s per item inside a 4px tray. */
+  .app-shell-setup-split[data-layout="step"] .seg-control--header .seg-control-item {
+    height: var(--jui-layout-dimension-s);
   }
 }
 
@@ -5466,6 +5465,14 @@ body {
    the gradient says the product wrote this, which is what a suggestion is. */
 .app-shell-setup-split[data-layout="step"] .edit-suggestion {
   position: relative;
+  /* A column at every width. The v1 card turns into a row above 768, which
+     worked when its head carried the icon and the words together — here the
+     head carries the icon and the tag, and the name is a sibling, so a row
+     laid the tag across the name. Specificity does the overriding: the rule
+     that sets the row is a bare .edit-suggestion inside a media query, and a
+     media query adds none. */
+  flex-direction: column;
+  align-items: stretch;
   gap: var(--jui-layout-gap-s);
   padding: var(--jui-layout-padding-m);
   /* Transparent rather than removed, so the ring drawn over it does not
@@ -5509,14 +5516,26 @@ body {
 .app-shell-setup-split[data-layout="step"] .edit-suggestion-head {
   align-items: center;
   gap: var(--jui-layout-gap-s);
+  /* Neither half of the card grows. The width rule above lays the v1
+     suggestion out as a row on desktop and stretches these two to fill it;
+     in a column that turns a 20px strip into whatever is left over. */
+  flex: 0 0 auto;
 }
 .app-shell-setup-split[data-layout="step"] .edit-suggestion-mark {
   width: 16px;
   height: 16px;
   margin-top: 0;
 }
+/* The glyph inside it too — the mark is 16 but the icon it holds is sized
+   for a row, where it is 20. */
+.app-shell-setup-split[data-layout="step"] .edit-suggestion .edit-row-icon,
+.app-shell-setup-split[data-layout="step"] .edit-suggestion .edit-row-icon svg {
+  width: 16px;
+  height: 16px;
+}
 .app-shell-setup-split[data-layout="step"] .edit-suggestion-copy {
   gap: var(--jui-layout-gap-xxs);
+  flex: 0 0 auto;
 }
 .app-shell-setup-split[data-layout="step"] .edit-suggestion-actions {
   justify-content: flex-end;
@@ -5613,6 +5632,92 @@ body {
   color: var(--jui-color-typography-gray-on-light-subdued);
 }
 
+/* ═══ Editor step — the desktop frame ═══════════════════════════════════
+   Figma 17633:2529. Three things differ from the phone, and none of them
+   are the same component behaving responsively — they are deliberate
+   rearrangements, so each is stated here rather than inferred.
+
+   1. The bar belongs to the setup column, not the page. The preview runs
+      the full height beside it, with its grey panel's top edge level with
+      the toggle. Absolute, because the bar is a sibling of the two columns
+      rather than a child of one, and moving it in the markup would put it
+      inside the drawer on a phone.
+   2. The card's actions ride the header row, opposite the tag, instead of
+      sitting under the words. A grid, because head and actions are
+      siblings of copy and only a grid can put two of them on one row
+      without a wrapper the phone would then have to undo.
+   3. Add link is a full-height primary at the foot of the column, not the
+      small one beside the title. */
+@media (min-width: 768px) {
+  .app-shell-setup-split[data-layout="step"] { position: relative; }
+
+  /* Over the column it belongs to. The width is the column's own share of
+     the row — half, less half the gap between them. */
+  .app-shell-setup-split[data-layout="step"] .setup-split-header {
+    position: absolute;
+    top: var(--layout-gutter-sm);
+    right: 0;
+    width: calc(50% - (var(--layout-base) / 2));
+    min-height: 56px;
+    padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-s)
+             var(--jui-layout-padding-xs) var(--jui-layout-padding-xs);
+    justify-content: space-between;
+  }
+  /* Back to the left. It was pushed to the far end while the bar spanned
+     the page and a back button sat opposite it; in a column-width bar the
+     frame puts it first and Done last. */
+  .app-shell-setup-split[data-layout="step"] .seg-control--header {
+    margin-left: 0;
+    margin-right: 0;
+  }
+  /* The column starts under the bar standing over it, and takes the same
+     share of the row the bar is given — both read `half, less half the gap`
+     from one place, so the toggle starts exactly where the column's own
+     content does. Left to flex they drifted 12px apart: the two columns
+     report the same flex-grow and basis and still settle 608/584. */
+  .app-shell-setup-split[data-layout="step"] .setup-split-form {
+    flex: 0 0 calc(50% - (var(--layout-base) / 2));
+    padding-top: 56px;
+  }
+
+  /* 24 above the title, which is where the frame starts its column, and 16
+     between the title and the list — the editing column runs tighter than
+     the setup one it inherits from. */
+  .app-shell-setup-split[data-layout="step"] .setup-split-form > .setup-split-intro {
+    padding-top: var(--layout-spacing-lg);
+  }
+  .app-shell-setup-split[data-layout="step"] .setup-split-fields {
+    padding-top: var(--jui-layout-padding-m);
+  }
+
+  /* Two rows: the tag and the actions share the first, the words take the
+     second whole. 12 between them, 16 around. */
+  .app-shell-setup-split[data-layout="step"] .edit-suggestion {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "head actions" "copy copy";
+    align-items: center;
+    row-gap: var(--jui-layout-gap-s);
+    column-gap: var(--jui-layout-gap-s);
+  }
+  .app-shell-setup-split[data-layout="step"] .edit-suggestion-head { grid-area: head; }
+  .app-shell-setup-split[data-layout="step"] .edit-suggestion-actions { grid-area: actions; }
+  .app-shell-setup-split[data-layout="step"] .edit-suggestion-copy { grid-area: copy; }
+
+  /* Add link moves to the foot of the column and grows to a full-height
+     primary; the one beside the title stands down. */
+  .app-shell-setup-split[data-layout="step"] .step-drawer-head .btn-primary { display: none; }
+  .app-shell-setup-split[data-layout="step"] .step-col-actions {
+    justify-content: flex-start;
+    padding-left: var(--jui-layout-padding-m);
+  }
+}
+
+/* The phone keeps Add link in the drawer's head, where the frame puts it,
+   so the column footer is desktop-only. */
+@media (max-width: 767px) {
+  .step-col-actions { display: none; }
+}
 /* ── Tag ──
    @jimdo/ui Tag, which is not Status: it labels the card as one of the
    product's guesses, it does not report a state the seller has to act on.

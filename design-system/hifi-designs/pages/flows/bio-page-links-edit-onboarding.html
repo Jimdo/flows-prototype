@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=db8cc5a">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=db8cc5a">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=280aa64">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=280aa64">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=db8cc5a">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=280aa64">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -81,7 +81,7 @@
         <div class="setup-split-intro" data-view-only="list">
           <div class="step-drawer-head">
             <h1 class="setup-split-title" data-inspect-phrase="">Edit links</h1>
-            <button type="button" class="btn btn-primary btn-sm" id="addBtn"
+            <button type="button" class="btn btn-primary btn-sm" id="addBtn" data-add-open
               data-inspect-label="Primary Button — Add link, Size=Small"
               data-inspect-tokens='[{"prop":"background","figma":"$jui-color-actions-primary-rest","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px"}]'
               data-inspect-phrase="">Add link</button>
@@ -256,6 +256,16 @@
 
         </div>
 
+
+        <!-- Figma 17633:2654 Actions Container: at the foot of the column,
+             left-aligned and full height. On a phone Add link stays in the
+             drawer head instead — see .step-col-actions. -->
+        <div class="setup-split-actions step-col-actions" data-view-only="list">
+          <button type="button" class="btn btn-primary" data-add-open
+            data-inspect-label="Primary Button — Add link"
+            data-inspect-tokens='[{"prop":"background","figma":"$jui-color-actions-primary-rest","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"height","figma":"$jui-layout-dimension-m","css":"--jui-layout-dimension-m","value":"48px"}]'
+            data-inspect-phrase="">Add link</button>
+        </div>
 
         <div class="setup-split-actions" data-view-only="add">
           <button class="btn btn-secondary" id="addBack" data-inspect-phrase="">Back</button>
@@ -564,8 +574,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=db8cc5a"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=db8cc5a"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=280aa64"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=280aa64"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -1093,6 +1103,12 @@
        Held in one flag so refresh() can own all three states of the list. */
     let suggestionsPending = true;
     const SUGGEST_MS = 1400;
+
+    /* The capture script would otherwise freeze the screen mid-wait, and
+       every thumbnail of it would be a placeholder. This is the protocol
+       screenshot.js already honours — hold, then release once the list has
+       settled. Capped at 12s on its side, so a stall cannot block a run. */
+    window.__screenshotPending = true;
 
     function refresh() {
       Object.keys(ON).forEach((k) => {
@@ -1681,7 +1697,10 @@
       row.addEventListener('click', () => openPicker(row.getAttribute('data-picker'))));
     headBacks.forEach((b) => b.addEventListener('click', closePicker));
 
-    document.getElementById('addBtn').addEventListener('click', openAdd);
+    // Two of them — the drawer head on a phone, the column foot on
+    // desktop — and only one is ever on screen.
+    document.querySelectorAll('[data-add-open]').forEach((b) =>
+      b.addEventListener('click', openAdd));
     document.getElementById('addBack').addEventListener('click', closeAdd);
     document.getElementById('addClose').addEventListener('click', closeAdd);
     sheet.addEventListener('click', (e) => { if (e.target === sheet) closeAdd(); });
@@ -1802,6 +1821,7 @@
       suggestionsPending = false;
       refresh();
       split.sync();
+      window.__screenshotReady = true;
     }, SUGGEST_MS);
   </script>
 
