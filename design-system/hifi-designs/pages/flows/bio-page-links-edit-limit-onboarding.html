@@ -87,6 +87,13 @@
               data-inspect-phrase="">Add link</button>
           </div>
         </div>
+        <!-- The add list is a sub-screen of the drawer on a phone, so it
+             carries its own head: a way back to the list, and a title,
+             because the drawer covers the page it is about. -->
+        <div class="setup-split-intro setup-split-intro--back" data-view-only="add">
+          <button type="button" class="setup-back-btn add-head-back" data-add-back aria-label="Back" data-no-phrase hidden><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+          <h1 class="setup-split-title" data-inspect-phrase="biopage.add.title">Add to your page</h1>
+        </div>
 
         <!-- --scroll, because this panel holds a list: without it the drawer
              clipped everything past its own height on a phone and there was

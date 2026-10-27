@@ -87,6 +87,13 @@
               data-inspect-phrase="">Add link</button>
           </div>
         </div>
+        <!-- The add list is a sub-screen of the drawer on a phone, so it
+             carries its own head: a way back to the list, and a title,
+             because the drawer covers the page it is about. -->
+        <div class="setup-split-intro setup-split-intro--back" data-view-only="add">
+          <button type="button" class="setup-back-btn add-head-back" data-add-back aria-label="Back" data-no-phrase hidden><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+          <h1 class="setup-split-title" data-inspect-phrase="biopage.add.title">Add to your page</h1>
+        </div>
 
         <!-- --scroll, because this panel holds a list: without it the drawer
              clipped everything past its own height on a phone and there was
@@ -1407,9 +1414,41 @@
 
     const ideaGrid = document.getElementById('ideaGrid');
 
+    /* The suggestion the seller did not take.
+       Accepting one uses the free action page, which puts the other out of
+       reach — and it used to simply vanish from the list, which reads as the
+       product withdrawing an idea the seller had just been weighing. It comes
+       here instead, wearing the price: the add list is where you go to put
+       something on the page, and this is the thing that would cost money to
+       put there. Two things fall out of that, and both are the point. The
+       seller can see the plan is why it is gone rather than guessing, and the
+       idea they liked is still on the table if they come back for it.
+
+       Read off the card rather than the table, because the pair can be
+       regenerated and the table holds the round that is current, not the
+       round this one came from. */
+    function strandedSuggestions() {
+      if (!limitReached()) return [];
+      return pending().map((id) => {
+        const el = document.getElementById(id);
+        if (!el) return null;
+        const label = el.querySelector('.edit-row-label');
+        const why = el.querySelector('.edit-suggestion-why');
+        return {
+          shape: SUGGESTION_KIND[SUGGESTIONS[id].editor] || 'book',
+          title: label ? label.textContent.trim() : '',
+          detail: why ? why.textContent.trim() : '',
+        };
+      }).filter(Boolean);
+    }
+
     function renderIdeas(ideas) {
       ideaGrid.innerHTML = '';
-      ideas.forEach((idea) => {
+      /* First, and it displaces a guess rather than joining them: the grid
+         holds three, and a guess can be rolled again where this cannot. */
+      const stranded = strandedSuggestions();
+      const list = stranded.concat(ideas).slice(0, Math.max(3, stranded.length));
+      list.forEach((idea) => {
         const capped = limitReached();
         const card = document.createElement('div');
         card.className = 'add-card' + (capped ? ' add-card--upgrade' : '');
