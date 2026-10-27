@@ -6856,11 +6856,14 @@ body {
 .plan-addon {
   display: grid;
   grid-template-columns: auto 1fr auto;
-  grid-template-areas: "tick name price" ".    copy copy";
+  /* The benefits run the card's full width rather than starting after the
+     tick. Indented they lost a third of the column to an empty gutter and
+     every line wrapped; the header row is what the tick belongs to. */
+  grid-template-areas: "tick name price" "copy copy copy";
   align-items: center;
   column-gap: var(--jui-layout-gap-s);
-  row-gap: var(--jui-layout-gap-xxs);
-  padding: var(--jui-layout-padding-s);
+  row-gap: var(--jui-layout-gap-xs);
+  padding: var(--jui-layout-padding-m);
   border: 1px solid var(--jui-color-stroke-upgrade-on-light);
   border-radius: var(--jui-style-radius-12);
   /* Quiet until taken. White on the plan's purple would make the one the
@@ -6929,9 +6932,24 @@ body {
   line-height: var(--jui-typography-body-small-medium-lh);
   color: var(--jui-color-typography-upgrade-on-light);
 }
-.plan-addon-copy {
+/* Three lines rather than one. What each add-on actually does is the thing
+   the seller is deciding on, and a single sentence was asking them to buy a
+   name. Taken from what production already says about each — the bookings
+   banner's own body, and the three pages the legal generator writes.
+
+   No tick beside them, deliberately. The card already carries a checkbox,
+   and a list of ticks under an unticked box reads as "you have these"
+   exactly when the seller does not. The leading does the separating. */
+.plan-addon-benefits {
   grid-area: copy;
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xxs);
   margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.plan-addon-benefit {
   font-size: var(--jui-typography-body-small-regular-size);
   line-height: var(--jui-typography-body-small-regular-lh);
   color: var(--jui-color-typography-gray-on-light-subdued);

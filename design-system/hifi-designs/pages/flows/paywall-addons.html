@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>paywall-addons</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=d37a4d4">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=d37a4d4">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=c642af7">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=c642af7">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=d37a4d4">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=c642af7">
 <style>
   /* ─── Screen overrides ───
      The three explorations differ only in what sits between the list and the
@@ -141,14 +141,22 @@
                     <input type="checkbox" id="addonBooking" data-addon="booking" aria-label="Add bookings and payments">
                     <span class="plan-addon-name" data-inspect-phrase="paywall.addon.booking.name">Bookings</span>
                     <span class="plan-addon-price" id="addonBookingPrice" data-no-phrase>+€6.50</span>
-                    <span class="plan-addon-copy" data-inspect-phrase="paywall.addon.booking.copy">Take bookings and payments for everything you offer.</span>
+                    <ul class="plan-addon-benefits">
+                      <li class="plan-addon-benefit" data-inspect-phrase="paywall.addon.booking.b1">Create events people sign up for</li>
+                      <li class="plan-addon-benefit" data-inspect-phrase="paywall.addon.booking.b2">Open your calendar for them to book</li>
+                      <li class="plan-addon-benefit" data-inspect-phrase="paywall.addon.booking.b3">Get paid online when they book</li>
+                    </ul>
                   </label>
 
                   <label class="plan-addon">
                     <input type="checkbox" id="addonLegal" data-addon="legal" aria-label="Add legal text">
                     <span class="plan-addon-name" data-inspect-phrase="paywall.addon.legal.name">Legal text</span>
                     <span class="plan-addon-price" id="addonLegalPrice" data-no-phrase>+€9</span>
-                    <span class="plan-addon-copy" data-inspect-phrase="paywall.addon.legal.copy">An imprint and a privacy policy, updated when the rules change.</span>
+                    <ul class="plan-addon-benefits">
+                      <li class="plan-addon-benefit" data-inspect-phrase="paywall.addon.legal.b1">An imprint that says who you are</li>
+                      <li class="plan-addon-benefit" data-inspect-phrase="paywall.addon.legal.b2">A privacy policy for what you collect</li>
+                      <li class="plan-addon-benefit" data-inspect-phrase="paywall.addon.legal.b3">Cookie settings visitors can change</li>
+                    </ul>
                   </label>
                 </div>
               </div>
@@ -177,8 +185,8 @@
                        argue that Grow is cheaper than buying both; it just has
                        to be possible to see, and matching strings is what makes
                        two prices beside each other comparable. -->
-                  <li class="plan-feature"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span data-inspect-phrase="paywall.addon.booking.copy">Take bookings and payments for everything you offer.</span></li>
-                  <li class="plan-feature"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span data-inspect-phrase="paywall.addon.legal.copy">An imprint and a privacy policy, updated when the rules change.</span></li>
+                  <li class="plan-feature"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span data-inspect-phrase="paywall.plan.grow.f2">Bookings — events, your calendar and online payment</span></li>
+                  <li class="plan-feature"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span data-inspect-phrase="paywall.plan.grow.f3">Legal text — imprint, privacy policy and cookie settings</span></li>
                 </ul>
               </div>
             </div>
@@ -199,8 +207,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=d37a4d4"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=d37a4d4"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=c642af7"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=c642af7"></script>
   <script>
     /* ── Closing goes back, not home ──
        The paywall is reached from several places: the legal trigger in the
