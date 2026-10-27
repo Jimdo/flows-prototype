@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=cec7c73">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=cec7c73">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=d37a4d4">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=d37a4d4">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=cec7c73">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=d37a4d4">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -148,11 +148,19 @@
               <p class="edit-section-title" data-inspect-phrase="">Suggested for your page</p>
             </div>
 
-            <!-- First load: the ideas are still being worked out. Not a
-                 skeleton — see .suggest-pending. -->
-            <div class="suggest-pending" id="suggestPending"
+            <!-- First load: the ideas are still being worked out. Two of them,
+                 because the pair is always one thing people book and one thing
+                 they ask about — the words are unknown, the shape is not, and
+                 standing in for one card while two arrive dropped everything
+                 below by a third of a screen. Not a skeleton: each says what
+                 is being looked for. -->
+            <div class="suggest-pending" id="suggestPending" data-pending
               data-inspect-label="Suggestions — still coming"
-              data-inspect-phrase=""><svg class="smart-ring" aria-hidden="true"><defs><linearGradient id="smartRingPending477" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><rect stroke="url(#smartRingPending477)"/></svg><span class="ai-suggest-dots" aria-hidden="true"><i></i><i></i><i></i></span><p class="suggest-pending-copy">Working out what suits your business…</p></div>
+              data-inspect-phrase=""><svg class="smart-ring" aria-hidden="true"><defs><linearGradient id="smartRingPendingA" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><rect stroke="url(#smartRingPendingA)"/></svg><span class="ai-suggest-dots" aria-hidden="true"><i></i><i></i><i></i></span><p class="suggest-pending-copy">Working out something people can book…</p></div>
+
+            <div class="suggest-pending" data-pending
+              data-inspect-label="Suggestions — still coming"
+              data-inspect-phrase=""><svg class="smart-ring" aria-hidden="true"><defs><linearGradient id="smartRingPendingB" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><rect stroke="url(#smartRingPendingB)"/></svg><p class="suggest-pending-copy">…and something they ask about first.</p></div>
 
             <ul class="edit-list" id="suggestionList">
               <li>
@@ -256,11 +264,13 @@
           <!-- The last two lines of the published page, closing the list that
                is in the page's own order. Both are paid, both wear the crown,
                and neither pretends to be a switch — see .edit-row--footer. -->
-          <div class="edit-section" id="sectionFooter" data-view-only="list">
-            <div class="edit-section-head">
+          <div class="edit-section edit-section--fold" id="sectionFooter" data-view-only="list" data-open="false">
+            <button type="button" class="edit-section-head" id="footerToggle"
+              aria-expanded="false" aria-controls="footerList" data-no-phrase>
               <p class="edit-section-title" data-inspect-phrase="biopage.edit.section.footer">Page footer</p>
-            </div>
-            <ul class="edit-list">
+              <span class="edit-section-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6 9L12 15L18 9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></span>
+            </button>
+            <ul class="edit-list" id="footerList">
               <li>
                 <button type="button" class="edit-row edit-row--footer" id="rowBranding" data-no-phrase
                   data-inspect-label="Footer row — paid"
@@ -615,8 +625,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=cec7c73"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=cec7c73"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=d37a4d4"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=d37a4d4"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -1200,9 +1210,26 @@
          placeholder stands where they will land; once they arrive it goes.
          Empty is the third: nothing on the page and nothing left to
          suggest, which is only reachable by clearing both. */
-      const pend = document.getElementById('suggestPending');
-      pend.hidden = !suggestionsPending;
-      if (suggestionsPending) document.getElementById('regenSuggest').hidden = true;
+      document.querySelectorAll('[data-pending]').forEach((el) => {
+        el.hidden = !suggestionsPending;
+      });
+      /* And the list it stands in for goes with them. Left in place at zero
+         height it still counted as a flex child, so the column carried one
+         gap too many and the pair arrived 8px shorter than the wait. */
+      document.getElementById('suggestionList').hidden = suggestionsPending;
+      /* The first load is a generation in flight, so Regenerate wears the
+         state a re-roll wears rather than vanishing: same spinner, same
+         subdued label, and it holds its own line so nothing below it steps
+         down when the pair lands. */
+      const regen = document.getElementById('regenSuggest');
+      if (suggestionsPending) {
+        regen.hidden = false;
+        regen.setAttribute('data-busy', 'true');
+        regen.setAttribute('aria-disabled', 'true');
+      } else if (regen.getAttribute('aria-disabled') === 'true') {
+        regen.setAttribute('data-busy', 'false');
+        regen.removeAttribute('aria-disabled');
+      }
       document.getElementById('listEmpty').hidden =
         suggestionsPending || !noSuggestions || hasBlockRow;
 
@@ -1779,6 +1806,20 @@
        seller wants is a plan rather than a thing to edit, so both go to the
        price list and neither opens a dialog that would end in the same
        place. */
+    /* Shut on arrival and opened by its own head. The two rows inside are
+       worth finding rather than worth meeting first, and leaving them out of
+       the first view keeps the list about what is on the page. */
+    const footerSection = document.getElementById('sectionFooter');
+    const footerToggle = document.getElementById('footerToggle');
+    if (footerToggle) {
+      footerToggle.addEventListener('click', () => {
+        const open = footerSection.getAttribute('data-open') !== 'true';
+        footerSection.setAttribute('data-open', String(open));
+        footerToggle.setAttribute('aria-expanded', String(open));
+        split.sync();
+      });
+    }
+
     ['rowBranding', 'rowLegal'].forEach((id) => {
       const row = document.getElementById(id);
       if (row) row.addEventListener('click', () => { window.location.href = PAYWALL; });

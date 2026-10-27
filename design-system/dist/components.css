@@ -5600,10 +5600,20 @@ body {
   align-items: center;
   gap: var(--jui-layout-gap-s);
   width: 100%;
+  /* The height a first-round card lands at, so the list below does not move
+     when the pair arrives. It was one 56px card standing in for 368, and
+     everything under it — Regenerate, the page's own rows, the footer —
+     dropped a third of a screen the moment the ideas came back.
+     A first load is always round one, which is the only round this is ever
+     shown against, so the number is the one that will actually arrive. */
+  min-height: 180px;
   padding: var(--jui-layout-padding-m);
   border: 1px dashed transparent;
   border-radius: var(--jui-style-radius-16);
   background: var(--jui-color-background-gray-medium);
+}
+@media (min-width: 768px) {
+  .suggest-pending { min-height: 126px; }
 }
 .suggest-pending[hidden] { display: none; }
 .suggest-pending-copy {
@@ -5758,6 +5768,10 @@ body {
 /* display:flex on these outranks the hidden attribute on its own. */
 .edit-section-head[hidden] { display: none; }
 .edit-row[hidden] { display: none; }
+/* Same reason, one level up: the list is display:flex, so hiding it left a
+   zero-height flex child still drawing the column's gap — which is exactly
+   the 8px the pair arrived short by. */
+.edit-list[hidden] { display: none; }
 /* A row is hidden by hiding the row, which left its li behind as an empty
    flex item — no height, but still collecting the list's gap on both sides.
    At the end of the list that is invisible; dragged into the middle it is
@@ -6696,6 +6710,43 @@ body {
   .paywall-logo { padding-inline-start: var(--jui-layout-padding-xs); }
   .paywall-logo svg { width: 58px; }
 }
+
+/* ── A section that folds ──
+   Used by the page footer, which is two things the seller does not own yet:
+   worth finding, not worth meeting first. Shut on arrival, so the list opens
+   on what is on the page rather than on what is not.
+   The head is the control — a title with a chevron beside it is a title you
+   have to aim at, and the whole row is already the width of the list. */
+.edit-section--fold > .edit-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--jui-layout-gap-s);
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.edit-section--fold > .edit-section-head:focus-visible {
+  outline: 2px solid var(--jui-color-actions-primary-rest);
+  outline-offset: 4px;
+  border-radius: var(--jui-style-radius-4);
+}
+.edit-section-chevron {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  color: var(--jui-color-typography-gray-on-light-subdued);
+  transition: transform 160ms ease-out;
+}
+.edit-section-chevron svg { width: 100%; height: 100%; display: block; }
+.edit-section--fold[data-open="true"] > .edit-section-head .edit-section-chevron {
+  transform: rotate(180deg);
+}
+.edit-section--fold[data-open="false"] > .edit-list { display: none; }
 
 /* ═══ Page footer rows ══════════════════════════════════════════════════
    The two things at the foot of the published page the seller does not own
