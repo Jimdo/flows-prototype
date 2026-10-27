@@ -5201,18 +5201,28 @@ body {
 }
 .edit-suggestion .edit-row-grip,
 .edit-row .edit-row-grip { opacity: 0; }
-.edit-suggestion:hover .edit-row-icon,
-.edit-suggestion:focus-within .edit-row-icon,
-.edit-row:hover .edit-row-icon,
-.edit-row:focus-within .edit-row-icon { opacity: 0; }
+
+/* The swap is gated on the grip being there, because a drag only ever
+   starts from one — drag-list.js takes a pointerdown, looks for the closest
+   .edit-row-grip and returns if there is none. So `has a grip` is not a
+   convenient stand-in for `can be rearranged`, it is the same test.
+   Ungated, every row faded its icon on hover whether or not anything was
+   waiting to replace it, and the ones that cannot be dragged — the page
+   footer's two, and the suggestion cards since they lost their grip to the
+   Figma rebuild — just went blank under the pointer. */
+.edit-suggestion:has(.edit-row-grip):hover .edit-row-icon,
+.edit-suggestion:has(.edit-row-grip):focus-within .edit-row-icon,
+.edit-row:has(.edit-row-grip):hover .edit-row-icon,
+.edit-row:has(.edit-row-grip):focus-within .edit-row-icon { opacity: 0; }
 .edit-suggestion:hover .edit-row-grip,
 .edit-suggestion:focus-within .edit-row-grip,
 .edit-row:hover .edit-row-grip,
 .edit-row:focus-within .edit-row-grip { opacity: 1; }
-/* Touch has no hover, and no pointer to reveal anything with. */
+/* Touch has no hover, and no pointer to reveal anything with — so the grip
+   stands permanently, and only where there is one to stand. */
 @media (hover: none) {
-  .edit-suggestion .edit-row-icon,
-  .edit-row .edit-row-icon { opacity: 0; }
+  .edit-suggestion:has(.edit-row-grip) .edit-row-icon,
+  .edit-row:has(.edit-row-grip) .edit-row-icon { opacity: 0; }
   .edit-suggestion .edit-row-grip,
   .edit-row .edit-row-grip { opacity: 1; }
 }
