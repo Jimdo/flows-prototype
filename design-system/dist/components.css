@@ -6687,6 +6687,195 @@ body {
   .paywall-logo svg { width: 58px; }
 }
 
+/* ═══ Page footer rows ══════════════════════════════════════════════════
+   The two things at the foot of the published page the seller does not own
+   yet. They close the list because that is where they sit on the page — the
+   list is in the order the page reads, and these are its last two lines.
+
+   Linktree's own footer card is the reference: label, a preview of the
+   thing, and a control at the right. Ours keeps the preview, because a
+   banner you have never looked at is hard to picture, and drops the toggle.
+   A switch that cannot be switched is a lie, and one that silently opens a
+   price list is a worse one; the crown says what the row costs before it is
+   pressed.
+
+   One tier for the pair, and it is the coat: these are ordinary rows of an
+   ordinary list, marked enough to say they are paid. Two volumes here would
+   read as nagging. */
+.edit-row--footer {
+  align-items: flex-start;
+  min-height: var(--jui-layout-dimension-l);
+}
+.edit-row--footer .edit-row-mark { margin-top: 2px; }
+.edit-row-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: left;
+}
+/* The label sheds the single-line clamp the flat rows carry: these name an
+   outcome rather than a thing, and an outcome does not always fit. */
+.edit-row--footer .edit-row-label {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
+.edit-row-sub {
+  margin: 0;
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
+/* The banner as it actually appears, at the size it appears — the one piece
+   of the Linktree card worth keeping. A seller who has never scrolled to the
+   foot of their own page cannot picture what they would be removing. */
+.footer-preview {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xxs);
+  align-self: flex-start;
+  padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-xs);
+  border-radius: var(--jui-style-radius-16);
+  background: var(--jui-color-background-gray-canvas);
+  font-size: var(--jui-typography-label-small-size);
+  line-height: var(--jui-typography-label-small-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+.footer-preview svg {
+  width: 38px;
+  height: auto;
+  display: block;
+  color: var(--jui-color-typography-primary-on-light);
+}
+
+/* Decorative, 16, always the crown — the settled tier-1 mark. On a row it
+   keeps the trailing slot the pencil uses on every other row, so the column
+   of right-hand marks stays a column. */
+.edit-row-crown {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  color: var(--jui-color-decorative-upgrade);
+}
+.edit-row-crown svg { width: 16px; height: 16px; display: block; }
+
+/* ═══ Plan add-ons ══════════════════════════════════════════════════════════
+   Two things the Start plan can be given, priced each. They live in the
+   panel below the feature list rather than among it, because a feature is
+   something the plan has and these are things it could have — the seam the
+   card already uses to separate an answer from a list does that work.
+
+   The headline price is the running total, so the number the seller reads
+   is the number they would pay and it sits where it already sat, beside the
+   button they would press. Nothing here moves while they tick, which is the
+   whole reason the total is up there rather than down here: a figure at the
+   foot of a growing panel is a figure that walks away from the eye. */
+.plan-addons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xs);
+  width: 100%;
+}
+.plan-addons-title {
+  margin: 0;
+  font-size: var(--jui-typography-label-small-size);
+  font-weight: var(--jui-typography-label-small-weight);
+  line-height: var(--jui-typography-label-small-lh);
+  letter-spacing: var(--jui-typography-label-small-ls);
+  text-transform: uppercase;
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
+/* A row that happens to be a label, so the whole card is the hit area and
+   the tick is a mark rather than a control to aim at. */
+.plan-addon {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas: "tick name price" ".    copy copy";
+  align-items: center;
+  column-gap: var(--jui-layout-gap-s);
+  row-gap: var(--jui-layout-gap-xxs);
+  padding: var(--jui-layout-padding-s);
+  border: 1px solid var(--jui-color-stroke-upgrade-on-light);
+  border-radius: var(--jui-style-radius-12);
+  /* Quiet until taken. White on the plan's purple would make the one the
+     seller has not chosen the loudest thing in the card — selection has to
+     read as more, not less. */
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 160ms ease-out, border-color 160ms ease-out;
+}
+.plan-addon:hover { background: var(--jui-color-background-upgrade-light); }
+.plan-addon:focus-within {
+  outline: 2px solid var(--jui-color-actions-upgrade-rest);
+  outline-offset: 2px;
+}
+/* Taken, it lifts off the plan's own purple as a white card — the one state
+   that cannot be mistaken on this ground, and the opposite way round from
+   where this started: tinted-when-on put the chosen card within a shade of
+   the surface behind it. */
+.plan-addon:has(input:checked) {
+  background: var(--jui-color-gray-white);
+  border-color: var(--jui-color-actions-upgrade-rest);
+}
+.plan-addon input {
+  grid-area: tick;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  flex-shrink: 0;
+  border: 1px solid var(--jui-color-gray-300);
+  border-radius: var(--jui-style-radius-4);
+  background: var(--jui-color-gray-white);
+  cursor: pointer;
+  position: relative;
+}
+.plan-addon input:checked {
+  border-color: var(--jui-color-actions-upgrade-rest);
+  background: var(--jui-color-actions-upgrade-rest);
+}
+/* The tick is drawn rather than a glyph: at 20px a registry icon carries
+   more line than the box can hold. */
+.plan-addon input:checked::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid var(--jui-color-typography-upgrade-on-dark);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.plan-addon-name {
+  grid-area: name;
+  font-size: var(--jui-typography-body-small-medium-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  line-height: var(--jui-typography-body-small-medium-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+/* The delta, not a total — it is what this adds to the number above. */
+.plan-addon-price {
+  grid-area: price;
+  white-space: nowrap;
+  font-size: var(--jui-typography-body-small-medium-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  line-height: var(--jui-typography-body-small-medium-lh);
+  color: var(--jui-color-typography-upgrade-on-light);
+}
+.plan-addon-copy {
+  grid-area: copy;
+  margin: 0;
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
 /* ── The line the lawyers need ──
    Under the cards, quiet. It is not a disclaimer to be buried: a price that
    says what it actually costs is read as a price you can trust, and the
