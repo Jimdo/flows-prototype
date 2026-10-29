@@ -6916,11 +6916,13 @@ body {
   color: var(--jui-color-typography-upgrade-on-light);
 }
 
-/* The same ticked list the plan above carries, so what an add-on gives reads
-   as the same kind of thing as what the plan gives. The tick takes the
-   state: grey until the add-on is taken, the plan's own purple after. A tick
-   that is purple either way would say `you have these` at the one moment the
-   seller does not. */
+/* The same ticked list the plan above carries, and the same tick: one
+   decorative-upgrade mark whether or not the add-on has been taken, so the
+   whole card reads as one list rather than two that happen to be stacked.
+   (It was grey until taken, to stop an unticked box sitting over what looks
+   like a list of things the seller already has. Matching the card won that
+   — the checkbox and the panel lifting to white carry the state between
+   them, and the copy still steps up with it.) */
 .plan-addon-benefits {
   grid-area: copy;
   display: flex;
@@ -6943,15 +6945,12 @@ body {
   width: 16px;
   height: 16px;
   margin-top: 3px;
-  color: var(--jui-color-gray-300);
-  transition: color 160ms ease-out;
+  color: var(--jui-color-decorative-upgrade);
 }
 .plan-addon:has(input:checked) .plan-addon-benefit {
   color: var(--jui-color-typography-gray-on-light-default);
 }
-.plan-addon:has(input:checked) .plan-addon-benefit svg {
-  color: var(--jui-color-decorative-upgrade);
-}
+
 
 /* ── The line the lawyers need ──
    Under the cards, quiet. It is not a disclaimer to be buried: a price that
