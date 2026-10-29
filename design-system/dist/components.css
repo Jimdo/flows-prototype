@@ -4536,6 +4536,28 @@ body {
   background: var(--jui-color-background-upgrade-light);
 }
 
+/* ── A feature the plan does not have ──
+   Three cards that each list only what they include cannot be compared:
+   there is nothing to read across, and the eye has to hold one column in
+   memory while it reads the next. So every card now names the same six
+   things in the same order and the same words, and says which of them it
+   does not have.
+
+   A dash rather than a cross. The row is absent, not wrong, and a cross on
+   a pricing page reads as a warning about the plan the seller is looking
+   at — which is the free one, the one they are already on. */
+.plan-feature--off {
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+.plan-feature--off svg { color: var(--jui-color-gray-300); }
+
+/* What a plan has less of rather than none of: the cap, said beside the
+   thing it caps instead of folded into its name. Keeping the name identical
+   across the three columns is the whole point of the exercise. */
+.plan-feature-note {
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
 /* Everything-in-the-one-before, so it leads with that rather than repeating
    five lines the reader has just taken in. */
 .plan-feature--carry {
