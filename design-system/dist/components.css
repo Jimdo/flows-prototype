@@ -6825,22 +6825,16 @@ body {
 .edit-row-crown svg { width: 16px; height: 16px; display: block; }
 
 /* ═══ Plan add-ons ══════════════════════════════════════════════════════════
-   Two things the Start plan can be given, priced each. They live in the
-   panel below the feature list rather than among it, because a feature is
-   something the plan has and these are things it could have — the seam the
-   card already uses to separate an answer from a list does that work.
+   Two things the Start plan can be given, priced each. Each is a panel of
+   the card in its own right — the same device the web address block uses,
+   and for the same reason: a box inside the card read as something resting
+   on the plan, where these are parts of it the seller has not taken yet.
+   The frame shows through a 1px seam and the panels paint over it, so the
+   card stays one outlined object with lines across it.
 
    The headline price is the running total, so the number the seller reads
    is the number they would pay and it sits where it already sat, beside the
-   button they would press. Nothing here moves while they tick, which is the
-   whole reason the total is up there rather than down here: a figure at the
-   foot of a growing panel is a figure that walks away from the eye. */
-.plan-addons {
-  display: flex;
-  flex-direction: column;
-  gap: var(--jui-layout-gap-xs);
-  width: 100%;
-}
+   button they would press. */
 .plan-addons-title {
   margin: 0;
   font-size: var(--jui-typography-label-small-size);
@@ -6851,40 +6845,29 @@ body {
   color: var(--jui-color-typography-gray-on-light-subdued);
 }
 
-/* A row that happens to be a label, so the whole card is the hit area and
-   the tick is a mark rather than a control to aim at. */
+/* A panel that happens to be a label, so the whole section is the hit area
+   and the tick is a mark rather than a control to aim at. */
 .plan-addon {
   display: grid;
   grid-template-columns: auto 1fr auto;
-  /* The benefits run the card's full width rather than starting after the
-     tick. Indented they lost a third of the column to an empty gutter and
-     every line wrapped; the header row is what the tick belongs to. */
   grid-template-areas: "tick name price" "copy copy copy";
   align-items: center;
   column-gap: var(--jui-layout-gap-s);
-  row-gap: var(--jui-layout-gap-xs);
-  padding: var(--jui-layout-padding-m);
-  border: 1px solid var(--jui-color-stroke-upgrade-on-light);
-  border-radius: var(--jui-style-radius-12);
-  /* Quiet until taken. White on the plan's purple would make the one the
-     seller has not chosen the loudest thing in the card — selection has to
-     read as more, not less. */
-  background: transparent;
+  row-gap: var(--jui-layout-gap-s);
   cursor: pointer;
-  transition: background-color 160ms ease-out, border-color 160ms ease-out;
+  transition: background-color 160ms ease-out;
 }
-.plan-addon:hover { background: var(--jui-color-background-upgrade-light); }
 .plan-addon:focus-within {
   outline: 2px solid var(--jui-color-actions-upgrade-rest);
-  outline-offset: 2px;
+  outline-offset: -2px;
 }
-/* Taken, it lifts off the plan's own purple as a white card — the one state
-   that cannot be mistaken on this ground, and the opposite way round from
-   where this started: tinted-when-on put the chosen card within a shade of
-   the surface behind it. */
-.plan-addon:has(input:checked) {
+/* Taken, the panel lifts off the plan's purple as a white one — the one
+   state that cannot be mistaken on this ground. Hover sits between the two
+   so the section answers the pointer without pretending to be chosen. */
+.plan-option--pro .plan-addon:hover { background: var(--jui-color-background-upgrade-medium); }
+.plan-option--pro .plan-addon:has(input:checked),
+.plan-option--pro .plan-addon:has(input:checked):hover {
   background: var(--jui-color-gray-white);
-  border-color: var(--jui-color-actions-upgrade-rest);
 }
 .plan-addon input {
   grid-area: tick;
@@ -6932,14 +6915,12 @@ body {
   line-height: var(--jui-typography-body-small-medium-lh);
   color: var(--jui-color-typography-upgrade-on-light);
 }
-/* Three lines rather than one. What each add-on actually does is the thing
-   the seller is deciding on, and a single sentence was asking them to buy a
-   name. Taken from what production already says about each — the bookings
-   banner's own body, and the three pages the legal generator writes.
 
-   No tick beside them, deliberately. The card already carries a checkbox,
-   and a list of ticks under an unticked box reads as "you have these"
-   exactly when the seller does not. The leading does the separating. */
+/* The same ticked list the plan above carries, so what an add-on gives reads
+   as the same kind of thing as what the plan gives. The tick takes the
+   state: grey until the add-on is taken, the plan's own purple after. A tick
+   that is purple either way would say `you have these` at the one moment the
+   seller does not. */
 .plan-addon-benefits {
   grid-area: copy;
   display: flex;
@@ -6950,9 +6931,26 @@ body {
   list-style: none;
 }
 .plan-addon-benefit {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--jui-layout-gap-xs);
   font-size: var(--jui-typography-body-small-regular-size);
   line-height: var(--jui-typography-body-small-regular-lh);
   color: var(--jui-color-typography-gray-on-light-subdued);
+}
+.plan-addon-benefit svg {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin-top: 3px;
+  color: var(--jui-color-gray-300);
+  transition: color 160ms ease-out;
+}
+.plan-addon:has(input:checked) .plan-addon-benefit {
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+.plan-addon:has(input:checked) .plan-addon-benefit svg {
+  color: var(--jui-color-decorative-upgrade);
 }
 
 /* ── The line the lawyers need ──

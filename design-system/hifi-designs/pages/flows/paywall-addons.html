@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>paywall-addons</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=c642af7">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=c642af7">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=5c7e040">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=5c7e040">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=c642af7">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=5c7e040">
 <style>
   /* ─── Screen overrides ───
      The three explorations differ only in what sits between the list and the
@@ -125,41 +125,33 @@
                   <li class="plan-feature"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span data-inspect-phrase="upgrade.paid.feature4">Your Jimdo website, same plan</span></li>
                   <li class="plan-feature"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span data-inspect-phrase="paywall.plan.pro.f6">Your own web address</span></li>
                 </ul>
+                <p class="plan-addons-title" data-inspect-phrase="paywall.addons.title">Add what you need</p>
               </div>
-              <!-- Two things the plan can be given, priced each. In the panel
-                   below the list rather than among it: a feature is something
-                   the plan has, and these are things it could have. The price
-                   above is the running total, so the number that moves when
-                   these are ticked is the one beside the button. -->
-              <div class="plan-option-foot"
-                data-inspect-label="Start add-ons"
-                data-inspect-tokens='[{"prop":"ticked surface","figma":"$jui-color-background-upgrade-light","css":"--jui-color-background-upgrade-light","value":"#fcecff"},{"prop":"ticked stroke","figma":"$jui-color-stroke-upgrade-on-light","css":"--jui-color-stroke-upgrade-on-light","value":"#e4b5ff"},{"prop":"radius","figma":"style/radius/12","css":"--jui-style-radius-12","value":"12px"},{"prop":"padding","figma":"$jui-layout-padding-s","css":"--jui-layout-padding-s","value":"12px"}]'>
-                <div class="plan-addons">
-                  <p class="plan-addons-title" data-inspect-phrase="paywall.addons.title">Add what you need</p>
-
-                  <label class="plan-addon">
+              <!-- A panel of the card each, the way the web address block is one:
+                   a box resting inside the card read as something sitting on the
+                   plan, where these are parts of it not taken yet. The frame
+                   shows through the seam between them. -->
+              <label class="plan-option-foot plan-addon">
                     <input type="checkbox" id="addonBooking" data-addon="booking" aria-label="Add bookings and payments">
                     <span class="plan-addon-name" data-inspect-phrase="paywall.addon.booking.name">Bookings</span>
                     <span class="plan-addon-price" id="addonBookingPrice" data-no-phrase>+€6.50</span>
                     <ul class="plan-addon-benefits">
-                      <li class="plan-addon-benefit" data-inspect-phrase="paywall.addon.booking.b1">Create events people sign up for</li>
-                      <li class="plan-addon-benefit" data-inspect-phrase="paywall.addon.booking.b2">Open your calendar for them to book</li>
-                      <li class="plan-addon-benefit" data-inspect-phrase="paywall.addon.booking.b3">Get paid online when they book</li>
+                      <li class="plan-addon-benefit" data-inspect-phrase="paywall.addon.booking.b1"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>Create events people sign up for</li>
+                      <li class="plan-addon-benefit" data-inspect-phrase="paywall.addon.booking.b2"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>Open your calendar for them to book</li>
+                      <li class="plan-addon-benefit" data-inspect-phrase="paywall.addon.booking.b3"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>Get paid online when they book</li>
                     </ul>
                   </label>
 
-                  <label class="plan-addon">
+              <label class="plan-option-foot plan-addon">
                     <input type="checkbox" id="addonLegal" data-addon="legal" aria-label="Add legal text">
                     <span class="plan-addon-name" data-inspect-phrase="paywall.addon.legal.name">Legal text</span>
                     <span class="plan-addon-price" id="addonLegalPrice" data-no-phrase>+€9</span>
                     <ul class="plan-addon-benefits">
-                      <li class="plan-addon-benefit" data-inspect-phrase="paywall.addon.legal.b1">An imprint that says who you are</li>
-                      <li class="plan-addon-benefit" data-inspect-phrase="paywall.addon.legal.b2">A privacy policy for what you collect</li>
-                      <li class="plan-addon-benefit" data-inspect-phrase="paywall.addon.legal.b3">Cookie settings visitors can change</li>
+                      <li class="plan-addon-benefit" data-inspect-phrase="paywall.addon.legal.b1"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>An imprint that says who you are</li>
+                      <li class="plan-addon-benefit" data-inspect-phrase="paywall.addon.legal.b2"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>A privacy policy for what you collect</li>
+                      <li class="plan-addon-benefit" data-inspect-phrase="paywall.addon.legal.b3"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>Cookie settings visitors can change</li>
                     </ul>
                   </label>
-                </div>
-              </div>
             </div>
 
             <div class="plan-option plan-option--grow">
@@ -169,10 +161,10 @@
                     <p class="plan-option-name" data-inspect-phrase="paywall.plan.grow.name">Jimdo Grow</p>
                   </div>
                   <p class="plan-option-price">
-                    <span class="plan-option-amount" id="growAmount" data-no-phrase>€19</span>
+                    <span class="plan-option-amount" id="growAmount" data-no-phrase>€17.50</span>
                     <span class="plan-option-period" data-inspect-phrase="paywall.plan.period">/month</span>
                   </p>
-                  <p class="plan-option-note" id="growNote" data-inspect-phrase="paywall.plan.grow.note">For the paperwork as well</p>
+                  <p class="plan-option-note" id="growNote" data-inspect-phrase="paywall.plan.grow.note">Both add-ons included</p>
                 </div>
                 <button class="btn btn-secondary btn-upgrade"
                   data-inspect-label="Upgrade Button — secondary"
@@ -207,8 +199,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=c642af7"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=c642af7"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=5c7e040"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=5c7e040"></script>
   <script>
     /* ── Closing goes back, not home ──
        The paywall is reached from several places: the legal trigger in the
