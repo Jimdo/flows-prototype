@@ -5465,6 +5465,58 @@ body {
   flex-shrink: 0;
 }
 
+/* ── Floating navigation ──
+   Figma 17672:3005. Not a segmented control, and the difference is the
+   point: a segmented control is a tray cut into segments, bound to the bar
+   it sits in. This floats over the content at the foot of a column, so it
+   has no tray to be cut from — it is a white pill on a shadow, and the
+   selected item is the only filled thing in it.
+   Used on the desktop editors, where the bar that used to carry the switch
+   is gone and the foot of the column carries both the switch and the way
+   out. The phone keeps the segmented control in its top bar. */
+.float-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xxs);
+  padding: var(--jui-layout-padding-xxs);
+  background: var(--jui-color-background-gray-light);
+  /* dimension-xl as a radius: the frame binds it, and at 46px tall it is
+     past half the height either way, so the pill is a stadium. */
+  border-radius: var(--jui-layout-dimension-xl);
+  box-shadow: var(--jui-effects-on-light-shadow-lvl-2);
+}
+.float-nav-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--jui-layout-gap-xs);
+  padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-s);
+  border: 0;
+  border-radius: var(--jui-layout-dimension-xs);
+  background: transparent;
+  color: var(--jui-color-typography-gray-on-light-default);
+  font-family: inherit;
+  font-size: var(--jui-typography-body-small-medium-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  line-height: var(--jui-typography-body-small-medium-lh);
+  letter-spacing: var(--jui-typography-link-small-ls);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+.float-nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+.float-nav-item:hover { background: var(--jui-color-background-gray-dark); }
+/* The selected item is the only fill in the pill, so it needs no border and
+   no weight change to be read — there is nothing else for it to win against. */
+.float-nav-item[aria-selected="true"] {
+  background: var(--jui-color-background-primary-light);
+  color: var(--jui-color-typography-primary-on-light);
+}
+.float-nav-item:focus-visible {
+  outline: 2px solid var(--jui-color-actions-primary-rest);
+  outline-offset: 2px;
+}
+
 /* ── The drawer's own head ──
    Title at the left, the one thing this list can be given at the right. The
    title came back when the step footer left: with no Save and continue under
@@ -5746,17 +5798,32 @@ body {
   .app-shell-setup-split[data-layout="step"] .edit-suggestion-actions { grid-area: actions; }
   .app-shell-setup-split[data-layout="step"] .edit-suggestion-copy { grid-area: copy; }
 
-  /* Add link moves to the foot of the column and grows to a full-height
-     primary; the one beside the title stands down. */
-  .app-shell-setup-split[data-layout="step"] .step-drawer-head .btn-primary { display: none; }
+  /* Figma 17672:2865. The desktop frame has no bar above the columns at
+     all: the switch and Done move down to the foot of the setup column,
+     and Add link stays beside the title where the phone already puts it.
+     Both research sessions caught the old arrangement — Add link sat in the
+     slot four onboarding steps had taught meant "next screen", and the foot
+     of the page was empty once Done went to the top. This swaps them. */
+  .app-shell-setup-split[data-layout="step"] .setup-split-header { display: none; }
+  /* Add link at the frame's 116x48 — the button's default size, not the
+     small one the phone's drawer head uses. */
+  .app-shell-setup-split[data-layout="step"] .step-drawer-head .btn-primary {
+    height: var(--jui-layout-dimension-m);
+    padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-l);
+    font-size: var(--jui-typography-body-medium-medium-size);
+  }
+  /* 56 tall, 4 above and below the 48 of Done, 24 at each end. The switch
+     is 46 and centres against it. */
   .app-shell-setup-split[data-layout="step"] .step-col-actions {
-    justify-content: flex-start;
-    padding-left: var(--jui-layout-padding-m);
+    justify-content: space-between;
+    align-items: center;
+    min-height: 56px;
+    padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-l);
   }
 }
 
-/* The phone keeps Add link in the drawer's head, where the frame puts it,
-   so the column footer is desktop-only. */
+/* The phone keeps Add link in the drawer's head and the switch in its top
+   bar, so the column footer is desktop-only. */
 @media (max-width: 767px) {
   .step-col-actions { display: none; }
 }
@@ -5783,6 +5850,30 @@ body {
   background: var(--jui-color-background-positive-medium);
   color: var(--jui-color-typography-positive-on-light);
 }
+.tag--upgrade {
+  background: var(--jui-color-background-upgrade-medium);
+  color: var(--jui-color-typography-upgrade-on-light);
+}
+
+/* ── A suggestion past the plan's limit ──
+   It used to leave the list and reappear inside the add sheet, which asked
+   the seller to go looking for something they had already been shown. It
+   stays where it was instead and changes only what it costs: same card,
+   same dashes, the upgrade ramp instead of the blue one. The dashes stay
+   because they say "not on your page yet", which is still what is true. */
+/* Scoped to the step layout, because the card's own background is set
+   there — a bare .edit-suggestion[data-upgrade] loses to it on specificity
+   and the card stayed gray-medium with purple everything else. */
+.app-shell-setup-split[data-layout="step"] .edit-suggestion[data-upgrade] {
+  background: var(--jui-color-background-upgrade-light);
+}
+/* A CSS stroke beats the rect's presentation attribute, so the gradient the
+   free card draws is replaced rather than layered over. */
+.edit-suggestion[data-upgrade] .smart-ring rect {
+  stroke: var(--jui-color-stroke-upgrade-on-light);
+}
+.edit-suggestion[data-upgrade] .edit-row-icon { color: var(--jui-color-decorative-upgrade); }
+.edit-suggestion[data-upgrade] .edit-row-label { color: var(--jui-color-typography-upgrade-on-light); }
 /* A section heading arrives with the section's first item. Empty labelled
    sections on a first view are a form to work through; nothing but the
    suggestions is an offer to act on. */

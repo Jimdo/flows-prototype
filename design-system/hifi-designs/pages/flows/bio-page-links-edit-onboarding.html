@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=60c3218">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=60c3218">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=821463e">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=821463e">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=60c3218">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=821463e">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -48,7 +48,7 @@
       <!-- Secondary, Size=Small — the frame's own button. The finish control
            stays out of the thumb's reach at the top, which is the whole reason
            this screen does not take the step layout's footer. -->
-      <button type="button" class="btn btn-secondary btn-sm"
+      <button type="button" class="btn btn-secondary btn-sm" data-done
         data-inspect-label="Secondary Button — Done, Size=Small"
         data-inspect-tokens='[{"prop":"border","figma":"$jui-color-stroke-primary-on-light","css":"--jui-color-stroke-primary-on-light","value":"1px #b4c4ff"},{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px"},{"prop":"border-radius","figma":"button/radius","css":"--jui-component-button-radius","value":"8px"}]'
         data-inspect-phrase="biopage.editor.done"
@@ -308,14 +308,28 @@
         </div>
 
 
-        <!-- Figma 17633:2654 Actions Container: at the foot of the column,
-             left-aligned and full height. On a phone Add link stays in the
-             drawer head instead — see .step-col-actions. -->
+        <!-- Figma 17672:3004. The foot of the desktop column: the switch
+             floating at the left, the way out at the right. Add link is not
+             here any more — it sits beside the title, because this slot is
+             the one four onboarding steps taught means "next screen", and
+             both research sessions watched someone press it expecting one.
+             On a phone the bar above carries the switch and Done instead,
+             and this whole row is hidden — see .step-col-actions. -->
         <div class="setup-split-actions step-col-actions" data-view-only="list">
-          <button type="button" class="btn btn-primary" data-add-open
-            data-inspect-label="Primary Button — Add link"
-            data-inspect-tokens='[{"prop":"background","figma":"$jui-color-actions-primary-rest","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"height","figma":"$jui-layout-dimension-m","css":"--jui-layout-dimension-m","value":"48px"}]'
-            data-inspect-phrase="">Add link</button>
+          <div class="float-nav" role="tablist" aria-label="What to edit"
+            data-inspect-label="Floating Navigation — what to edit"
+            data-inspect-tokens='[{"prop":"background","figma":"$jui-color-background-gray-light","css":"--jui-color-background-gray-light","value":"#ffffff"},{"prop":"shadow","figma":"on-light-shadow-lvl-2","css":"--jui-effects-on-light-shadow-lvl-2","value":"0 8px 16px #00000024"},{"prop":"border-radius","figma":"$jui-layout-dimension-xl","css":"--jui-layout-dimension-xl","value":"64px"},{"prop":"padding","figma":"$jui-layout-padding-xxs","css":"--jui-layout-padding-xxs","value":"4px"},{"prop":"item","figma":"$jui-color-background-primary-light","css":"--jui-color-background-primary-light","value":"#eff0ff, radius 24, 8px 12px"}]'>
+            <button type="button" class="float-nav-item" role="tab" aria-selected="true"
+              data-inspect-phrase="biopage.editor.links"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"> <path d="M21 2H3C2.44772 2 2 2.44772 2 3V5C2 5.55228 2.44772 6 3 6H21C21.5523 6 22 5.55228 22 5V3C22 2.44772 21.5523 2 21 2Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/> <path d="M21 10H3C2.44772 10 2 10.4477 2 11V13C2 13.5523 2.44772 14 3 14H21C21.5523 14 22 13.5523 22 13V11C22 10.4477 21.5523 10 21 10Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/> <path d="M21 18H3C2.44772 18 2 18.4477 2 19V21C2 21.5523 2.44772 22 3 22H21C21.5523 22 22 21.5523 22 21V19C22 18.4477 21.5523 18 21 18Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/> </svg><span>Links</span></button>
+            <button type="button" class="float-nav-item" role="tab" aria-selected="false"
+              data-nav-to="flows/design-editor-onboarding.html" data-nav-screen-id="scr-479"
+              data-inspect-phrase="biopage.editor.design"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"> <path d="M5 14V12.7296C5 11.9754 5.42422 11.2854 6.09717 10.945L8.84085 9.55694C9.5139 9.21645 9.93814 8.52627 9.93802 7.772L9.93726 3.00016C9.93717 2.44781 10.3849 2 10.9373 2H13.9455C14.4978 2 14.9456 2.44781 14.9455 3.00016L14.9447 7.75902C14.9446 8.52006 15.3764 9.21521 16.0587 9.55236L18.886 10.9495C19.5682 11.2866 20 11.9816 20 12.7425L20 14C20 14.5523 19.5523 15 19 15H6C5.44772 15 5 14.5523 5 14Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/> <path d="M6 15C6 16 6 18.8 4 22C9 22 13 22 15.5 18V21C15.5 21.5523 15.9477 22 16.5 22H19C19.5523 22 20.002 21.5518 19.9972 20.9995C19.9803 19.0494 19.8596 17.5789 19 15" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/> </svg><span>Design</span></button>
+          </div>
+          <button type="button" class="btn btn-secondary" data-done
+            data-inspect-label="Secondary Button — Done"
+            data-inspect-tokens='[{"prop":"border","figma":"$jui-color-stroke-primary-on-light","css":"--jui-color-stroke-primary-on-light","value":"1px #b4c4ff"},{"prop":"height","figma":"$jui-layout-dimension-m","css":"--jui-layout-dimension-m","value":"48px"},{"prop":"border-radius","figma":"button/radius","css":"--jui-component-button-radius","value":"8px"}]'
+            data-inspect-phrase="biopage.editor.done"
+            data-nav-to="flows/home-dashboard-v2.html" data-nav-screen-id="scr-131">Done</button>
         </div>
 
         <div class="setup-split-actions" data-view-only="add">
@@ -625,8 +639,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=60c3218"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=60c3218"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=821463e"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=821463e"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -1188,23 +1202,35 @@
         // other — the dashed outline is the whole of what marked it. The row
         // itself is a block now, made by finishSuggestion().
         //
-        // Past the plan's one action page it leaves the list altogether. A
-        // suggestion is a thing to do next, and this is not one any more;
-        // the upgrade it would need is offered where they go to add
-        // something, not standing in the list of what they have.
         // While the ideas are still being worked out there are no ideas to
         // show: the placeholder stands where they will land, not beside them.
-        document.getElementById(id).closest('li').hidden =
-          s.removed || s.done || capped || suggestionsPending;
+        const el = document.getElementById(id);
+        el.closest('li').hidden = s.removed || s.done || suggestionsPending;
+
+        /* Taking one of the pair puts the other past the plan's one action
+           page. It used to leave the list and reappear inside the add sheet,
+           which asked the seller to go and find a thing they had already
+           been offered — and read as the product quietly withdrawing it.
+           It stays in its place and changes what it costs instead: the same
+           card, the upgrade ramp, and a price on the button. */
+        el.toggleAttribute('data-upgrade', capped);
+        const go = el.querySelector('[data-setup]');
+        go.classList.toggle('btn-upgrade', capped);
+        const want = capped ? CROWN_SVG + 'Upgrade and set up' : 'Set it up';
+        if (go.innerHTML !== want) go.innerHTML = want;
+        const tag = el.querySelector('.tag');
+        tag.classList.toggle('tag--positive', !capped);
+        tag.classList.toggle('tag--upgrade', capped);
       });
 
       const hasBlockRow = Object.keys(BLOCK_ROWS).some((id) => ON[BLOCK_ROWS[id]]) ||
         BLOCKS.size > 0;
       document.getElementById('headBlocks').hidden = !hasBlockRow;
-      const noSuggestions = capped || pending().length === 0;
+      const noSuggestions = pending().length === 0;
       document.getElementById('headSuggest').hidden = noSuggestions;
-      // Nothing to ask again about once the pair is gone.
-      document.getElementById('regenSuggest').hidden = noSuggestions;
+      // Nothing to ask again about once the pair is gone — nor once the plan
+      // is full, where a re-roll only swaps one locked card for another.
+      document.getElementById('regenSuggest').hidden = noSuggestions || capped;
 
       /* Three states, one list. While the ideas are being worked out the
          placeholder stands where they will land; once they arrive it goes.
@@ -1242,6 +1268,9 @@
     /* Every upgrade path says where it came from, so closing the
        pricing page puts the seller back in the screen they left. */
     const PAYWALL = '/flows-prototype/design-system/hifi-designs/pages/flows/paywall-domain.html?from=bio-page-links-edit';
+    /* The one mark the seller has already learned means "this costs" — she
+       named it unprompted in testing, and then met a paywall that had none. */
+    const CROWN_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg>';
 
     const PAGE_KINDS = ['book', 'form'];
     const limitReached = () =>
@@ -1475,40 +1504,13 @@
 
     const ideaGrid = document.getElementById('ideaGrid');
 
-    /* The suggestion the seller did not take.
-       Accepting one uses the free action page, which puts the other out of
-       reach — and it used to simply vanish from the list, which reads as the
-       product withdrawing an idea the seller had just been weighing. It comes
-       here instead, wearing the price: the add list is where you go to put
-       something on the page, and this is the thing that would cost money to
-       put there. Two things fall out of that, and both are the point. The
-       seller can see the plan is why it is gone rather than guessing, and the
-       idea they liked is still on the table if they come back for it.
-
-       Read off the card rather than the table, because the pair can be
-       regenerated and the table holds the round that is current, not the
-       round this one came from. */
-    function strandedSuggestions() {
-      if (!limitReached()) return [];
-      return pending().map((id) => {
-        const el = document.getElementById(id);
-        if (!el) return null;
-        const label = el.querySelector('.edit-row-label');
-        const why = el.querySelector('.edit-suggestion-why');
-        return {
-          shape: SUGGESTION_KIND[SUGGESTIONS[id].editor] || 'book',
-          title: label ? label.textContent.trim() : '',
-          detail: why ? why.textContent.trim() : '',
-        };
-      }).filter(Boolean);
-    }
-
     function renderIdeas(ideas) {
       ideaGrid.innerHTML = '';
-      /* First, and it displaces a guess rather than joining them: the grid
-         holds three, and a guess can be rolled again where this cannot. */
-      const stranded = strandedSuggestions();
-      const list = stranded.concat(ideas).slice(0, Math.max(3, stranded.length));
+      /* Three guesses, and only guesses. The suggestion past the plan's
+         limit used to be re-offered here, displacing one of them; it holds
+         its place in the list wearing the upgrade ramp now, and showing it
+         again here would be the same card in two places. */
+      const list = ideas.slice(0, 3);
       list.forEach((idea) => {
         const capped = limitReached();
         const card = document.createElement('div');
@@ -1911,15 +1913,18 @@
     /* The step's own control, at the foot of the column now rather than
        in the bar. Same guard: leaving a page with nothing on it is still
        worth a word, and continuing past it is still leaving. */
-    const doneBtn = document.querySelector('.setup-split-header .btn-secondary');
-
+    /* Two of them — the phone's is in the bar, the desktop's is at the foot
+       of the column — and only one is ever on screen. The guard is the same
+       either way, so it binds to the mark rather than to a place. */
     // Capture, so this runs before the shared nav handler on document sees it.
-    doneBtn.addEventListener('click', (e) => {
-      if (!pageIsEmpty()) return;
-      e.preventDefault();
-      e.stopPropagation();
-      emptySheet.setAttribute('data-open', 'true');
-    }, true);
+    document.querySelectorAll('[data-done]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        if (!pageIsEmpty()) return;
+        e.preventDefault();
+        e.stopPropagation();
+        emptySheet.setAttribute('data-open', 'true');
+      }, true);
+    });
 
     document.getElementById('emptyCancel').addEventListener('click', () => {
       emptySheet.setAttribute('data-open', 'false');

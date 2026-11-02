@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bio Page — Home (Vision)</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=60c3218">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=60c3218">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/management-shell.css?v=60c3218">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=821463e">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=821463e">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/management-shell.css?v=821463e">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=60c3218">
-<script type="module" src="/flows-prototype/design-system/hifi-designs/shared/shell-components.js?v=60c3218"></script>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=821463e">
+<script type="module" src="/flows-prototype/design-system/hifi-designs/shared/shell-components.js?v=821463e"></script>
 <style>
 
   /* ═══════════════════════════════════════
@@ -356,7 +356,7 @@
     color: var(--jui-color-typography-gray-on-light-default);
   }
 
-  /* ── Actions row — Dismiss left, Maybe Later + primary right ── */
+  /* ── Actions row — pager left, answers right ── */
   .upnext-footer {
     display: flex;
     flex-wrap: wrap;
@@ -370,6 +370,23 @@
      over three lines is a button nobody reads. */
   .upnext-footer button { white-space: nowrap; }
 
+  /* Flipping through the deck is navigation, not an answer — the arrows move
+     which card is showing and leave the progress ring alone. The count is
+     what makes that legible: "2 of 3" says the card you just passed is still
+     there, which is the question "Maybe later" left hanging. */
+  .upnext-pager { display: flex; align-items: center; gap: var(--jui-layout-gap-xxs); }
+  /* .icon-btn-sm and this row both set display, which outranks the hidden
+     attribute. Hidden when one card is left — see render(). */
+  .upnext-pager[hidden] { display: none; }
+  .upnext-pager-count {
+    font-size: var(--jui-typography-body-small-regular-size);
+    line-height: var(--jui-typography-body-small-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-subdued);
+    /* Holds its width so the arrows don't shuffle as the index changes. */
+    min-width: 44px;
+    text-align: center;
+  }
+
   /* On a phone the answers take the width instead of fighting for it. The
      upgrade card carries two of them and the longest labels, so this is the
      card that decides the rule. */
@@ -378,12 +395,10 @@
     /* Reversed, because the row reads left to right and the column has to
        read top to bottom: the answer being pushed is the one at the top. */
     .upnext-footer-end { flex-direction: column-reverse; align-items: stretch; }
-    .upnext-footer > button,
     .upnext-footer-end > button { width: 100%; }
-    /* The way out goes last, whichever card it is on — Dismiss on most of
-       them, Maybe later on the one that cannot be dismissed. */
-    .upnext-footer > button { order: 2; }
-    .upnext-footer-end { order: 1; }
+    /* The pager stays compact above the full-width answers rather than
+       stretching with them — it is chrome, not a third choice. */
+    .upnext-pager { align-self: center; }
   }
   /* Content-width small buttons — @jimdo/ui buttonSize="small". layout.css
      stretches buttons to full width, so narrow them back here. Shared by the
@@ -537,9 +552,15 @@
               </div>
             </div>
             <div class="upnext-footer">
-              <button class="btn-subtle" data-upnext-resolve="dismiss" data-inspect-phrase="">Dismiss</button>
+              <div class="upnext-pager" data-upnext-pager
+                data-inspect-label="Deck pager — @jimdo/ui Button buttonStyle=subtle, icon only"
+                data-inspect-tokens='[{"prop":"size","figma":"$jui-layout-dimension-s","value":"32px"},{"prop":"icon","value":"ArrowLeft02 / ArrowRight02 @ 16px"},{"note":"Moves through the deck without resolving anything — the progress ring stays where it is"}]'>
+                <button type="button" class="icon-btn-sm subtle" data-upnext-step="-1" aria-label="Previous action" data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+                <span class="upnext-pager-count" data-upnext-count data-inspect-phrase="">1 of 3</span>
+                <button type="button" class="icon-btn-sm subtle" data-upnext-step="1" aria-label="Next action" data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15.0001 17L20 12L15 7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+              </div>
               <div class="upnext-footer-end">
-                <button class="btn-subtle" data-upnext-resolve="later" data-inspect-phrase="suggestion.maybeLater">Maybe later</button>
+                <button class="btn-subtle" data-upnext-resolve="dismiss" data-inspect-phrase="">Not interested</button>
                 <button class="btn-secondary" data-upnext-resolve="done" data-nav-to="flows/onboarding-business-details.html" data-inspect-phrase="">Add online payments</button>
               </div>
             </div>
@@ -575,9 +596,15 @@
               </div>
             </div>
             <div class="upnext-footer">
-              <button class="btn-subtle" data-upnext-resolve="dismiss" data-inspect-phrase="">Dismiss</button>
+              <div class="upnext-pager" data-upnext-pager
+                data-inspect-label="Deck pager — @jimdo/ui Button buttonStyle=subtle, icon only"
+                data-inspect-tokens='[{"prop":"size","figma":"$jui-layout-dimension-s","value":"32px"},{"prop":"icon","value":"ArrowLeft02 / ArrowRight02 @ 16px"},{"note":"Moves through the deck without resolving anything — the progress ring stays where it is"}]'>
+                <button type="button" class="icon-btn-sm subtle" data-upnext-step="-1" aria-label="Previous action" data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+                <span class="upnext-pager-count" data-upnext-count data-inspect-phrase="">1 of 3</span>
+                <button type="button" class="icon-btn-sm subtle" data-upnext-step="1" aria-label="Next action" data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15.0001 17L20 12L15 7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+              </div>
               <div class="upnext-footer-end">
-                <button class="btn-subtle" data-upnext-resolve="later" data-inspect-phrase="suggestion.maybeLater">Maybe later</button>
+                <button class="btn-subtle" data-upnext-resolve="dismiss" data-inspect-phrase="">Not interested</button>
                 <button class="btn-secondary" data-upnext-resolve="done" data-inspect-phrase="">Open Instagram</button>
               </div>
             </div>
@@ -607,11 +634,18 @@
                 <p class="upnext-card-desc" data-inspect-phrase="upgrade.legal.description" style="margin:0;">An imprint and a privacy policy that match what you do, updated when the rules change.</p>
               </div>
             </div>
-            <!-- Maybe later where the other cards put Dismiss. Legal pages
-                 are not a suggestion that can be waved away — the card goes
-                 to the back of the queue and comes round again. -->
+            <!-- No Not interested on this card. Legal pages are not a
+                 suggestion that can be waved away, and the quiet slot is
+                 already spoken for: writing them yourself is the real
+                 alternative to buying them. The pager is the way past. -->
             <div class="upnext-footer">
-              <button class="btn-subtle" data-upnext-resolve="later" data-inspect-phrase="suggestion.maybeLater">Maybe later</button>
+              <div class="upnext-pager" data-upnext-pager
+                data-inspect-label="Deck pager — @jimdo/ui Button buttonStyle=subtle, icon only"
+                data-inspect-tokens='[{"prop":"size","figma":"$jui-layout-dimension-s","value":"32px"},{"prop":"icon","value":"ArrowLeft02 / ArrowRight02 @ 16px"},{"note":"Moves through the deck without resolving anything — the progress ring stays where it is"}]'>
+                <button type="button" class="icon-btn-sm subtle" data-upnext-step="-1" aria-label="Previous action" data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+                <span class="upnext-pager-count" data-upnext-count data-inspect-phrase="">1 of 3</span>
+                <button type="button" class="icon-btn-sm subtle" data-upnext-step="1" aria-label="Next action" data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15.0001 17L20 12L15 7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+              </div>
               <div class="upnext-footer-end">
                 <button class="btn-subtle" data-upnext-resolve="done" data-nav-to="flows/legal-privacy.html" data-nav-screen-id="scr-053" data-inspect-phrase="upgrade.legal.ctaSecondary">Review them myself</button>
                 <button class="btn-secondary btn-upgrade" data-upnext-resolve="done" data-nav-to="flows/paywall-domain.html?from=home" data-inspect-phrase="upgrade.legal.ctaPrimary">Get my legal text written</button>
@@ -631,12 +665,12 @@
 <script>
   /* Next-action queue — Figma 11823:86511 / 86512 / 86513.
 
-     Three actions, and only two of them count as progress:
+     Two decisions and a pager. The decisions settle a card; the pager only
+     changes which card you are looking at:
 
        Primary action  the seller did it        → resolved, leaves the queue
-       Dismiss         the seller dropped it    → resolved, leaves the queue
-       Maybe Later     the seller deferred it   → goes to the BACK of the queue,
-                                                  progress unchanged
+       Not interested  the seller dropped it    → resolved, leaves the queue
+       ← / →           the seller is browsing   → moves the index, nothing else
 
      So the ring reports tasks actually settled, never how many cards the
      seller has clicked past. It opens at 0 of 3 with an empty ring and fills
@@ -647,9 +681,15 @@
      while work is still outstanding.
 
      Layout impact: a sheet peeks for every task queued behind the front card,
-     so the stack shortens as tasks resolve but holds its height when a task
-     is merely deferred. Completion removes the queue; dismissing the strip
-     removes the progress row too, collapsing that 12px group gap. */
+     so the stack shortens as tasks resolve and holds its height while the
+     seller is only flipping. Completion removes the queue; dismissing the
+     strip removes the progress row too, collapsing that 12px group gap.
+
+     The pager replaced a "Maybe later" button. Deferring and dismissing
+     looked like the same gesture — both made the card go away — and nothing
+     told the seller which one they had used. Arrows and a count say it
+     outright: the card you passed is still in the deck, at the position the
+     count names. */
   (function () {
     var CIRCUMFERENCE = 84.82;   /* 2 * PI * r, r = 13.5 */
     var COPY = {
@@ -670,19 +710,34 @@
     var dismissStrip = document.getElementById('setupProgressDismiss');
 
     var total = cards.length;
-    /* Card indices still in play, front first. Deferring rotates this; the
-       resolved count is derived from what has left it. */
+    /* Card indices still in play, in their original order — the pager walks
+       this rather than rotating it, so a card keeps its place in the count
+       no matter how often it is passed. The resolved count is derived from
+       what has left the queue. */
     var queue = cards.map(function (_, i) { return i; });
+    /* Which position in that queue is showing. */
+    var at = 0;
 
     function render() {
       var resolved = total - queue.length;
       var complete = queue.length === 0;
-      var front = queue[0];
+      if (at > queue.length - 1) at = 0;
+      var front = queue[at];
 
       cards.forEach(function (c, i) { c.hidden = complete || i !== front; });
-      /* One sheet per task waiting behind the front card. */
+      /* One sheet per task waiting behind the card on show. */
       var behind = complete ? 0 : queue.length - 1;
       sheets.forEach(function (sheet, i) { sheet.hidden = i >= behind; });
+
+      /* Every card carries its own footer, so every card carries its own
+         pager; only the one on show is visible, but they all read the same. */
+      cards.forEach(function (c) {
+        var pager = c.querySelector('[data-upnext-pager]');
+        if (!pager) return;
+        pager.hidden = queue.length < 2;     /* nothing to flip to */
+        var label = pager.querySelector('[data-upnext-count]');
+        if (label) label.textContent = (at + 1) + ' of ' + queue.length;
+      });
 
       stack.hidden = complete;
       if (arc) {
@@ -700,17 +755,29 @@
     }
 
     stack.addEventListener('click', function (e) {
-      var btn = e.target.closest('[data-upnext-resolve]');
-      if (!btn || !queue.length) return;
+      if (!queue.length) return;
 
-      if (btn.getAttribute('data-upnext-resolve') === 'later') {
-        queue.push(queue.shift());          /* defer — back of the queue */
-      } else {
-        queue.shift();                      /* done or dropped — settled */
+      /* Wraps rather than disabling at the ends: on a three-card deck a dead
+         arrow strands the seller on the last card with no way back but the
+         one they just came from. */
+      var step = e.target.closest('[data-upnext-step]');
+      if (step) {
+        at = (at + Number(step.getAttribute('data-upnext-step')) + queue.length) % queue.length;
+        render();
+        /* Keep the focus on the arrow that is still under the cursor, so a
+           run of clicks keeps working from the keyboard too. */
+        var same = cards[queue[at]].querySelector('[data-upnext-step="' + step.getAttribute('data-upnext-step') + '"]');
+        if (same) same.focus({ preventScroll: true });
+        return;
       }
+
+      var btn = e.target.closest('[data-upnext-resolve]');
+      if (!btn) return;
+
+      queue.splice(at, 1);                  /* done or dropped — settled */
       render();
 
-      var front = queue[0];
+      var front = queue[at];
       var next = front === undefined ? null : cards[front];
       if (next && !next.hidden) { next.setAttribute('tabindex', '-1'); next.focus({ preventScroll: true }); }
     });
@@ -724,7 +791,7 @@
   })();
 </script>
 
-<script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=60c3218"></script>
+<script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=821463e"></script>
 
   <!-- Design annotations — read by workbench chrome -->
   <script type="application/json" id="design-annotations">
@@ -734,12 +801,16 @@
       "body": "A booking action page is created with in-person payment by default (kno-091), so nothing about it is unfinished \u2014 the page works and the seller can take money on day one. What is deferred is Jimdo's cut, because the transaction happens off-platform. The copy therefore concedes in-person up front and sells online payment on its own benefit, rather than framing it as setup left to finish."
     },
     {
-      "title": "Only two of the three actions are progress",
-      "body": "Primary action and Dismiss resolve a task and advance the ring. Maybe later moves the card to the back of the queue and leaves progress alone, so the counter reports tasks actually settled rather than cards clicked past. It opens at 0 of 3; the Figma frame shows 1 of 3 as an example of a seller who had already done one."
+      "title": "Browsing the deck is separate from answering it",
+      "body": "The arrows move through the queue and change nothing else \u2014 the ring, the sheets behind the card and the queue itself all stay put, and the \"2 of 3\" count says where the seller is. Only the primary action and Not interested resolve a card and advance the ring, so the counter reports tasks actually settled rather than cards clicked past. It opens at 0 of 3; the Figma frame shows 1 of 3 as an example of a seller who had already done one."
+    },
+    {
+      "title": "The pager replaced Maybe later",
+      "body": "Maybe later and Dismiss sat side by side and did visibly the same thing: the card went away. Nothing afterwards told the seller which one they had used or whether the deferred card still existed. Arrows and a count answer both questions on the spot \u2014 the card is still there, at the position the count names \u2014 and leave Not interested as the one control that actually removes something. The pager hides when a single card is left, because there is nothing to flip to."
     },
     {
       "title": "The strip can only be dismissed once it is done",
-      "body": "The Dismiss button on the progress row appears only when every task is resolved. While work is outstanding the ring stays and the only routes forward are doing a task, deferring it, or dropping it."
+      "body": "The Dismiss button on the progress row appears only when every task is resolved. While work is outstanding the ring stays and the only routes forward are doing a task or dropping it \u2014 flipping past one does not count."
     }
   ]
   </script>
