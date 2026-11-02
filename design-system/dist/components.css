@@ -3743,13 +3743,26 @@ body {
 
 
 /* ═══════════════════════════════════════════════════════════════
-   LAYER 25 — Copy suggestion
+   LAYER 25 — Copy review
 
    Appears a beat after typing stops: first that something is
-   reading, then what it noticed, with one way to take it. It sits
-   where the reassurance note sits and hides it while up — they are
-   the same kind of thing and never need to be read at once, which
-   also keeps the field above from moving.
+   reading, then what it found. It sits where the reassurance note
+   sits and hides it while up — they are the same kind of thing and
+   never need to be read at once, which also keeps the field above
+   from moving.
+
+   Three outcomes, and only one of them offers anything to press:
+
+     needs    the offer is missing or too vague to rewrite
+              → one focused question, no suggestion, no Apply
+     suggest  a concrete improvement is possible
+              → one reviewer line, one complete replacement, Apply
+     good     the offer reads and the wording is clear
+              → one positive line, on the positive ramp, nothing to do
+
+   The good state is the one that has to look different. Advice and
+   approval in the same blue box read as the same event, and a
+   reviewer that never stops approving is a reviewer nobody believes.
 
    Used by: onboarding-offer (scr-013).
    ═══════════════════════════════════════════════════════════════ */
@@ -3770,12 +3783,27 @@ body {
 }
 .ai-suggest[hidden] { display: none; }
 
-.ai-suggest[data-state="loading"] .ai-suggest-body,
-.ai-suggest[data-state="loading"] .ai-suggest-ask,
-.ai-suggest[data-state="ready"] .ai-suggest-loading,
-.ai-suggest[data-state="ready"] .ai-suggest-ask,
-.ai-suggest[data-state="asking"] .ai-suggest-loading,
-.ai-suggest[data-state="asking"] .ai-suggest-body { display: none; }
+.ai-suggest[data-state="loading"] .ai-suggest-body { display: none; }
+.ai-suggest:not([data-state="loading"]) .ai-suggest-loading { display: none; }
+
+/* Approval wears the positive ramp, the same green a passing status wears
+   everywhere else on these screens. Nothing in it is pressable. */
+.ai-suggest[data-state="good"] {
+  background: var(--jui-color-background-positive-medium);
+  color: var(--jui-color-typography-positive-on-light);
+}
+.ai-suggest-mark { display: none; }
+.ai-suggest[data-state="good"] .ai-suggest-mark {
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  /* On the text's first line, not centred against a wrapped paragraph. */
+  vertical-align: -3px;
+  margin-right: var(--jui-layout-gap-xs);
+  color: var(--jui-color-typography-positive-on-light);
+}
+.ai-suggest-mark svg { width: 100%; height: 100%; }
 
 .ai-suggest-loading {
   display: flex;
@@ -3844,32 +3872,11 @@ body {
   gap: var(--jui-layout-gap-s);
 }
 
-.ai-thread {
-  display: flex;
-  flex-direction: column;
-  gap: var(--jui-layout-gap-s);
-  max-height: 232px;
-  overflow-y: auto;
+/* The suggestion drawn as the line it would become, not as a sentence
+   about it. White on the panel's blue, the same card the field is. */
+.ai-suggest-line {
   margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.ai-turn {
-  display: flex;
-  flex-direction: column;
-  gap: var(--jui-layout-gap-xxs);
-}
-/* What was asked for, kept small — it is the question, and the answer is
-   the thing worth reading. */
-.ai-turn-ask {
-  font-size: var(--jui-typography-body-small-regular-size);
-  line-height: var(--jui-typography-body-small-regular-lh);
-  color: var(--jui-color-typography-gray-on-light-subdued);
-}
-/* The answer drawn as the line it would become, not as a sentence about
-   it. White on the panel's blue, the same card the field is. */
-.ai-turn-text {
-  margin: 0;
+  width: 100%;
   padding: var(--jui-layout-padding-s);
   border-radius: var(--jui-style-radius-8);
   background: var(--jui-color-gray-white);
@@ -3877,94 +3884,10 @@ body {
   line-height: var(--jui-typography-body-medium-regular-lh);
   color: var(--jui-color-typography-gray-on-light-default);
 }
-.ai-turn[data-pending="true"] .ai-turn-text {
-  display: flex;
-  align-items: center;
-  gap: var(--jui-layout-gap-xs);
-  color: var(--jui-color-typography-gray-on-light-subdued);
-}
 
-/* Somewhere to start. A blank box asking an open question is the part
-   people stall on, and these are the four things anyone actually asks. */
-.ai-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--jui-layout-gap-xs);
-}
-.ai-chip {
-  display: inline-flex;
-  align-items: center;
-  height: var(--jui-layout-dimension-s);
-  padding: 0 var(--jui-layout-padding-s);
-  border: 1px solid var(--jui-color-stroke-primary-on-light);
-  border-radius: var(--jui-style-radius-16);
-  background: var(--jui-color-gray-white);
-  font-family: inherit;
-  font-size: var(--jui-typography-body-small-regular-size);
-  font-weight: 500;
-  line-height: var(--jui-typography-body-small-regular-lh);
-  color: var(--jui-color-actions-primary-rest);
-  cursor: pointer;
-  transition: background-color 150ms ease;
-}
-.ai-chip:hover { background: var(--jui-color-background-primary-medium); }
-.ai-chip:focus-visible {
-  outline: 2px solid var(--jui-color-actions-primary-rest);
-  outline-offset: 2px;
-}
-.ai-chip[hidden] { display: none; }
+.ai-suggest-actions[hidden],
+.ai-suggest-line[hidden] { display: none; }
 
-.ai-ask {
-  display: flex;
-  align-items: center;
-  gap: var(--jui-layout-gap-xs);
-}
-.ai-ask-input {
-  flex: 1 1 auto;
-  min-width: 0;
-  height: var(--jui-layout-dimension-s);
-  padding: 0 var(--jui-layout-padding-s);
-  border: 1px solid var(--jui-component-input-color-field-stroke-rest);
-  border-radius: var(--jui-style-radius-8);
-  background: var(--jui-color-gray-white);
-  font-family: inherit;
-  font-size: var(--jui-typography-body-small-regular-size);
-  line-height: var(--jui-typography-body-small-regular-lh);
-  color: var(--jui-color-typography-gray-on-light-default);
-}
-.ai-ask-input:focus-visible {
-  outline: 2px solid var(--jui-color-actions-primary-rest);
-  outline-offset: -1px;
-}
-.ai-ask-send {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--jui-layout-dimension-s);
-  height: var(--jui-layout-dimension-s);
-  border: none;
-  border-radius: var(--jui-style-radius-8);
-  background: var(--jui-color-actions-primary-rest);
-  color: var(--jui-color-typography-gray-on-dark-default);
-  cursor: pointer;
-}
-.ai-ask-send svg { width: 20px; height: 20px; }
-.ai-ask-send:hover { background: var(--jui-color-actions-primary-hover); }
-.ai-ask-send:disabled {
-  background: var(--jui-color-actions-static-pressed);
-  color: var(--jui-color-typography-gray-on-light-subdued);
-  cursor: default;
-}
-.ai-ask-send:focus-visible {
-  outline: 2px solid var(--jui-color-actions-primary-rest);
-  outline-offset: 2px;
-}
-
-/* @jimdo/ui smartSecondaryButton: a white box with a gradient border and a
-   gradient label. Two backgrounds in one declaration — the white one is
-   clipped to the padding box, the gradient to the border box, which is how
-   you get a gradient border without a wrapper element. */
 .ai-suggest-apply {
   flex-shrink: 0;
   display: inline-flex;
