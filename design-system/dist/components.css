@@ -3751,12 +3751,11 @@ body {
    never need to be read at once, which also keeps the field above
    from moving.
 
-   Three outcomes, and only one of them offers anything to press:
+   Nothing at all until there is something to read. Then two outcomes,
+   and only one of them offers anything to press:
 
-     needs    the offer is missing or too vague to rewrite
-              → one focused question, no suggestion, no Apply
-     suggest  a concrete improvement is possible
-              → one reviewer line, one complete replacement, Apply
+     suggest  a line about what would help, a complete replacement, and
+              one Apply — every line of text gets all three
      good     the offer reads and the wording is clear
               → one positive line, on the positive ramp, nothing to do
 

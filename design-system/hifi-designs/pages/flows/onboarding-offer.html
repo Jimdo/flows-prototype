@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Onboarding — Tagline</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=eed7fc4">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=eed7fc4">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=6cc1bea">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=6cc1bea">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=eed7fc4">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=6cc1bea">
 <style>
   /* ─── Screen overrides ───
      Everything here comes from the design system. Only the resting drawer
@@ -116,8 +116,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=eed7fc4"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=eed7fc4"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=6cc1bea"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=6cc1bea"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
 
@@ -154,23 +154,32 @@
        clarify it, then improve how it reads. Nothing is ever flagged for
        length alone — 6 to 14 words is a writing target, not a rule.
 
-       Three outcomes, and only one of them has anything to press:
+       Two outcomes once there is something to read:
 
-         needs     the offer is missing or too vague to rewrite from
-         suggest   a concrete improvement is possible from what is there
-         good      it reads, and the wording is clear
+         suggest  a line about what would help, a complete replacement,
+                  and one Apply
+         good     it reads and the wording is clear — a positive line, and
+                  nothing to press
 
-       The rules below stand in for the model. They are deliberately
-       legible rather than clever: a prototype that pretends to a
-       classifier it does not have teaches the wrong thing about what the
-       product can do. The worked examples from the brief are matched
-       exactly; anything else falls through to the heuristics under them,
-       which apply the same three criteria in the same order.
+       Nothing at all before that: a panel that opens on an empty field is
+       telling someone off for not having started.
+
+       THE SUGGESTIONS ARE HARDCODED. Every replacement below is written
+       out rather than generated — the matched examples by hand, the
+       derived ones by stripping what is in the way of the offer already
+       there, and FALLBACK for the case where neither applies. A real
+       reviewer would write these from the facts gathered earlier in
+       onboarding and would refuse to write one at all when the offer is
+       missing, because inventing a format or an audience is the one thing
+       it must not do. Standing in for that here means a line like "Yoga"
+       gets an example to edit rather than a question — which is the
+       interaction asked for, and a promise the model behind it will have
+       to be able to keep.
 
        One property holds the whole thing together, and the probe asserts
-       it: every suggestion this reviewer makes must itself review as
-       good. A reviewer that will not accept its own answer is one the
-       seller can never finish with.
+       it: every suggestion must itself review as good. A reviewer that
+       will not accept its own answer is one the seller can never finish
+       with.
        ══════════════════════════════════════════════════════════════════ */
 
     const norm = (t) => t.toLowerCase()
@@ -179,14 +188,21 @@
       .replace(/\s+/g, ' ')
       .trim();
 
-    /* The brief's own examples, which are also the demo script. */
+    /* Written out, input by input. The first four are the cases a real
+       model could not answer without facts it has not been given. */
     const CASES = [
-      { in: '', state: 'needs', line: 'Add the main service or product you offer.' },
-      { in: 'helping you thrive', state: 'needs',
-        line: 'Tell visitors what service or product you offer.' },
-      { in: 'yoga', state: 'needs',
-        line: 'What can people book with you — classes, private sessions, workshops, or something else?' },
-      { in: 'dog breeding', state: 'needs', line: 'Which breed do you specialise in?' },
+      { in: 'helping you thrive', state: 'suggest',
+        line: 'Tell visitors what service or product you offer.',
+        suggestion: 'Yoga classes and workshops for beginners' },
+      { in: 'yoga', state: 'suggest',
+        line: 'Say what people can book — classes, private sessions or workshops.',
+        suggestion: 'Yoga classes for beginners' },
+      { in: 'dog breeding', state: 'suggest',
+        line: 'Name the breed you specialise in.',
+        suggestion: 'Golden Retriever breeder' },
+      { in: 'photography', state: 'suggest',
+        line: 'Say what you photograph and for whom.',
+        suggestion: 'Wedding photographer in Hamburg' },
 
       { in: 'i teach yin yoga and offer classes and workshops for people who are beginners',
         state: 'suggest', line: 'Make your offer easier to spot with shorter wording.',
@@ -214,6 +230,10 @@
       { in: 'yin yoga classes and private sessions for beginners', state: 'good',
         line: "Your tagline makes your offer and who it's for clear." },
     ];
+
+    /* The one line to fall back on when nothing in what was typed can be
+       turned into an offer. Hardcoded, like the rest. */
+    const FALLBACK = 'Yoga classes and workshops for beginners';
 
     /* What a visitor can book or buy: a format, or the name of someone who
        does the thing. Both answer "what do I get". */
@@ -243,23 +263,24 @@
     function review(raw) {
       const text = sentence(raw);
       const n = norm(text);
+      if (!n) return null;                       // nothing typed, nothing said
 
       const hit = CASES.find((c) => c.in === n);
       if (hit) return hit;
 
       /* ── 1. Is there an offer at all? ── */
       const hasOffer = FORMATS.test(n) || AGENTS.test(n);
-      if (!n) {
-        return { state: 'needs', line: 'Add the main service or product you offer.' };
-      }
       if (!hasOffer) {
         /* A field of work with no format is the broad case: there is a
-           subject, but nothing anyone can book. */
-        if (FIELDS.test(n)) {
-          return { state: 'needs',
-            line: 'What can people book with you — classes, private sessions, workshops, or something else?' };
-        }
-        return { state: 'needs', line: 'Tell visitors what service or product you offer.' };
+           subject, but nothing anyone can book. Either way there is now a
+           line to show, because a suggestion always comes with one. */
+        return {
+          state: 'suggest',
+          line: FIELDS.test(n)
+            ? 'Say what people can book — classes, private sessions or workshops.'
+            : 'Tell visitors what service or product you offer.',
+          suggestion: FALLBACK,
+        };
       }
 
       /* ── 2. Is the wording in the way of it? ──
@@ -306,7 +327,7 @@
       }
 
       /* ── 3. Good enough. The line names what is already working, so the
-         seller knows which part to keep. ── */
+         seller knows which part to keep, and there is nothing to apply. ── */
       const where = /\bin [a-z]/.test(n);
       const who = /\bfor [a-z]/.test(n);
       if (where && who) return { state: 'good', line: "Your tagline says what you offer, who it's for and where." };
@@ -321,16 +342,18 @@
        The loader turns up on the first few characters rather than after a
        pause, so the person can see something is reading along while they
        write. The pause does the other half: the review lands when they
-       stop, which is the only moment it is not an interruption. */
+       stop, which is the only moment it is not an interruption. Nothing
+       appears before there is something to read. */
     const SETTLE_MS = 1000;
+    const MIN_CHARS = 3;
     let settleTimer = null;
-    let touched = false;      // nothing is said until the field has been used
 
     function paint() {
       const r = review(input.value);
+      if (!r) { suggest.hidden = true; return; }
       suggest.setAttribute('data-state', r.state);
       suggestText.textContent = r.line;
-      const has = r.state === 'suggest' && !!r.suggestion;
+      const has = !!r.suggestion;
       suggestLine.hidden = !has;
       suggestActions.hidden = !has;
       if (has) suggestLine.textContent = r.suggestion;
@@ -339,19 +362,13 @@
 
     function schedule() {
       window.clearTimeout(settleTimer);
-      if (!touched) { suggest.hidden = true; return; }
+      if (input.value.trim().length < MIN_CHARS) { suggest.hidden = true; return; }
       suggest.setAttribute('data-state', 'loading');
       suggest.hidden = false;
       settleTimer = window.setTimeout(paint, SETTLE_MS);
     }
 
-    /* Any interaction counts, not focus alone. Focus is the one that puts
-       the empty-state prompt up before a single character is typed, but a
-       paste or an autofill arrives as input with no focus event in front of
-       it, and a field that had just been filled would sit there reviewed by
-       nobody. */
-    input.addEventListener('focus', () => { touched = true; schedule(); });
-    input.addEventListener('input', () => { touched = true; split.sync(); schedule(); });
+    input.addEventListener('input', () => { split.sync(); schedule(); });
 
     /* Apply puts the whole line in, not a suffix on the end of it — the
        suggestion is a complete replacement, ready to use. The panel then
