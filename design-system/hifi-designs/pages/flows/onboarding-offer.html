@@ -371,17 +371,25 @@
     input.addEventListener('input', () => { split.sync(); schedule(); });
 
     /* Apply puts the whole line in, not a suffix on the end of it — the
-       suggestion is a complete replacement, ready to use. The panel then
-       reviews what it just wrote, which is how the seller sees it has
-       finished rather than being handed the next note. */
+       suggestion is a complete replacement, ready to use.
+
+       The panel then holds still. What it said and what it offered stay on
+       screen, because the seller has just handed their own line over and
+       the two are worth seeing side by side for a moment — the note that
+       explains the change, and the change itself, against the field that
+       now holds it. Re-reviewing on the spot would replace both with a
+       verdict on work they had no part in yet.
+
+       The next keystroke starts a fresh review. Setting .value from here
+       fires no input event, so nothing re-reads the field until the
+       seller touches it. */
     applyBtn.addEventListener('click', () => {
       const line = applyBtn.dataset.line;
       if (!line) return;
+      window.clearTimeout(settleTimer);
       input.value = line;
       split.sync();
       input.focus();
-      window.clearTimeout(settleTimer);
-      paint();
     });
   </script>
 

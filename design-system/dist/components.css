@@ -3872,15 +3872,19 @@ body {
 }
 
 /* The suggestion drawn as the line it would become, not as a sentence
-   about it. White on the panel's blue, the same card the field is. */
+   about it. A rule and a change of weight rather than a card: the note
+   above is prose about the tagline, this is the tagline, and a box around
+   it made the panel read as two stacked panels. The rule is the seam
+   between the two kinds of text, and the weight is what says which one you
+   are looking at. */
 .ai-suggest-line {
   margin: 0;
   width: 100%;
-  padding: var(--jui-layout-padding-s);
-  border-radius: var(--jui-style-radius-8);
-  background: var(--jui-color-gray-white);
-  font-size: var(--jui-typography-body-medium-regular-size);
-  line-height: var(--jui-typography-body-medium-regular-lh);
+  padding-top: var(--jui-layout-padding-s);
+  border-top: 1px solid var(--jui-color-blue-50);
+  font-size: var(--jui-typography-body-medium-medium-size);
+  font-weight: var(--jui-typography-body-medium-medium-weight);
+  line-height: var(--jui-typography-body-medium-medium-lh);
   color: var(--jui-color-typography-gray-on-light-default);
 }
 
