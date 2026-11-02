@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=821463e">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=821463e">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=7a601f6">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=7a601f6">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=821463e">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=7a601f6">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -585,7 +585,7 @@
   <div class="sheet-backdrop" id="formSheet" data-open="false" role="dialog" aria-modal="true" aria-labelledby="formSheetTitle">
     <div class="sheet">
       <div class="sheet-head">
-        <p class="sheet-title" id="formSheetTitle" data-inspect-phrase="">We made this form for you</p>
+        <p class="sheet-title" id="formSheetTitle" data-inspect-phrase="">Here is the form we wrote</p>
         <button type="button" class="setup-back-btn" id="formClose" aria-label="Close" data-no-phrase><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
       </div>
       <div class="sheet-body">
@@ -595,21 +595,18 @@
           <span class="ai-suggest-dots" aria-hidden="true"><i></i><i></i><i></i></span>
           <p class="sheet-busy-copy" data-inspect-phrase="">Writing the questions people will answer…</p>
         </div>
-        <p class="sheet-copy" data-inspect-phrase="">It is on your page already. You can change the questions whenever you like.</p>
+        <p class="sheet-copy" id="formCopy" data-inspect-phrase="">These are the questions people will answer. Change any of them before it goes on your page.</p>
 
         <div class="form-preview"
-          data-inspect-label="Form preview"
-          data-inspect-tokens='[{"prop":"row fill","figma":"color/gray/50","css":"--jui-color-gray-50","value":"#f8f8f8"},{"prop":"row radius","figma":"style/radius/8","css":"--jui-style-radius-8","value":"8px"},{"prop":"card border","figma":"$jui-color-stroke-gray-default","css":"--jui-color-stroke-gray-default","value":"1px #e6e6e6"}]'>
-          <ol class="form-preview-list">
-            <li class="form-preview-row"><span class="form-preview-index" aria-hidden="true">1</span><span class="form-preview-label" data-inspect-phrase="">Name</span></li>
-            <li class="form-preview-row"><span class="form-preview-index" aria-hidden="true">2</span><span class="form-preview-label" data-inspect-phrase="">Email</span></li>
-            <li class="form-preview-row"><span class="form-preview-index" aria-hidden="true">3</span><span class="form-preview-label" data-inspect-phrase="">What would you like to ask about?</span></li>
-            <li class="form-preview-row"><span class="form-preview-index" aria-hidden="true">4</span><span class="form-preview-label" data-inspect-phrase="">Check for consent</span></li>
-          </ol>
+          data-inspect-label="Form questions — editable"
+          data-inspect-tokens='[{"prop":"row fill","figma":"color/gray/50","css":"--jui-color-gray-50","value":"#f8f8f8"},{"prop":"row radius","figma":"style/radius/8","css":"--jui-style-radius-8","value":"8px"},{"prop":"card border","figma":"$jui-color-stroke-gray-default","css":"--jui-color-stroke-gray-default","value":"1px #e6e6e6"},{"note":"Each row is a text field. The consent row is locked — see the sheet annotation."}]'>
+          <ol class="form-preview-list" id="formFields"></ol>
         </div>
+        <button type="button" class="text-action" id="formAdd" data-inspect-phrase="">Add a question</button>
       </div>
       <div class="sheet-actions sheet-actions--end">
-        <button type="button" class="btn btn-primary" id="formDone" data-inspect-phrase="">Okay</button>
+        <button type="button" class="btn btn-secondary" id="formCancel" data-inspect-phrase="">Cancel</button>
+        <button type="button" class="btn btn-primary" id="formDone" data-inspect-phrase="">Add to my page</button>
       </div>
     </div>
   </div>
@@ -639,8 +636,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=821463e"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=821463e"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=7a601f6"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=7a601f6"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -875,9 +872,9 @@
       return el ? el.outerHTML : '';
     }
 
-    function addBlock({ label, kind = 'link', editor = 'mainlink', creating = true, remember = false, review = false }) {
+    function addBlock({ label, kind = 'link', editor = 'mainlink', creating = true, remember = false, review = false, fields = null }) {
       const key = 'blk' + (++blockSeq);
-      BLOCKS.set(key, { label, kind, editor, creating, review });
+      BLOCKS.set(key, { label, kind, editor, creating, review, fields });
       if (remember) rememberMade(kind, label);
 
       const li = document.createElement('li');
@@ -1095,7 +1092,7 @@
       if (kind === 'offer') {
         el.addEventListener('click', () => showEditor('offer', blockKey, { thing: true }));
       } else if (kind === 'form') {
-        el.addEventListener('click', () => { openEdit(false); openForm(true); });
+        el.addEventListener('click', () => { openEdit(false); openFormEdit(blockKey); });
       } else {
         el.classList.add('sheet-ref--flat');
       }
@@ -1270,6 +1267,7 @@
     const PAYWALL = '/flows-prototype/design-system/hifi-designs/pages/flows/paywall-domain.html?from=bio-page-links-edit';
     /* The one mark the seller has already learned means "this costs" — she
        named it unprompted in testing, and then met a paywall that had none. */
+    const TRASH_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3M6 7l.9 13.1A2 2 0 0 0 8.9 22h6.2a2 2 0 0 0 2-1.9L18 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     const CROWN_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg>';
 
     const PAGE_KINDS = ['book', 'form'];
@@ -1278,7 +1276,7 @@
 
     const SUGGESTION_KIND = { offer: 'book', form: 'form' };
 
-    function finishSuggestion(id, { creating = true } = {}) {
+    function finishSuggestion(id, { creating = true, fields = null } = {}) {
       const s = SUGGESTIONS[id];
       if (!s || s.done || s.removed) return;
       s.done = true;
@@ -1288,36 +1286,177 @@
         editor: s.editor,
         creating,
         remember: true,
-        review: true,
+        /* A form the seller read and approved is not waiting to be reviewed.
+           The badge is for the ones made without them looking. */
+        review: !fields,
+        fields,
       });
     }
 
     document.querySelectorAll('.edit-row').forEach((row) =>
       row.addEventListener('click', () => showEditor(row.getAttribute('data-editor'))));
 
-    /* A form is made rather than asked for, so Set it up on one ends in the
-       form itself. The piece is finished at that point — there is nothing
-       left for the seller to fill in — so it is marked done on the way. */
+    /* ── The form sheet ──
+       It used to make the form first and then describe it: the row was on
+       the page before the sheet opened, the questions were read-only, and
+       the copy said "It is on your page already" over an Okay button. A
+       seller testing it put the problem exactly — "it feels intransparent,
+       or kind of losing control when something adds questions to my bio
+       without giving me the chance. I need to actively see what the
+       questions are and it's not presented like 'are you okay with it?'" —
+       and the same week someone else said "you can't edit it, you don't
+       really build it, you have zero sense of what you're really building."
+
+       So the order is inverted. The sheet writes the questions, shows them
+       as fields the seller can change, and adds nothing until Add to my
+       page. Cancel leaves the page as it was.
+
+       The same sheet opens on a form that already exists, reached from the
+       reference box in its row. That one is not a decision — it is on the
+       page — so it loses the wait and the cancel, and saves on Done. */
     const formSheet = document.getElementById('formSheet');
-    /* Making a form takes a moment, and the sheet is the only place that can
-       say so: the row behind it is already there, pending, and the page the
-       row points at is what is being built. Opens busy, settles into the
-       form it made. */
     const formTitle = document.getElementById('formSheetTitle');
+    const formCopy = document.getElementById('formCopy');
+    const formList = document.getElementById('formFields');
+    const formDoneBtn = document.getElementById('formDone');
+    const formCancelBtn = document.getElementById('formCancel');
     const FORM_BUILD_MS = 1600;
     let formTimer = null;
 
-    function openForm(on) {
+    /* What the product writes when it writes a form. The consent row is the
+       one the seller cannot remove or rename.
+       ASSUMPTION, flagged rather than buried: a contact form that collects a
+       name and an email needs a consent checkbox, so it is not the seller's
+       to delete. Worth confirming with whoever owns forms — if consent is
+       handled elsewhere, this row should become editable like the rest. */
+    const FORM_DEFAULT = [
+      { label: 'Name' },
+      { label: 'Email' },
+      { label: 'What would you like to ask about?' },
+      { label: 'Consent to be contacted', locked: true },
+    ];
+
+    let formDraft = [];        // the working copy, which only Done commits
+    let formCommit = null;     // what to run when the seller says yes
+    let formEditing = null;    // the block being edited, in edit mode
+
+    function renderFormFields() {
+      formList.innerHTML = '';
+      formDraft.forEach((f, i) => {
+        const li = document.createElement('li');
+        li.className = 'form-preview-row' + (f.locked ? ' form-preview-row--locked' : '');
+        const num = document.createElement('span');
+        num.className = 'form-preview-index';
+        num.setAttribute('aria-hidden', 'true');
+        num.textContent = String(i + 1);
+        li.appendChild(num);
+
+        if (f.locked) {
+          const label = document.createElement('span');
+          label.className = 'form-preview-label';
+          label.setAttribute('data-no-phrase', '');
+          label.textContent = f.label;
+          li.appendChild(label);
+          const tag = document.createElement('span');
+          tag.className = 'tag';
+          tag.setAttribute('data-no-phrase', '');
+          tag.textContent = 'Always asked';
+          li.appendChild(tag);
+        } else {
+          const input = document.createElement('input');
+          input.className = 'form-preview-input';
+          input.type = 'text';
+          input.value = f.label;
+          input.setAttribute('aria-label', 'Question ' + (i + 1));
+          input.setAttribute('data-no-phrase', '');
+          input.addEventListener('input', () => { f.label = input.value; });
+          li.appendChild(input);
+          const drop = document.createElement('button');
+          drop.type = 'button';
+          drop.className = 'icon-btn-sm subtle form-preview-drop';
+          drop.setAttribute('aria-label', 'Remove this question');
+          drop.setAttribute('data-no-phrase', '');
+          drop.innerHTML = TRASH_SVG;
+          drop.addEventListener('click', () => {
+            formDraft.splice(i, 1);
+            renderFormFields();
+          });
+          li.appendChild(drop);
+        }
+        formList.appendChild(li);
+      });
+    }
+
+    document.getElementById('formAdd').addEventListener('click', () => {
+      /* The new one goes above consent, because consent is the last thing
+         anybody answers. */
+      const at = formDraft.findIndex((f) => f.locked);
+      formDraft.splice(at === -1 ? formDraft.length : at, 0, { label: '' });
+      renderFormFields();
+      const inputs = formList.querySelectorAll('.form-preview-input');
+      const last = inputs[Math.max(0, (at === -1 ? inputs.length : at))];
+      if (last) last.focus();
+    });
+
+    function closeForm() {
       clearTimeout(formTimer);
-      formSheet.setAttribute('data-open', String(on));
-      if (!on) { formSheet.removeAttribute('data-busy'); return; }
+      formSheet.setAttribute('data-open', 'false');
+      formSheet.removeAttribute('data-busy');
+      formCommit = null;
+      formEditing = null;
+    }
+
+    /* commit() runs only if the seller confirms, which is the whole change. */
+    function openFormDraft(commit) {
+      clearTimeout(formTimer);
+      formCommit = commit;
+      formEditing = null;
+      formDraft = FORM_DEFAULT.map((f) => Object.assign({}, f));
+      renderFormFields();
+      formCancelBtn.hidden = false;
+      formDoneBtn.textContent = 'Add to my page';
+      formSheet.setAttribute('data-open', 'true');
       formSheet.setAttribute('data-busy', 'true');
-      formTitle.textContent = 'Making your form';
+      formTitle.textContent = 'Writing your form';
       formTimer = setTimeout(() => {
         formSheet.removeAttribute('data-busy');
-        formTitle.textContent = 'We made this form for you';
+        formTitle.textContent = 'Here is the form we wrote';
       }, FORM_BUILD_MS);
     }
+
+    /* Already on the page, so there is nothing to agree to and nothing to
+       wait for — just the questions, and a way out that saves them. */
+    function openFormEdit(key) {
+      clearTimeout(formTimer);
+      formCommit = null;
+      formEditing = key;
+      const b = BLOCKS.get(key);
+      formDraft = ((b && b.fields) || FORM_DEFAULT).map((f) => Object.assign({}, f));
+      renderFormFields();
+      formCancelBtn.hidden = true;
+      formDoneBtn.textContent = 'Done';
+      formTitle.textContent = 'Your form';
+      formCopy.textContent = 'These are the questions people answer. Change any of them.';
+      formSheet.removeAttribute('data-busy');
+      formSheet.setAttribute('data-open', 'true');
+    }
+
+    formDoneBtn.addEventListener('click', () => {
+      /* An empty question is one the seller started and left — dropping it
+         is kinder than publishing a blank line. */
+      const fields = formDraft.filter((f) => f.locked || f.label.trim());
+      if (formEditing) {
+        const b = BLOCKS.get(formEditing);
+        if (b) b.fields = fields;
+      } else if (formCommit) {
+        formCommit(fields);
+      }
+      closeForm();
+    });
+
+    formCancelBtn.addEventListener('click', closeForm);
+    document.getElementById('formClose').addEventListener('click', closeForm);
+    formSheet.addEventListener('click', (e) => { if (e.target === formSheet) closeForm(); });
 
     document.querySelectorAll('[data-setup]').forEach((btn) =>
       btn.addEventListener('click', () => {
@@ -1328,13 +1467,13 @@
         }
         if (kind !== 'form') return showEditor(kind);
         const match = Object.keys(SUGGESTIONS).find((k) => SUGGESTIONS[k].editor === 'form');
-        if (match) finishSuggestion(match);
-        openForm(true);
+        openFormDraft((fields) => {
+          /* Not creating: the form was written in the sheet and read there.
+             The spinner on the row stood for work the seller could not see,
+             and there is none left by the time they press Add. */
+          if (match) finishSuggestion(match, { creating: false, fields });
+        });
       }));
-
-    document.getElementById('formClose').addEventListener('click', () => openForm(false));
-    document.getElementById('formDone').addEventListener('click', () => openForm(false));
-    formSheet.addEventListener('click', (e) => { if (e.target === formSheet) openForm(false); });
 
     /* Another round. The two step back while the next pair is found — the
        wait belongs to the suggestions, not to the button that asked. */
@@ -1532,10 +1671,20 @@
             window.location.href = PAYWALL;
             return;
           }
+          /* A form is written for the seller, so it goes through the sheet
+             that shows what was written before any of it lands. A booking
+             is a thing they fill in themselves — nothing to approve. */
+          if (idea.shape === 'form') {
+            openFormDraft((fields) => addBlock({
+              label: idea.title, kind: 'form', editor: 'form',
+              creating: false, remember: true, review: false, fields,
+            }));
+            return;
+          }
           addBlock({
             label: idea.title,
-            kind: idea.shape === 'form' ? 'form' : 'book',
-            editor: idea.shape === 'form' ? 'form' : 'offer',
+            kind: 'book',
+            editor: 'offer',
             remember: true,
             review: true,
           });
@@ -1700,6 +1849,17 @@
             window.location.href = PAYWALL;
             return;
           }
+          /* Create a form used to drop one straight onto the page with
+             nothing shown first — the path a seller described as the
+             product adding questions to her bio without giving her the
+             chance to see them. It goes through the sheet now. */
+          if (isMake && kind === 'form') {
+            openFormDraft((fields) => addBlock({
+              label: item.title, kind: 'form', editor: 'form',
+              creating: false, review: false, fields,
+            }));
+            return;
+          }
           addBlock({
             label: item.title,
             kind: PICKER_KIND[kind] || 'link',
@@ -1833,7 +1993,7 @@
       if (e.key !== 'Escape') return;
       closeAdd();
       openEdit(false);
-      openForm(false);
+      closeForm();
     });
 
     /* The rest of a list that opens showing its most-used few. The button
