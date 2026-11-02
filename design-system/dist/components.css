@@ -3872,19 +3872,31 @@ body {
 }
 
 /* The suggestion drawn as the line it would become, not as a sentence
-   about it. A rule and a change of weight rather than a card: the note
-   above is prose about the tagline, this is the tagline, and a box around
-   it made the panel read as two stacked panels. The rule is the seam
-   between the two kinds of text, and the weight is what says which one you
-   are looking at. */
+   about it. A card around it made the panel read as two stacked panels; a
+   rule across the top made it read as a footnote. What it actually is, in
+   the shapeof.ai sense, is an inline preview layer — the product's answer
+   sitting over the seller's line, waiting to be accepted or ignored. So it
+   is marked with a 2px edge, because an edge says "this belongs to what is
+   above it" where a box says "this is a separate thing".
+
+   The edge is flat primary, not the smart gradient. The gradient was tried
+   here and does not survive the shape: it runs at 111 degrees and only
+   turns warm past its own width, so across a 2px strip the whole thing
+   renders as the blue it starts on. A gradient that reads as flat blue is
+   a claim the pixels do not keep — better to use the blue on purpose. The
+   gradient still marks what the product wrote where it has room to: the
+   Apply button under this line.
+
+   Same size as the note above it. The weight is the whole difference: that
+   is prose about the tagline, this is the tagline. */
 .ai-suggest-line {
   margin: 0;
   width: 100%;
-  padding-top: var(--jui-layout-padding-s);
-  border-top: 1px solid var(--jui-color-blue-50);
-  font-size: var(--jui-typography-body-medium-medium-size);
-  font-weight: var(--jui-typography-body-medium-medium-weight);
-  line-height: var(--jui-typography-body-medium-medium-lh);
+  padding-left: var(--jui-layout-padding-s);
+  border-left: 2px solid var(--jui-color-actions-primary-rest);
+  font-size: var(--jui-typography-body-small-medium-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  line-height: var(--jui-typography-body-small-medium-lh);
   color: var(--jui-color-typography-gray-on-light-default);
 }
 
