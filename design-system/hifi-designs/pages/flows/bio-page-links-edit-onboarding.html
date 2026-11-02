@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=2d4112e">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=2d4112e">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=b731679">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=b731679">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=2d4112e">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=b731679">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -585,6 +585,7 @@
   <div class="sheet-backdrop" id="formSheet" data-open="false" role="dialog" aria-modal="true" aria-labelledby="formSheetTitle">
     <div class="sheet">
       <div class="sheet-head">
+        <button type="button" class="setup-back-btn add-head-back" id="formBack" aria-label="Back" data-no-phrase hidden><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
         <p class="sheet-title" id="formSheetTitle" data-inspect-phrase="">Here is the form we wrote</p>
         <button type="button" class="setup-back-btn" id="formClose" aria-label="Close" data-no-phrase><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
       </div>
@@ -595,14 +596,30 @@
           <span class="ai-suggest-dots" aria-hidden="true"><i></i><i></i><i></i></span>
           <p class="sheet-busy-copy" data-inspect-phrase="">Writing the questions people will answer…</p>
         </div>
-        <p class="sheet-copy" id="formCopy" data-inspect-phrase="">These are the questions people will answer. Change any of them before it goes on your page.</p>
-
-        <div class="form-editor"
-          data-inspect-label="Form editor — questions, kinds and choices"
-          data-inspect-tokens='[{"prop":"question fill","figma":"color/gray/50","css":"--jui-color-gray-50","value":"#f8f8f8"},{"prop":"question radius","figma":"style/radius/8","css":"--jui-style-radius-8","value":"8px"},{"prop":"card border","figma":"$jui-color-stroke-gray-default","css":"--jui-color-stroke-gray-default","value":"1px #e6e6e6"},{"prop":"kind picker","figma":"@jimdo/ui Select","css":"--jui-style-radius-s","value":"native select, radius 8"},{"note":"Six kinds, from CanvasFormField in loops-frontend: text, textarea, email, radio, checkbox-group, checkbox. The consent question is locked."}]'>
-          <ol class="form-editor-list" id="formFields"></ol>
+        <!-- Two halves of one sheet. Reading the form is deciding whether
+             it is right; changing it is a different job, so it is a level
+             down behind a labelled button rather than four editable rows
+             presented as a thing to approve. -->
+        <div class="sheet-form" data-form-view="show">
+          <p class="sheet-copy" id="formCopy" data-inspect-phrase="">These are the questions people will answer. Have a look before it goes on your page.</p>
+          <div class="form-preview"
+            data-inspect-label="Form preview"
+            data-inspect-tokens='[{"prop":"row fill","figma":"color/gray/50","css":"--jui-color-gray-50","value":"#f8f8f8"},{"prop":"row radius","figma":"style/radius/8","css":"--jui-style-radius-8","value":"8px"},{"prop":"card border","figma":"$jui-color-stroke-gray-default","css":"--jui-color-stroke-gray-default","value":"1px #e6e6e6"}]'>
+            <ol class="form-preview-list" id="formShow"></ol>
+          </div>
+          <button type="button" class="btn btn-secondary btn-sm" id="formEdit"
+            data-inspect-label="Secondary Button — Edit questions, Size=Small"
+            data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Edit questions</button>
         </div>
-        <button type="button" class="text-action" id="formAdd" data-inspect-phrase="">Add a question</button>
+
+        <!-- The editor proper — .sheet-form / .sheet-field / .form-input,
+             the same parts the booking editor is built from. -->
+        <div class="sheet-form" data-form-view="edit" hidden>
+          <div class="sheet-form sheet-form--questions" id="formFields"
+            data-inspect-label="Form questions"
+            data-inspect-tokens='[{"prop":"field","css":".sheet-field + .sheet-label + .form-input","value":"the booking editor\u2019s own parts"},{"prop":"kind picker","figma":"@jimdo/ui Select","css":".form-select","value":"native select in the Input box"},{"note":"Five pickable kinds, from CanvasFormField in loops-frontend: text, textarea, email, radio, checkbox-group. The consent question is locked."}]'></div>
+          <button type="button" class="text-action" id="formAdd" data-inspect-phrase="">Add a question</button>
+        </div>
       </div>
       <div class="sheet-actions sheet-actions--end">
         <button type="button" class="btn btn-secondary" id="formCancel" data-inspect-phrase="">Cancel</button>
@@ -636,8 +653,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=2d4112e"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=2d4112e"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=b731679"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=b731679"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -1318,6 +1335,10 @@
     const formTitle = document.getElementById('formSheetTitle');
     const formCopy = document.getElementById('formCopy');
     const formList = document.getElementById('formFields');
+    const formShow = document.getElementById('formShow');
+    const formBack = document.getElementById('formBack');
+    const formViews = [...document.querySelectorAll('[data-form-view]')];
+    let formView = 'show';
     const formDoneBtn = document.getElementById('formDone');
     const formCancelBtn = document.getElementById('formCancel');
     const FORM_BUILD_MS = 1600;
@@ -1362,10 +1383,12 @@
 
     const CHEVRON_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><polyline points="6 9 12 15 18 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
-    function dropBtn(label, onClick, cls) {
+    const kindLabel = (t) => (FIELD_KINDS.find((k) => k.type === t) || FIELD_KINDS[0]).label;
+
+    function dropBtn(label, onClick) {
       const b = document.createElement('button');
       b.type = 'button';
-      b.className = 'icon-btn-sm subtle' + (cls ? ' ' + cls : '');
+      b.className = 'icon-btn-sm subtle';
       b.setAttribute('aria-label', label);
       b.setAttribute('data-no-phrase', '');
       b.innerHTML = TRASH_SVG;
@@ -1373,57 +1396,91 @@
       return b;
     }
 
-    function renderFormFields(focus) {
-      formList.innerHTML = '';
+    /* ── Reading the form ──
+       One row per question: what is asked, and under it what the visitor
+       is given to answer with. The choices are named on that same line,
+       because a choice question is not described by saying it is one. */
+    function renderFormShow() {
+      formShow.innerHTML = '';
       formDraft.forEach((f, i) => {
         const li = document.createElement('li');
-        li.className = 'form-field' + (f.locked ? ' form-field--locked' : '');
-
-        const head = document.createElement('div');
-        head.className = 'form-field-head';
+        li.className = 'form-preview-row' + (f.locked ? ' form-preview-row--locked' : '');
         const num = document.createElement('span');
-        num.className = 'form-field-index';
+        num.className = 'form-preview-index';
         num.setAttribute('aria-hidden', 'true');
         num.textContent = String(i + 1);
-        head.appendChild(num);
+        const copy = document.createElement('span');
+        copy.className = 'form-preview-copy';
+        const label = document.createElement('span');
+        label.className = 'form-preview-label';
+        label.setAttribute('data-no-phrase', '');
+        label.textContent = f.label;
+        copy.appendChild(label);
+        const kind = document.createElement('span');
+        kind.className = 'form-preview-kind';
+        kind.setAttribute('data-no-phrase', '');
+        kind.textContent = f.locked ? 'A tick box, on every form'
+          : KIND_TAKES_OPTIONS(f.type)
+            ? kindLabel(f.type) + ': ' + (f.options || []).filter((o) => o.trim()).join(', ')
+            : kindLabel(f.type);
+        copy.appendChild(kind);
+        li.append(num, copy);
+        formShow.appendChild(li);
+      });
+    }
+
+    /* ── Changing it ──
+       .sheet-field, .sheet-label, .form-input — the parts the booking
+       editor is made of, so a form is edited the way everything else on
+       this screen is edited. */
+    function renderFormEdit(focus) {
+      formList.innerHTML = '';
+      formDraft.forEach((f, i) => {
+        const wrap = document.createElement('div');
+        wrap.className = 'sheet-field';
+
+        const head = document.createElement('div');
+        head.className = 'sheet-field-head';
+        const label = document.createElement('span');
+        label.className = 'sheet-label';
+        label.setAttribute('data-no-phrase', '');
+        label.textContent = f.locked ? 'Always asked' : 'Question ' + (i + 1);
+        head.appendChild(label);
+        if (!f.locked) {
+          head.appendChild(dropBtn('Remove question ' + (i + 1), () => {
+            formDraft.splice(i, 1);
+            renderFormEdit();
+          }));
+        }
+        wrap.appendChild(head);
 
         if (f.locked) {
-          const label = document.createElement('span');
-          label.className = 'form-field-label';
-          label.setAttribute('data-no-phrase', '');
-          label.textContent = f.label;
-          head.appendChild(label);
-          const tag = document.createElement('span');
-          tag.className = 'tag';
-          tag.setAttribute('data-no-phrase', '');
-          tag.textContent = 'Always asked';
-          head.appendChild(tag);
-          li.appendChild(head);
-          formList.appendChild(li);
+          /* Shown, not offered. A disabled input is still an input-shaped
+             box in a stack of them, so this is a line of text instead. */
+          const locked = document.createElement('span');
+          locked.className = 'sheet-field-static';
+          locked.setAttribute('data-no-phrase', '');
+          locked.textContent = f.label;
+          wrap.appendChild(locked);
+          formList.appendChild(wrap);
           return;
         }
 
         const input = document.createElement('input');
-        input.className = 'form-field-input';
+        input.className = 'form-input';
         input.type = 'text';
         input.value = f.label;
         input.placeholder = 'What do you want to ask?';
         input.setAttribute('aria-label', 'Question ' + (i + 1));
         input.setAttribute('data-no-phrase', '');
         input.addEventListener('input', () => { f.label = input.value; });
-        head.appendChild(input);
-        head.appendChild(dropBtn('Remove question ' + (i + 1), () => {
-          formDraft.splice(i, 1);
-          renderFormFields();
-        }, 'form-field-drop'));
-        li.appendChild(head);
+        wrap.appendChild(input);
 
-        /* What kind of answer it takes. Switching into a choice gives it two
-           empty options to fill, because a choice with none is not a
-           question yet; switching out keeps them, so a mis-click does not
-           destroy what was typed. */
-        const kind = document.createElement('span');
-        kind.className = 'form-field-kind';
+        /* Switching into a choice opens two empty ones, because a choice
+           with none is not a question yet. Switching out keeps them, so a
+           mis-click does not destroy what was typed. */
+        const pick = document.createElement('span');
+        pick.className = 'form-select form-select--sm';
         const sel = document.createElement('select');
         sel.setAttribute('aria-label', 'What question ' + (i + 1) + ' takes');
         sel.setAttribute('data-no-phrase', '');
@@ -1437,27 +1494,21 @@
         });
         sel.addEventListener('change', () => {
           f.type = sel.value;
-          if (KIND_TAKES_OPTIONS(f.type) && !(f.options || []).length) {
-            f.options = ['', ''];
-          }
-          renderFormFields({ field: i, option: 0 });
+          if (KIND_TAKES_OPTIONS(f.type) && !(f.options || []).length) f.options = ['', ''];
+          renderFormEdit({ field: i, choice: 0 });
         });
-        kind.appendChild(sel);
-        kind.insertAdjacentHTML('beforeend', CHEVRON_SVG);
-        li.appendChild(kind);
+        pick.appendChild(sel);
+        pick.insertAdjacentHTML('beforeend', CHEVRON_SVG);
+        wrap.appendChild(pick);
 
         if (KIND_TAKES_OPTIONS(f.type)) {
-          const list = document.createElement('ol');
-          list.className = 'form-field-options';
+          const list = document.createElement('div');
+          list.className = 'sheet-choices';
           (f.options || []).forEach((opt, j) => {
-            const row = document.createElement('li');
-            row.className = 'form-field-option';
-            const tick = document.createElement('span');
-            tick.className = 'form-field-tick form-field-tick--' +
-              (f.type === 'radio' ? 'one' : 'many');
-            tick.setAttribute('aria-hidden', 'true');
-            row.appendChild(tick);
+            const row = document.createElement('div');
+            row.className = 'sheet-choice';
             const oi = document.createElement('input');
+            oi.className = 'form-input form-input--sm';
             oi.type = 'text';
             oi.value = opt;
             oi.placeholder = 'Choice ' + (j + 1);
@@ -1469,45 +1520,65 @@
             if ((f.options || []).length > 2) {
               row.appendChild(dropBtn('Remove choice ' + (j + 1), () => {
                 f.options.splice(j, 1);
-                renderFormFields();
+                renderFormEdit();
               }));
             }
             list.appendChild(row);
           });
-          li.appendChild(list);
+          wrap.appendChild(list);
 
           const more = document.createElement('button');
           more.type = 'button';
-          more.className = 'text-action form-field-addopt';
+          more.className = 'text-action';
           more.setAttribute('data-no-phrase', '');
           more.textContent = 'Add a choice';
           more.addEventListener('click', () => {
             f.options = (f.options || []).concat('');
-            renderFormFields({ field: i, option: f.options.length - 1 });
+            renderFormEdit({ field: i, choice: f.options.length - 1 });
           });
-          li.appendChild(more);
+          wrap.appendChild(more);
         }
 
-        formList.appendChild(li);
+        formList.appendChild(wrap);
       });
 
-      /* Rebuilding the list throws the caret away, so whoever asked for the
-         rebuild says where it should land. */
+      /* Rebuilding throws the caret away, so whoever asked for the rebuild
+         says where it should land. */
       if (!focus) return;
-      const li = formList.children[focus.field];
-      if (!li) return;
-      const opts = li.querySelectorAll('.form-field-option input');
-      const target = focus.option != null && opts[focus.option]
-        ? opts[focus.option] : li.querySelector('.form-field-input');
+      const wrap = formList.children[focus.field];
+      if (!wrap) return;
+      const choices = wrap.querySelectorAll('.sheet-choice .form-input');
+      const target = focus.choice != null && choices[focus.choice]
+        ? choices[focus.choice] : wrap.querySelector('.form-input');
       if (target) target.focus();
     }
+
+    /* Which half of the sheet is showing. Reading it is the default; the
+       pencil goes a level down, and the back arrow comes with it — the same
+       move the add sheet makes into one of its submenus. */
+    function setFormView(view) {
+      formView = view;
+      formViews.forEach((el) => { el.hidden = el.getAttribute('data-form-view') !== view; });
+      formBack.hidden = view !== 'edit';
+      if (view === 'edit') {
+        formTitle.textContent = 'Edit questions';
+        renderFormEdit();
+      } else {
+        formTitle.textContent = formEditing ? 'Your form' : 'Here is the form we wrote';
+        renderFormShow();
+      }
+    }
+
+    document.getElementById('formEdit').addEventListener('click', () => setFormView('edit'));
+    formBack.addEventListener('click', () => setFormView('show'));
 
     document.getElementById('formAdd').addEventListener('click', () => {
       /* The new one goes above consent, because consent is the last thing
          anybody answers. */
       const at = formDraft.findIndex((f) => f.locked);
-      formDraft.splice(at === -1 ? formDraft.length : at, 0, { label: '', type: 'text' });
-      renderFormFields({ field: at === -1 ? formDraft.length - 1 : at });
+      const i = at === -1 ? formDraft.length : at;
+      formDraft.splice(i, 0, { label: '', type: 'text' });
+      renderFormEdit({ field: i });
     });
 
     /* The options array has to come along by value, or the draft shares it
@@ -1529,7 +1600,8 @@
       formCommit = commit;
       formEditing = null;
       formDraft = copyFields(FORM_DEFAULT);
-      renderFormFields();
+      formCopy.textContent = 'These are the questions people will answer. Have a look before it goes on your page.';
+      setFormView('show');
       formCancelBtn.hidden = false;
       formDoneBtn.textContent = 'Add to my page';
       formSheet.setAttribute('data-open', 'true');
@@ -1537,7 +1609,7 @@
       formTitle.textContent = 'Writing your form';
       formTimer = setTimeout(() => {
         formSheet.removeAttribute('data-busy');
-        formTitle.textContent = 'Here is the form we wrote';
+        if (formView === 'show') formTitle.textContent = 'Here is the form we wrote';
       }, FORM_BUILD_MS);
     }
 
@@ -1549,11 +1621,10 @@
       formEditing = key;
       const b = BLOCKS.get(key);
       formDraft = copyFields((b && b.fields) || FORM_DEFAULT);
-      renderFormFields();
+      formCopy.textContent = 'These are the questions people answer when they fill this in.';
+      setFormView('show');
       formCancelBtn.hidden = true;
       formDoneBtn.textContent = 'Done';
-      formTitle.textContent = 'Your form';
-      formCopy.textContent = 'These are the questions people answer. Change any of them.';
       formSheet.removeAttribute('data-busy');
       formSheet.setAttribute('data-open', 'true');
     }
@@ -1582,6 +1653,8 @@
     });
 
     formCancelBtn.addEventListener('click', closeForm);
+    /* Escape out of the editor goes up a level first, the way the add sheet
+       does — the sheet only closes from its own top. */
     document.getElementById('formClose').addEventListener('click', closeForm);
     formSheet.addEventListener('click', (e) => { if (e.target === formSheet) closeForm(); });
 
@@ -2120,7 +2193,8 @@
       if (e.key !== 'Escape') return;
       closeAdd();
       openEdit(false);
-      closeForm();
+      if (formSheet.getAttribute('data-open') === 'true' && formView === 'edit') setFormView('show');
+      else closeForm();
     });
 
     /* The rest of a list that opens showing its most-used few. The button

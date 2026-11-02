@@ -166,6 +166,65 @@ body {
 }
 
 .form-input:not(:focus):hover { border-color: var(--jui-component-input-color-field-stroke-hover); }
+/* Size modifier, on .btn-sm's scale — for fields that sit underneath a
+   full-size one and must not compete with it. */
+.form-input--sm {
+  height: var(--jui-layout-dimension-s);
+  padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-s);
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+}
+
+/* ── Select ──
+   @jimdo/ui's Select is a native <select> inside the Input's own box with a
+   chevron drawn beside it. Same here: same border, radius and focus as
+   .form-input, because it is the same field. Native, because the platform's
+   own picker is the right control on a phone and nothing here beats it. */
+.form-select {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--jui-color-background-gray-light);
+  border: 1px solid var(--jui-component-input-color-field-stroke-rest);
+  border-radius: var(--jui-style-radius-m);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.form-select:not(:focus-within):hover { border-color: var(--jui-component-input-color-field-stroke-hover); }
+.form-select:focus-within {
+  border-color: var(--jui-color-actions-primary-rest);
+  box-shadow: 0 0 0 1px var(--jui-color-actions-primary-rest);
+}
+.form-select select {
+  appearance: none;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  /* Right side leaves the chevron its 16 plus the padding either side. */
+  padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-xl)
+           var(--jui-layout-padding-xs) var(--jui-layout-padding-s);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--jui-color-typography-gray-on-light-default);
+  cursor: pointer;
+}
+.form-select select:focus { outline: none; }
+.form-select--sm { align-self: flex-start; }
+.form-select--sm select {
+  padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-xl)
+           var(--jui-layout-padding-xxs) var(--jui-layout-padding-s);
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+}
+.form-select svg {
+  position: absolute;
+  right: var(--jui-layout-padding-s);
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
 
 .form-input:focus {
   outline: none;
@@ -6146,33 +6205,28 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   Form editor (.form-editor)
+   Form preview (.form-preview)
 
-   The form the seller's clients will fill in, as something they build
-   rather than something they are shown. Each question carries its wording,
-   the kind of answer it takes, and the choices when the answer is one. The
-   numbers are what make it read as a sequence of questions rather than a
-   set of settings.
-
-   It was a read-only preview until two research sessions in one week said
-   the same thing about it — see .form-field.
+   The form the seller's clients will fill in, shown back to them: every
+   question, what it takes, and the choices when it takes one. Read-only,
+   because this is the half of the sheet where they are deciding whether
+   the form is right. Changing it is the other half, and it is built out of
+   .sheet-field like every other editor in this screen.
 
    HTML:
-     .form-editor
-       ol.form-editor-list
-         li.form-field
-           .form-field-head > .form-field-index + input.form-field-input + button
-           .form-field-kind > select + svg
-           ol.form-field-options > li.form-field-option
-           button.form-field-addopt
+     .form-preview
+       ol.form-preview-list
+         li.form-preview-row
+           .form-preview-index
+           .form-preview-copy > .form-preview-label + .form-preview-kind
    ═══════════════════════════════════════════════════════════════ */
-.form-editor {
+.form-preview {
   border: 1px solid var(--jui-color-stroke-gray-default);
   border-radius: var(--jui-style-radius-12);
   background: var(--jui-color-gray-white);
 }
 
-.form-editor-list {
+.form-preview-list {
   display: flex;
   flex-direction: column;
   gap: var(--jui-layout-gap-xs);
@@ -6181,34 +6235,18 @@ body {
   list-style: none;
 }
 
-/* ── A question in the form editor ──
-   The sheet used to show this list read-only over the words "It is on your
-   page already". Two sessions in one week said the same thing about it: "I
-   need to actively see what the questions are and it's not presented like
-   'are you okay with it?'", and "you can't edit it, you don't really build
-   it, you have zero sense of what you're really building."
-
-   So each question is a block you build: the wording, what kind of answer
-   it takes, and — when the answer is a choice — the choices themselves.
-   The six kinds are production's, from CanvasFormField in loops-frontend:
-   text, textarea, email, radio, checkbox-group, checkbox. */
-.form-field {
+/* The question's number, not a bullet: a form is answered in order, and the
+   row is a picture of a question rather than an item in a set. */
+.form-preview-row {
   display: flex;
-  flex-direction: column;
-  gap: var(--jui-layout-gap-xs);
+  align-items: flex-start;
+  gap: var(--jui-layout-gap-m);
   padding: var(--jui-layout-padding-s) var(--jui-layout-padding-m);
   border-radius: var(--jui-style-radius-8);
   background: var(--jui-color-gray-50);
 }
-.form-field-head {
-  display: flex;
-  align-items: center;
-  gap: var(--jui-layout-gap-m);
-}
 
-/* The question's number, not a bullet: a form is answered in order, and the
-   block is a picture of a question rather than an item in a set. */
-.form-field-index {
+.form-preview-index {
   flex-shrink: 0;
   min-width: 12px;
   font-size: var(--jui-typography-body-medium-medium-size);
@@ -6217,8 +6255,14 @@ body {
   color: var(--jui-color-typography-gray-on-light-subdued);
 }
 
-.form-field-label {
-  flex: 1 1 auto;
+.form-preview-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xxs);
+  min-width: 0;
+}
+
+.form-preview-label {
   min-width: 0;
   font-size: var(--jui-typography-body-medium-regular-size);
   font-weight: var(--jui-typography-body-medium-regular-weight);
@@ -6226,130 +6270,16 @@ body {
   color: var(--jui-color-typography-gray-on-light-default);
 }
 
-/* The wording of the question. Borderless, because the block it sits in is
-   already a filled box — an input drawn inside it would be a box in a box.
-   The focus ring goes on the block for the same reason. */
-.form-field-input {
-  flex: 1 1 auto;
-  min-width: 0;
-  border: 0;
-  padding: 0;
-  background: transparent;
-  font-family: inherit;
-  font-size: var(--jui-typography-body-medium-regular-size);
-  font-weight: var(--jui-typography-body-medium-medium-weight);
-  line-height: var(--jui-typography-body-medium-regular-lh);
-  color: var(--jui-color-typography-gray-on-light-default);
-}
-.form-field-input:focus { outline: none; }
-.form-field-input::placeholder { color: var(--jui-color-typography-gray-on-light-subdued); }
-.form-field:focus-within {
-  background: var(--jui-color-gray-white);
-  box-shadow: inset 0 0 0 1px var(--jui-color-actions-primary-rest);
-}
-
-/* Only on hover and focus: four delete buttons showing at rest read as a
-   list of things to get rid of rather than a form to read. */
-.form-field-drop { opacity: 0; transition: opacity 120ms ease; }
-.form-field:hover .form-field-drop,
-.form-field:focus-within .form-field-drop { opacity: 1; }
-.form-field-drop:focus-visible { opacity: 1; }
-
-/* ── What kind of answer it takes ──
-   A native select, wrapped the way @jimdo/ui's Select wraps one: a
-   gray-light box at radius-s with the chevron drawn beside it. Native,
-   because the platform's own picker is the right control on a phone and
-   nothing here beats it. */
-.form-field-kind {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  align-self: flex-start;
-  /* Clears the index column, so the kind reads as belonging to the question
-     above it rather than starting a new one. */
-  margin-left: calc(12px + var(--jui-layout-gap-m));
-  background: var(--jui-color-background-gray-light);
-  border: 1px solid var(--jui-component-input-color-field-stroke-rest);
-  border-radius: var(--jui-style-radius-s);
-}
-.form-field-kind:focus-within {
-  border-color: var(--jui-color-actions-primary-rest);
-  box-shadow: 0 0 0 1px var(--jui-color-actions-primary-rest);
-}
-.form-field-kind select {
-  appearance: none;
-  border: 0;
-  background: transparent;
-  /* Right padding leaves the chevron its 16 plus the gap either side. */
-  padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-xl)
-           var(--jui-layout-padding-xxs) var(--jui-layout-padding-s);
-  font-family: inherit;
-  font-size: var(--jui-typography-body-small-medium-size);
-  font-weight: var(--jui-typography-body-small-medium-weight);
-  line-height: var(--jui-typography-body-small-medium-lh);
-  color: var(--jui-color-typography-gray-on-light-default);
-  cursor: pointer;
-}
-.form-field-kind select:focus { outline: none; }
-.form-field-kind svg {
-  position: absolute;
-  right: var(--jui-layout-padding-s);
-  width: 16px;
-  height: 16px;
-  pointer-events: none;
+/* What the question takes, and the choices when it takes one. The seller is
+   reading their form here, so the line says what the visitor will be given
+   rather than naming a field type. */
+.form-preview-kind {
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
   color: var(--jui-color-typography-gray-on-light-subdued);
 }
 
-/* ── The choices, when the answer is one ──
-   Indented under the question they belong to and marked with the control
-   the visitor will actually see — a circle for choose-one, a square for
-   choose-several — so the seller is looking at their form, not at a list. */
-.form-field-options {
-  display: flex;
-  flex-direction: column;
-  gap: var(--jui-layout-gap-xxs);
-  margin: 0;
-  padding: 0 0 0 calc(12px + var(--jui-layout-gap-m));
-  list-style: none;
-}
-.form-field-option {
-  display: flex;
-  align-items: center;
-  gap: var(--jui-layout-gap-xs);
-}
-.form-field-tick {
-  flex-shrink: 0;
-  width: 14px;
-  height: 14px;
-  border: 1px solid var(--jui-color-gray-300);
-  background: var(--jui-color-background-gray-light);
-}
-.form-field-tick--one { border-radius: 50%; }
-.form-field-tick--many { border-radius: var(--jui-style-radius-4); }
-.form-field-option input {
-  flex: 1 1 auto;
-  min-width: 0;
-  border: 0;
-  padding: 0;
-  background: transparent;
-  font-family: inherit;
-  font-size: var(--jui-typography-body-small-regular-size);
-  font-weight: var(--jui-typography-body-small-regular-weight);
-  line-height: var(--jui-typography-body-small-regular-lh);
-  color: var(--jui-color-typography-gray-on-light-default);
-}
-.form-field-option input:focus { outline: none; }
-.form-field-option input::placeholder { color: var(--jui-color-typography-gray-on-light-subdued); }
-.form-field-option .icon-btn-sm { opacity: 0; transition: opacity 120ms ease; }
-.form-field-option:hover .icon-btn-sm,
-.form-field-option:focus-within .icon-btn-sm { opacity: 1; }
-.form-field-addopt { align-self: flex-start; margin-left: calc(12px + var(--jui-layout-gap-m)); }
-
-/* The consent row. Nothing to edit, nothing to remove, and no kind to pick
-   — it is the one boolean every form carries. It keeps the same fill as the
-   rest: a block that cannot be touched does not need a second colour when
-   it is already the only one carrying a tag and subdued text. */
-.form-field--locked .form-field-label {
+.form-preview-row--locked .form-preview-label {
   color: var(--jui-color-typography-gray-on-light-subdued);
 }
 
@@ -6755,6 +6685,15 @@ body {
   flex-direction: column;
   gap: var(--jui-layout-gap-m);
 }
+/* display:flex outranks the hidden attribute, so a hidden .sheet-form stays
+   on screen. Both halves of the form sheet are one of these. */
+.sheet-form[hidden] { display: none; }
+/* A column of stretched children makes a lone button full-width, which
+   reads as the panel's main action rather than something beside it. */
+.sheet-form > .btn { align-self: flex-start; }
+/* Questions carry three parts each, so they need more between them than
+   between the parts. */
+.sheet-form--questions { gap: var(--jui-layout-gap-l); }
 .sheet-field {
   display: flex;
   flex-direction: column;
@@ -6766,6 +6705,48 @@ body {
   line-height: var(--jui-typography-body-small-medium-lh);
   color: var(--jui-color-typography-gray-on-light-default);
 }
+/* A label with something to do at the far end — removing the field it
+   names. The control only shows on hover and focus: a column of delete
+   buttons at rest reads as a list of things to get rid of. */
+.sheet-field-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--jui-layout-gap-xs);
+}
+.sheet-field-head .icon-btn-sm { opacity: 0; transition: opacity 120ms ease; }
+.sheet-field:hover .sheet-field-head .icon-btn-sm,
+.sheet-field:focus-within .sheet-field-head .icon-btn-sm,
+.sheet-field-head .icon-btn-sm:focus-visible { opacity: 1; }
+/* Shown, not offered — so it is a line of text, not a field with its
+   controls taken away. */
+.sheet-field-static {
+  font-size: var(--jui-typography-body-medium-regular-size);
+  line-height: var(--jui-typography-body-medium-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
+/* The choices under a question that takes one. Indented, because they
+   belong to it — flush left they read as more questions. */
+.sheet-choices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xxs);
+  padding-left: var(--jui-layout-padding-m);
+}
+.sheet-choices + .text-action {
+  align-self: flex-start;
+  margin-left: var(--jui-layout-padding-m);
+}
+.sheet-choice {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
+}
+.sheet-choice .icon-btn-sm { flex-shrink: 0; opacity: 0; transition: opacity 120ms ease; }
+.sheet-choice:hover .icon-btn-sm,
+.sheet-choice:focus-within .icon-btn-sm,
+.sheet-choice .icon-btn-sm:focus-visible { opacity: 1; }
 
 /* ── The button editor ──
    Figma 11241:80504. A button that points at something — a booking, a form,
