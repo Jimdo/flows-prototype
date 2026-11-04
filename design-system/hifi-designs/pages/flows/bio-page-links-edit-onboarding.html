@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=9b0524e">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=9b0524e">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=b623f00">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=b623f00">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=9b0524e">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=b623f00">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -630,6 +630,16 @@
             data-inspect-tokens='[{"prop":"card radius","figma":"style/radius/8 (old)","css":"--jui-style-radius-12","value":"12px \u2014 remapped to the current scale"},{"prop":"choice radius","figma":"style/radius/2 (old)","css":"--jui-style-radius-8","value":"8px \u2014 remapped"},{"prop":"padding","figma":"16 sides / 12 ends","css":"--jui-layout-padding-m / -s","value":"16px / 12px"},{"prop":"open border","figma":"color/blue/400","css":"--jui-color-blue-400","value":"1px #336bff"},{"prop":"open shadow","figma":"on-light-shadow-lvl-1","css":"--jui-effects-on-light-shadow-lvl-1","value":"0 4px 8px #00000024"},{"note":"Five pickable kinds, from CanvasFormField in loops-frontend: text, textarea, email, radio, checkbox-group. The consent question is locked."}]'></ol>
         </div>
 
+        <!-- One question, a level down. The row opens it; the head's back
+             arrow returns to the list; the footer carries what this level
+             can do to the question. -->
+        <div class="sheet-form form-q-panel" data-form-view="question" hidden
+          data-inspect-label="Question editor"
+          data-inspect-tokens='[{"note":"Reached from the row body, the way PageLinkRow opens the link editor in loops-frontend (PR #2606)."}]'>
+          <span class="form-q-kind" id="formQKind" data-no-phrase></span>
+          <div class="sheet-form" id="formQFields"></div>
+        </div>
+
         <!-- Figma 3029:31425. Picking what a new question takes, as a panel
              of controls rather than a list of words. -->
         <div class="sheet-form" data-form-view="pick" hidden>
@@ -644,6 +654,11 @@
              the picker with 300px of white under a five-item list and no
              control at the foot, which reads as an unfinished panel. -->
         <button type="button" class="btn btn-secondary" id="formPickBack" hidden data-inspect-phrase="">Back</button>
+        <!-- This level's own actions, about the question rather than the
+             form. Delete is not confirmed, which matches the link editor's
+             own Delete button in loops-frontend. -->
+        <button type="button" class="btn btn-subtle" id="formQDelete" hidden data-inspect-phrase="">Delete question</button>
+        <button type="button" class="btn btn-secondary" id="formQDone" hidden data-inspect-phrase="">Done</button>
         <button type="button" class="btn btn-secondary" id="formCancel" data-inspect-phrase="">Cancel</button>
         <button type="button" class="btn btn-primary" id="formDone" data-inspect-phrase="">Add to my page</button>
       </div>
@@ -675,8 +690,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=9b0524e"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=9b0524e"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=b623f00"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=b623f00"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -1363,6 +1378,10 @@
     const formActions = document.querySelector('#formSheet .sheet-actions');
     const formAddBtn = document.getElementById('formAdd');
     const formPickBack = document.getElementById('formPickBack');
+    const formQDelete = document.getElementById('formQDelete');
+    const formQDone = document.getElementById('formQDone');
+    const formQKind = document.getElementById('formQKind');
+    const formQFields = document.getElementById('formQFields');
     const formViews = [...document.querySelectorAll('[data-form-view]')];
     let formView = 'show';
     const formDoneBtn = document.getElementById('formDone');
@@ -1399,6 +1418,9 @@
       'checkbox-group': '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M21.5 4.5V19.5C21.5 20.6046 20.6046 21.5 19.5 21.5H4.5C3.39543 21.5 2.5 20.6046 2.5 19.5V4.5C2.5 3.39543 3.39543 2.5 4.5 2.5H19.5C20.6046 2.5 21.5 3.39543 21.5 4.5Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/><path d="M8.5 12.5L11 15L16 9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>',
       'checkbox': '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M11.5 20H2C2 16.134 5.13401 13 9 13H11C12.275 13 13.4704 13.3409 14.5 13.9365M14 6C14 8.20914 12.2091 10 10 10C7.79086 10 6 8.20914 6 6C6 3.79086 7.79086 2 10 2C12.2091 2 14 3.79086 14 6Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M14.5 17.5L17 20L22 14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>'
     };
+    const KEBAB_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>';
+    const PEN_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const GRIPV_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>';
     const GRIP_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>';
     const PLUS_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 4V20M20 12H4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>';
 
@@ -1478,32 +1500,38 @@
       });
     }
 
-    /* == Changing it ==
-       Figma 3029:31429. Every question is a card. Closed, it is the kind's
-       own icon, the wording, and the choices listed under it. Open, it is
-       the thing being built: the kind by name, the wording in a field, the
-       choices as rows that can be renamed and dropped, whether an answer is
-       required, and a way to delete the question. */
-    function renderFormEdit(focus) {
+    /* == The question list ==
+       Rows, built to the contract loops-frontend settled on for the link
+       rows (PageLinkRow.tsx, PR #2606): the whole row body opens the
+       editor, and the handle and the action menu stay siblings beside it
+       rather than buttons inside a button. A question opens on its own
+       level, not inside its row — a list item that unfolds into a form
+       stops being a list item. */
+    function renderFormEdit() {
       formList.innerHTML = '';
       formDraft.forEach((f, i) => {
         const li = document.createElement('li');
-        const card = document.createElement('div');
-        card.className = 'form-q' + (f.locked ? ' form-q--locked' : '');
-        const open = formOpen === i && !f.locked;
-        if (open) card.setAttribute('data-open', '');
+        const row = document.createElement('div');
+        row.className = 'form-q' + (f.locked ? ' form-q--locked' : '');
+        row.setAttribute('data-row-key', String(i));
 
-        /* The head is a button when it can open, and plain when it cannot:
-           the consent card has nothing behind it to show. */
-        const head = document.createElement(f.locked ? 'div' : 'button');
-        head.className = 'form-q-head';
         if (!f.locked) {
-          head.type = 'button';
-          head.setAttribute('aria-expanded', String(open));
-          head.addEventListener('click', () => {
-            formOpen = open ? -1 : i;
-            renderFormEdit(open ? null : { field: i });
-          });
+          const handle = document.createElement('button');
+          handle.type = 'button';
+          handle.className = 'form-q-handle edit-row-grip';
+          handle.setAttribute('aria-label', 'Drag to reorder: ' + (f.label || 'question ' + (i + 1)));
+          handle.setAttribute('data-no-phrase', '');
+          handle.innerHTML = GRIPV_SVG;
+          row.appendChild(handle);
+        }
+
+        const open = document.createElement(f.locked ? 'div' : 'button');
+        open.className = 'form-q-open';
+        if (!f.locked) {
+          open.type = 'button';
+          open.setAttribute('aria-haspopup', 'dialog');
+          open.setAttribute('aria-label', 'Edit: ' + (f.label || 'question ' + (i + 1)));
+          open.addEventListener('click', () => openQuestion(i));
         }
         const icon = document.createElement('span');
         icon.className = 'form-q-icon';
@@ -1512,131 +1540,180 @@
         const label = document.createElement('span');
         label.className = 'form-q-label';
         label.setAttribute('data-no-phrase', '');
-        label.textContent = open ? kindLabel(f.type) : (f.label || 'Untitled question');
-        head.append(icon, label);
+        label.textContent = f.label || 'Untitled question';
+        open.append(icon, label);
+        row.appendChild(open);
+
         if (f.locked) {
           const tag = document.createElement('span');
           tag.className = 'tag';
           tag.setAttribute('data-no-phrase', '');
           tag.textContent = 'Always asked';
-          head.appendChild(tag);
+          row.appendChild(tag);
         } else {
-          /* The same grip every other list on this screen uses, so
-             drag-list.js moves these too - see .edit-row-grip. */
-          const grip = document.createElement('span');
-          grip.className = 'edit-row-grip';
-          grip.setAttribute('aria-label', 'Drag to reorder');
-          grip.innerHTML = GRIP_SVG;
-          head.appendChild(grip);
-        }
-        card.appendChild(head);
-
-        if (!open) {
-          /* Closed, a choice question still shows what it offers. */
-          if (KIND_TAKES_OPTIONS(f.type) && (f.options || []).some((o) => o.trim())) {
-            const list = document.createElement('ul');
-            list.className = 'form-q-options';
-            f.options.filter((o) => o.trim()).forEach((o) => {
-              const row = document.createElement('li');
-              row.className = 'form-q-option-read';
-              row.setAttribute('data-no-phrase', '');
-              row.textContent = o;
-              list.appendChild(row);
-            });
-            card.appendChild(list);
-          }
-          li.appendChild(card);
-          formList.appendChild(li);
-          return;
+          row.appendChild(rowMenu(f, i));
         }
 
-        const input = document.createElement('input');
-        input.className = 'form-input';
-        input.type = 'text';
-        input.value = f.label;
-        input.placeholder = 'What do you want to ask?';
-        input.setAttribute('aria-label', 'Question ' + (i + 1));
-        input.setAttribute('data-no-phrase', '');
-        input.addEventListener('input', () => { f.label = input.value; });
-        card.appendChild(input);
-
-        if (KIND_TAKES_OPTIONS(f.type)) {
-          const list = document.createElement('div');
-          list.className = 'form-q-choices';
-          (f.options || []).forEach((opt, j) => {
-            const row = document.createElement('div');
-            row.className = 'form-q-choice';
-            const oi = document.createElement('input');
-            oi.className = 'form-input';
-            oi.type = 'text';
-            oi.value = opt;
-            oi.placeholder = 'Choice ' + (j + 1);
-            oi.setAttribute('aria-label', 'Choice ' + (j + 1) + ' of question ' + (i + 1));
-            oi.setAttribute('data-no-phrase', '');
-            oi.addEventListener('input', () => { f.options[j] = oi.value; });
-            row.appendChild(oi);
-            /* Two is the floor: one choice is not a choice. */
-            if ((f.options || []).length > 2) {
-              row.appendChild(dropBtn('Remove choice ' + (j + 1), () => {
-                f.options.splice(j, 1);
-                renderFormEdit({ field: i });
-              }));
-            }
-            list.appendChild(row);
-          });
-          card.appendChild(list);
-
-          const more = document.createElement('button');
-          more.type = 'button';
-          more.className = 'text-action';
-          more.setAttribute('data-no-phrase', '');
-          more.innerHTML = PLUS_SVG + '<span>Add a choice</span>';
-          more.addEventListener('click', () => {
-            f.options = (f.options || []).concat('');
-            renderFormEdit({ field: i, choice: f.options.length - 1 });
-          });
-          card.appendChild(more);
-        }
-
-        const actions = document.createElement('div');
-        actions.className = 'form-q-actions';
-        actions.appendChild(dropBtn('Remove question ' + (i + 1), () => {
-          formDraft.splice(i, 1);
-          formOpen = -1;
-          renderFormEdit();
-        }));
-        const req = document.createElement('label');
-        req.className = 'form-q-required';
-        const reqLabel = document.createElement('span');
-        reqLabel.setAttribute('data-no-phrase', '');
-        reqLabel.textContent = 'Required';
-        const toggle = document.createElement('span');
-        toggle.className = 'toggle';
-        const box = document.createElement('input');
-        box.type = 'checkbox';
-        box.checked = f.required !== false;
-        box.setAttribute('aria-label', 'Question ' + (i + 1) + ' must be answered');
-        box.addEventListener('change', () => { f.required = box.checked; });
-        const thumb = document.createElement('span');
-        thumb.className = 'toggle-thumb';
-        toggle.append(box, thumb);
-        req.append(reqLabel, toggle);
-        actions.appendChild(req);
-        card.appendChild(actions);
-
-        li.appendChild(card);
+        li.appendChild(row);
         formList.appendChild(li);
       });
+    }
 
-      /* Rebuilding throws the caret away, so whoever asked for the rebuild
-         says where it should land. */
-      if (!focus) return;
-      const li = formList.children[focus.field];
-      if (!li) return;
-      const choices = li.querySelectorAll('.form-q-choice .form-input');
-      const target = focus.choice != null && choices[focus.choice]
-        ? choices[focus.choice] : li.querySelector('.form-input');
-      if (target) target.focus();
+    /* Edit and Delete, the two the link rows carry minus Hide — a question
+       has no hidden state. The trigger stays enabled whatever the row is
+       doing: disabling a focused element hands focus back to <body>, which
+       is the defect PR #2606 fixed upstream. */
+    function rowMenu(f, i) {
+      const menu = document.createElement('div');
+      menu.className = 'menu';
+      const trigger = document.createElement('button');
+      trigger.type = 'button';
+      trigger.className = 'icon-btn-sm subtle';
+      trigger.setAttribute('aria-label', 'Actions: ' + (f.label || 'question ' + (i + 1)));
+      trigger.setAttribute('aria-haspopup', 'menu');
+      trigger.setAttribute('aria-expanded', 'false');
+      trigger.setAttribute('data-no-phrase', '');
+      trigger.innerHTML = KEBAB_SVG;
+
+      const drop = document.createElement('div');
+      drop.className = 'menu-dropdown';
+      drop.setAttribute('role', 'menu');
+      drop.hidden = true;
+
+      const item = (label, svg, onClick, destructive) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'menu-item' + (destructive ? ' menu-item--destructive' : '');
+        b.setAttribute('role', 'menuitem');
+        b.setAttribute('data-no-phrase', '');
+        b.innerHTML = svg + '<span>' + label + '</span>';
+        b.addEventListener('click', () => { closeMenus(); onClick(); });
+        return b;
+      };
+      drop.appendChild(item('Edit', PEN_SVG, () => openQuestion(i)));
+      const rule = document.createElement('hr');
+      rule.className = 'menu-divider';
+      drop.appendChild(rule);
+      drop.appendChild(item('Delete', TRASH_SVG, () => deleteQuestion(i), true));
+
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const wasOpen = !drop.hidden;
+        closeMenus();
+        if (wasOpen) return;
+        drop.hidden = false;
+        trigger.setAttribute('aria-expanded', 'true');
+      });
+      menu.append(trigger, drop);
+      return menu;
+    }
+
+    function closeMenus() {
+      document.querySelectorAll('.menu-dropdown').forEach((d) => { d.hidden = true; });
+      document.querySelectorAll('.menu [aria-expanded="true"]')
+        .forEach((t) => t.setAttribute('aria-expanded', 'false'));
+    }
+    document.addEventListener('click', closeMenus);
+
+    /* Deleting from the list puts focus on whatever takes the row's place,
+       falling through to Add question — the menu would otherwise hand it to
+       a trigger that no longer exists, and from there to <body>. */
+    function deleteQuestion(i) {
+      formDraft.splice(i, 1);
+      if (formView === 'question') { formOpen = -1; setFormView('edit'); }
+      else renderFormEdit();
+      const rows = formList.querySelectorAll('.form-q-open');
+      const next = rows[Math.min(i, rows.length - 1)];
+      if (next && next.tagName === 'BUTTON') next.focus();
+      else formAddBtn.focus();
+    }
+
+    /* == One question, a level down == */
+    function openQuestion(i) {
+      formOpen = i;
+      setFormView('question');
+    }
+
+    function renderQuestion(focus) {
+      const f = formDraft[formOpen];
+      if (!f) { setFormView('edit'); return; }
+      formQKind.innerHTML = '<span class="form-q-icon" aria-hidden="true">' + kindIcon(f.type) +
+        '</span><span>' + kindLabel(f.type) + '</span>';
+      formQFields.innerHTML = '';
+
+      const input = document.createElement('input');
+      input.className = 'form-input';
+      input.type = 'text';
+      input.value = f.label;
+      input.placeholder = 'What do you want to ask?';
+      input.setAttribute('aria-label', 'The question');
+      input.setAttribute('data-no-phrase', '');
+      input.addEventListener('input', () => {
+        f.label = input.value;
+        formTitle.textContent = formTitleFor('question');
+      });
+      formQFields.appendChild(input);
+
+      if (KIND_TAKES_OPTIONS(f.type)) {
+        const list = document.createElement('div');
+        list.className = 'form-q-choices';
+        (f.options || []).forEach((opt, j) => {
+          const row = document.createElement('div');
+          row.className = 'form-q-choice';
+          const oi = document.createElement('input');
+          oi.className = 'form-input';
+          oi.type = 'text';
+          oi.value = opt;
+          oi.placeholder = 'Choice ' + (j + 1);
+          oi.setAttribute('aria-label', 'Choice ' + (j + 1));
+          oi.setAttribute('data-no-phrase', '');
+          oi.addEventListener('input', () => { f.options[j] = oi.value; });
+          row.appendChild(oi);
+          /* Two is the floor: one choice is not a choice. */
+          if ((f.options || []).length > 2) {
+            row.appendChild(dropBtn('Remove choice ' + (j + 1), () => {
+              f.options.splice(j, 1);
+              renderQuestion();
+            }));
+          }
+          list.appendChild(row);
+        });
+        formQFields.appendChild(list);
+
+        const more = document.createElement('button');
+        more.type = 'button';
+        more.className = 'text-action';
+        more.setAttribute('data-no-phrase', '');
+        more.innerHTML = PLUS_SVG + '<span>Add a choice</span>';
+        more.addEventListener('click', () => {
+          f.options = (f.options || []).concat('');
+          renderQuestion({ choice: f.options.length - 1 });
+        });
+        formQFields.appendChild(more);
+      }
+
+      const req = document.createElement('label');
+      req.className = 'form-q-required';
+      const reqLabel = document.createElement('span');
+      reqLabel.setAttribute('data-no-phrase', '');
+      reqLabel.textContent = 'People have to answer this';
+      const toggle = document.createElement('span');
+      toggle.className = 'toggle';
+      const box = document.createElement('input');
+      box.type = 'checkbox';
+      box.checked = f.required !== false;
+      box.setAttribute('aria-label', 'This question must be answered');
+      box.addEventListener('change', () => { f.required = box.checked; });
+      const thumb = document.createElement('span');
+      thumb.className = 'toggle-thumb';
+      toggle.append(box, thumb);
+      req.append(reqLabel, toggle);
+      formQFields.appendChild(req);
+
+      const choices = formQFields.querySelectorAll('.form-q-choice .form-input');
+      const target = focus && focus.choice != null && choices[focus.choice]
+        ? choices[focus.choice] : input;
+      target.focus();
     }
 
     /* == Picking what a new question takes ==
@@ -1662,9 +1739,7 @@
           const q = { label: '', type: k.type, required: true };
           if (KIND_TAKES_OPTIONS(k.type)) q.options = ['', ''];
           formDraft.splice(i, 0, q);
-          formOpen = i;
-          setFormView('edit');
-          renderFormEdit({ field: i });
+          openQuestion(i);
         });
         formKinds.appendChild(b);
       });
@@ -1680,6 +1755,10 @@
        twice that they are now looking at it. */
     function formTitleFor(view) {
       if (view === 'pick') return 'Add a question';
+      if (view === 'question') {
+        const f = formDraft[formOpen];
+        return (f && f.label.trim()) || 'New question';
+      }
       if (formEditing) return view === 'edit' ? 'Edit questions' : 'Your form';
       return 'Here is the form we wrote';
     }
@@ -1687,7 +1766,6 @@
     function setFormView(view) {
       formView = view;
       formViews.forEach((el) => { el.hidden = el.getAttribute('data-form-view') !== view; });
-      formBack.hidden = view === 'show';
       /* Picking a kind is a step inside making a question, not a moment to
          commit the whole form. The sheet's answers go away until the seller
          is back on something they can answer. */
@@ -1695,18 +1773,30 @@
          from inside "which kind of question" would answer a question
          nobody asked, so down here the only thing on offer is the way
          back up. */
-      const picking = view === 'pick';
-      formPickBack.hidden = !picking;
-      formCancelBtn.hidden = picking || !!formEditing;
-      formDoneBtn.hidden = picking;
-      /* Only while the questions are on screen: there is nothing to add to
-         a preview, and nothing to add from inside the kind picker. */
+      /* Each level's own actions. The form's two only belong to the form:
+         committing it from inside "which kind of question" or from inside
+         one question would answer something nobody asked. */
+      const onForm = view === 'show' || view === 'edit';
+      /* --end keeps the answers together at the right. The question level
+         carries a destructive action, and .sheet-actions is explicit about
+         where that belongs: apart from the button you meant to press. So
+         that level drops the modifier and lets space-between do it. */
+      formActions.classList.toggle('sheet-actions--end', view !== 'question');
+      formPickBack.hidden = view !== 'pick';
+      formQDelete.hidden = view !== 'question';
+      formQDone.hidden = view !== 'question';
+      formCancelBtn.hidden = !onForm || !!formEditing;
+      formDoneBtn.hidden = !onForm;
+      /* Only while the list is on screen: there is nothing to add to a
+         preview, to one question, or to the kind picker. */
       formAddBtn.hidden = view !== 'edit';
+      formBack.hidden = view === 'show';
       /* While it is still being written the bar says so; the moment it
          lands, it says what it is. */
       if (!formSheet.hasAttribute('data-busy')) formTitle.textContent = formTitleFor(view);
       if (view === 'edit') renderFormEdit();
       else if (view === 'pick') renderKinds();
+      else if (view === 'question') renderQuestion();
       else renderFormShow();
     }
 
@@ -1724,7 +1814,10 @@
     });
 
     document.getElementById('formEdit').addEventListener('click', () => setFormView('edit'));
-    formBack.addEventListener('click', () => setFormView(formView === 'pick' ? 'edit' : 'show'));
+    formBack.addEventListener('click', () => {
+      if (formView === 'pick' || formView === 'question') { formOpen = -1; setFormView('edit'); }
+      else setFormView('show');
+    });
     document.getElementById('formAdd').addEventListener('click', () => setFormView('pick'));
 
     /* The options array has to come along by value, or the draft shares it
@@ -1806,6 +1899,8 @@
     });
 
     formPickBack.addEventListener('click', () => setFormView('edit'));
+    formQDone.addEventListener('click', () => { formOpen = -1; setFormView('edit'); });
+    formQDelete.addEventListener('click', () => deleteQuestion(formOpen));
     formCancelBtn.addEventListener('click', closeForm);
     /* Escape out of the editor goes up a level first, the way the add sheet
        does — the sheet only closes from its own top. */
@@ -2348,7 +2443,7 @@
       closeAdd();
       openEdit(false);
       if (formSheet.getAttribute('data-open') !== 'true') { closeForm(); return; }
-      if (formView === 'pick') setFormView('edit');
+      if (formView === 'pick' || formView === 'question') { formOpen = -1; setFormView('edit'); }
       else if (formView === 'edit') setFormView('show');
       else closeForm();
     });

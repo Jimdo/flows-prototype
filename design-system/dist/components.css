@@ -6671,79 +6671,81 @@ body {
   font-weight: var(--jui-typography-body-small-medium-weight);
   line-height: var(--jui-typography-body-small-medium-lh);
   color: var(--jui-color-typography-gray-on-light-default);
-}
-/* ═══════════════════════════════════════════════════════════════
-   Form question card (.form-q)
+}/* ═══════════════════════════════════════════════════════════════
+   Form question row (.form-q)
 
-   Figma 2LVaYKcyyN2F2MUwSssFrL 3029:31429 / 3029:31435 / 12510:9137.
+   A question in the form list, built to the contract loops-frontend
+   settled on for the link rows in PageLinkRow.tsx (PR #2606): the whole
+   row body opens the editor, the drag handle and the action menu stay
+   siblings beside it rather than buttons inside a button, and the row
+   rings on hover as well as on focus the way the action-page cards do.
 
-   A form is a list of questions, and a question is legible before it is
-   editable: the kind it takes as an icon, the wording as the line, and the
-   choices listed under it when it has them. One card opens at a time to be
-   changed - the kind, the wording in a field, the choices as rows you can
-   rename and drop, whether an answer is required, and a way to delete the
-   question. Everything else stays closed, so the form is still readable
-   while one part of it is being worked on.
+   Geometry is that component's, measured rather than guessed: radius-m,
+   a dimension-m floor, 8 and 12 of padding, 12 between the parts.
 
-   The radii are NOT the frame's. That design predates the current tokens
-   and carries button/radius 2 with option rows at style/radius/2 - a
-   vocabulary this system no longer speaks. Each is mapped to its nearest
-   current token, and the frame's pixel is recorded here rather than lost:
-
-     card         Figma style/radius/8   ->  radius-12 (matches .edit-row)
-     choice row   Figma style/radius/2   ->  radius-8
-     buttons      Figma button/radius 2  ->  the component's own 8
-     text field   Figma style/radius/4   ->  .form-input's radius-m, 12
-
-   The rest is the frame's own: 16 at the sides, 12 top and bottom, a 12
-   rhythm inside an open card, 4 between choices, 8 between cards.
-
-   Used by: bio-page-links-edit-onboarding (scr-477).
-   =============================================================== */
+   HTML:
+     li > .form-q
+       button.form-q-handle          the grip, left, a sibling
+       button.form-q-open            stretched over the row by ::after
+         .form-q-icon + .form-q-label
+       .menu > button + .menu-dropdown
+   ═══════════════════════════════════════════════════════════════ */
 
 .form-q-list {
   display: flex;
   flex-direction: column;
   gap: var(--jui-layout-gap-xs);
   margin: 0;
-  padding: 0;
+  /* The ring bleeds 2px past the row and the list scrolls, which computes
+     overflow-x to auto and would slice it off the sides. Room, then padded
+     back in, so the rows stay where they were. */
+  padding: 0 var(--jui-layout-padding-xs);
+  margin-inline: calc(-1 * var(--jui-layout-padding-xs));
   list-style: none;
 }
 
 .form-q {
-  display: flex;
-  flex-direction: column;
-  gap: var(--jui-layout-gap-s);
-  /* Closed, the frame gives the card 8 at the ends against 16 at the
-     sides: one dimension-s row with its own breathing room and nothing
-     else. The frame calls that 48 and this renders 50, which is the
-     hairline — Figma draws a stroke inside the box it measures, CSS adds
-     it outside. Landing on 48 would mean 7px of padding to save two
-     pixels nobody can see, so the padding stays on the scale. */
-  padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-m);
-  border: 1px solid var(--jui-color-stroke-gray-default);
-  border-radius: var(--jui-style-radius-12);
-  background: var(--jui-color-gray-white);
-}
-/* Open: the frame marks it with the primary stroke, lifts it off the list
-   so the one being changed is findable among the ones that are not, and
-   opens the ends to 12 — a card with four things stacked in it needs more
-   than a card with one line. */
-.form-q[data-open] {
-  padding-top: var(--jui-layout-padding-s);
-  padding-bottom: var(--jui-layout-padding-s);
-  border-color: var(--jui-color-blue-400);
-  box-shadow: var(--jui-effects-on-light-shadow-lvl-1);
-}
-
-/* The head is the whole card when it is closed, so it carries the target
-   and the cursor. */
-.form-q-head {
+  /* Anchors the open target's stretched overlay. */
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--jui-layout-gap-s);
-  width: 100%;
-  min-height: var(--jui-layout-dimension-s);
+  min-height: var(--jui-layout-dimension-m);
+  padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-s);
+  border: 1px solid var(--jui-color-stroke-gray-default);
+  border-radius: var(--jui-style-radius-m);
+  background: var(--jui-color-background-gray-canvas);
+}
+/* Rings on hover as well as on focus — @jimdo/ui's button-focus, which is
+   what the action page cards use, so the two lists read alike. */
+.form-q:has(.form-q-open:hover),
+.form-q:has(.form-q-open:focus-visible) {
+  outline: var(--jui-style-stroke-width-large) solid var(--jui-color-stroke-primary-actionable);
+  outline-offset: 2px;
+}
+
+.form-q-handle {
+  display: flex;
+  flex-shrink: 0;
+  padding: var(--jui-layout-padding-xxs);
+  border: 0;
+  background: none;
+  color: var(--jui-color-typography-gray-on-light-subdued);
+  cursor: grab;
+  touch-action: none;
+  /* Above the open target's overlay, which spans the row. */
+  position: relative;
+}
+.form-q-handle svg { width: 16px; height: 16px; display: block; }
+
+/* Covers the row through its ::after, so the handle and the action menu
+   stay siblings instead of buttons nested inside a button. */
+.form-q-open {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-s);
+  flex: 1;
+  min-width: 0;
   padding: 0;
   border: 0;
   background: none;
@@ -6751,13 +6753,16 @@ body {
   text-align: left;
   cursor: pointer;
 }
-.form-q-head:focus-visible {
-  outline: 2px solid var(--jui-color-actions-primary-rest);
-  outline-offset: 2px;
-  border-radius: var(--jui-style-radius-4);
+.form-q-open::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--jui-style-radius-m);
 }
-/* The kind, drawn as the control the visitor will be given. 16px, the icon
-   size the frame uses throughout. */
+/* The row carries the ring; the target inside it must not draw a second. */
+.form-q-open:focus-visible { outline: none; }
+
+/* The kind, drawn as the control the visitor will be given. */
 .form-q-icon {
   display: inline-flex;
   flex-shrink: 0;
@@ -6767,36 +6772,98 @@ body {
 }
 .form-q-icon svg { width: 100%; height: 100%; display: block; }
 .form-q-label {
-  flex: 1 1 auto;
+  flex: 1;
   min-width: 0;
-  font-size: var(--jui-typography-body-small-regular-size);
-  font-weight: var(--jui-typography-body-small-regular-weight);
-  line-height: var(--jui-typography-body-small-regular-lh);
+  font-size: var(--jui-typography-body-medium-regular-size);
+  font-weight: var(--jui-typography-body-medium-regular-weight);
+  line-height: var(--jui-typography-body-medium-regular-lh);
   color: var(--jui-color-typography-gray-on-light-default);
 }
-/* Open, the head names the kind rather than repeating the question - the
-   question is in the field directly under it. */
-.form-q[data-open] .form-q-label {
-  color: var(--jui-color-typography-gray-on-light-subdued);
-}
+/* Shown, not offered — the consent question. */
+.form-q--locked .form-q-label,
+.form-q--locked .form-q-icon { color: var(--jui-color-typography-gray-on-light-subdued); }
 
-/* The choices a closed card lists. Indented past the question's own text,
-   so they read as belonging to it. */
-.form-q-options {
+/* ═══════════════════════════════════════════════════════════════
+   Menu (.menu)
+
+   @jimdo/ui ships Menu / MenuButton / MenuDropdown / MenuItem; these
+   static screens cannot import React, so this is that anatomy in CSS.
+   The trigger stays enabled while a row is working — a disabled focused
+   element hands focus back to <body>, which is the defect PR #2606
+   fixed upstream — and the items carry the disabled state instead.
+   ═══════════════════════════════════════════════════════════════ */
+
+.menu { position: relative; flex-shrink: 0; }
+.menu-dropdown {
+  position: absolute;
+  top: calc(100% + var(--jui-layout-gap-xxs));
+  right: 0;
+  z-index: 20;
+  min-width: 180px;
   display: flex;
   flex-direction: column;
-  margin: 0;
-  padding: 0 0 0 calc(16px + var(--jui-layout-gap-s));
-  list-style: none;
+  padding: var(--jui-layout-padding-xxs);
+  border: 1px solid var(--jui-color-stroke-gray-default);
+  border-radius: var(--jui-style-radius-12);
+  background: var(--jui-color-gray-white);
+  box-shadow: var(--jui-effects-on-light-shadow-lvl-2);
 }
-.form-q-option-read {
+.menu-dropdown[hidden] { display: none; }
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-s);
+  width: 100%;
+  min-height: var(--jui-layout-dimension-s);
+  padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-s);
+  border: 0;
+  border-radius: var(--jui-style-radius-8);
+  background: none;
+  font-family: inherit;
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+  text-align: left;
+  cursor: pointer;
+}
+.menu-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+.menu-item:hover { background: var(--jui-color-gray-50); }
+.menu-item:focus-visible {
+  outline: var(--jui-style-stroke-width-large) solid var(--jui-color-stroke-primary-actionable);
+  outline-offset: -2px;
+}
+.menu-item--destructive { color: var(--jui-color-typography-negative-on-light); }
+.menu-divider {
+  height: 1px;
+  margin: var(--jui-layout-gap-xxs) 0;
+  border: 0;
+  background: var(--jui-color-stroke-gray-default);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   One question, a level down (.form-q-panel)
+
+   A question is edited on its own level rather than inside its row,
+   because a list item that unfolds into a form stops being a list item.
+   The sheet head carries the way back; the footer carries what this
+   level can do to the question.
+   ═══════════════════════════════════════════════════════════════ */
+
+.form-q-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-m);
+}
+.form-q-kind {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
   font-size: var(--jui-typography-body-small-regular-size);
   line-height: var(--jui-typography-body-small-regular-lh);
   color: var(--jui-color-typography-gray-on-light-subdued);
 }
 
-/* An editable choice. The frame fills the one under the cursor; here the
-   fill follows focus, which is the same idea from a keyboard. */
+/* The choices under a question that takes one. */
 .form-q-choices {
   display: flex;
   flex-direction: column;
@@ -6816,10 +6883,7 @@ body {
 }
 /* The row is the field: an input with its own box inside a filled row
    would be a box in a box. */
-.form-q-choice .form-input {
-  border-color: transparent;
-  background: transparent;
-}
+.form-q-choice .form-input { border-color: transparent; background: transparent; }
 .form-q-choice .form-input:focus,
 .form-q-choice .form-input:not(:focus):hover { border-color: transparent; box-shadow: none; }
 .form-q-choice .icon-btn-sm { flex-shrink: 0; opacity: 0; transition: opacity 120ms ease; }
@@ -6827,29 +6891,17 @@ body {
 .form-q-choice:focus-within .icon-btn-sm,
 .form-q-choice .icon-btn-sm:focus-visible { opacity: 1; }
 
-/* Delete the question at one end, whether it has to be answered at the
-   other. The frame puts them this way round and it is right: the
-   destructive one sits away from the control you came here to flip. */
-.form-q-actions {
+.form-q-required {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--jui-layout-gap-s);
-}
-.form-q-required {
-  display: inline-flex;
-  align-items: center;
   gap: var(--jui-layout-gap-s);
   font-size: var(--jui-typography-body-small-regular-size);
   line-height: var(--jui-typography-body-small-regular-lh);
   color: var(--jui-color-typography-gray-on-light-default);
 }
 
-/* Shown, not offered - the consent question. */
-.form-q--locked .form-q-label,
-.form-q--locked .form-q-icon { color: var(--jui-color-typography-gray-on-light-subdued); }
-
-/* -- Picking what a new question takes --
+/* ── Picking what a new question takes ──
    Its own panel rather than a dropdown: the choice is between kinds of
    answer, and each is easier to recognise by its control than by its name. */
 .form-kind-list {
