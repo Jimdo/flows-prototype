@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=b623f00">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=b623f00">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=337e1d9">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=337e1d9">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=b623f00">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=337e1d9">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -690,8 +690,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=b623f00"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=b623f00"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=337e1d9"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=337e1d9"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -1443,7 +1443,11 @@
        handled elsewhere, this becomes an ordinary question like the rest. */
     const FORM_DEFAULT = [
       { label: 'Name', type: 'text', required: true },
-      { label: 'Email', type: 'email', required: true },
+      /* Locked with consent. A form that collects a question and no way to
+         answer it is a form that loses the enquiry, so the reply address is
+         not the seller's to remove — the same reasoning the consent tick
+         already carries. */
+      { label: 'Email', type: 'email', required: true, locked: true },
       { label: 'What would you like to ask about?', type: 'textarea', required: false },
       { label: 'Consent to be contacted', type: 'checkbox', required: true, locked: true },
     ];
@@ -1518,7 +1522,8 @@
         if (!f.locked) {
           const handle = document.createElement('button');
           handle.type = 'button';
-          handle.className = 'form-q-handle edit-row-grip';
+          handle.className = 'form-q-handle';
+          handle.setAttribute('data-drag-handle', '');
           handle.setAttribute('aria-label', 'Drag to reorder: ' + (f.label || 'question ' + (i + 1)));
           handle.setAttribute('data-no-phrase', '');
           handle.innerHTML = GRIPV_SVG;

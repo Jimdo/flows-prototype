@@ -6714,7 +6714,11 @@ body {
   padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-s);
   border: 1px solid var(--jui-color-stroke-gray-default);
   border-radius: var(--jui-style-radius-m);
-  background: var(--jui-color-background-gray-canvas);
+  /* White. Upstream writes $jui-color-background-canvas, which resolves to
+     gray-white; our own background-gray-canvas is a different token that
+     resolves to gray-50, and reaching for it by its similar name turned
+     every row grey. */
+  background: var(--jui-color-gray-white);
 }
 /* Rings on hover as well as on focus — @jimdo/ui's button-focus, which is
    what the action page cards use, so the two lists read alike. */
@@ -6733,8 +6737,12 @@ body {
   color: var(--jui-color-typography-gray-on-light-subdued);
   cursor: grab;
   touch-action: none;
-  /* Above the open target's overlay, which spans the row. */
+  /* Above the open target's overlay, which spans the row. position alone
+     is not enough: the overlay is a ::after on a later sibling, so at auto
+     z-index it paints over anything positioned before it. The handle was
+     visible and dead — every pointerdown landed on the overlay instead. */
   position: relative;
+  z-index: 1;
 }
 .form-q-handle svg { width: 16px; height: 16px; display: block; }
 
@@ -6779,7 +6787,15 @@ body {
   line-height: var(--jui-typography-body-medium-regular-lh);
   color: var(--jui-color-typography-gray-on-light-default);
 }
-/* Shown, not offered — the consent question. */
+/* Shown, not offered — the questions every form carries. A locked row has
+   no handle, so without this its icon starts 32px left of every other
+   row's and the list reads as two ragged columns. The spacer stands in
+   for the handle: its 16px glyph plus the 4 of padding either side. */
+.form-q--locked::before {
+  content: '';
+  flex-shrink: 0;
+  width: calc(16px + 2 * var(--jui-layout-padding-xxs));
+}
 .form-q--locked .form-q-label,
 .form-q--locked .form-q-icon { color: var(--jui-color-typography-gray-on-light-subdued); }
 
@@ -6793,7 +6809,9 @@ body {
    fixed upstream — and the items carry the disabled state instead.
    ═══════════════════════════════════════════════════════════════ */
 
-.menu { position: relative; flex-shrink: 0; }
+/* position + the fact that it follows the open target in tree order is
+   what keeps the trigger above that target's overlay. */
+.menu { position: relative; z-index: 1; flex-shrink: 0; }
 .menu-dropdown {
   position: absolute;
   top: calc(100% + var(--jui-layout-gap-xxs));

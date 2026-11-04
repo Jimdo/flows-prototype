@@ -41,7 +41,9 @@ function setupList(list) {
   let drag = null;
 
   list.addEventListener('pointerdown', (e) => {
-    const grip = e.target.closest('.edit-row-grip');
+    /* .edit-row-grip is also a look; [data-drag-handle] is only a hook, so
+       a list can carry its own handle styling and still be draggable. */
+    const grip = e.target.closest('.edit-row-grip, [data-drag-handle]');
     if (!grip || !list.contains(grip)) return;
     const li = grip.closest('li');
     if (!li) return;
