@@ -101,6 +101,11 @@ function setupList(list) {
       // down, that is the one past the target, because the target itself is
       // still above us at the moment of the move.
       list.insertBefore(li, to > from ? items[to].nextSibling : items[to]);
+      // Lists whose order lives in a model rather than in the DOM need to be
+      // told, or the next render puts the row back where it was.
+      list.dispatchEvent(new CustomEvent('reorder', {
+        bubbles: true, detail: { from, to },
+      }));
     }
     if (moved) {
       li.addEventListener('click', (ev) => {
@@ -115,5 +120,7 @@ function setupList(list) {
 }
 
 export function initDragList(root) {
-  (root || document).querySelectorAll('.edit-list').forEach(setupList);
+  (root || document)
+    .querySelectorAll('.edit-list, [data-drag-list]')
+    .forEach(setupList);
 }

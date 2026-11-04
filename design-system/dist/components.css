@@ -3377,6 +3377,11 @@ body {
 /* Text button — a link-weight action that is not navigation. */
 .text-action {
   align-self: flex-start;
+  /* A row, so one that carries a leading icon lays it beside the words
+     instead of letting a 24-viewBox SVG stretch to the button's width. */
+  display: inline-flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
   padding: 0;
   background: none;
   border: none;
@@ -3388,7 +3393,10 @@ body {
   color: var(--jui-color-actions-primary-rest);
   cursor: pointer;
 }
-.text-action:hover { text-decoration: underline; }
+.text-action svg { width: 16px; height: 16px; flex-shrink: 0; }
+/* The words carry the underline; an underlined icon is just a line. */
+.text-action:hover span { text-decoration: underline; }
+.text-action:not(:has(svg)):hover { text-decoration: underline; }
 .text-action:focus-visible {
   outline: 2px solid var(--jui-color-actions-primary-rest);
   outline-offset: 2px;
@@ -6643,48 +6651,210 @@ body {
   line-height: var(--jui-typography-body-small-medium-lh);
   color: var(--jui-color-typography-gray-on-light-default);
 }
-/* A label with something to do at the far end — removing the field it
-   names. The control only shows on hover and focus: a column of delete
-   buttons at rest reads as a list of things to get rid of. */
-.sheet-field-head {
+/* ═══════════════════════════════════════════════════════════════
+   Form question card (.form-q)
+
+   Figma 2LVaYKcyyN2F2MUwSssFrL 3029:31429 / 3029:31435 / 12510:9137.
+
+   A form is a list of questions, and a question is legible before it is
+   editable: the kind it takes as an icon, the wording as the line, and the
+   choices listed under it when it has them. One card opens at a time to be
+   changed - the kind, the wording in a field, the choices as rows you can
+   rename and drop, whether an answer is required, and a way to delete the
+   question. Everything else stays closed, so the form is still readable
+   while one part of it is being worked on.
+
+   The radii are NOT the frame's. That design predates the current tokens
+   and carries button/radius 2 with option rows at style/radius/2 - a
+   vocabulary this system no longer speaks. Each is mapped to its nearest
+   current token, and the frame's pixel is recorded here rather than lost:
+
+     card         Figma style/radius/8   ->  radius-12 (matches .edit-row)
+     choice row   Figma style/radius/2   ->  radius-8
+     buttons      Figma button/radius 2  ->  the component's own 8
+     text field   Figma style/radius/4   ->  .form-input's radius-m, 12
+
+   The rest is the frame's own: 16 at the sides, 12 top and bottom, a 12
+   rhythm inside an open card, 4 between choices, 8 between cards.
+
+   Used by: bio-page-links-edit-onboarding (scr-477).
+   =============================================================== */
+
+.form-q-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.form-q {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-s);
+  /* Closed, the frame gives the card 8 at the ends against 16 at the
+     sides: one dimension-s row with its own breathing room and nothing
+     else. The frame calls that 48 and this renders 50, which is the
+     hairline — Figma draws a stroke inside the box it measures, CSS adds
+     it outside. Landing on 48 would mean 7px of padding to save two
+     pixels nobody can see, so the padding stays on the scale. */
+  padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-m);
+  border: 1px solid var(--jui-color-stroke-gray-default);
+  border-radius: var(--jui-style-radius-12);
+  background: var(--jui-color-gray-white);
+}
+/* Open: the frame marks it with the primary stroke, lifts it off the list
+   so the one being changed is findable among the ones that are not, and
+   opens the ends to 12 — a card with four things stacked in it needs more
+   than a card with one line. */
+.form-q[data-open] {
+  padding-top: var(--jui-layout-padding-s);
+  padding-bottom: var(--jui-layout-padding-s);
+  border-color: var(--jui-color-blue-400);
+  box-shadow: var(--jui-effects-on-light-shadow-lvl-1);
+}
+
+/* The head is the whole card when it is closed, so it carries the target
+   and the cursor. */
+.form-q-head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--jui-layout-gap-xs);
+  gap: var(--jui-layout-gap-s);
+  width: 100%;
+  min-height: var(--jui-layout-dimension-s);
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
 }
-.sheet-field-head .icon-btn-sm { opacity: 0; transition: opacity 120ms ease; }
-.sheet-field:hover .sheet-field-head .icon-btn-sm,
-.sheet-field:focus-within .sheet-field-head .icon-btn-sm,
-.sheet-field-head .icon-btn-sm:focus-visible { opacity: 1; }
-/* Shown, not offered — so it is a line of text, not a field with its
-   controls taken away. */
-.sheet-field-static {
-  font-size: var(--jui-typography-body-medium-regular-size);
-  line-height: var(--jui-typography-body-medium-regular-lh);
+.form-q-head:focus-visible {
+  outline: 2px solid var(--jui-color-actions-primary-rest);
+  outline-offset: 2px;
+  border-radius: var(--jui-style-radius-4);
+}
+/* The kind, drawn as the control the visitor will be given. 16px, the icon
+   size the frame uses throughout. */
+.form-q-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+.form-q-icon svg { width: 100%; height: 100%; display: block; }
+.form-q-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+/* Open, the head names the kind rather than repeating the question - the
+   question is in the field directly under it. */
+.form-q[data-open] .form-q-label {
   color: var(--jui-color-typography-gray-on-light-subdued);
 }
 
-/* The choices under a question that takes one. Indented, because they
-   belong to it — flush left they read as more questions. */
-.sheet-choices {
+/* The choices a closed card lists. Indented past the question's own text,
+   so they read as belonging to it. */
+.form-q-options {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0 0 0 calc(16px + var(--jui-layout-gap-s));
+  list-style: none;
+}
+.form-q-option-read {
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
+/* An editable choice. The frame fills the one under the cursor; here the
+   fill follows focus, which is the same idea from a keyboard. */
+.form-q-choices {
   display: flex;
   flex-direction: column;
   gap: var(--jui-layout-gap-xxs);
-  padding-left: var(--jui-layout-padding-m);
 }
-.sheet-choices + .text-action {
-  align-self: flex-start;
-  margin-left: var(--jui-layout-padding-m);
-}
-.sheet-choice {
+.form-q-choice {
   display: flex;
   align-items: center;
-  gap: var(--jui-layout-gap-xs);
+  gap: var(--jui-layout-gap-xxs);
+  padding-right: var(--jui-layout-padding-xs);
+  border: 1px solid transparent;
+  border-radius: var(--jui-style-radius-8);
 }
-.sheet-choice .icon-btn-sm { flex-shrink: 0; opacity: 0; transition: opacity 120ms ease; }
-.sheet-choice:hover .icon-btn-sm,
-.sheet-choice:focus-within .icon-btn-sm,
-.sheet-choice .icon-btn-sm:focus-visible { opacity: 1; }
+.form-q-choice:focus-within {
+  border-color: var(--jui-color-blue-100);
+  background: var(--jui-color-background-primary-light);
+}
+/* The row is the field: an input with its own box inside a filled row
+   would be a box in a box. */
+.form-q-choice .form-input {
+  border-color: transparent;
+  background: transparent;
+}
+.form-q-choice .form-input:focus,
+.form-q-choice .form-input:not(:focus):hover { border-color: transparent; box-shadow: none; }
+.form-q-choice .icon-btn-sm { flex-shrink: 0; opacity: 0; transition: opacity 120ms ease; }
+.form-q-choice:hover .icon-btn-sm,
+.form-q-choice:focus-within .icon-btn-sm,
+.form-q-choice .icon-btn-sm:focus-visible { opacity: 1; }
+
+/* Delete the question at one end, whether it has to be answered at the
+   other. The frame puts them this way round and it is right: the
+   destructive one sits away from the control you came here to flip. */
+.form-q-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--jui-layout-gap-s);
+}
+.form-q-required {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-s);
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+
+/* Shown, not offered - the consent question. */
+.form-q--locked .form-q-label,
+.form-q--locked .form-q-icon { color: var(--jui-color-typography-gray-on-light-subdued); }
+
+/* -- Picking what a new question takes --
+   Its own panel rather than a dropdown: the choice is between kinds of
+   answer, and each is easier to recognise by its control than by its name. */
+.form-kind-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xxs);
+}
+.form-kind {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-s);
+  width: 100%;
+  min-height: var(--jui-layout-dimension-m);
+  padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-s);
+  border: 0;
+  border-radius: var(--jui-style-radius-8);
+  background: none;
+  font-family: inherit;
+  font-size: var(--jui-typography-body-medium-regular-size);
+  line-height: var(--jui-typography-body-medium-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+  text-align: left;
+  cursor: pointer;
+}
+.form-kind:hover { background: var(--jui-color-gray-50); }
+.form-kind:focus-visible { outline: 2px solid var(--jui-color-actions-primary-rest); outline-offset: -2px; }
 
 /* ── The button editor ──
    Figma 11241:80504. A button that points at something — a booking, a form,
@@ -6786,6 +6956,9 @@ body {
   flex-shrink: 0;
   padding: var(--jui-layout-padding-s) var(--jui-layout-padding-m) var(--jui-layout-padding-m);
 }
+/* display:flex outranks the hidden attribute, and a sheet one level down
+   sometimes has nothing to commit. */
+.sheet-actions[hidden] { display: none; }
 /* The buttons here size to their labels. Everything in this system is
    full-width by default, which carries no horizontal padding — so sizing to
    content without restoring it clamps the label against both edges. */

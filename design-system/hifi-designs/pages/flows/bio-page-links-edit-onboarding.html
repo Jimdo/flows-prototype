@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=cf0290c">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=cf0290c">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=8d77c00">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=8d77c00">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=cf0290c">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=8d77c00">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -612,13 +612,23 @@
             data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Edit questions</button>
         </div>
 
-        <!-- The editor proper — .sheet-form / .sheet-field / .form-input,
-             the same parts the booking editor is built from. -->
+        <!-- Figma 3029:31429. One card per question: the kind as its own
+             control, the wording, and the choices under it. One opens at a
+             time; the rest stay readable. -->
         <div class="sheet-form" data-form-view="edit" hidden>
-          <div class="sheet-form sheet-form--questions" id="formFields"
+          <ol class="form-q-list" id="formFields" data-drag-list
             data-inspect-label="Form questions"
-            data-inspect-tokens='[{"prop":"field","css":".sheet-field + .sheet-label + .form-input","value":"the booking editor\u2019s own parts"},{"prop":"kind picker","figma":"@jimdo/ui Select","css":".form-select","value":"native select in the Input box"},{"note":"Five pickable kinds, from CanvasFormField in loops-frontend: text, textarea, email, radio, checkbox-group. The consent question is locked."}]'></div>
+            data-inspect-tokens='[{"prop":"card radius","figma":"style/radius/8 (old)","css":"--jui-style-radius-12","value":"12px \u2014 remapped to the current scale"},{"prop":"choice radius","figma":"style/radius/2 (old)","css":"--jui-style-radius-8","value":"8px \u2014 remapped"},{"prop":"padding","figma":"16 sides / 12 ends","css":"--jui-layout-padding-m / -s","value":"16px / 12px"},{"prop":"open border","figma":"color/blue/400","css":"--jui-color-blue-400","value":"1px #336bff"},{"prop":"open shadow","figma":"on-light-shadow-lvl-1","css":"--jui-effects-on-light-shadow-lvl-1","value":"0 4px 8px #00000024"},{"note":"Five pickable kinds, from CanvasFormField in loops-frontend: text, textarea, email, radio, checkbox-group. The consent question is locked."}]'></ol>
           <button type="button" class="text-action" id="formAdd" data-inspect-phrase="">Add a question</button>
+        </div>
+
+        <!-- Figma 3029:31425. Picking what a new question takes, as a panel
+             of controls rather than a list of words. -->
+        <div class="sheet-form" data-form-view="pick" hidden>
+          <p class="sheet-copy" data-inspect-phrase="">What should people answer with?</p>
+          <div class="form-kind-list" id="formKinds"
+            data-inspect-label="Question kinds"
+            data-inspect-tokens='[{"prop":"row height","figma":"$jui-layout-dimension-m","css":"--jui-layout-dimension-m","value":"48px"},{"prop":"icon","figma":"16px","css":"--jui-color-typography-gray-on-light-default","value":"16px, stroke 1.5"},{"prop":"radius","figma":"button/radius 2 (old)","css":"--jui-style-radius-8","value":"8px \u2014 remapped"}]'></div>
         </div>
       </div>
       <div class="sheet-actions sheet-actions--end">
@@ -653,8 +663,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=cf0290c"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=cf0290c"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=8d77c00"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=8d77c00"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -1337,6 +1347,8 @@
     const formList = document.getElementById('formFields');
     const formShow = document.getElementById('formShow');
     const formBack = document.getElementById('formBack');
+    const formKinds = document.getElementById('formKinds');
+    const formActions = document.querySelector('#formSheet .sheet-actions');
     const formViews = [...document.querySelectorAll('[data-form-view]')];
     let formView = 'show';
     const formDoneBtn = document.getElementById('formDone');
@@ -1344,15 +1356,38 @@
     const FORM_BUILD_MS = 1600;
     let formTimer = null;
 
-    /* ── What a question can be ──
-       Production's own six, read off CanvasFormField in loops-frontend
+    /* == What a question can be ==
+       Production's own kinds, read off CanvasFormField in loops-frontend
        (Flow/Preview/Carousel/utils/transformer.ts) rather than invented:
        text, textarea, email, radio, checkbox-group, checkbox. radio and
-       checkbox-group are the two that carry options.
+       checkbox-group are the two that carry choices.
 
-       The labels are not those names. A seller picking what a question
-       takes is not choosing a widget, so the list says what the person
-       answering will do. */
+       The icons are the frame's. Figma 3029:31425 draws each kind as the
+       control the visitor will be given, which is how a seller recognises
+       one without reading it. Three the frame names outright -
+       radio-button, checkmark-square-02, user-check-01 - and those path
+       data come straight out of @jimdo/ui's StrokeStandard set rather than
+       being redrawn; the long-answer lines are Menu02 from the same set.
+
+       NOT here, deliberately: the frame's menu also offers Phone number
+       and File upload. CanvasFormField has no type for either - a phone
+       would land as text and a file has nowhere to go - so offering them
+       would be drawing a capability the backend does not have.
+
+       The labels are not the frame's "Single select" / "Multi select".
+       Picking what a question takes is not picking a widget, so the list
+       says what the person answering will do. */
+    const FIELD_ICONS = {
+      'text': '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 5.5V4H13V5.5M8 4V17M6 17H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 9H21M18.5 9V20M17 20H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+      'textarea': '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 5L16 5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12L20 12" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 19L12 19" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>',
+      'email': '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="m22 7-10 5L2 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+      'radio': '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>',
+      'checkbox-group': '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M21.5 4.5V19.5C21.5 20.6046 20.6046 21.5 19.5 21.5H4.5C3.39543 21.5 2.5 20.6046 2.5 19.5V4.5C2.5 3.39543 3.39543 2.5 4.5 2.5H19.5C20.6046 2.5 21.5 3.39543 21.5 4.5Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/><path d="M8.5 12.5L11 15L16 9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>',
+      'checkbox': '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M11.5 20H2C2 16.134 5.13401 13 9 13H11C12.275 13 13.4704 13.3409 14.5 13.9365M14 6C14 8.20914 12.2091 10 10 10C7.79086 10 6 8.20914 6 6C6 3.79086 7.79086 2 10 2C12.2091 2 14 3.79086 14 6Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M14.5 17.5L17 20L22 14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>'
+    };
+    const GRIP_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>';
+    const PLUS_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 4V20M20 12H4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>';
+
     const FIELD_KINDS = [
       { type: 'text',           label: 'Short answer' },
       { type: 'textarea',       label: 'Long answer' },
@@ -1364,26 +1399,26 @@
     const KIND_TAKES_OPTIONS = (t) =>
       FIELD_KINDS.some((k) => k.type === t && k.options);
 
-    /* What the product writes when it writes a form. The consent question is
-       the one the seller cannot change.
+    /* What the product writes when it writes a form. The consent question
+       is the one the seller cannot change.
        ASSUMPTION, flagged rather than buried: a form collecting a name and
        an email needs a consent tick, so it is not the seller's to delete or
-       re-word. Worth confirming with whoever owns forms — if consent is
+       re-word. Worth confirming with whoever owns forms - if consent is
        handled elsewhere, this becomes an ordinary question like the rest. */
     const FORM_DEFAULT = [
-      { label: 'Name', type: 'text' },
-      { label: 'Email', type: 'email' },
-      { label: 'What would you like to ask about?', type: 'textarea' },
-      { label: 'Consent to be contacted', type: 'checkbox', locked: true },
+      { label: 'Name', type: 'text', required: true },
+      { label: 'Email', type: 'email', required: true },
+      { label: 'What would you like to ask about?', type: 'textarea', required: false },
+      { label: 'Consent to be contacted', type: 'checkbox', required: true, locked: true },
     ];
 
     let formDraft = [];        // the working copy, which only Done commits
     let formCommit = null;     // what to run when the seller says yes
     let formEditing = null;    // the block being edited, in edit mode
-
-    const CHEVRON_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><polyline points="6 9 12 15 18 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    let formOpen = -1;         // which card is open; -1 is all closed
 
     const kindLabel = (t) => (FIELD_KINDS.find((k) => k.type === t) || FIELD_KINDS[0]).label;
+    const kindIcon  = (t) => FIELD_ICONS[t] || FIELD_ICONS.text;
 
     function dropBtn(label, onClick) {
       const b = document.createElement('button');
@@ -1392,13 +1427,13 @@
       b.setAttribute('aria-label', label);
       b.setAttribute('data-no-phrase', '');
       b.innerHTML = TRASH_SVG;
-      b.addEventListener('click', onClick);
+      b.addEventListener('click', (e) => { e.stopPropagation(); onClick(); });
       return b;
     }
 
-    /* ── Reading the form ──
-       One row per question: what is asked, and under it what the visitor
-       is given to answer with. The choices are named on that same line,
+    /* == Reading the form ==
+       One row per question: what is asked, and under it what the visitor is
+       given to answer with. The choices are named on that same line,
        because a choice question is not described by saying it is one. */
     function renderFormShow() {
       formShow.innerHTML = '';
@@ -1429,40 +1464,75 @@
       });
     }
 
-    /* ── Changing it ──
-       .sheet-field, .sheet-label, .form-input — the parts the booking
-       editor is made of, so a form is edited the way everything else on
-       this screen is edited. */
+    /* == Changing it ==
+       Figma 3029:31429. Every question is a card. Closed, it is the kind's
+       own icon, the wording, and the choices listed under it. Open, it is
+       the thing being built: the kind by name, the wording in a field, the
+       choices as rows that can be renamed and dropped, whether an answer is
+       required, and a way to delete the question. */
     function renderFormEdit(focus) {
       formList.innerHTML = '';
       formDraft.forEach((f, i) => {
-        const wrap = document.createElement('div');
-        wrap.className = 'sheet-field';
+        const li = document.createElement('li');
+        const card = document.createElement('div');
+        card.className = 'form-q' + (f.locked ? ' form-q--locked' : '');
+        const open = formOpen === i && !f.locked;
+        if (open) card.setAttribute('data-open', '');
 
-        const head = document.createElement('div');
-        head.className = 'sheet-field-head';
-        const label = document.createElement('span');
-        label.className = 'sheet-label';
-        label.setAttribute('data-no-phrase', '');
-        label.textContent = f.locked ? 'Always asked' : 'Question ' + (i + 1);
-        head.appendChild(label);
+        /* The head is a button when it can open, and plain when it cannot:
+           the consent card has nothing behind it to show. */
+        const head = document.createElement(f.locked ? 'div' : 'button');
+        head.className = 'form-q-head';
         if (!f.locked) {
-          head.appendChild(dropBtn('Remove question ' + (i + 1), () => {
-            formDraft.splice(i, 1);
-            renderFormEdit();
-          }));
+          head.type = 'button';
+          head.setAttribute('aria-expanded', String(open));
+          head.addEventListener('click', () => {
+            formOpen = open ? -1 : i;
+            renderFormEdit(open ? null : { field: i });
+          });
         }
-        wrap.appendChild(head);
-
+        const icon = document.createElement('span');
+        icon.className = 'form-q-icon';
+        icon.setAttribute('aria-hidden', 'true');
+        icon.innerHTML = kindIcon(f.type);
+        const label = document.createElement('span');
+        label.className = 'form-q-label';
+        label.setAttribute('data-no-phrase', '');
+        label.textContent = open ? kindLabel(f.type) : (f.label || 'Untitled question');
+        head.append(icon, label);
         if (f.locked) {
-          /* Shown, not offered. A disabled input is still an input-shaped
-             box in a stack of them, so this is a line of text instead. */
-          const locked = document.createElement('span');
-          locked.className = 'sheet-field-static';
-          locked.setAttribute('data-no-phrase', '');
-          locked.textContent = f.label;
-          wrap.appendChild(locked);
-          formList.appendChild(wrap);
+          const tag = document.createElement('span');
+          tag.className = 'tag';
+          tag.setAttribute('data-no-phrase', '');
+          tag.textContent = 'Always asked';
+          head.appendChild(tag);
+        } else {
+          /* The same grip every other list on this screen uses, so
+             drag-list.js moves these too - see .edit-row-grip. */
+          const grip = document.createElement('span');
+          grip.className = 'edit-row-grip';
+          grip.setAttribute('aria-label', 'Drag to reorder');
+          grip.innerHTML = GRIP_SVG;
+          head.appendChild(grip);
+        }
+        card.appendChild(head);
+
+        if (!open) {
+          /* Closed, a choice question still shows what it offers. */
+          if (KIND_TAKES_OPTIONS(f.type) && (f.options || []).some((o) => o.trim())) {
+            const list = document.createElement('ul');
+            list.className = 'form-q-options';
+            f.options.filter((o) => o.trim()).forEach((o) => {
+              const row = document.createElement('li');
+              row.className = 'form-q-option-read';
+              row.setAttribute('data-no-phrase', '');
+              row.textContent = o;
+              list.appendChild(row);
+            });
+            card.appendChild(list);
+          }
+          li.appendChild(card);
+          formList.appendChild(li);
           return;
         }
 
@@ -1474,41 +1544,16 @@
         input.setAttribute('aria-label', 'Question ' + (i + 1));
         input.setAttribute('data-no-phrase', '');
         input.addEventListener('input', () => { f.label = input.value; });
-        wrap.appendChild(input);
-
-        /* Switching into a choice opens two empty ones, because a choice
-           with none is not a question yet. Switching out keeps them, so a
-           mis-click does not destroy what was typed. */
-        const pick = document.createElement('span');
-        pick.className = 'form-select form-select--sm';
-        const sel = document.createElement('select');
-        sel.setAttribute('aria-label', 'What question ' + (i + 1) + ' takes');
-        sel.setAttribute('data-no-phrase', '');
-        FIELD_KINDS.forEach((k) => {
-          if (k.type === 'checkbox') return;   // the consent tick is ours, not theirs
-          const o = document.createElement('option');
-          o.value = k.type;
-          o.textContent = k.label;
-          o.selected = k.type === f.type;
-          sel.appendChild(o);
-        });
-        sel.addEventListener('change', () => {
-          f.type = sel.value;
-          if (KIND_TAKES_OPTIONS(f.type) && !(f.options || []).length) f.options = ['', ''];
-          renderFormEdit({ field: i, choice: 0 });
-        });
-        pick.appendChild(sel);
-        pick.insertAdjacentHTML('beforeend', CHEVRON_SVG);
-        wrap.appendChild(pick);
+        card.appendChild(input);
 
         if (KIND_TAKES_OPTIONS(f.type)) {
           const list = document.createElement('div');
-          list.className = 'sheet-choices';
+          list.className = 'form-q-choices';
           (f.options || []).forEach((opt, j) => {
             const row = document.createElement('div');
-            row.className = 'sheet-choice';
+            row.className = 'form-q-choice';
             const oi = document.createElement('input');
-            oi.className = 'form-input form-input--sm';
+            oi.className = 'form-input';
             oi.type = 'text';
             oi.value = opt;
             oi.placeholder = 'Choice ' + (j + 1);
@@ -1520,66 +1565,137 @@
             if ((f.options || []).length > 2) {
               row.appendChild(dropBtn('Remove choice ' + (j + 1), () => {
                 f.options.splice(j, 1);
-                renderFormEdit();
+                renderFormEdit({ field: i });
               }));
             }
             list.appendChild(row);
           });
-          wrap.appendChild(list);
+          card.appendChild(list);
 
           const more = document.createElement('button');
           more.type = 'button';
           more.className = 'text-action';
           more.setAttribute('data-no-phrase', '');
-          more.textContent = 'Add a choice';
+          more.innerHTML = PLUS_SVG + '<span>Add a choice</span>';
           more.addEventListener('click', () => {
             f.options = (f.options || []).concat('');
             renderFormEdit({ field: i, choice: f.options.length - 1 });
           });
-          wrap.appendChild(more);
+          card.appendChild(more);
         }
 
-        formList.appendChild(wrap);
+        const actions = document.createElement('div');
+        actions.className = 'form-q-actions';
+        actions.appendChild(dropBtn('Remove question ' + (i + 1), () => {
+          formDraft.splice(i, 1);
+          formOpen = -1;
+          renderFormEdit();
+        }));
+        const req = document.createElement('label');
+        req.className = 'form-q-required';
+        const reqLabel = document.createElement('span');
+        reqLabel.setAttribute('data-no-phrase', '');
+        reqLabel.textContent = 'Required';
+        const toggle = document.createElement('span');
+        toggle.className = 'toggle';
+        const box = document.createElement('input');
+        box.type = 'checkbox';
+        box.checked = f.required !== false;
+        box.setAttribute('aria-label', 'Question ' + (i + 1) + ' must be answered');
+        box.addEventListener('change', () => { f.required = box.checked; });
+        const thumb = document.createElement('span');
+        thumb.className = 'toggle-thumb';
+        toggle.append(box, thumb);
+        req.append(reqLabel, toggle);
+        actions.appendChild(req);
+        card.appendChild(actions);
+
+        li.appendChild(card);
+        formList.appendChild(li);
       });
 
       /* Rebuilding throws the caret away, so whoever asked for the rebuild
          says where it should land. */
       if (!focus) return;
-      const wrap = formList.children[focus.field];
-      if (!wrap) return;
-      const choices = wrap.querySelectorAll('.sheet-choice .form-input');
+      const li = formList.children[focus.field];
+      if (!li) return;
+      const choices = li.querySelectorAll('.form-q-choice .form-input');
       const target = focus.choice != null && choices[focus.choice]
-        ? choices[focus.choice] : wrap.querySelector('.form-input');
+        ? choices[focus.choice] : li.querySelector('.form-input');
       if (target) target.focus();
     }
 
-    /* Which half of the sheet is showing. Reading it is the default; the
-       pencil goes a level down, and the back arrow comes with it — the same
-       move the add sheet makes into one of its submenus. */
+    /* == Picking what a new question takes ==
+       Figma 3029:31425. A panel of controls rather than a dropdown of
+       words: each kind is easier to recognise by the thing the visitor
+       will see than by its name. */
+    function renderKinds() {
+      formKinds.innerHTML = '';
+      FIELD_KINDS.forEach((k) => {
+        if (k.type === 'checkbox') return;   // the consent tick is ours, not theirs
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'form-kind';
+        b.setAttribute('data-kind', k.type);
+        b.setAttribute('data-no-phrase', '');
+        b.innerHTML = '<span class="form-q-icon" aria-hidden="true">' + kindIcon(k.type) +
+          '</span><span>' + k.label + '</span>';
+        b.addEventListener('click', () => {
+          /* The new one goes above consent, because consent is the last
+             thing anybody answers. */
+          const at = formDraft.findIndex((f) => f.locked);
+          const i = at === -1 ? formDraft.length : at;
+          const q = { label: '', type: k.type, required: true };
+          if (KIND_TAKES_OPTIONS(k.type)) q.options = ['', ''];
+          formDraft.splice(i, 0, q);
+          formOpen = i;
+          setFormView('edit');
+          renderFormEdit({ field: i });
+        });
+        formKinds.appendChild(b);
+      });
+    }
+
+    /* Three panels, one sheet. Reading the form is the default; the pencil
+       goes a level down to change it, and adding a question goes one lower
+       still to say what kind. The back arrow follows - the same move the
+       add sheet makes into one of its submenus. */
     function setFormView(view) {
       formView = view;
       formViews.forEach((el) => { el.hidden = el.getAttribute('data-form-view') !== view; });
-      formBack.hidden = view !== 'edit';
+      formBack.hidden = view === 'show';
+      /* Picking a kind is a step inside making a question, not a moment to
+         commit the whole form. The sheet's answers go away until the seller
+         is back on something they can answer. */
+      formActions.hidden = view === 'pick';
       if (view === 'edit') {
         formTitle.textContent = 'Edit questions';
         renderFormEdit();
+      } else if (view === 'pick') {
+        formTitle.textContent = 'Add a question';
+        renderKinds();
       } else {
         formTitle.textContent = formEditing ? 'Your form' : 'Here is the form we wrote';
         renderFormShow();
       }
     }
 
-    document.getElementById('formEdit').addEventListener('click', () => setFormView('edit'));
-    formBack.addEventListener('click', () => setFormView('show'));
-
-    document.getElementById('formAdd').addEventListener('click', () => {
-      /* The new one goes above consent, because consent is the last thing
-         anybody answers. */
-      const at = formDraft.findIndex((f) => f.locked);
-      const i = at === -1 ? formDraft.length : at;
-      formDraft.splice(i, 0, { label: '', type: 'text' });
-      renderFormEdit({ field: i });
+    /* The grip moves the row; this moves the question it stands for. The
+       card that was open travels with it, so reordering does not quietly
+       close what was being edited. */
+    formList.addEventListener('reorder', (e) => {
+      const { from, to } = e.detail;
+      const [q] = formDraft.splice(from, 1);
+      formDraft.splice(to, 0, q);
+      if (formOpen === from) formOpen = to;
+      else if (formOpen > from && formOpen <= to) formOpen -= 1;
+      else if (formOpen < from && formOpen >= to) formOpen += 1;
+      renderFormEdit();
     });
+
+    document.getElementById('formEdit').addEventListener('click', () => setFormView('edit'));
+    formBack.addEventListener('click', () => setFormView(formView === 'pick' ? 'edit' : 'show'));
+    document.getElementById('formAdd').addEventListener('click', () => setFormView('pick'));
 
     /* The options array has to come along by value, or the draft shares it
        with what is already saved and Cancel keeps the edits anyway. */
@@ -2193,7 +2309,9 @@
       if (e.key !== 'Escape') return;
       closeAdd();
       openEdit(false);
-      if (formSheet.getAttribute('data-open') === 'true' && formView === 'edit') setFormView('show');
+      if (formSheet.getAttribute('data-open') !== 'true') { closeForm(); return; }
+      if (formView === 'pick') setFormView('edit');
+      else if (formView === 'edit') setFormView('show');
       else closeForm();
     });
 
