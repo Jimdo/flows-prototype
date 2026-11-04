@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=337e1d9">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=337e1d9">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=0b48c86">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=0b48c86">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=337e1d9">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=0b48c86">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -690,8 +690,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=337e1d9"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=337e1d9"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=0b48c86"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=0b48c86"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -1443,11 +1443,12 @@
        handled elsewhere, this becomes an ordinary question like the rest. */
     const FORM_DEFAULT = [
       { label: 'Name', type: 'text', required: true },
-      /* Locked with consent. A form that collects a question and no way to
-         answer it is a form that loses the enquiry, so the reply address is
-         not the seller's to remove — the same reasoning the consent tick
-         already carries. */
-      { label: 'Email', type: 'email', required: true, locked: true },
+      /* `fixed`, not `locked`. The rule is production's, from the smart
+         form generation prompt: "There MUST ALWAYS be a field named
+         'email' in the form." Always there is not the same as untouchable
+         — the AI writes its label, the seller can re-word it, change what
+         it takes and move it. The one thing missing is Delete. */
+      { label: 'Email', type: 'email', required: true, fixed: true },
       { label: 'What would you like to ask about?', type: 'textarea', required: false },
       { label: 'Consent to be contacted', type: 'checkbox', required: true, locked: true },
     ];
@@ -1596,10 +1597,13 @@
         return b;
       };
       drop.appendChild(item('Edit', PEN_SVG, () => openQuestion(i)));
-      const rule = document.createElement('hr');
-      rule.className = 'menu-divider';
-      drop.appendChild(rule);
-      drop.appendChild(item('Delete', TRASH_SVG, () => deleteQuestion(i), true));
+      /* A fixed field has everything a question has except a way out. */
+      if (!f.fixed) {
+        const rule = document.createElement('hr');
+        rule.className = 'menu-divider';
+        drop.appendChild(rule);
+        drop.appendChild(item('Delete', TRASH_SVG, () => deleteQuestion(i), true));
+      }
 
       trigger.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -1624,6 +1628,7 @@
        falling through to Add question — the menu would otherwise hand it to
        a trigger that no longer exists, and from there to <body>. */
     function deleteQuestion(i) {
+      if (!formDraft[i] || formDraft[i].fixed || formDraft[i].locked) return;
       formDraft.splice(i, 1);
       if (formView === 'question') { formOpen = -1; setFormView('edit'); }
       else renderFormEdit();
@@ -1788,7 +1793,8 @@
          that level drops the modifier and lets space-between do it. */
       formActions.classList.toggle('sheet-actions--end', view !== 'question');
       formPickBack.hidden = view !== 'pick';
-      formQDelete.hidden = view !== 'question';
+      formQDelete.hidden = view !== 'question' ||
+        !!(formDraft[formOpen] && formDraft[formOpen].fixed);
       formQDone.hidden = view !== 'question';
       formCancelBtn.hidden = !onForm || !!formEditing;
       formDoneBtn.hidden = !onForm;
@@ -1890,7 +1896,7 @@
           ? Object.assign({}, f, { options: f.options.filter((o) => o.trim()) })
           : f))
         .filter((f) => {
-          if (f.locked) return true;
+          if (f.locked || f.fixed) return true;
           if (!f.label.trim()) return false;
           return !KIND_TAKES_OPTIONS(f.type) || f.options.length >= 2;
         });
