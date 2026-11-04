@@ -5954,6 +5954,11 @@ body {
 }
 .sheet-backdrop[data-open="true"] { opacity: 1; pointer-events: auto; }
 
+/* The desktop size of every modal in the system. Not on the token scale —
+   a dialog is a fixed surface rather than a step on a spacing ramp — but
+   named here so the number lives in one place. */
+:root { --jui-sheet-size: 700px; }
+
 .sheet {
   width: 100%;
   max-height: 92%;
@@ -5968,12 +5973,21 @@ body {
 
 @media (min-width: 768px) {
   .sheet-backdrop { align-items: center; }
+  /* ── One size, every modal ──
+     A dialog that resizes between its own panels makes each panel feel
+     like a different surface, and two dialogs on one screen that are
+     different heights make the second one feel like a mistake. On desktop
+     every sheet is the same square: the content scrolls inside it, the
+     head and the actions stay where the last dialog left them.
+
+     min() rather than a flat 700, because a modal taller than the window
+     is a modal with its own buttons below the fold. On anything from a
+     laptop up it resolves to the full 700. */
   .sheet {
-    /* On a breakpoint, and the one that fits what it holds: three idea
-       cards with a full-size button in each need ~208px of card, which sm
-       cannot give and md can. */
-    max-width: var(--jui-layout-breakpoints-md);
-    max-height: 84%;
+    width: var(--jui-sheet-size);
+    max-width: var(--jui-sheet-size);
+    height: min(var(--jui-sheet-size), 92vh);
+    max-height: min(var(--jui-sheet-size), 92vh);
     border-radius: var(--jui-style-radius-20);
   }
 }
@@ -6146,9 +6160,8 @@ body {
    A modal that resizes when you step into a list makes the step feel like a
    different surface. It holds the height of its fullest state instead. */
 .sheet--tall { height: 92%; }
-@media (min-width: 768px) {
-  .sheet--tall { height: 84%; }
-}
+/* Nothing to say on desktop any more: every sheet is the same height
+   there, so holding the fullest state is what all of them do. */
 
 /* ═══════════════════════════════════════════════════════════════
    Form preview (.form-preview)
@@ -6249,7 +6262,15 @@ body {
   line-height: var(--jui-typography-body-medium-regular-lh);
 }
 @media (min-width: 768px) {
-  .sheet--compact { max-width: var(--jui-layout-breakpoints-sm); }
+  /* The one exception, and it earns it: a confirmation is two lines and
+     two answers. At the full square it would be a wall of white around a
+     question, which reads as a bigger decision than it is. */
+  .sheet--compact {
+    width: var(--jui-layout-breakpoints-sm);
+    max-width: var(--jui-layout-breakpoints-sm);
+    height: auto;
+    max-height: min(var(--jui-sheet-size), 92vh);
+  }
 }
 
 /* The mark. A 32px icon on its own tinted square — the size of the thing is
@@ -6957,8 +6978,9 @@ body {
   padding: var(--jui-layout-padding-s) var(--jui-layout-padding-m) var(--jui-layout-padding-m);
 }
 /* display:flex outranks the hidden attribute, and a sheet one level down
-   sometimes has nothing to commit. */
+   swaps what its row carries. */
 .sheet-actions[hidden] { display: none; }
+.sheet-actions .btn[hidden] { display: none; }
 /* The buttons here size to their labels. Everything in this system is
    full-width by default, which carries no horizontal padding — so sizing to
    content without restoring it clamps the label against both edges. */

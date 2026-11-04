@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=8d77c00">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=8d77c00">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=9b0524e">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=9b0524e">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=8d77c00">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=9b0524e">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -587,6 +587,15 @@
       <div class="sheet-head">
         <button type="button" class="setup-back-btn add-head-back" id="formBack" aria-label="Back" data-no-phrase hidden><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
         <p class="sheet-title" id="formSheetTitle" data-inspect-phrase="">Here is the form we wrote</p>
+        <!-- Beside the title, the way Add link sits beside "Edit links" on
+             the screen behind this one. It was a text link at the foot of
+             the list, directly above Cancel and Add to my page, where it
+             read as a third answer to the dialog rather than a thing you
+             do inside it. -->
+        <button type="button" class="btn btn-secondary btn-sm" id="formAdd" hidden
+          data-inspect-label="Secondary Button — Add question, Size=Small"
+          data-inspect-tokens='[{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px"},{"prop":"border","figma":"$jui-color-stroke-primary-on-light","css":"--jui-color-stroke-primary-on-light","value":"1px #b4c4ff"}]'
+          data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 4V20M20 12H4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span>Add question</span></button>
         <button type="button" class="setup-back-btn" id="formClose" aria-label="Close" data-no-phrase><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
       </div>
       <div class="sheet-body">
@@ -619,7 +628,6 @@
           <ol class="form-q-list" id="formFields" data-drag-list
             data-inspect-label="Form questions"
             data-inspect-tokens='[{"prop":"card radius","figma":"style/radius/8 (old)","css":"--jui-style-radius-12","value":"12px \u2014 remapped to the current scale"},{"prop":"choice radius","figma":"style/radius/2 (old)","css":"--jui-style-radius-8","value":"8px \u2014 remapped"},{"prop":"padding","figma":"16 sides / 12 ends","css":"--jui-layout-padding-m / -s","value":"16px / 12px"},{"prop":"open border","figma":"color/blue/400","css":"--jui-color-blue-400","value":"1px #336bff"},{"prop":"open shadow","figma":"on-light-shadow-lvl-1","css":"--jui-effects-on-light-shadow-lvl-1","value":"0 4px 8px #00000024"},{"note":"Five pickable kinds, from CanvasFormField in loops-frontend: text, textarea, email, radio, checkbox-group. The consent question is locked."}]'></ol>
-          <button type="button" class="text-action" id="formAdd" data-inspect-phrase="">Add a question</button>
         </div>
 
         <!-- Figma 3029:31425. Picking what a new question takes, as a panel
@@ -632,6 +640,10 @@
         </div>
       </div>
       <div class="sheet-actions sheet-actions--end">
+        <!-- A level down has its own way out. Hiding the row entirely left
+             the picker with 300px of white under a five-item list and no
+             control at the foot, which reads as an unfinished panel. -->
+        <button type="button" class="btn btn-secondary" id="formPickBack" hidden data-inspect-phrase="">Back</button>
         <button type="button" class="btn btn-secondary" id="formCancel" data-inspect-phrase="">Cancel</button>
         <button type="button" class="btn btn-primary" id="formDone" data-inspect-phrase="">Add to my page</button>
       </div>
@@ -663,8 +675,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=8d77c00"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=8d77c00"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=9b0524e"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=9b0524e"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -1349,6 +1361,8 @@
     const formBack = document.getElementById('formBack');
     const formKinds = document.getElementById('formKinds');
     const formActions = document.querySelector('#formSheet .sheet-actions');
+    const formAddBtn = document.getElementById('formAdd');
+    const formPickBack = document.getElementById('formPickBack');
     const formViews = [...document.querySelectorAll('[data-form-view]')];
     let formView = 'show';
     const formDoneBtn = document.getElementById('formDone');
@@ -1660,6 +1674,16 @@
        goes a level down to change it, and adding a question goes one lower
        still to say what kind. The back arrow follows - the same move the
        add sheet makes into one of its submenus. */
+    /* One place decides what the bar says, so the wait and the panel
+       cannot disagree about it. The title names the form, not the panel:
+       a seller who has just watched one be written does not need telling
+       twice that they are now looking at it. */
+    function formTitleFor(view) {
+      if (view === 'pick') return 'Add a question';
+      if (formEditing) return view === 'edit' ? 'Edit questions' : 'Your form';
+      return 'Here is the form we wrote';
+    }
+
     function setFormView(view) {
       formView = view;
       formViews.forEach((el) => { el.hidden = el.getAttribute('data-form-view') !== view; });
@@ -1667,17 +1691,23 @@
       /* Picking a kind is a step inside making a question, not a moment to
          commit the whole form. The sheet's answers go away until the seller
          is back on something they can answer. */
-      formActions.hidden = view === 'pick';
-      if (view === 'edit') {
-        formTitle.textContent = 'Edit questions';
-        renderFormEdit();
-      } else if (view === 'pick') {
-        formTitle.textContent = 'Add a question';
-        renderKinds();
-      } else {
-        formTitle.textContent = formEditing ? 'Your form' : 'Here is the form we wrote';
-        renderFormShow();
-      }
+      /* The row stays; what is in it changes. Committing the whole form
+         from inside "which kind of question" would answer a question
+         nobody asked, so down here the only thing on offer is the way
+         back up. */
+      const picking = view === 'pick';
+      formPickBack.hidden = !picking;
+      formCancelBtn.hidden = picking || !!formEditing;
+      formDoneBtn.hidden = picking;
+      /* Only while the questions are on screen: there is nothing to add to
+         a preview, and nothing to add from inside the kind picker. */
+      formAddBtn.hidden = view !== 'edit';
+      /* While it is still being written the bar says so; the moment it
+         lands, it says what it is. */
+      if (!formSheet.hasAttribute('data-busy')) formTitle.textContent = formTitleFor(view);
+      if (view === 'edit') renderFormEdit();
+      else if (view === 'pick') renderKinds();
+      else renderFormShow();
     }
 
     /* The grip moves the row; this moves the question it stands for. The
@@ -1717,15 +1747,20 @@
       formEditing = null;
       formDraft = copyFields(FORM_DEFAULT);
       formCopy.textContent = 'These are the questions people will answer. Have a look before it goes on your page.';
-      setFormView('show');
-      formCancelBtn.hidden = false;
+      /* Straight into the editor. The read-only pass was a step between
+         the wait and the work: on a form nobody has seen before, the thing
+         to do with it is change it, and showing it twice before letting
+         them is a page-turn for its own sake. The preview is still a back
+         arrow away for anyone who wants the plain list. */
+      formOpen = -1;
       formDoneBtn.textContent = 'Add to my page';
+      setFormView('edit');
       formSheet.setAttribute('data-open', 'true');
       formSheet.setAttribute('data-busy', 'true');
       formTitle.textContent = 'Writing your form';
       formTimer = setTimeout(() => {
         formSheet.removeAttribute('data-busy');
-        if (formView === 'show') formTitle.textContent = 'Here is the form we wrote';
+        formTitle.textContent = formTitleFor(formView);
       }, FORM_BUILD_MS);
     }
 
@@ -1738,9 +1773,11 @@
       const b = BLOCKS.get(key);
       formDraft = copyFields((b && b.fields) || FORM_DEFAULT);
       formCopy.textContent = 'These are the questions people answer when they fill this in.';
-      setFormView('show');
-      formCancelBtn.hidden = true;
+      /* Already on the page, so the thing to do with it is read it. Only a
+         form nobody has seen opens in the editor. */
+      formOpen = -1;
       formDoneBtn.textContent = 'Done';
+      setFormView('show');
       formSheet.removeAttribute('data-busy');
       formSheet.setAttribute('data-open', 'true');
     }
@@ -1768,6 +1805,7 @@
       closeForm();
     });
 
+    formPickBack.addEventListener('click', () => setFormView('edit'));
     formCancelBtn.addEventListener('click', closeForm);
     /* Escape out of the editor goes up a level first, the way the add sheet
        does — the sheet only closes from its own top. */
