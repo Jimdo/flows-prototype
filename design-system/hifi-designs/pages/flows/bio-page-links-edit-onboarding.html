@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=608e254">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=608e254">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=abf9623">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=abf9623">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=608e254">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=abf9623">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -680,14 +680,17 @@
              control, the wording, and the choices under it. One opens at a
              time; the rest stay readable. -->
         <div class="sheet-form" data-form-view="edit">
+          <!-- Where Add question lands on a phone. The head has room for a
+               title and a close and no more at 390, and a button crowded in
+               beside them reads as part of the chrome. Above the list, not
+               under it: the list is as long as the seller makes it, and a
+               button at its foot is a button that walks off the bottom of
+               the sheet. Above it, it stays where it was put — and it is in
+               the same place the wide screen keeps it, at the top. -->
+          <div class="form-add-host" id="formAddHost"></div>
           <ol class="form-q-list" id="formFields" data-drag-list
             data-inspect-label="Form questions"
             data-inspect-tokens='[{"prop":"card radius","figma":"style/radius/8 (old)","css":"--jui-style-radius-12","value":"12px \u2014 remapped to the current scale"},{"prop":"choice radius","figma":"style/radius/2 (old)","css":"--jui-style-radius-8","value":"8px \u2014 remapped"},{"prop":"padding","figma":"16 sides / 12 ends","css":"--jui-layout-padding-m / -s","value":"16px / 12px"},{"prop":"open border","figma":"color/blue/400","css":"--jui-color-blue-400","value":"1px #336bff"},{"prop":"open shadow","figma":"on-light-shadow-lvl-1","css":"--jui-effects-on-light-shadow-lvl-1","value":"0 4px 8px #00000024"},{"note":"Five pickable kinds, from CanvasFormField in loops-frontend: text, textarea, email, radio, checkbox-group. The consent question is locked."}]'></ol>
-          <!-- Where Add question lands on a phone. The head has room for a
-               title and a close and no more at 390, and a button crowded in
-               beside them reads as part of the chrome rather than as the
-               end of the list it adds to. -->
-          <div class="form-add-host" id="formAddHost"></div>
         </div>
 
         <!-- One question, a level down. The row opens it; the head's back
@@ -750,8 +753,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=608e254"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=608e254"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=abf9623"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=abf9623"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
