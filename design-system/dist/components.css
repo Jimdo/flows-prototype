@@ -5057,7 +5057,15 @@ body {
   list-style: none;
 }
 
+/* A row on the page's list, on the contract loops-frontend settled on in
+   PageLinkRow.tsx (PR #2606) and the one the form's question rows already
+   use: the whole body opens the editor, and the drag handle and the action
+   menu stay siblings beside it rather than buttons inside a button. It was
+   one <button> with a pencil at the far end, which meant hiding or
+   deleting a link went through the editor first. */
 .edit-row {
+  /* Anchors the open target's stretched overlay. */
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--jui-layout-gap-s);
@@ -5069,11 +5077,42 @@ body {
   background: var(--jui-color-gray-white);
   font-family: inherit;
   text-align: left;
-  cursor: pointer;
   transition: border-color 160ms ease-out, background-color 160ms ease-out;
 }
-.edit-row:hover { border-color: var(--jui-color-gray-300); }
-.edit-row:focus-visible {
+.edit-row:has(.edit-row-open:hover),
+.edit-row:has(.edit-row-open:focus-visible) {
+  outline: var(--jui-style-stroke-width-large) solid var(--jui-color-stroke-primary-actionable);
+  outline-offset: 2px;
+}
+/* Covers the row through its ::after, so the handle and the action menu
+   stay siblings instead of buttons nested inside a button. */
+.edit-row-open {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-s);
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.edit-row-open::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--jui-style-radius-12);
+}
+/* The row carries the ring; the target inside it must not draw a second. */
+.edit-row-open:focus-visible { outline: none; }
+/* The footer rows are still one button each — nothing to drag, nothing to
+   remove, so no handle and no menu — and they keep the treatment the whole
+   row used to carry. A row with a body target has the ring above instead,
+   or hovering its kebab would light the row up as well. */
+.edit-row:not(:has(.edit-row-open)):hover { border-color: var(--jui-color-gray-300); }
+.edit-row:not(:has(.edit-row-open)):focus-visible {
   outline: 2px solid var(--jui-color-actions-primary-rest);
   outline-offset: 2px;
 }
@@ -5092,6 +5131,11 @@ body {
   height: 20px;
   color: var(--jui-color-gray-400);
   cursor: grab;
+  /* Above the open target's overlay. The overlay is a ::after on a later
+     sibling, so at auto z-index it paints over anything positioned before
+     it — the handle would be visible and dead. */
+  position: relative;
+  z-index: 1;
   /* The browser's own scroll gesture and a drag start the same way on touch;
      this one is ours. */
   touch-action: none;
@@ -5129,13 +5173,9 @@ body {
   color: var(--jui-color-typography-upgrade-on-light);
 }
 
-.edit-row-edit {
-  flex-shrink: 0;
-  width: 20px;
-  height: 20px;
-  color: var(--jui-color-actions-primary-rest);
-}
-.edit-row-edit svg { width: 100%; height: 100%; display: block; }
+/* The pencil at the right end is gone with the hover swap: a row's own
+   actions live in the kebab now, which is what loops-frontend's
+   PageLinkRow carries. */
 
 /* ── Suggestion ──
    A piece the page is holding a place for, not a piece the page has. The
@@ -5202,7 +5242,6 @@ body {
 .edit-row[data-state="creating"] .edit-row-label {
   color: var(--jui-color-typography-gray-on-light-subdued);
 }
-.edit-row[data-state="creating"] .edit-row-edit { visibility: hidden; }
 .edit-row[data-state="creating"] .edit-row-icon,
 .edit-row[data-state="creating"] .edit-row-grip { opacity: 0; }
 .edit-row:not([data-state="creating"]) .edit-row-mark .setup-status-spinner { display: none; }
@@ -5226,33 +5265,14 @@ body {
   inset: 0;
   transition: opacity 120ms ease;
 }
-.edit-suggestion .edit-row-grip,
-.edit-row .edit-row-grip { opacity: 0; }
-
-/* The swap is gated on the grip being there, because a drag only ever
-   starts from one — drag-list.js takes a pointerdown, looks for the closest
-   .edit-row-grip and returns if there is none. So `has a grip` is not a
-   convenient stand-in for `can be rearranged`, it is the same test.
-   Ungated, every row faded its icon on hover whether or not anything was
-   waiting to replace it, and the ones that cannot be dragged — the page
-   footer's two, and the suggestion cards since they lost their grip to the
-   Figma rebuild — just went blank under the pointer. */
-.edit-suggestion:has(.edit-row-grip):hover .edit-row-icon,
-.edit-suggestion:has(.edit-row-grip):focus-within .edit-row-icon,
-.edit-row:has(.edit-row-grip):hover .edit-row-icon,
-.edit-row:has(.edit-row-grip):focus-within .edit-row-icon { opacity: 0; }
-.edit-suggestion:hover .edit-row-grip,
-.edit-suggestion:focus-within .edit-row-grip,
-.edit-row:hover .edit-row-grip,
-.edit-row:focus-within .edit-row-grip { opacity: 1; }
-/* Touch has no hover, and no pointer to reveal anything with — so the grip
-   stands permanently, and only where there is one to stand. */
-@media (hover: none) {
-  .edit-suggestion:has(.edit-row-grip) .edit-row-icon,
-  .edit-row:has(.edit-row-grip) .edit-row-icon { opacity: 0; }
-  .edit-suggestion .edit-row-grip,
-  .edit-row .edit-row-grip { opacity: 1; }
-}
+/* No swap any more. The handle and the kind's icon stand side by side,
+   which is what loops-frontend's row does and what the form's question
+   rows already do here: a drag handle that only appears under the pointer
+   is a drag handle nobody finds, and on touch there is no pointer at all.
+   (What was here stacked the two in one 20px cell and faded between them.
+   It was gated on `:has(.edit-row-grip)` because that is exactly
+   drag-list's own test for "can be rearranged" — the gate is gone with the
+   swap it was gating.) */
 
 /* Set it up sits at the right end, with Remove inboard of it: the action
    being proposed is the one the thumb lands on, and the one that undoes the
@@ -5833,6 +5853,14 @@ body {
    bar, so the column footer is desktop-only. */
 @media (max-width: 767px) {
   .step-col-actions { display: none; }
+}
+
+/* Which leaves this list owning its own bottom edge on a phone: nothing is
+   under it to stop the last row touching the browser. 24 rather than 16,
+   because a scrolling list needs slack at the end to read as finished
+   rather than cut off. */
+.app-shell-setup-split[data-layout="step"] .setup-split-fields {
+  padding-bottom: var(--jui-layout-padding-l);
 }
 /* ── Tag ──
    @jimdo/ui Tag, which is not Status: it labels the card as one of the

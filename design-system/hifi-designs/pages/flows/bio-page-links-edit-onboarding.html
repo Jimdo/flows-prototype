@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=5d91f89">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=5d91f89">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=4a7495b">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=4a7495b">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=5d91f89">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=4a7495b">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -117,25 +117,31 @@
             </div>
             <ul class="edit-list">
               <li>
-                <button type="button" class="edit-row" id="rowWhatsapp" data-no-phrase data-editor="whatsapp" hidden>
-                  <span class="edit-row-mark"><span class="edit-row-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 21a9 9 0 1 0-7.8-4.5L3 21l4.5-1.2A9 9 0 0 0 12 21Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="edit-row-grip" aria-label="Drag to reorder"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></span></span>
-                  <span class="edit-row-label">WhatsApp</span>
-                  <span class="edit-row-edit"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                </button>
+                <div class="edit-row" id="rowWhatsapp" data-no-phrase data-editor="whatsapp" hidden>
+                  <button type="button" class="edit-row-grip" data-drag-handle aria-label="Drag to reorder: WhatsApp" data-no-phrase><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></button>
+                  <button type="button" class="edit-row-open" data-row-open aria-haspopup="dialog" aria-label="Edit: WhatsApp" data-no-phrase>
+                    <span class="edit-row-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 21a9 9 0 1 0-7.8-4.5L3 21l4.5-1.2A9 9 0 0 0 12 21Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                    <span class="edit-row-label">WhatsApp</span>
+                  </button>
+                </div>
               </li>
               <li>
-                <button type="button" class="edit-row" id="rowEmail" data-no-phrase data-editor="email" hidden>
-                  <span class="edit-row-mark"><span class="edit-row-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="m22 7-10 5L2 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="edit-row-grip" aria-label="Drag to reorder"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></span></span>
-                  <span class="edit-row-label">Email me</span>
-                  <span class="edit-row-edit"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                </button>
+                <div class="edit-row" id="rowEmail" data-no-phrase data-editor="email" hidden>
+                  <button type="button" class="edit-row-grip" data-drag-handle aria-label="Drag to reorder: Email me" data-no-phrase><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></button>
+                  <button type="button" class="edit-row-open" data-row-open aria-haspopup="dialog" aria-label="Edit: Email me" data-no-phrase>
+                    <span class="edit-row-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="m22 7-10 5L2 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                    <span class="edit-row-label">Email me</span>
+                  </button>
+                </div>
               </li>
               <li>
-                <button type="button" class="edit-row" id="rowCall" data-no-phrase data-editor="call" hidden>
-                  <span class="edit-row-mark"><span class="edit-row-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1.1 1A16 16 0 0 1 4 5.1 1 1 0 0 1 5 4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="edit-row-grip" aria-label="Drag to reorder"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></span></span>
-                  <span class="edit-row-label">Call</span>
-                  <span class="edit-row-edit"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                </button>
+                <div class="edit-row" id="rowCall" data-no-phrase data-editor="call" hidden>
+                  <button type="button" class="edit-row-grip" data-drag-handle aria-label="Drag to reorder: Call" data-no-phrase><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></button>
+                  <button type="button" class="edit-row-open" data-row-open aria-haspopup="dialog" aria-label="Edit: Call" data-no-phrase>
+                    <span class="edit-row-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1.1 1A16 16 0 0 1 4 5.1 1 1 0 0 1 5 4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                    <span class="edit-row-label">Call</span>
+                  </button>
+                </div>
               </li>
             </ul>
           </div>
@@ -179,11 +185,14 @@
                       <p class="edit-suggestion-why" data-inspect-phrase="">People pick a time that suits them, with no messages back and forth.</p>
                     </span>
                   <div class="edit-suggestion-actions">
-                    <button type="button" class="icon-btn-sm subtle" data-drop="sugEvent" aria-label="Remove Free intro call" data-inspect-phrase="biopage.edit.remove"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3M6 7l.9 13.1A2 2 0 0 0 8.9 22h6.2a2 2 0 0 0 2-1.9L18 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                    <button type="button" class="btn btn-subtle btn-sm" data-drop="sugEvent"
+                      aria-label="Not interested in Free intro call"
+                      data-inspect-label="Subtle Button — Not interested, Size=Small"
+                      data-inspect-phrase="suggestion.notInterested">Not interested</button>
                     <button type="button" class="btn btn-secondary btn-sm" data-setup="offer"
-                      data-inspect-label="Secondary Button — Set it up"
+                      data-inspect-label="Secondary Button — Add it"
                       data-inspect-tokens='[{"prop":"border","figma":"color/blue/100","css":"--jui-color-blue-100","value":"1px #b4c4ff"},{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px"}]'
-                      data-inspect-phrase="">Set it up</button>
+                      data-inspect-phrase="">Add it</button>
                   </div>
                 </div>
               </li>
@@ -203,11 +212,14 @@
                       <p class="edit-suggestion-why" data-inspect-phrase="">Private classes start with a question, not a booking.</p>
                     </span>
                   <div class="edit-suggestion-actions">
-                    <button type="button" class="icon-btn-sm subtle" data-drop="sugForm" aria-label="Remove Private class enquiry form" data-inspect-phrase="biopage.edit.remove"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3M6 7l.9 13.1A2 2 0 0 0 8.9 22h6.2a2 2 0 0 0 2-1.9L18 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                    <button type="button" class="btn btn-subtle btn-sm" data-drop="sugForm"
+                      aria-label="Not interested in Private class enquiry form"
+                      data-inspect-label="Subtle Button — Not interested, Size=Small"
+                      data-inspect-phrase="suggestion.notInterested">Not interested</button>
                     <button type="button" class="btn btn-secondary btn-sm" data-setup="form"
-                      data-inspect-label="Secondary Button — Set it up"
+                      data-inspect-label="Secondary Button — Add it"
                       data-inspect-tokens='[{"prop":"border","figma":"color/blue/100","css":"--jui-color-blue-100","value":"1px #b4c4ff"},{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px"}]'
-                      data-inspect-phrase="">Set it up</button>
+                      data-inspect-phrase="">Add it</button>
                   </div>
                 </div>
               </li>
@@ -225,18 +237,22 @@
             </div>
             <ul class="edit-list" id="blockList">
               <li>
-                <button type="button" class="edit-row" id="rowMainlink" data-edits="mainlink" data-no-phrase data-editor="mainlink" hidden>
-                  <span class="edit-row-mark"><span class="edit-row-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M10 14L15 9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M12.5 15.5C13.0523 16.0523 13.0523 16.9477 12.5 17.5L8.91422 21.0858C8.13317 21.8668 6.86684 21.8668 6.08579 21.0858L2.91422 17.9142C2.13317 17.1332 2.13317 15.8668 2.91422 15.0858L6.5 11.5C7.05229 10.9477 7.94772 10.9477 8.5 11.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M11.5 8.5C10.9477 7.94771 10.9477 7.05228 11.5 6.5L15.0858 2.91421C15.8668 2.13316 17.1331 2.13316 17.9142 2.91421L21.0858 6.08579C21.8668 6.86683 21.8668 8.13316 21.0858 8.91421L17.5 12.5C16.9477 13.0523 16.0523 13.0523 15.5 12.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></span><span class="edit-row-grip" aria-label="Drag to reorder"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></span></span>
-                  <span class="edit-row-label">My website</span>
-                  <span class="edit-row-edit"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                </button>
+                <div class="edit-row" id="rowMainlink" data-edits="mainlink" data-no-phrase data-editor="mainlink" hidden>
+                  <button type="button" class="edit-row-grip" data-drag-handle aria-label="Drag to reorder: My website" data-no-phrase><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></button>
+                  <button type="button" class="edit-row-open" data-row-open aria-haspopup="dialog" aria-label="Edit: My website" data-no-phrase>
+                    <span class="edit-row-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M10 14L15 9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M12.5 15.5C13.0523 16.0523 13.0523 16.9477 12.5 17.5L8.91422 21.0858C8.13317 21.8668 6.86684 21.8668 6.08579 21.0858L2.91422 17.9142C2.13317 17.1332 2.13317 15.8668 2.91422 15.0858L6.5 11.5C7.05229 10.9477 7.94772 10.9477 8.5 11.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M11.5 8.5C10.9477 7.94771 10.9477 7.05228 11.5 6.5L15.0858 2.91421C15.8668 2.13316 17.1331 2.13316 17.9142 2.91421L21.0858 6.08579C21.8668 6.86683 21.8668 8.13316 21.0858 8.91421L17.5 12.5C16.9477 13.0523 16.0523 13.0523 15.5 12.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></span>
+                    <span class="edit-row-label">My website</span>
+                  </button>
+                </div>
               </li>
               <li>
-                <button type="button" class="edit-row" id="rowMap" data-edits="map" data-no-phrase data-editor="map" hidden>
-                  <span class="edit-row-mark"><span class="edit-row-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/></svg></span><span class="edit-row-grip" aria-label="Drag to reorder"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></span></span>
-                  <span class="edit-row-label">Elbe Einkaufszentrum</span>
-                  <span class="edit-row-edit"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                </button>
+                <div class="edit-row" id="rowMap" data-edits="map" data-no-phrase data-editor="map" hidden>
+                  <button type="button" class="edit-row-grip" data-drag-handle aria-label="Drag to reorder: Elbe Einkaufszentrum" data-no-phrase><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></button>
+                  <button type="button" class="edit-row-open" data-row-open aria-haspopup="dialog" aria-label="Edit: Elbe Einkaufszentrum" data-no-phrase>
+                    <span class="edit-row-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/></svg></span>
+                    <span class="edit-row-label">Elbe Einkaufszentrum</span>
+                  </button>
+                </div>
               </li>
             </ul>
           </div>
@@ -252,11 +268,13 @@
             </div>
             <ul class="edit-list">
               <li>
-                <button type="button" class="edit-row" id="rowSocial" data-no-phrase data-editor="social" hidden>
-                  <span class="edit-row-mark"><span class="edit-row-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M10 14L15 9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M12.5 15.5C13.0523 16.0523 13.0523 16.9477 12.5 17.5L8.91422 21.0858C8.13317 21.8668 6.86684 21.8668 6.08579 21.0858L2.91422 17.9142C2.13317 17.1332 2.13317 15.8668 2.91422 15.0858L6.5 11.5C7.05229 10.9477 7.94772 10.9477 8.5 11.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M11.5 8.5C10.9477 7.94771 10.9477 7.05228 11.5 6.5L15.0858 2.91421C15.8668 2.13316 17.1331 2.13316 17.9142 2.91421L21.0858 6.08579C21.8668 6.86683 21.8668 8.13316 21.0858 8.91421L17.5 12.5C16.9477 13.0523 16.0523 13.0523 15.5 12.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></span><span class="edit-row-grip" aria-label="Drag to reorder"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></span></span>
-                  <span class="edit-row-label">Instagram</span>
-                  <span class="edit-row-edit"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                </button>
+                <div class="edit-row" id="rowSocial" data-no-phrase data-editor="social" hidden>
+                  <button type="button" class="edit-row-grip" data-drag-handle aria-label="Drag to reorder: Instagram" data-no-phrase><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></button>
+                  <button type="button" class="edit-row-open" data-row-open aria-haspopup="dialog" aria-label="Edit: Instagram" data-no-phrase>
+                    <span class="edit-row-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M10 14L15 9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M12.5 15.5C13.0523 16.0523 13.0523 16.9477 12.5 17.5L8.91422 21.0858C8.13317 21.8668 6.86684 21.8668 6.08579 21.0858L2.91422 17.9142C2.13317 17.1332 2.13317 15.8668 2.91422 15.0858L6.5 11.5C7.05229 10.9477 7.94772 10.9477 8.5 11.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M11.5 8.5C10.9477 7.94771 10.9477 7.05228 11.5 6.5L15.0858 2.91421C15.8668 2.13316 17.1331 2.13316 17.9142 2.91421L21.0858 6.08579C21.8668 6.86683 21.8668 8.13316 21.0858 8.91421L17.5 12.5C16.9477 13.0523 16.0523 13.0523 15.5 12.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></span>
+                    <span class="edit-row-label">Instagram</span>
+                  </button>
+                </div>
               </li>
             </ul>
           </div>
@@ -357,7 +375,7 @@
           <!-- Three ideas first, built from what the seller said they do:
                two things people book, one thing people ask about. Each says
                what it builds in its own title, the way the dashed rows in
-               the list do, and carries the same Set it up. Below them, the
+               the list do, and carries the same Add it. Below them, the
                way to say what the three guesses missed. -->
           <div class="add-group">
             <p class="add-group-title" data-inspect-phrase="">Ideas for your page</p>
@@ -739,8 +757,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=5d91f89"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=5d91f89"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=4a7495b"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=4a7495b"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -987,29 +1005,44 @@
       if (remember) rememberMade(kind, label);
 
       const li = document.createElement('li');
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'edit-row';
-      btn.setAttribute('data-block', key);
-      btn.setAttribute('data-no-phrase', '');
-      btn.setAttribute('data-edits', 'mainlink');
-      if (creating) btn.setAttribute('data-state', 'creating');
-      btn.innerHTML =
-        '<span class="edit-row-mark">' + iconFor(kind) +
-          document.querySelector('#rowMainlink .edit-row-grip').outerHTML +
+      const row = document.createElement('div');
+      row.className = 'edit-row';
+      row.setAttribute('data-block', key);
+      row.setAttribute('data-no-phrase', '');
+      row.setAttribute('data-edits', 'mainlink');
+      if (creating) row.setAttribute('data-state', 'creating');
+
+      const handle = document.createElement('button');
+      handle.type = 'button';
+      handle.className = 'edit-row-grip';
+      handle.setAttribute('data-drag-handle', '');
+      handle.setAttribute('aria-label', 'Drag to reorder: ' + label);
+      handle.setAttribute('data-no-phrase', '');
+      handle.innerHTML = GRIP_SVG;
+
+      const open = document.createElement('button');
+      open.type = 'button';
+      open.className = 'edit-row-open';
+      open.setAttribute('data-row-open', '');
+      open.setAttribute('aria-haspopup', 'dialog');
+      open.setAttribute('aria-label', 'Edit: ' + label);
+      open.setAttribute('data-no-phrase', '');
+      /* No badge. A row that arrives already flagged reads as a problem the
+         seller has been handed, and the thing it points at is not broken —
+         a booking they filled in and a form they approved are both
+         finished. What was written for them is said inside the editor,
+         where they can act on it. */
+      open.innerHTML =
+        '<span class="edit-row-icon">' + iconFor(kind) +
           '<span class="setup-status-spinner" aria-hidden="true"></span></span>' +
-        '<span class="edit-row-label">' + label + '</span>' +
-        /* An action page made here is published for review, because the
-           seller never saw the dates, the questions or the reply that
-           went out with it. The row says so in the same badge the
-           action pages list uses. */
-        (review ? '<span class="status-badge status-badge--notice edit-row-status">Ready to review</span>' : '') +
-        document.querySelector('#rowMainlink .edit-row-edit').outerHTML;
-      btn.addEventListener('click', () => {
+        '<span class="edit-row-label">' + label + '</span>';
+      open.addEventListener('click', () => {
         if (BLOCKS.get(key).creating) return;
         showEditor(BLOCKS.get(key).editor, key);
       });
-      li.appendChild(btn);
+
+      row.append(handle, open, rowMenu({ label, kind: editor, blockKey: key }));
+      li.appendChild(row);
       document.getElementById('blockList').appendChild(li);
 
       refresh();
@@ -1020,12 +1053,93 @@
           const b = BLOCKS.get(key);
           if (!b) return;
           b.creating = false;
-          btn.removeAttribute('data-state');
+          row.removeAttribute('data-state');
           refresh();
           split.sync();
         }, CREATE_MS);
       }
       return key;
+    }
+
+    /* ── A row's own actions ──
+       loops-frontend's PageLinkRow carries Edit, Hide/Show and Delete in a
+       kebab beside the row, so neither hiding nor removing a link has to go
+       through the editor first. All three already existed here; they were
+       only reachable from inside the dialog.
+
+       Hide and Delete mean different things to the two kinds of row. A
+       block is a thing on the page: hiding sets its own flag, deleting
+       takes it off. A switch-backed piece — the contact buttons, the map,
+       the socials — is one of a kind the page either shows or does not, so
+       deleting it is switching it off and the add list is how it comes
+       back. */
+    function rowMenu({ label, kind, blockKey, canDelete = true }) {
+      const menu = document.createElement('div');
+      menu.className = 'menu';
+      const trigger = document.createElement('button');
+      trigger.type = 'button';
+      trigger.className = 'icon-btn-sm subtle';
+      trigger.setAttribute('aria-label', 'Actions: ' + label);
+      trigger.setAttribute('aria-haspopup', 'menu');
+      trigger.setAttribute('aria-expanded', 'false');
+      trigger.setAttribute('data-no-phrase', '');
+      trigger.innerHTML = KEBAB_SVG;
+
+      const drop = document.createElement('div');
+      drop.className = 'menu-dropdown';
+      drop.setAttribute('role', 'menu');
+      drop.hidden = true;
+
+      const item = (text, svg, onClick, destructive) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'menu-item' + (destructive ? ' menu-item--destructive' : '');
+        b.setAttribute('role', 'menuitem');
+        b.setAttribute('data-no-phrase', '');
+        b.innerHTML = svg + '<span>' + text + '</span>';
+        b.addEventListener('click', () => { closeMenus(); onClick(); });
+        return b;
+      };
+
+      const isHidden = () => {
+        const b = blockKey ? BLOCKS.get(blockKey) : null;
+        if (b) return b.visible === false;
+        return !!(META[kind] && META[kind].visible === false);
+      };
+
+      drop.appendChild(item('Edit', PEN_SVG, () => showEditor(kind, blockKey)));
+      drop.appendChild(item(isHidden() ? 'Show' : 'Hide',
+        isHidden() ? EYE_SVG : EYE_OFF_SVG, () => {
+          const b = blockKey ? BLOCKS.get(blockKey) : null;
+          if (b) b.visible = !(b.visible !== false);
+          else if (META[kind]) META[kind].visible = !(META[kind].visible !== false);
+          refresh();
+          split.sync();
+        }));
+      if (canDelete) {
+        const rule = document.createElement('hr');
+        rule.className = 'menu-divider';
+        drop.appendChild(rule);
+        drop.appendChild(item('Delete', TRASH_SVG, () => {
+          if (blockKey && BLOCKS.has(blockKey)) dropBlock(blockKey);
+          else if (kind in ON) { ON[kind] = false; refresh(); split.sync(); }
+        }, true));
+      }
+
+      /* The trigger stays enabled whatever the row is doing: disabling a
+         focused element hands focus back to <body>. */
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const wasOpen = !drop.hidden;
+        closeMenus();
+        if (wasOpen) return;
+        drop.querySelectorAll('.menu-item')[1].innerHTML =
+          (isHidden() ? EYE_SVG : EYE_OFF_SVG) + '<span>' + (isHidden() ? 'Show' : 'Hide') + '</span>';
+        drop.hidden = false;
+        trigger.setAttribute('aria-expanded', 'true');
+      });
+      menu.append(trigger, drop);
+      return menu;
     }
 
     function dropBlock(key) {
@@ -1138,9 +1252,9 @@
     function reviewNote(kind) {
       const el = document.createElement('div');
       el.className = 'sheet-notice';
-      el.innerHTML =
-        '<span class="status-badge status-badge--notice">Ready to review</span>' +
-        '<p class="sheet-notice-copy" data-inspect-phrase=""></p>';
+      /* The note keeps its copy and loses its badge: what the product
+         filled in is worth saying, calling it unreviewed is not. */
+      el.innerHTML = '<p class="sheet-notice-copy" data-inspect-phrase=""></p>';
       el.querySelector('.sheet-notice-copy').textContent =
         REVIEW_NOTE[kind] || REVIEW_NOTE.offer;
       return el;
@@ -1424,7 +1538,7 @@
         el.toggleAttribute('data-upgrade', capped);
         const go = el.querySelector('[data-setup]');
         go.classList.toggle('btn-upgrade', capped);
-        const want = capped ? CROWN_SVG + 'Upgrade and set up' : 'Set it up';
+        const want = capped ? CROWN_SVG + 'Upgrade and add it' : 'Add it';
         if (go.innerHTML !== want) go.innerHTML = want;
         const tag = el.querySelector('.tag');
         tag.classList.toggle('tag--positive', !capped);
@@ -1504,9 +1618,6 @@
       });
     }
 
-    document.querySelectorAll('.edit-row').forEach((row) =>
-      row.addEventListener('click', () => showEditor(row.getAttribute('data-editor'))));
-
     /* ── The form sheet ──
        It used to make the form first and then describe it: the row was on
        the page before the sheet opened, the questions were read-only, and
@@ -1575,11 +1686,26 @@
       'checkbox-group': '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M21.5 4.5V19.5C21.5 20.6046 20.6046 21.5 19.5 21.5H4.5C3.39543 21.5 2.5 20.6046 2.5 19.5V4.5C2.5 3.39543 3.39543 2.5 4.5 2.5H19.5C20.6046 2.5 21.5 3.39543 21.5 4.5Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/><path d="M8.5 12.5L11 15L16 9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>',
       'checkbox': '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M11.5 20H2C2 16.134 5.13401 13 9 13H11C12.275 13 13.4704 13.3409 14.5 13.9365M14 6C14 8.20914 12.2091 10 10 10C7.79086 10 6 8.20914 6 6C6 3.79086 7.79086 2 10 2C12.2091 2 14 3.79086 14 6Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M14.5 17.5L17 20L22 14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>'
     };
+    const EYE_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M21.544 11.045c.304.426.456.64.456.955 0 .316-.152.529-.456.955C20.178 14.871 16.689 19 12 19c-4.69 0-8.178-4.13-9.544-6.045C2.152 12.529 2 12.315 2 12c0-.316.152-.529.456-.955C3.822 9.129 7.311 5 12 5c4.69 0 8.178 4.13 9.544 6.045Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>';
+    const EYE_OFF_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M19.439 15.439A11.6 11.6 0 0 0 21.544 12.955c.304-.426.456-.64.456-.955 0-.316-.152-.529-.456-.955C20.178 9.129 16.689 5 12 5c-.88 0-1.712.145-2.496.4M6.715 6.715C4.633 8.105 3.12 10.045 2.456 11.045 2.152 11.471 2 11.685 2 12c0 .316.152.529.456.955C3.822 14.871 7.311 19 12 19c1.98 0 3.746-.736 5.238-1.712" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="m9.879 9.879a3 3 0 1 0 4.242 4.242M3 3l18 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>';
     const KEBAB_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>';
     const PEN_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     const GRIPV_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>';
     const GRIP_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>';
     const PLUS_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 4V20M20 12H4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>';
+
+    /* The static rows get the same two controls the made ones do: the body
+       opens the editor, and the kebab beside it holds Edit, Hide/Show and
+       Delete. The contact buttons, the map and the socials are one of a
+       kind — deleting one is switching it off, and the add list is how it
+       comes back — so their menu says Delete and means that. */
+    document.querySelectorAll('.edit-row[data-editor]').forEach((row) => {
+      const kind = row.getAttribute('data-editor');
+      const label = row.querySelector('.edit-row-label').textContent.trim();
+      row.querySelector('[data-row-open]').addEventListener('click', () => showEditor(kind));
+      row.appendChild(rowMenu({ label, kind, canDelete: kind in ON }));
+    });
+
 
     const FIELD_KINDS = [
       { type: 'text',           label: 'Short answer' },
@@ -1714,7 +1840,7 @@
           tag.textContent = 'Always asked';
           row.appendChild(tag);
         } else {
-          row.appendChild(rowMenu(f, i));
+          row.appendChild(questionMenu(f, i));
         }
 
         li.appendChild(row);
@@ -1726,7 +1852,7 @@
        has no hidden state. The trigger stays enabled whatever the row is
        doing: disabling a focused element hands focus back to <body>, which
        is the defect PR #2606 fixed upstream. */
-    function rowMenu(f, i) {
+    function questionMenu(f, i) {
       const menu = document.createElement('div');
       menu.className = 'menu';
       const trigger = document.createElement('button');
@@ -2314,7 +2440,7 @@
           // card and a paid one differ by what they cost, and that is the mark.
           '<span class="add-card-action"><button type="button" class="btn btn-secondary btn-sm' +
           (capped ? ' btn-upgrade' : '') + '" data-add="idea" data-inspect-phrase="">' +
-          (capped ? '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg>' + 'Upgrade and set up' : 'Set it up') + '</button></span>';
+          (capped ? '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg>' + 'Upgrade and add it' : 'Add it') + '</button></span>';
         card.querySelector('button').addEventListener('click', () => {
           closeAdd();
           if (capped) {
