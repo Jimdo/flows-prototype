@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bio Page — Home (Vision)</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=3e5f4fe">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=3e5f4fe">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/management-shell.css?v=3e5f4fe">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=e3cd43a">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=e3cd43a">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/management-shell.css?v=e3cd43a">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=3e5f4fe">
-<script type="module" src="/flows-prototype/design-system/hifi-designs/shared/shell-components.js?v=3e5f4fe"></script>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=e3cd43a">
+<script type="module" src="/flows-prototype/design-system/hifi-designs/shared/shell-components.js?v=e3cd43a"></script>
 <style>
 
   /* ═══════════════════════════════════════
@@ -455,63 +455,58 @@
     <main class="shell-working-area">
       <div class="bio-home-container">
 
-        <!-- Page title -->
-        <h1 class="bio-home-title" data-inspect-phrase="biosite.productName">Bio Page</h1>
+        <!-- The page's heading, kept for the outline and not for the eye:
+             production's dashboard hides it the same way, because the card's
+             own strip names the product and the rail says which one is
+             open. Two "Bio Page" in a column read as a mistake. -->
+        <h1 class="visually-hidden" data-inspect-phrase="biosite.productName">Bio Page</h1>
 
         <div class="bio-setup-group">
-        <!-- ─── Bio preview + edit card (Figma 15841:70253) ─── -->
-        <section class="bio-preview-card" aria-label="Your Bio Page">
-          <div class="bio-phone">
-            <iframe class="bio-phone-iframe" src="../artifacts/bio-page-v2.html" title="Bio page preview" loading="eager" tabindex="-1"></iframe>
-          </div>
-          <div class="bio-preview-body">
-            <div class="bio-url-bar">
-              <!-- Hugeicons LinkSquare02 -->
-              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M10.5 3H4.99995C3.89538 3 2.99995 3.89543 2.99995 5V19C2.99995 20.1046 3.89538 21 4.99995 21H19C20.1045 21 21 20.1046 21 19V13.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M11 13L20.3499 3.64944M21 9V3L15 3" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
-              <span class="bio-url-text" data-inspect-phrase="" data-no-phrase>claranstone.jimdosite.com/bio</span>
-              <!-- BioPageCardConnected handleShareOptions: the dashboard and
-                   onboarding share the same success screen, and `from=dashboard`
-                   is how it knows which way is out. -->
-              <button class="btn-secondary btn-sm"
+        <!-- ─── Bio page banner ───
+             loops-frontend's Banner carrying BioPageBanner, as shipped: a
+             strip naming the product with the two things you can do with its
+             address, over a card holding the portrait, the business name and
+             the views. The card is one link to the page itself; the strip's
+             buttons stay out of it, which is the whole reason the two are
+             separate boxes.
+
+             What the card used to carry and production does not: a phone
+             mock of the page, the address spelled out, a click count (there
+             is none in loops-frontend — no clicks field on the statistics
+             response), an advanced-analytics upgrade, and Edit Links / Edit
+             Design. Production has one way in and the editors are reached
+             from inside it, which is what the Links/Design nav on scr-477 is
+             for. -->
+        <section class="banner banner--with-head" aria-label="Your Bio Page">
+          <div class="banner-head">
+            <p class="banner-head-title" data-inspect-phrase="biosite.productName">Bio Page</p>
+            <!-- FlowCardShareMetaButtons: subtle, small, primary-coloured.
+                 Production swaps the first icon to a link when the browser
+                 cannot share natively; here the share screen stands for both,
+                 so it is the one icon at both sizes. -->
+            <div class="banner-head-actions" role="toolbar" aria-label="Share Clara and Stone">
+              <button type="button" class="icon-btn-sm subtle"
+                aria-label="Share"
                 data-nav-to="flows/onboarding-share.html?from=dashboard"
-                data-nav-screen-id="scr-030"
-                data-inspect-phrase="preview.bioSite.shareCta">Share</button>
-            </div>
-            <div class="bio-preview-lower">
-              <div class="bio-preview-headline">
-                <div class="bio-preview-name">Clara and Stone</div>
-                <!-- Views and clicks on one line with a middot between them,
-                     the way loops-frontend BioPageStats ships it. Clicks are
-                     the number that says the page worked; views only say it
-                     was found. -->
-                <div class="bio-preview-metric">
-                  <span data-inspect-phrase="bioPagePreviewCard.views"><span data-no-phrase>3</span> views</span>
-                  <span class="bio-preview-metric-sep" aria-hidden="true">·</span>
-                  <span data-inspect-phrase="bioPagePreviewCard.clicks"><span data-no-phrase>1</span> click</span>
-                </div>
-                <!-- AdvancedAnalyticsTrigger, as shipped: a purple label with
-                     an icon under the counts. Shares .upgrade-link with the
-                     QR code's remove-logo offer on scr-030. -->
-                <button type="button" class="upgrade-link"
-                  data-inspect-label="Advanced analytics trigger"
-                  data-inspect-tokens='[{"prop":"background","figma":"$jui-color-background-upgrade-light","css":"--jui-color-background-upgrade-light","value":"#fcecff"},{"prop":"border","figma":"$jui-color-stroke-upgrade-on-light","css":"--jui-color-stroke-upgrade-on-light","value":"1px #e4b5ff"},{"prop":"color","figma":"$jui-color-typography-upgrade-on-light","css":"--jui-color-typography-upgrade-on-light","value":"#4e0079"},{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px"}]'
-                  data-inspect-phrase="advancedAnalytics.trigger">
-                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg>
-                  <span>Unlock advanced analytics</span>
-                </button>
-              </div>
-              <div class="bio-preview-actions">
-                <button class="btn-primary"
-                        data-nav-to="flows/bio-page-links-edit-onboarding.html"
-                        data-nav-screen-id="scr-477"
-                        data-inspect-phrase="home.bio.editLinks">Edit Links</button>
-                <button class="btn-secondary"
-                        data-nav-to="flows/design-editor.html"
-                        data-nav-screen-id="scr-027"
-                        data-inspect-phrase="home.bio.editDesign">Edit Design</button>
-              </div>
+                data-nav-screen-id="scr-030" data-no-phrase><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5.5 7H5C3.89543 7 3 7.89543 3 9V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V9C21 7.89543 20.1046 7 19 7H18.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M12 13.5L12 2.85991M9.5 4.5L12 2L14.5 4.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+              <button type="button" class="icon-btn-sm subtle"
+                aria-label="Open in a new tab" data-no-phrase><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M10.5 3H4.99995C3.89538 3 2.99995 3.89543 2.99995 5V19C2.99995 20.1046 3.89538 21 4.99995 21H19C20.1045 21 21 20.1046 21 19V13.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M11 13L20.3499 3.64944M21 9V3L15 3" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
             </div>
           </div>
+          <a class="banner-link" href="bio-page-links-edit-onboarding.html"
+             data-nav-to="flows/bio-page-links-edit-onboarding.html"
+             data-nav-screen-id="scr-477"
+             aria-label="Go to Bio Page" data-no-phrase>
+            <div class="banner-card">
+              <div class="banner-card-row">
+                <img class="banner-img" src="../images/clara-stone.jpg" alt="" loading="lazy">
+                <div class="banner-text">
+                  <p class="banner-name" data-no-phrase>Clara and Stone</p>
+                  <p class="banner-meta" data-inspect-phrase="biopageBanner.views"><span data-no-phrase>3</span> views</p>
+                </div>
+              </div>
+            </div>
+          </a>
         </section>
 
         <!-- ─── Setup progress (Figma 11769:69422) ─── -->
@@ -791,7 +786,7 @@
   })();
 </script>
 
-<script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=3e5f4fe"></script>
+<script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=e3cd43a"></script>
 
   <!-- Design annotations — read by workbench chrome -->
   <script type="application/json" id="design-annotations">

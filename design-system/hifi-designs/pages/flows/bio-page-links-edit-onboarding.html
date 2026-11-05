@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=3e5f4fe">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=3e5f4fe">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=e3cd43a">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=e3cd43a">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=3e5f4fe">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=e3cd43a">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -186,10 +186,10 @@
                       <p class="edit-suggestion-why" data-inspect-phrase="">People pick a time that suits them, with no messages back and forth.</p>
                     </span>
                   <div class="edit-suggestion-actions">
-                    <button type="button" class="btn btn-subtle btn-sm" data-drop="sugEvent"
+                    <button type="button" class="btn btn-subtle btn-sm edit-suggestion-drop" data-drop="sugEvent"
                       aria-label="Not interested in Free intro call"
                       data-inspect-label="Subtle Button — Not interested, Size=Small"
-                      data-inspect-phrase="suggestion.notInterested">Not interested</button>
+                      data-inspect-phrase="suggestion.notInterested"><svg class="edit-suggestion-drop-mark" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5.00049 4.99988L19.0005 18.9999" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M19.0005 4.99988L5.00049 18.9999" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span>Not interested</span></button>
                     <button type="button" class="btn btn-secondary btn-sm" data-setup="offer"
                       data-inspect-label="Secondary Button — Add it"
                       data-inspect-tokens='[{"prop":"border","figma":"color/blue/100","css":"--jui-color-blue-100","value":"1px #b4c4ff"},{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px"}]'
@@ -213,10 +213,10 @@
                       <p class="edit-suggestion-why" data-inspect-phrase="">Private classes start with a question, not a booking.</p>
                     </span>
                   <div class="edit-suggestion-actions">
-                    <button type="button" class="btn btn-subtle btn-sm" data-drop="sugForm"
+                    <button type="button" class="btn btn-subtle btn-sm edit-suggestion-drop" data-drop="sugForm"
                       aria-label="Not interested in Private class enquiry form"
                       data-inspect-label="Subtle Button — Not interested, Size=Small"
-                      data-inspect-phrase="suggestion.notInterested">Not interested</button>
+                      data-inspect-phrase="suggestion.notInterested"><svg class="edit-suggestion-drop-mark" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5.00049 4.99988L19.0005 18.9999" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M19.0005 4.99988L5.00049 18.9999" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span>Not interested</span></button>
                     <button type="button" class="btn btn-secondary btn-sm" data-setup="form"
                       data-inspect-label="Secondary Button — Add it"
                       data-inspect-tokens='[{"prop":"border","figma":"color/blue/100","css":"--jui-color-blue-100","value":"1px #b4c4ff"},{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px"}]'
@@ -753,8 +753,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=3e5f4fe"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=3e5f4fe"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=e3cd43a"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=e3cd43a"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';

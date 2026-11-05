@@ -2311,6 +2311,144 @@ body {
 }
 
 
+/* @jimdo/ui's screen-reader-only mixin, verbatim. A heading the page still
+   needs for its outline but which a sighted reader is already told by the
+   rail and by the card's own strip. */
+.visually-hidden {
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  border: 0;
+  padding: 0;
+  clip-path: inset(50%);
+  margin: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   LAYER 22b — Banner (.banner)
+   loops-frontend src/components/Banner, as the bio page is shown on the
+   dashboard by src/components/BioPage/BioPageBanner.
+
+   An outer carrier with a header strip over an inner card. The strip names
+   the thing and holds what can be done with its address; the card is the
+   thing, and the card alone is the way in — so the actions on the strip are
+   reachable without the link swallowing them.
+
+   Three radii, each one inset of 4 from the last: 16 outside, 12 on the
+   card, 8 on the picture. (Production's own comment asks for 16 outside and
+   one step in; its pinned @jimdo/ui resolved $jui-style-radius-l to 12, so
+   it spells the 16 literally. Ours resolves l to 16, so the tokens say it.)
+   ═══════════════════════════════════════════════════════════════ */
+.banner {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--jui-color-stroke-gray-default);
+  border-radius: var(--jui-style-radius-l);
+}
+.banner--with-head {
+  gap: var(--jui-layout-gap-xxs);
+  padding: var(--jui-layout-padding-xxs);
+  background: var(--jui-color-background-gray-canvas);
+}
+/* The ring is the whole carrier's, not the link's. The link covers only the
+   card, but what it opens is the thing the strip above also names, so the
+   two have to light up together or the card reads as a tile inside a
+   separate frame. */
+.banner--with-head:has(.banner-link:hover),
+.banner--with-head:has(.banner-link:focus-visible) {
+  outline: var(--jui-style-stroke-width-large) solid var(--jui-color-stroke-primary-actionable);
+  outline-offset: 2px;
+}
+
+.banner-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--jui-layout-gap-xs);
+  /* Asymmetric on purpose: the title is text and wants the 8 the card's own
+     padding does not give it, the buttons are 32 boxes whose ink already
+     sits inboard of their edge. */
+  padding: 0 var(--jui-layout-padding-xxs) 0 var(--jui-layout-padding-xs);
+}
+.banner-head-title {
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--jui-typography-sub-headline-small-size);
+  font-weight: var(--jui-typography-sub-headline-small-weight);
+  line-height: var(--jui-typography-sub-headline-small-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+.banner-head-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
+  flex-shrink: 0;
+}
+
+.banner-link {
+  display: block;
+  border-radius: var(--jui-style-radius-m);
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+/* The carrier draws the ring; a second one inside it reads as two things
+   focused at once. */
+.banner-link:focus-visible { outline: none; }
+
+.banner-card {
+  padding: var(--jui-layout-padding-xxs);
+  background: var(--jui-color-background-gray-light);
+  border-radius: var(--jui-style-radius-m);
+}
+/* The row is held at 64 rather than left to the picture, so a portrait that
+   has not loaded leaves the card the same height as one that has. */
+.banner-card-row {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-s);
+  height: var(--jui-layout-dimension-xl);
+}
+.banner-img {
+  flex-shrink: 0;
+  width: var(--jui-layout-dimension-xl);
+  height: var(--jui-layout-dimension-xl);
+  border-radius: var(--jui-style-radius-8);
+  object-fit: cover;
+  display: block;
+  background: var(--jui-color-background-gray-canvas);
+}
+.banner-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.banner-name {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--jui-typography-sub-headline-medium-size);
+  font-weight: var(--jui-typography-sub-headline-medium-weight);
+  line-height: var(--jui-typography-sub-headline-medium-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+.banner-meta {
+  margin: 0;
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+
+
 /* ═══════════════════════════════════════════════════════════════
    LAYER 23 — Horizontal Action-Page Card (.flow-card-h)
    Figma "Horizontal - FlowCard" — node 11769:70273.
@@ -5654,6 +5792,34 @@ body {
 .app-shell-setup-split[data-layout="step"] .edit-suggestion-actions {
   justify-content: flex-end;
   gap: var(--jui-layout-gap-s);
+}
+
+/* ── Refusing a suggestion, on a phone ──
+   "Not interested" and "Add it" are the same size and the same shape, and
+   side by side at the right end of a narrow card the thumb has to pick the
+   right one of two adjacent words. So the refusal becomes its mark and goes
+   to the far left: the card's two ends are as far apart as the card allows,
+   and only one of them still reads as an offer. The words stay on the
+   button for anyone listening to it. */
+.edit-suggestion-drop-mark { display: none; }
+@media (max-width: 767px) {
+  .app-shell-setup-split[data-layout="step"] .edit-suggestion-actions {
+    justify-content: space-between;
+  }
+  /* A 32 square, which is what btn-sm is tall — so the X keeps the row's
+     height and only loses its words. */
+  .app-shell-setup-split[data-layout="step"] .edit-suggestion-drop {
+    width: var(--jui-layout-dimension-s);
+    min-width: var(--jui-layout-dimension-s);
+    padding: 0;
+    flex-shrink: 0;
+  }
+  .app-shell-setup-split[data-layout="step"] .edit-suggestion-drop > span { display: none; }
+  .app-shell-setup-split[data-layout="step"] .edit-suggestion-drop .edit-suggestion-drop-mark {
+    display: block;
+    width: 16px;
+    height: 16px;
+  }
 }
 
 /* Each card wears a Suggested tag of its own now, so the heading over them
