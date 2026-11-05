@@ -6365,6 +6365,34 @@ body {
 .add-option--upgrade .add-option-icon,
 .add-option--upgrade .add-option-title { color: var(--jui-color-typography-upgrade-on-light); }
 
+/* ── A sheet you can pull down ──
+   The form sheet covers the drawer it was opened from, so it wears the same
+   grip that drawer wears and opens where that drawer's expanded stop is:
+   the full height, every time. A sheet that sizes itself to its questions
+   grows as they are added, which makes the list feel like it is pushing the
+   dialog around.
+
+   One stop under it and none above, so the chevron points down and down
+   means out. On a wide screen the sheet is a centred square with nothing to
+   drag, and the grip is already display:none there. */
+.sheet--drawer { height: 92%; }
+.sheet--drawer > .setup-drawer-grip {
+  flex-shrink: 0;
+  /* Above the head's own 16, not instead of it: the grip is a surface to
+     press, and pressing it should not mean pressing the title. */
+  padding-top: var(--jui-layout-padding-xs);
+  height: auto;
+}
+@media (min-width: 768px) {
+  .sheet--drawer { height: min(var(--jui-sheet-size), 92vh); }
+}
+
+/* Add question, under the list it adds to. Full width, because at the foot
+   of a column a short button floating at one end reads as an answer to the
+   dialog rather than as the end of the list. */
+.form-add-host:empty { display: none; }
+.form-add-host > .btn { width: 100%; }
+
 /* ── One height across both levels ──
    A modal that resizes when you step into a list makes the step feel like a
    different surface. It holds the height of its fullest state instead. */

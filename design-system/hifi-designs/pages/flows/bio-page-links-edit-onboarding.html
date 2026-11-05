@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=215cb88">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=215cb88">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=608e254">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=608e254">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=215cb88">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=608e254">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -646,10 +646,18 @@
   </div>
 
   <div class="sheet-backdrop" id="formSheet" data-open="false" role="dialog" aria-modal="true" aria-labelledby="formSheetTitle">
-    <div class="sheet">
+    <div class="sheet sheet--drawer" data-grip="expanded">
+      <!-- The same grip the edit-links drawer carries, on the sheet that
+           covers it. It opens at its full height, so the only move the
+           chevron can offer is down — and down is out. Phone only: on a
+           wide screen the sheet is a centred square with nothing to
+           drag. -->
+      <button type="button" class="setup-drawer-grip" id="formGrip" aria-label="Close the form" data-no-phrase>
+        <span class="setup-drawer-grip-shape"></span>
+      </button>
       <div class="sheet-head">
         <button type="button" class="setup-back-btn add-head-back" id="formBack" aria-label="Back" data-no-phrase hidden><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
-        <p class="sheet-title" id="formSheetTitle" data-inspect-phrase="">Here is the form we wrote</p>
+        <p class="sheet-title" id="formSheetTitle" data-inspect-phrase="">Edit form</p>
         <!-- Beside the title, the way Add link sits beside "Edit links" on
              the screen behind this one. It was a text link at the foot of
              the list, directly above Cancel and Add to my page, where it
@@ -672,13 +680,14 @@
              control, the wording, and the choices under it. One opens at a
              time; the rest stay readable. -->
         <div class="sheet-form" data-form-view="edit">
-          <!-- The line that used to sit over the read-only pass. It says what
-               the list is for, which is as true of rows you can change as of
-               rows you could only look at. -->
-          <p class="sheet-copy" id="formCopy" data-inspect-phrase="">These are the questions people will answer. Have a look before it goes on your page.</p>
           <ol class="form-q-list" id="formFields" data-drag-list
             data-inspect-label="Form questions"
             data-inspect-tokens='[{"prop":"card radius","figma":"style/radius/8 (old)","css":"--jui-style-radius-12","value":"12px \u2014 remapped to the current scale"},{"prop":"choice radius","figma":"style/radius/2 (old)","css":"--jui-style-radius-8","value":"8px \u2014 remapped"},{"prop":"padding","figma":"16 sides / 12 ends","css":"--jui-layout-padding-m / -s","value":"16px / 12px"},{"prop":"open border","figma":"color/blue/400","css":"--jui-color-blue-400","value":"1px #336bff"},{"prop":"open shadow","figma":"on-light-shadow-lvl-1","css":"--jui-effects-on-light-shadow-lvl-1","value":"0 4px 8px #00000024"},{"note":"Five pickable kinds, from CanvasFormField in loops-frontend: text, textarea, email, radio, checkbox-group. The consent question is locked."}]'></ol>
+          <!-- Where Add question lands on a phone. The head has room for a
+               title and a close and no more at 390, and a button crowded in
+               beside them reads as part of the chrome rather than as the
+               end of the list it adds to. -->
+          <div class="form-add-host" id="formAddHost"></div>
         </div>
 
         <!-- One question, a level down. The row opens it; the head's back
@@ -741,8 +750,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=215cb88"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=215cb88"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=608e254"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=608e254"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -1629,7 +1638,6 @@
        page — so it loses the wait and the cancel, and saves on Done. */
     const formSheet = document.getElementById('formSheet');
     const formTitle = document.getElementById('formSheetTitle');
-    const formCopy = document.getElementById('formCopy');
     const formList = document.getElementById('formFields');
     const formBack = document.getElementById('formBack');
     const formKinds = document.getElementById('formKinds');
@@ -2009,8 +2017,11 @@
         const f = formDraft[formOpen];
         return (f && f.label.trim()) || 'New question';
       }
-      if (formEditing) return 'Your form';
-      return 'Here is the form we wrote';
+      /* One name at every level above a question: the sheet edits a form,
+         whether the product just wrote it or it has been on the page for a
+         week. Two names for one surface made the second visit read as a
+         different dialog. */
+      return 'Edit form';
     }
 
     function setFormView(view) {
@@ -2092,6 +2103,7 @@
 
     document.getElementById('formAdd').addEventListener('click', () => setFormView('pick'));
 
+
     /* The options array has to come along by value, or the draft shares it
        with what is already saved and Cancel keeps the edits anyway. */
     const copyFields = (fields) => fields.map((f) =>
@@ -2111,14 +2123,13 @@
       formCommit = commit;
       formEditing = null;
       formDraft = copyFields(FORM_DEFAULT);
-      formCopy.textContent = 'These are the questions people will answer. Have a look before it goes on your page.';
       /* Straight into the editor. The read-only pass was a step between the
          wait and the work: the thing to do with a form is change it, and
          showing it twice before letting them is a page-turn for its own
          sake. It is gone now rather than one arrow away, so the arrow in
          this sheet only ever means "up out of a question". */
       formOpen = -1;
-      formDoneBtn.textContent = 'Add to my page';
+      formDoneBtn.textContent = 'Done';
       setFormView('edit');
       formSheet.setAttribute('data-open', 'true');
       formSheet.setAttribute('data-busy', 'true');
@@ -2137,7 +2148,6 @@
       formEditing = key;
       const b = BLOCKS.get(key);
       formDraft = copyFields((b && b.fields) || FORM_DEFAULT);
-      formCopy.textContent = 'These are the questions people answer when they fill this in.';
       formOpen = -1;
       formDoneBtn.textContent = 'Done';
       setFormView('edit');
@@ -2691,6 +2701,63 @@
     }
     phone.addEventListener('change', () => { placeAdd(); closeAdd(); });
     placeAdd();
+
+    /* ── Where Add question lives ──
+       Beside the title on a wide screen, under the list it adds to on a
+       phone. One button, two hosts — the same move placeAdd() makes with
+       the add list, and for the same reason: a 390 head has room for a
+       title and a close. */
+    const formAddHead = document.querySelector('#formSheet .sheet-head');
+    const formAddHost = document.getElementById('formAddHost');
+    function placeFormAdd() {
+      if (phone.matches) formAddHost.appendChild(formAddBtn);
+      else formAddHead.insertBefore(formAddBtn, document.getElementById('formClose'));
+    }
+    phone.addEventListener('change', placeFormAdd);
+    placeFormAdd();
+
+    /* ── The grip ──
+       The sheet opens at its full height, so the only stop under it is
+       closed. A tap takes it there; so does a drag far enough down to mean
+       it. Anything shorter springs back, which is what tells the seller the
+       sheet was listening. */
+    const formGrip = document.getElementById('formGrip');
+    const formPanel = formSheet.querySelector('.sheet');
+    const GRIP_DISMISS = 96;   // px of pull that means "out"
+    const GRIP_COMMIT = 3;     // px of travel that means "a drag, not a press"
+    let gripFrom = null;
+    let gripMoved = false;
+    formGrip.addEventListener('pointerdown', (e) => {
+      gripFrom = e.clientY;
+      gripMoved = false;
+      formGrip.setPointerCapture(e.pointerId);
+      formPanel.style.transition = 'none';
+    });
+    formGrip.addEventListener('pointermove', (e) => {
+      if (gripFrom === null) return;
+      const dy = e.clientY - gripFrom;
+      if (Math.abs(dy) > GRIP_COMMIT) gripMoved = true;
+      formPanel.style.transform = 'translateY(' + Math.max(0, dy) + 'px)';
+    });
+    const gripEnd = (e) => {
+      if (gripFrom === null) return;
+      const dy = e.clientY - gripFrom;
+      const dragged = gripMoved;
+      gripFrom = null;
+      if (formGrip.hasPointerCapture(e.pointerId)) formGrip.releasePointerCapture(e.pointerId);
+      formPanel.style.transition = '';
+      formPanel.style.transform = '';
+      if (dy >= GRIP_DISMISS) { closeForm(); return; }
+      /* A pull that fell short ends in a click, the same as a press does.
+         Swallowing it is what makes "not far enough" mean the sheet stays —
+         without this, every spring-back closed the sheet anyway. */
+      if (dragged) formGrip.addEventListener('click', (ev) => {
+        ev.preventDefault(); ev.stopPropagation();
+      }, { capture: true, once: true });
+    };
+    formGrip.addEventListener('pointerup', gripEnd);
+    formGrip.addEventListener('pointercancel', gripEnd);
+    formGrip.addEventListener('click', (e) => { if (e.detail) closeForm(); });
 
     function openAdd() {
       paintPickerRows();
