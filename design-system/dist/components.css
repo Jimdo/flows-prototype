@@ -6666,6 +6666,14 @@ body {
   flex-direction: column;
   gap: var(--jui-layout-gap-xxs);
 }
+/* Two fields that are one answer — a from and a to — share a line. Stacked
+   they read as two unrelated questions. */
+.sheet-field-row {
+  display: flex;
+  gap: var(--jui-layout-gap-s);
+}
+.sheet-field-row > .sheet-field { flex: 1; min-width: 0; }
+
 .sheet-label {
   font-size: var(--jui-typography-body-small-medium-size);
   font-weight: var(--jui-typography-body-small-medium-weight);
@@ -6918,6 +6926,129 @@ body {
   line-height: var(--jui-typography-body-small-regular-lh);
   color: var(--jui-color-typography-gray-on-light-default);
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   Chip (.chip)
+
+   A pressed-or-not token, for choosing among a handful of short values
+   where a select would hide them: how long a session runs, which days
+   are open. @jimdo/ui has no chip, so loops-frontend builds its own on
+   UnstyledButton with aria-pressed; this is the same control.
+   ═══════════════════════════════════════════════════════════════ */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--jui-layout-dimension-s);
+  padding: var(--jui-layout-padding-xxs) var(--jui-layout-padding-s);
+  border: 1px solid var(--jui-color-stroke-gray-default);
+  border-radius: var(--jui-layout-dimension-xl);
+  background: var(--jui-color-gray-white);
+  font-family: inherit;
+  font-size: var(--jui-typography-body-small-medium-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  line-height: var(--jui-typography-body-small-medium-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+.chip:hover { border-color: var(--jui-color-stroke-primary-on-light); }
+.chip[aria-pressed="true"] {
+  background: var(--jui-color-background-primary-light);
+  border-color: var(--jui-color-stroke-primary-on-light);
+  color: var(--jui-color-typography-primary-on-light);
+}
+.chip:focus-visible {
+  outline: var(--jui-style-stroke-width-large) solid var(--jui-color-stroke-primary-actionable);
+  outline-offset: 2px;
+}
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--jui-layout-gap-xs);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Type card (.type-card)
+
+   The two shapes a booking can take, from loops-frontend's
+   BookingTypeModal — which takes them in turn from the Bookings event
+   setup, so the same choice looks the same in both products. The card is
+   the label, so the whole of it selects the radio inside it.
+   ═══════════════════════════════════════════════════════════════ */
+
+.type-card-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--jui-layout-gap-m);
+}
+@media (min-width: 576px) {
+  .type-card-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.type-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-s);
+  padding: var(--jui-layout-padding-m);
+  border: 1px solid var(--jui-color-stroke-gray-default);
+  border-radius: var(--jui-style-radius-m);
+  background: var(--jui-color-gray-white);
+  cursor: pointer;
+  transition: border-color 100ms ease-in, background-color 100ms ease-in;
+}
+.type-card:hover { border-color: var(--jui-color-stroke-primary-on-light); }
+.type-card:has(input:focus-visible) {
+  outline: var(--jui-style-stroke-width-large) solid var(--jui-color-stroke-primary-actionable);
+  outline-offset: 2px;
+}
+.type-card:has(input:checked) {
+  background: var(--jui-color-background-primary-light);
+  border-color: var(--jui-color-stroke-primary-on-light);
+  /* A half-pixel ring doubles the border without moving the card's contents. */
+  box-shadow: 0 0 0 0.5px var(--jui-color-stroke-primary-on-light);
+}
+.type-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--jui-layout-gap-s);
+}
+/* The artwork is 278x101 at its natural size. The height goes on the svg,
+   not the wrapper: a span with a height is still inline, and the drawing
+   kept its own width and ran out past the card. */
+.type-card-illustration {
+  display: block;
+  height: 3.5rem;
+  overflow: hidden;
+}
+.type-card-illustration svg { height: 100%; width: auto; display: block; }
+.type-card-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xxs);
+  flex: 1;
+}
+.type-card-label {
+  font-size: var(--jui-typography-body-medium-medium-size);
+  font-weight: var(--jui-typography-body-medium-medium-weight);
+  line-height: var(--jui-typography-body-medium-medium-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+.type-card-hint {
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
+/* ── What closes a picker row ──
+   A chevron says there is a list behind it; a plus says the row makes the
+   first one of its kind, because with nothing to pick the list would be a
+   navigation step to an empty page. The upgrade colour is the same plus
+   with a paywall behind the click, so the row looks like what it does. */
+.add-option-more--create { color: var(--jui-color-actions-primary-rest); }
+.add-option-more--upgrade { color: var(--jui-color-actions-upgrade-rest); }
 
 /* ── Picking what a new question takes ──
    Its own panel rather than a dropdown: the choice is between kinds of

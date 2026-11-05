@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=0b48c86">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=0b48c86">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=5d91f89">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=5d91f89">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=0b48c86">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=5d91f89">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -171,15 +171,15 @@
                        rather than bordered — see .smart-ring. -->
                   <svg class="smart-ring" aria-hidden="true"><defs><linearGradient id="smartRingSugEvent" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><rect stroke="url(#smartRingSugEvent)"/></svg>
                   <div class="edit-suggestion-head">
-                    <span class="edit-suggestion-mark"><span class="edit-row-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"> <path d="M18 2V5M6 2V5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/> <path d="M19.5 3.5H4.5C3.39543 3.5 2.5 4.39543 2.5 5.5V20C2.5 21.1046 3.39543 22 4.5 22H19.5C20.6046 22 21.5 21.1046 21.5 20V5.5C21.5 4.39543 20.6046 3.5 19.5 3.5Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/> <path d="M2.5 8.5H21.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/> </svg></span></span>
+                    <span class="edit-suggestion-mark"><span class="edit-row-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M12 8V12L14.5 14.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></span></span>
                     <span class="tag tag--positive" data-inspect-phrase="">Suggested</span>
                   </div>
                   <span class="edit-suggestion-copy">
-                      <span class="edit-row-label">Beginner workshop booking</span>
-                      <p class="edit-suggestion-why" data-inspect-phrase="">You run workshops, so a dated one is the easiest thing to sell.</p>
+                      <span class="edit-row-label">Free intro call</span>
+                      <p class="edit-suggestion-why" data-inspect-phrase="">People pick a time that suits them, with no messages back and forth.</p>
                     </span>
                   <div class="edit-suggestion-actions">
-                    <button type="button" class="icon-btn-sm subtle" data-drop="sugEvent" aria-label="Remove Beginner workshop booking" data-inspect-phrase="biopage.edit.remove"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3M6 7l.9 13.1A2 2 0 0 0 8.9 22h6.2a2 2 0 0 0 2-1.9L18 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                    <button type="button" class="icon-btn-sm subtle" data-drop="sugEvent" aria-label="Remove Free intro call" data-inspect-phrase="biopage.edit.remove"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3M6 7l.9 13.1A2 2 0 0 0 8.9 22h6.2a2 2 0 0 0 2-1.9L18 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
                     <button type="button" class="btn btn-secondary btn-sm" data-setup="offer"
                       data-inspect-label="Secondary Button — Set it up"
                       data-inspect-tokens='[{"prop":"border","figma":"color/blue/100","css":"--jui-color-blue-100","value":"1px #b4c4ff"},{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px"}]'
@@ -390,7 +390,7 @@
                 <span class="add-option-title" data-inspect-phrase="">Booking</span>
                 <span class="add-option-detail" data-inspect-phrase="">Fixed event or open booking slots</span>
               </span>
-              <svg class="add-option-more" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="add-option-more" data-trailing aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
             </button>
             <button type="button" class="add-option" data-picker="form" data-no-phrase>
               <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M11 6L21 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 12L21 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 18L21 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 7.5L4.5 9L8.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 18.5L4.5 20L8.5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
@@ -398,7 +398,7 @@
                 <span class="add-option-title" data-inspect-phrase="">Form</span>
                 <span class="add-option-detail" data-inspect-phrase="">Questions, signups and requests</span>
               </span>
-              <svg class="add-option-more" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="add-option-more" data-trailing aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
             </button>
             <button type="button" class="add-option" data-picker="pages" data-no-phrase>
               <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20 20V9l-7-7H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M13 2v5a2 2 0 0 0 2 2h5" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 13h4M8 17h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
@@ -406,7 +406,7 @@
                 <span class="add-option-title" data-inspect-phrase="">Website page</span>
                 <span class="add-option-detail" data-inspect-phrase="">Contact me, store, bookings and more</span>
               </span>
-              <svg class="add-option-more" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="add-option-more" data-trailing aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
             </button>
           </div>
 
@@ -436,11 +436,16 @@
                 <span class="add-option-detail" data-inspect-phrase="biopage.add.call.detail">Dials your number</span>
               </span>
             </button>
-            <button type="button" class="add-option" data-add="sms" hidden data-no-phrase>
-              <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M21 12a8 8 0 0 1-8.5 8L7 21l.9-3.4A8 8 0 1 1 21 12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <!-- Directions, not a text message. The picker upstream offers
+                 WhatsApp and Email, with Call and Directions behind Show
+                 more; a text-message button is not one of its options.
+                 Different from the map below it: this is a button that
+                 opens their address in maps, that is the map itself. -->
+            <button type="button" class="add-option" data-add="directions" hidden data-no-phrase>
+              <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M19.2694 3.49445L5.01213 7.56796C4.07561 7.83554 4.03532 9.14782 4.95366 9.47235L11.5774 11.8131C11.8622 11.9137 12.0863 12.1378 12.187 12.4226L14.5291 19.0469C14.8537 19.9651 16.1659 19.9247 16.4334 18.9882L20.5057 4.73061C20.7212 3.97628 20.0237 3.27893 19.2694 3.49445Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></span>
               <span class="add-option-copy">
-                <span class="add-option-title" data-inspect-phrase="">Text message</span>
-                <span class="add-option-detail" data-inspect-phrase="">Opens a message to you</span>
+                <span class="add-option-title" data-inspect-phrase="">Directions</span>
+                <span class="add-option-detail" data-inspect-phrase="">Opens your address in maps</span>
               </span>
             </button>
             <button type="button" class="text-action" data-more="contact" data-inspect-phrase="">Show more</button>
@@ -582,6 +587,50 @@
        where the work is done for the seller rather than asked of them, so the
        answer to "set it up" is the thing itself, not a form about the form.
        Dismissing it returns to the list with the form already on the page. -->
+  <!-- The shape a booking takes, before its setup. loops-frontend's
+       BookingTypeModal, which takes the two cards in turn from the Bookings
+       event setup — same structure, same illustrations, same copy — so the
+       one choice looks the same in both products. -->
+  <div class="sheet-backdrop" id="typeSheet" data-open="false" role="dialog" aria-modal="true" aria-labelledby="typeSheetTitle">
+    <div class="sheet">
+      <div class="sheet-head">
+        <button type="button" class="setup-back-btn add-head-back" id="typeBack" aria-label="Back to all options" data-no-phrase><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+        <p class="sheet-title" id="typeSheetTitle" data-inspect-phrase="">Create booking</p>
+        <button type="button" class="setup-back-btn" id="typeClose" aria-label="Close" data-no-phrase><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+      </div>
+      <div class="sheet-body">
+        <p class="sheet-copy" data-inspect-phrase="">What type of event is this?</p>
+        <div class="type-card-grid" role="radiogroup" aria-label="What type of event is this?"
+          data-inspect-label="Booking type cards"
+          data-inspect-tokens='[{"prop":"card","figma":"Bookings event setup","css":"--jui-style-radius-m","value":"radius-m, 16 padding, 1px stroke-gray-default"},{"prop":"selected","css":"--jui-color-background-primary-light","value":"#eff0ff + stroke-primary-on-light, with a 0.5px ring"},{"prop":"illustration","value":"3.5rem tall, the Bookings artwork verbatim"}]'>
+            <label class="type-card">
+              <span class="type-card-head">
+                <span class="type-card-illustration" aria-hidden="true"><svg xmlns='http://www.w3.org/2000/svg' width='278' height='101' fill='none'><g clip-path='url(#fs-a)' filter='url(#fs-b)'><rect width='230' height='72.871' x='16' y='12' fill='#fff' rx='3' shape-rendering='crispEdges'/><rect width='229.8' height='72.671' x='16.1' y='12.1' stroke='#E6E6E6' stroke-width='.2' rx='2.9' shape-rendering='crispEdges'/><path fill='#E6E6E6' d='M24 22.667A2.667 2.667 0 0 1 26.667 20h21.81a2.667 2.667 0 0 1 2.666 2.667v2.666A2.667 2.667 0 0 1 48.476 28h-21.81A2.667 2.667 0 0 1 24 25.333v-2.666ZM55.143 22.667A2.667 2.667 0 0 1 57.81 20h21.81a2.667 2.667 0 0 1 2.666 2.667v2.666A2.667 2.667 0 0 1 79.619 28H57.81a2.667 2.667 0 0 1-2.666-2.667v-2.666ZM86.286 22.667A2.667 2.667 0 0 1 88.952 20h21.81a2.667 2.667 0 0 1 2.667 2.667v2.666A2.667 2.667 0 0 1 110.762 28h-21.81a2.667 2.667 0 0 1-2.666-2.667v-2.666ZM117.429 22.667A2.667 2.667 0 0 1 120.095 20h21.81a2.667 2.667 0 0 1 2.667 2.667v2.666A2.667 2.667 0 0 1 141.905 28h-21.81a2.667 2.667 0 0 1-2.666-2.667v-2.666ZM148.571 22.667A2.667 2.667 0 0 1 151.238 20h21.809a2.667 2.667 0 0 1 2.667 2.667v2.666A2.667 2.667 0 0 1 173.047 28h-21.809a2.667 2.667 0 0 1-2.667-2.667v-2.666ZM179.714 22.667A2.667 2.667 0 0 1 182.381 20h21.81a2.667 2.667 0 0 1 2.666 2.667v2.666A2.667 2.667 0 0 1 204.191 28h-21.81a2.667 2.667 0 0 1-2.667-2.667v-2.666ZM210.857 22.667A2.667 2.667 0 0 1 213.524 20h21.809A2.667 2.667 0 0 1 238 22.667v2.666A2.667 2.667 0 0 1 235.333 28h-21.809a2.667 2.667 0 0 1-2.667-2.667v-2.666ZM24 34.667A2.667 2.667 0 0 1 26.667 32h21.81a2.667 2.667 0 0 1 2.666 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.81A2.667 2.667 0 0 1 24 74.205V34.667ZM55.143 34.667A2.667 2.667 0 0 1 57.81 32h21.81a2.667 2.667 0 0 1 2.666 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666H57.81a2.667 2.667 0 0 1-2.666-2.666V34.667ZM86.286 34.667A2.667 2.667 0 0 1 88.952 32h21.81a2.667 2.667 0 0 1 2.667 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.81a2.667 2.667 0 0 1-2.666-2.666V34.667ZM117.429 34.667A2.667 2.667 0 0 1 120.095 32h21.81a2.667 2.667 0 0 1 2.667 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.81a2.667 2.667 0 0 1-2.666-2.666V34.667ZM148.571 34.667A2.667 2.667 0 0 1 151.238 32h21.809a2.667 2.667 0 0 1 2.667 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.809a2.667 2.667 0 0 1-2.667-2.666V34.667ZM179.714 34.667A2.667 2.667 0 0 1 182.381 32h21.81a2.667 2.667 0 0 1 2.666 2.667v39.538a2.667 2.667 0 0 1-2.666 2.666h-21.81a2.667 2.667 0 0 1-2.667-2.666V34.667ZM210.857 34.667A2.667 2.667 0 0 1 213.524 32h21.809A2.667 2.667 0 0 1 238 34.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.809a2.667 2.667 0 0 1-2.667-2.666V34.667Z'/><rect width='23.143' height='5.625' fill='#66D999' rx='2' transform='matrix(1 0 0 -1 26 43.245)'/><rect width='23.143' height='5.625' fill='#66D999' rx='2' transform='matrix(1 0 0 -1 150.571 43.245)'/><path fill='#66D999' d='M88.286 63.745a2 2 0 0 0 2 2h19.143a2 2 0 0 0 2-2V62.12a2 2 0 0 0-2-2H90.286a2 2 0 0 0-2 2v1.625Z'/></g><defs><clipPath id='fs-a'><path fill='#fff' d='M0 0h278v100.871H0z'/></clipPath><filter id='fs-b' width='251.333' height='94.205' x='5.333' y='6.667' color-interpolation-filters='sRGB' filterUnits='userSpaceOnUse'><feFlood flood-opacity='0' result='BackgroundImageFix'/><feColorMatrix in='SourceAlpha' result='hardAlpha' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0'/><feOffset dy='5.333'/><feGaussianBlur stdDeviation='5.333'/><feComposite in2='hardAlpha' operator='out'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.14 0'/><feBlend in2='BackgroundImageFix' result='effect1_dropShadow_1955_26473'/><feBlend in='SourceGraphic' in2='effect1_dropShadow_1955_26473' result='shape'/></filter></defs></svg></span>
+                <input type="radio" name="booking-type" value="fixedSession" aria-label="Fixed session" data-no-phrase>
+              </span>
+              <span class="type-card-copy">
+                <span class="type-card-label" data-no-phrase>Fixed session</span>
+                <span class="type-card-hint" data-no-phrase>Create sessions with a fixed date and let people sign up.</span>
+              </span>
+            </label>
+            <label class="type-card">
+              <span class="type-card-head">
+                <span class="type-card-illustration" aria-hidden="true"><svg xmlns='http://www.w3.org/2000/svg' width='278' height='101' fill='none'><g clip-path='url(#os-a)' filter='url(#os-b)'><rect width='230' height='72.871' x='16' y='12' fill='#fff' rx='3' shape-rendering='crispEdges'/><rect width='229.8' height='72.671' x='16.1' y='12.1' stroke='#E6E6E6' stroke-width='.2' rx='2.9' shape-rendering='crispEdges'/><path fill='#E6E6E6' d='M24 22.667A2.667 2.667 0 0 1 26.667 20h21.81a2.667 2.667 0 0 1 2.666 2.667v2.666A2.667 2.667 0 0 1 48.476 28h-21.81A2.667 2.667 0 0 1 24 25.333v-2.666ZM55.143 22.667A2.667 2.667 0 0 1 57.81 20h21.81a2.667 2.667 0 0 1 2.666 2.667v2.666A2.667 2.667 0 0 1 79.619 28H57.81a2.667 2.667 0 0 1-2.666-2.667v-2.666ZM86.286 22.667A2.667 2.667 0 0 1 88.952 20h21.81a2.667 2.667 0 0 1 2.667 2.667v2.666A2.667 2.667 0 0 1 110.762 28h-21.81a2.667 2.667 0 0 1-2.666-2.667v-2.666ZM117.429 22.667A2.667 2.667 0 0 1 120.095 20h21.81a2.667 2.667 0 0 1 2.667 2.667v2.666A2.667 2.667 0 0 1 141.905 28h-21.81a2.667 2.667 0 0 1-2.666-2.667v-2.666ZM148.571 22.667A2.667 2.667 0 0 1 151.238 20h21.809a2.667 2.667 0 0 1 2.667 2.667v2.666A2.667 2.667 0 0 1 173.047 28h-21.809a2.667 2.667 0 0 1-2.667-2.667v-2.666ZM179.714 22.667A2.667 2.667 0 0 1 182.381 20h21.81a2.667 2.667 0 0 1 2.666 2.667v2.666A2.667 2.667 0 0 1 204.191 28h-21.81a2.667 2.667 0 0 1-2.667-2.667v-2.666ZM210.857 22.667A2.667 2.667 0 0 1 213.524 20h21.809A2.667 2.667 0 0 1 238 22.667v2.666A2.667 2.667 0 0 1 235.333 28h-21.809a2.667 2.667 0 0 1-2.667-2.667v-2.666Z'/><path fill='#66D999' d='M24 34.667A2.667 2.667 0 0 1 26.667 32h21.81a2.667 2.667 0 0 1 2.666 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.81A2.667 2.667 0 0 1 24 74.205V34.667ZM55.143 34.667A2.667 2.667 0 0 1 57.81 32h21.81a2.667 2.667 0 0 1 2.666 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666H57.81a2.667 2.667 0 0 1-2.666-2.666V34.667ZM86.286 34.667A2.667 2.667 0 0 1 88.952 32h21.81a2.667 2.667 0 0 1 2.667 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.81a2.667 2.667 0 0 1-2.666-2.666V34.667ZM117.429 34.667A2.667 2.667 0 0 1 120.095 32h21.81a2.667 2.667 0 0 1 2.667 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.81a2.667 2.667 0 0 1-2.666-2.666V34.667ZM148.571 34.667A2.667 2.667 0 0 1 151.238 32h21.809a2.667 2.667 0 0 1 2.667 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.809a2.667 2.667 0 0 1-2.667-2.666V34.667Z'/><path fill='#E6E6E6' d='M179.714 34.667A2.667 2.667 0 0 1 182.381 32h21.81a2.667 2.667 0 0 1 2.666 2.667v39.538a2.667 2.667 0 0 1-2.666 2.666h-21.81a2.667 2.667 0 0 1-2.667-2.666V34.667ZM210.857 34.667A2.667 2.667 0 0 1 213.524 32h21.809A2.667 2.667 0 0 1 238 34.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.809a2.667 2.667 0 0 1-2.667-2.666V34.667Z'/></g><defs><clipPath id='os-a'><path fill='#fff' d='M0 0h278v100.871H0z'/></clipPath><filter id='os-b' width='251.333' height='94.205' x='5.333' y='6.667' color-interpolation-filters='sRGB' filterUnits='userSpaceOnUse'><feFlood flood-opacity='0' result='BackgroundImageFix'/><feColorMatrix in='SourceAlpha' result='hardAlpha' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0'/><feOffset dy='5.333'/><feGaussianBlur stdDeviation='5.333'/><feComposite in2='hardAlpha' operator='out'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.14 0'/><feBlend in2='BackgroundImageFix' result='effect1_dropShadow_1955_26496'/><feBlend in='SourceGraphic' in2='effect1_dropShadow_1955_26496' result='shape'/></filter></defs></svg></span>
+                <input type="radio" name="booking-type" value="openSlot" checked aria-label="Open slot" data-no-phrase>
+              </span>
+              <span class="type-card-copy">
+                <span class="type-card-label" data-no-phrase>Open slot</span>
+                <span class="type-card-hint" data-no-phrase>Tell people when you’re free and let them book a slot with you.</span>
+              </span>
+            </label>
+        </div>
+      </div>
+      <div class="sheet-actions sheet-actions--end">
+        <button type="button" class="btn btn-primary" id="typeContinue" data-inspect-phrase="">Continue</button>
+      </div>
+    </div>
+  </div>
+
   <div class="sheet-backdrop" id="formSheet" data-open="false" role="dialog" aria-modal="true" aria-labelledby="formSheetTitle">
     <div class="sheet">
       <div class="sheet-head">
@@ -690,8 +739,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=0b48c86"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=0b48c86"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=5d91f89"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=5d91f89"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -703,8 +752,14 @@
     const ON = { whatsapp: false, email: false, call: false, mainlink: false, map: false, social: false };
 
     const SUGGESTIONS = {
+      /* A pick-a-time booking, not a dated one. loops-frontend swapped these
+         in PR #2599: LISTED_SUGGESTIONS is ['openSlot', 'form'], and the
+         date booking keeps its place in the picker. A dated session only
+         helps someone who already has one planned — they have to know what
+         it is and when before the suggestion is worth anything. A
+         pick-a-time calendar has no such precondition. */
       sugEvent: { editor: 'offer', removed: false, done: false, section: 'blocks',
-                  card: { kind: 'book', title: 'Beginner workshop', meta: 'Sat 10 May · 14:00', cta: 'Book my session', price: '€45' },
+                  card: { kind: 'book', title: 'Free intro call', meta: '30 min · you pick a time', cta: 'Book a time', price: '' },
                   row: 'rowOfferDone' },
       sugForm:  { editor: 'form', removed: false, done: false, section: 'blocks',
                   card: { kind: 'promo', title: 'Ask me about private classes', meta: '', cta: 'Get in touch', price: '' },
@@ -718,20 +773,20 @@
        which is the shape of the choice rather than two of the same. */
     const SUGGESTION_ROUNDS = [
       {
-        sugEvent: { label: 'Beginner workshop booking', title: 'Beginner workshop',
-                    why: 'You run workshops, so a dated one is the easiest thing to sell.' },
+        sugEvent: { label: 'Free intro call', title: 'Free intro call',
+                    why: 'People pick a time that suits them, with no messages back and forth.' },
         sugForm:  { label: 'Private class enquiry form', title: 'Ask me about private classes',
                     why: 'Private classes start with a question, not a booking.' },
       },
       {
-        sugEvent: { label: 'Drop-in class booking', title: 'Drop-in class',
-                    why: 'One class is the smallest thing someone new can say yes to.' },
+        sugEvent: { label: 'Taster session', title: 'Taster session',
+                    why: 'Someone new can try one before committing to a course.' },
         sugForm:  { label: 'Sessions for a team form', title: 'Sessions for your team',
                     why: 'A company asks what it would cost before it books anything.' },
       },
       {
-        sugEvent: { label: 'Six-week course booking', title: 'Six-week beginner course',
-                    why: 'People who sign up for the whole course come back without being asked.' },
+        sugEvent: { label: 'One-to-one session', title: 'One-to-one session',
+                    why: 'A private slot is the easiest thing to put a price on.' },
         sugForm:  { label: 'Private group enquiry form', title: 'Book me for your group',
                     why: 'A group has a date and a size to settle before anything is booked.' },
       },
@@ -1020,13 +1075,22 @@
         // first round's name would build the wrong thing.
         const seed = b ? b.label : seedName(kind);
         editTitle.textContent = thing.title;
-        thing.fields.forEach(([label, type, value]) => {
-          editFields.appendChild(field(label, type, label === 'Name' && seed ? seed : value));
-        });
-        addDateControl();
+        /* Two shapes of booking, two forms. A fixed session asks when it
+           happens; a pick-a-time booking asks how long each one runs and
+           when the seller is free, and the visitor chooses from that. */
+        if (kind === 'offer' && bookingType === 'openSlot') {
+          openSlotFields(seed, b);
+          editTitle.textContent = 'Open slot';
+        } else {
+          thing.fields.forEach(([label, type, value]) => {
+            editFields.appendChild(field(label, type, label === 'Name' && seed ? seed : value));
+          });
+          addDateControl();
+          editTitle.textContent = 'Fixed session';
+        }
         editRemove.hidden = true;
         actionsRow.classList.add('sheet-actions--end');
-        editSave.textContent = blockKey ? 'Done' : 'Create booking';
+        editSave.textContent = blockKey ? 'Done' : 'Save';
         openEdit(true);
         return;
       }
@@ -1178,6 +1242,99 @@
       });
       row.append(label, wrap);
       return row;
+    }
+
+    /* ── The pick-a-time booking's own form ──
+       loops-frontend's OpenSlotSetupModal: a name, how long one session
+       runs, which days are open and between what hours, and a price. The
+       visitor picks from that rather than being handed a date.
+       Presets and defaults are production's — OPEN_SLOT_DURATIONS is
+       [30, 45, 60, 90], the week shows Mon first and opens Mon to Fri,
+       09:00 to 17:00. */
+    const OPEN_SLOT_DURATIONS = [30, 45, 60, 90];
+    const WEEK = [
+      { key: 1, label: 'Mon' }, { key: 2, label: 'Tue' }, { key: 3, label: 'Wed' },
+      { key: 4, label: 'Thu' }, { key: 5, label: 'Fri' }, { key: 6, label: 'Sat' },
+      { key: 0, label: 'Sun' },
+    ];
+    /* Which shape the booking being set up is. Held outside the dialog so
+       stepping back to the type choice and forward again keeps it. */
+    let bookingType = 'openSlot';
+    let slotDraft = null;
+
+    function chipRow(items, isOn, onPick) {
+      const row = document.createElement('div');
+      row.className = 'chip-row';
+      items.forEach((it) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'chip';
+        b.setAttribute('data-no-phrase', '');
+        b.setAttribute('aria-pressed', String(isOn(it)));
+        b.textContent = it.label;
+        b.addEventListener('click', () => {
+          onPick(it);
+          [...row.children].forEach((c, i) => c.setAttribute('aria-pressed', String(isOn(items[i]))));
+        });
+        row.appendChild(b);
+      });
+      return row;
+    }
+
+    function slotGroup(label, child) {
+      const wrap = document.createElement('div');
+      wrap.className = 'sheet-field';
+      const l = document.createElement('span');
+      l.className = 'sheet-label';
+      l.setAttribute('data-no-phrase', '');
+      l.textContent = label;
+      wrap.append(l, child);
+      return wrap;
+    }
+
+    function openSlotFields(seed, b) {
+      slotDraft = (b && b.slot) || {
+        duration: 60, days: [1, 2, 3, 4, 5], from: '09:00', to: '17:00', price: '',
+      };
+      const d = slotDraft;
+
+      editFields.appendChild(field('Name', 'text', (b && b.label) || seed || ''));
+
+      const lengths = OPEN_SLOT_DURATIONS.map((m) => ({ key: m, label: m + ' min' }));
+      editFields.appendChild(slotGroup('Session length',
+        chipRow(lengths, (it) => d.duration === it.key, (it) => { d.duration = it.key; })));
+
+      editFields.appendChild(slotGroup('Days',
+        chipRow(WEEK, (it) => d.days.indexOf(it.key) !== -1, (it) => {
+          const at = d.days.indexOf(it.key);
+          if (at === -1) d.days.push(it.key); else d.days.splice(at, 1);
+        })));
+
+      /* From and To share a line: they are one range, and stacked they read
+         as two unrelated questions. */
+      const hours = document.createElement('div');
+      hours.className = 'sheet-field-row';
+      ['from', 'to'].forEach((which) => {
+        const w = document.createElement('label');
+        w.className = 'sheet-field';
+        const l = document.createElement('span');
+        l.className = 'sheet-label';
+        l.setAttribute('data-no-phrase', '');
+        l.textContent = which === 'from' ? 'From' : 'To';
+        const i = document.createElement('input');
+        i.className = 'form-input';
+        i.type = 'time';
+        i.value = d[which];
+        i.setAttribute('data-no-phrase', '');
+        i.addEventListener('input', () => { d[which] = i.value; });
+        w.append(l, i);
+        hours.appendChild(w);
+      });
+      editFields.appendChild(hours);
+
+      const price = field('Price (€)', 'text', d.price);
+      price.querySelector('input').addEventListener('input', (e) => { d.price = e.target.value; });
+      editFields.appendChild(price);
     }
 
     /* A booking can be more than one date, which the dialog had no way to
@@ -1829,6 +1986,29 @@
       if (formView === 'pick' || formView === 'question') { formOpen = -1; setFormView('edit'); }
       else setFormView('show');
     });
+    /* ── The shape a booking takes ──
+       A booking made from scratch picks its shape before its setup, the
+       way the Bookings event setup does. The type step steps back to the
+       picker; the setup form behind it steps back to the type step. */
+    const typeSheet = document.getElementById('typeSheet');
+    function openBookingType() {
+      closeAdd();
+      typeSheet.querySelectorAll('input[name="booking-type"]').forEach((r) => {
+        r.checked = r.value === bookingType;
+      });
+      typeSheet.setAttribute('data-open', 'true');
+    }
+    const closeType = () => typeSheet.setAttribute('data-open', 'false');
+    typeSheet.querySelectorAll('input[name="booking-type"]').forEach((r) =>
+      r.addEventListener('change', () => { if (r.checked) bookingType = r.value; }));
+    document.getElementById('typeClose').addEventListener('click', closeType);
+    document.getElementById('typeBack').addEventListener('click', () => { closeType(); openAdd(); });
+    typeSheet.addEventListener('click', (e) => { if (e.target === typeSheet) closeType(); });
+    document.getElementById('typeContinue').addEventListener('click', () => {
+      closeType();
+      showEditor('offer');
+    });
+
     document.getElementById('formAdd').addEventListener('click', () => setFormView('pick'));
 
     /* The options array has to come along by value, or the draft shares it
@@ -2051,10 +2231,20 @@
        The wording here is a template. In the product the three would be
        written for the thing asked about; the shape of the answer is what
        this is showing — same thing, three ways to sell it. */
+    /* loops-frontend's ideaIcons.ts, which the picker's ideas and the
+       suggestion rows share so an idea reads the same in both places:
+       fixedSession is a calendar, openSlot a clock, form a check list.
+       `book` is kept as an alias for a dated session, because the blocks
+       the editor makes are typed by shape rather than by idea. */
     const IDEA_ICONS = {
-      book: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 2v4M16 2v4M3 9h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+      openSlot: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M12 8V12L14.5 14.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>',
+      fixedSession: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 2v4M16 2v4M3 9h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
       form: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M11 6L21 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 12L21 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 18L21 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 7.5L4.5 9L8.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 18.5L4.5 20L8.5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     };
+    IDEA_ICONS.book = IDEA_ICONS.fixedSession;
+    /* Which kind of booking an idea makes, so the picker hands the right
+       setup form to the right idea. */
+    const IDEA_BOOKING_TYPE = { fixedSession: 'fixedSession', openSlot: 'openSlot', book: 'fixedSession' };
 
     /* Rounds again, same reason as the dashed pair: three guesses the
        seller can only accept are not three guesses. Each round is two ways
@@ -2063,18 +2253,18 @@
        ones nobody thinks to put on a page. */
     const FIRST_IDEA_ROUNDS = [
       [
-        { shape: 'book',  title: 'Weekend retreat booking',       detail: 'A date people sign up for' },
-        { shape: 'book',  title: 'One-to-one session booking',    detail: 'They pick a time' },
+        { shape: 'fixedSession', title: 'Weekend retreat booking', detail: 'A date people sign up for' },
+        { shape: 'openSlot', title: 'One-to-one session booking', detail: 'They pick a time' },
         { shape: 'form',  title: 'Tell me what you need form',    detail: 'Questions before booking' },
       ],
       [
-        { shape: 'book',  title: 'Taster class booking',          detail: 'A short first try' },
-        { shape: 'book',  title: 'Monthly class pass booking',    detail: 'They pay once for the month' },
+        { shape: 'openSlot', title: 'Taster session booking',     detail: 'They pick a time' },
+        { shape: 'fixedSession', title: 'Monthly class pass booking', detail: 'A date people sign up for' },
         { shape: 'form',  title: 'What does it cost form',        detail: 'The question that comes first' },
       ],
       [
-        { shape: 'book',  title: 'Beginner course booking',       detail: 'Several dates, one sign-up' },
-        { shape: 'book',  title: 'Team session booking',          detail: 'A company books for its people' },
+        { shape: 'fixedSession', title: 'Beginner course booking', detail: 'A date people sign up for' },
+        { shape: 'openSlot', title: 'Team session booking',       detail: 'They pick a time' },
         { shape: 'form',  title: 'Tell me when a date opens form', detail: 'For the ones you are full for' },
       ],
     ];
@@ -2141,6 +2331,9 @@
             }));
             return;
           }
+          /* An idea already knows which shape of booking it is, so it
+             skips the type step and opens that setup straight away. */
+          bookingType = IDEA_BOOKING_TYPE[idea.shape] || 'fixedSession';
           addBlock({
             label: idea.title,
             kind: 'book',
@@ -2397,6 +2590,7 @@
     placeAdd();
 
     function openAdd() {
+      paintPickerRows();
       renderIdeas(currentIdeas);
       closePicker();
       if (phone.matches) {
@@ -2415,8 +2609,56 @@
       sheet.setAttribute('data-open', 'false');
     }
 
+    /* ── What a picker row does, and what it says it will do ──
+       loops-frontend PR #2607: with nothing to pick from, a Booking or Form
+       row opened a list holding a single "Create…" row and nothing else —
+       a navigation step, and a step back, to reach an empty page. The row
+       creates instead, and closes with a plus rather than a chevron so it
+       looks like what it will actually do. Past the plan's action page
+       limit the plus goes purple, because the click leads to a paywall.
+
+       Emptiness is decided per kind, because the two differ. A booking
+       lives in Bookings and its action page in the flows list, and the two
+       can diverge — a booking whose page was archived is still worth
+       linking to — so both count. A form is its own action page, so its
+       list is the whole truth. */
+    const CHEVRON_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const PICKER_HAS_ANY = {
+      booking: () => PICKERS.booking.groups.some((g) => g.items.length),
+      form: () => PICKERS.form.groups.some((g) => g.items.length),
+      pages: () => PICKERS.pages.groups.some((g) => g.items.length),
+    };
+
+    function paintPickerRows() {
+      addContent.querySelectorAll('[data-picker]').forEach((row) => {
+        const kind = row.getAttribute('data-picker');
+        const slot = row.querySelector('[data-trailing]');
+        if (!slot) return;
+        /* Website pages are never made here — they come from the Jimdo
+           site — so that row keeps its chevron whatever its list holds. */
+        const creates = kind !== 'pages' && !PICKER_HAS_ANY[kind]();
+        slot.classList.toggle('add-option-more--create', creates && !limitReached());
+        slot.classList.toggle('add-option-more--upgrade', creates && limitReached());
+        slot.innerHTML = creates ? PLUS_SVG : CHEVRON_SVG;
+        row.setAttribute('aria-label', creates
+          ? (kind === 'booking' ? 'Create a booking' : 'Create a form')
+          : row.querySelector('.add-option-title').textContent.trim());
+      });
+    }
+
     addContent.querySelectorAll('[data-picker]').forEach((row) =>
-      row.addEventListener('click', () => openPicker(row.getAttribute('data-picker'))));
+      row.addEventListener('click', () => {
+        const kind = row.getAttribute('data-picker');
+        const creates = kind !== 'pages' && !PICKER_HAS_ANY[kind]();
+        if (!creates) return openPicker(kind);
+        if (limitReached()) { window.location.href = PAYWALL; return; }
+        if (kind === 'booking') return openBookingType();
+        closeAdd();
+        openFormDraft((fields) => addBlock({
+          label: 'Ask me a question', kind: 'form', editor: 'form',
+          creating: false, review: false, fields,
+        }));
+      }));
     headBacks.forEach((b) => b.addEventListener('click', closePicker));
 
     // Two of them — the drawer head on a phone, the column foot on
@@ -2475,11 +2717,11 @@
     /* A link is a thing the page can hold any number of, so it is added as
        one. The rest are slots the page has exactly one of — a map, a row of
        social icons, the three contact buttons the preview can draw — so they
-       stay switches. sms and the social names alias onto the nearest button
+       stay switches. directions and the social names alias onto the nearest button
        the artifact actually renders; that is a limit of the preview, not of
        the list. */
     const ADD_ALIAS = {
-      sms: 'call', tiktok: 'social', facebook: 'social', youtube: 'social', linkedin: 'social',
+      directions: 'map', tiktok: 'social', facebook: 'social', youtube: 'social', linkedin: 'social',
     };
     addContent.querySelectorAll('[data-add]:not([data-picker])').forEach((o) =>
       o.addEventListener('click', () => {
