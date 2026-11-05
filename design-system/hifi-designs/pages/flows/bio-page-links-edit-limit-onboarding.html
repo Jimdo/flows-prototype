@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-limit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=4a7495b">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=4a7495b">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=3e5f4fe">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=3e5f4fe">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=4a7495b">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=3e5f4fe">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -93,6 +93,7 @@
         <div class="setup-split-intro setup-split-intro--back" data-view-only="add">
           <button type="button" class="setup-back-btn add-head-back" data-add-back aria-label="Back" data-no-phrase hidden><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
           <h1 class="setup-split-title" data-inspect-phrase="biopage.add.title">Add to your page</h1>
+          <button type="button" class="setup-back-btn add-head-close" id="addDrawerClose" aria-label="Close" data-no-phrase><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
         </div>
 
         <!-- --scroll, because this panel holds a list: without it the drawer
@@ -239,11 +240,6 @@
             data-nav-to="flows/home-dashboard-v2.html" data-nav-screen-id="scr-131">Done</button>
         </div>
 
-        <div class="setup-split-actions" data-view-only="add">
-          <button class="btn btn-secondary" id="addBack" data-inspect-phrase="">Back</button>
-        </div>
-
-
       </div>
     </div>
   </div>
@@ -264,7 +260,7 @@
           <!-- Three ideas first, built from what the seller said they do:
                two things people book, one thing people ask about. Each says
                what it builds in its own title, the way the dashed rows in
-               the list do, and carries the same Set it up. Below them, the
+               the list do, and carries the same Add it. Below them, the
                way to say what the three guesses missed. -->
           <div class="add-group">
             <p class="add-group-title" data-inspect-phrase="">Ideas for your page</p>
@@ -510,8 +506,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=4a7495b"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=4a7495b"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=3e5f4fe"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=3e5f4fe"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -1203,7 +1199,7 @@
             '<span class="add-card-title">' + idea.title + '</span>' +
             '<span class="add-card-detail">' + idea.detail + '</span>' +
           '</span>' +
-          '<span class="add-card-action"><button type="button" class="btn btn-secondary btn-upgrade btn-sm" data-add="idea" data-inspect-phrase="">' + '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg>' + 'Upgrade and set up</button></span>';
+          '<span class="add-card-action"><button type="button" class="btn btn-secondary btn-upgrade btn-sm" data-add="idea" data-inspect-phrase="">' + '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg>' + 'Upgrade and add it</button></span>';
         /* An upgrade CTA goes to the upgrade. It used to add a plain link
            and close, which told the seller the limit had been lifted. */
         card.querySelector('button').addEventListener('click', () => {
@@ -1444,7 +1440,12 @@
     // desktop — and only one is ever on screen.
     document.querySelectorAll('[data-add-open]').forEach((b) =>
       b.addEventListener('click', openAdd));
-    document.getElementById('addBack').addEventListener('click', closeAdd);
+    /* The drawer head closes the list rather than stepping back out of it:
+       on a phone the add list is the whole panel, so leaving it is the same
+       act as closing the sheet it is on a wide screen. The back arrow left
+       of the title is for going up a level inside the list, and only
+       appears once there is a level to leave. */
+    document.getElementById('addDrawerClose').addEventListener('click', closeAdd);
     document.getElementById('addClose').addEventListener('click', closeAdd);
     sheet.addEventListener('click', (e) => { if (e.target === sheet) closeAdd(); });
     document.addEventListener('keydown', (e) => {

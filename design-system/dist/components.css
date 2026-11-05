@@ -5129,6 +5129,11 @@ body {
   flex-shrink: 0;
   width: 20px;
   height: 20px;
+  /* It is a button now rather than a span, so the browser's own button
+     fill and border have to be cleared or the handle sits in a grey box. */
+  padding: 0;
+  border: 0;
+  background: none;
   color: var(--jui-color-gray-400);
   cursor: grab;
   /* Above the open target's overlay. The overlay is a ::after on a later
@@ -6167,12 +6172,22 @@ body {
 .sheet-head .add-head-back svg,
 .setup-split-intro--back .add-head-back svg { width: 20px; height: 20px; }
 
-/* The title keeps its line when a back button joins it. */
+/* The title keeps its line when a back button joins it, and the close sits
+   at the far end of that line — the same head the sheet carries on a wide
+   screen, so the add list is left the same way at both sizes. */
 .setup-split-intro--back {
   flex-direction: row;
   align-items: center;
   gap: var(--jui-layout-gap-xs);
 }
+.setup-split-intro--back .setup-split-title { flex: 1 1 auto; min-width: 0; }
+.add-head-close {
+  flex-shrink: 0;
+  width: var(--jui-layout-dimension-s);
+  height: var(--jui-layout-dimension-s);
+  margin-right: calc(-1 * var(--jui-layout-padding-xs));
+}
+.add-head-close svg { width: 20px; height: 20px; }
 
 /* Making a new one is an action, not a thing you already have. */
 .add-option--make .add-option-icon { color: var(--jui-color-actions-primary-rest); }

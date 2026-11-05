@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=4a7495b">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=4a7495b">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=3e5f4fe">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=3e5f4fe">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=4a7495b">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=3e5f4fe">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -93,6 +93,7 @@
         <div class="setup-split-intro setup-split-intro--back" data-view-only="add">
           <button type="button" class="setup-back-btn add-head-back" data-add-back aria-label="Back" data-no-phrase hidden><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
           <h1 class="setup-split-title" data-inspect-phrase="biopage.add.title">Add to your page</h1>
+          <button type="button" class="setup-back-btn add-head-close" id="addDrawerClose" aria-label="Close" data-no-phrase><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
         </div>
 
         <!-- --scroll, because this panel holds a list: without it the drawer
@@ -349,11 +350,6 @@
             data-inspect-phrase="biopage.editor.done"
             data-nav-to="flows/home-dashboard-v2.html" data-nav-screen-id="scr-131">Done</button>
         </div>
-
-        <div class="setup-split-actions" data-view-only="add">
-          <button class="btn btn-secondary" id="addBack" data-inspect-phrase="">Back</button>
-        </div>
-
 
       </div>
     </div>
@@ -757,8 +753,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=4a7495b"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=4a7495b"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=3e5f4fe"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=3e5f4fe"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -1162,6 +1158,10 @@
 
     let activeEditor = null;
     let activeBlock = null;
+    /* What the dialog is making when nothing on the page asked for it: an
+       idea picked out of the add list has a name and a shape but no
+       suggestion behind it, and Save has to know what to build. */
+    let activeMake = null;
 
     /* ── One dialog, two jobs ──
        Making a thing and editing the button that points at it are not the
@@ -1172,6 +1172,9 @@
       const t = TYPES[kind] || TYPES.mainlink;
       activeEditor = kind;
       activeBlock = blockKey;
+      /* Reset on every open, so a dialog reached any other way can never
+         commit a thing an earlier one was asked for and left. */
+      activeMake = opts.make || null;
       const b = blockKey ? BLOCKS.get(blockKey) : null;
       // Nothing to point at yet means there is nothing to edit about the
       // button either — the first pass through makes the thing itself.
@@ -1187,7 +1190,7 @@
         // the suggestion that asked for it. Not from the table: the
         // suggestions can be regenerated, and a dialog that opened on the
         // first round's name would build the wrong thing.
-        const seed = b ? b.label : seedName(kind);
+        const seed = b ? b.label : (activeMake ? activeMake.label : seedName(kind));
         editTitle.textContent = thing.title;
         /* Two shapes of booking, two forms. A fixed session asks when it
            happens; a pick-a-time booking asks how long each one runs and
@@ -2312,7 +2315,32 @@
         return;
       }
 
-      // Making the thing for the first time.
+      // Making a thing the seller picked out of the add list. Same wait as
+      // a suggestion, because the same page is being made behind it.
+      if (activeMake) {
+        const make = activeMake;
+        editSave.setAttribute('data-busy', 'true');
+        setTimeout(() => {
+          editSave.removeAttribute('data-busy');
+          openEdit(false);
+          addBlock({
+            label: value || make.label,
+            kind: make.kind,
+            editor: make.editor,
+            creating: false,
+            remember: true,
+            /* Same rule a suggestion follows: a thing the seller read in
+               full is not waiting to be reviewed, and a booking set up
+               here still has a reply and a page behind it they have not
+               seen. */
+            review: !make.fields,
+            fields: make.fields || null,
+          });
+        }, CREATE_MS);
+        return;
+      }
+
+      // Making the thing a suggestion asked for.
       const match = Object.keys(SUGGESTIONS).find((k) => SUGGESTIONS[k].editor === activeEditor && !SUGGESTIONS[k].done);
       if (!match) { openEdit(false); return; }
       editSave.setAttribute('data-busy', 'true');
@@ -2458,14 +2486,13 @@
             return;
           }
           /* An idea already knows which shape of booking it is, so it
-             skips the type step and opens that setup straight away. */
+             skips the type step and opens that setup straight away — the
+             same dialog the suggestion in the list opens. It used to land
+             the row here and ask nothing, which left the seller with a
+             booking whose times and price they had never seen. */
           bookingType = IDEA_BOOKING_TYPE[idea.shape] || 'fixedSession';
-          addBlock({
-            label: idea.title,
-            kind: 'book',
-            editor: 'offer',
-            remember: true,
-            review: true,
+          showEditor('offer', null, {
+            make: { label: idea.title, kind: 'book', editor: 'offer' },
           });
         });
         ideaGrid.appendChild(card);
@@ -2814,7 +2841,12 @@
       const row = document.getElementById(id);
       if (row) row.addEventListener('click', () => { window.location.href = PAYWALL; });
     });
-    document.getElementById('addBack').addEventListener('click', closeAdd);
+    /* The drawer head closes the list rather than stepping back out of it:
+       on a phone the add list is the whole panel, so leaving it is the same
+       act as closing the sheet it is on a wide screen. The back arrow left
+       of the title is for going up a level inside the list, and only
+       appears once there is a level to leave. */
+    document.getElementById('addDrawerClose').addEventListener('click', closeAdd);
     document.getElementById('addClose').addEventListener('click', closeAdd);
     sheet.addEventListener('click', (e) => { if (e.target === sheet) closeAdd(); });
     document.addEventListener('keydown', (e) => {
