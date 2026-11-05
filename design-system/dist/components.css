@@ -6372,84 +6372,9 @@ body {
 /* Nothing to say on desktop any more: every sheet is the same height
    there, so holding the fullest state is what all of them do. */
 
-/* ═══════════════════════════════════════════════════════════════
-   Form preview (.form-preview)
-
-   The form the seller's clients will fill in, shown back to them: every
-   question, what it takes, and the choices when it takes one. Read-only,
-   because this is the half of the sheet where they are deciding whether
-   the form is right. Changing it is the other half, and it is built out of
-   .sheet-field like every other editor in this screen.
-
-   HTML:
-     .form-preview
-       ol.form-preview-list
-         li.form-preview-row
-           .form-preview-index
-           .form-preview-copy > .form-preview-label + .form-preview-kind
-   ═══════════════════════════════════════════════════════════════ */
-.form-preview {
-  border: 1px solid var(--jui-color-stroke-gray-default);
-  border-radius: var(--jui-style-radius-12);
-  background: var(--jui-color-gray-white);
-}
-
-.form-preview-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--jui-layout-gap-xs);
-  margin: 0;
-  padding: var(--jui-layout-padding-m);
-  list-style: none;
-}
-
-/* The question's number, not a bullet: a form is answered in order, and the
-   row is a picture of a question rather than an item in a set. */
-.form-preview-row {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--jui-layout-gap-m);
-  padding: var(--jui-layout-padding-s) var(--jui-layout-padding-m);
-  border-radius: var(--jui-style-radius-8);
-  background: var(--jui-color-gray-50);
-}
-
-.form-preview-index {
-  flex-shrink: 0;
-  min-width: 12px;
-  font-size: var(--jui-typography-body-medium-medium-size);
-  font-weight: var(--jui-typography-body-medium-medium-weight);
-  line-height: var(--jui-typography-body-medium-medium-lh);
-  color: var(--jui-color-typography-gray-on-light-subdued);
-}
-
-.form-preview-copy {
-  display: flex;
-  flex-direction: column;
-  gap: var(--jui-layout-gap-xxs);
-  min-width: 0;
-}
-
-.form-preview-label {
-  min-width: 0;
-  font-size: var(--jui-typography-body-medium-regular-size);
-  font-weight: var(--jui-typography-body-medium-regular-weight);
-  line-height: var(--jui-typography-body-medium-regular-lh);
-  color: var(--jui-color-typography-gray-on-light-default);
-}
-
-/* What the question takes, and the choices when it takes one. The seller is
-   reading their form here, so the line says what the visitor will be given
-   rather than naming a field type. */
-.form-preview-kind {
-  font-size: var(--jui-typography-body-small-regular-size);
-  line-height: var(--jui-typography-body-small-regular-lh);
-  color: var(--jui-color-typography-gray-on-light-subdued);
-}
-
-.form-preview-row--locked .form-preview-label {
-  color: var(--jui-color-typography-gray-on-light-subdued);
-}
+/* The read-only form preview that lived here is gone with the sheet view it
+   drew: the form sheet opens on its editor at both entry points now, so
+   there is no pass that only shows the questions. */
 
 /* ── A question, not a panel ──
    Figma 4081:27673 — the confirmation dialog this system already has, in

@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=e3cd43a">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=e3cd43a">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=215cb88">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=215cb88">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=e3cd43a">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=215cb88">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -668,26 +668,14 @@
           <span class="ai-suggest-dots" aria-hidden="true"><i></i><i></i><i></i></span>
           <p class="sheet-busy-copy" data-inspect-phrase="">Writing the questions people will answer…</p>
         </div>
-        <!-- Two halves of one sheet. Reading the form is deciding whether
-             it is right; changing it is a different job, so it is a level
-             down behind a labelled button rather than four editable rows
-             presented as a thing to approve. -->
-        <div class="sheet-form" data-form-view="show">
-          <p class="sheet-copy" id="formCopy" data-inspect-phrase="">These are the questions people will answer. Have a look before it goes on your page.</p>
-          <div class="form-preview"
-            data-inspect-label="Form preview"
-            data-inspect-tokens='[{"prop":"row fill","figma":"color/gray/50","css":"--jui-color-gray-50","value":"#f8f8f8"},{"prop":"row radius","figma":"style/radius/8","css":"--jui-style-radius-8","value":"8px"},{"prop":"card border","figma":"$jui-color-stroke-gray-default","css":"--jui-color-stroke-gray-default","value":"1px #e6e6e6"}]'>
-            <ol class="form-preview-list" id="formShow"></ol>
-          </div>
-          <button type="button" class="btn btn-secondary btn-sm" id="formEdit"
-            data-inspect-label="Secondary Button — Edit questions, Size=Small"
-            data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Edit questions</button>
-        </div>
-
         <!-- Figma 3029:31429. One card per question: the kind as its own
              control, the wording, and the choices under it. One opens at a
              time; the rest stay readable. -->
-        <div class="sheet-form" data-form-view="edit" hidden>
+        <div class="sheet-form" data-form-view="edit">
+          <!-- The line that used to sit over the read-only pass. It says what
+               the list is for, which is as true of rows you can change as of
+               rows you could only look at. -->
+          <p class="sheet-copy" id="formCopy" data-inspect-phrase="">These are the questions people will answer. Have a look before it goes on your page.</p>
           <ol class="form-q-list" id="formFields" data-drag-list
             data-inspect-label="Form questions"
             data-inspect-tokens='[{"prop":"card radius","figma":"style/radius/8 (old)","css":"--jui-style-radius-12","value":"12px \u2014 remapped to the current scale"},{"prop":"choice radius","figma":"style/radius/2 (old)","css":"--jui-style-radius-8","value":"8px \u2014 remapped"},{"prop":"padding","figma":"16 sides / 12 ends","css":"--jui-layout-padding-m / -s","value":"16px / 12px"},{"prop":"open border","figma":"color/blue/400","css":"--jui-color-blue-400","value":"1px #336bff"},{"prop":"open shadow","figma":"on-light-shadow-lvl-1","css":"--jui-effects-on-light-shadow-lvl-1","value":"0 4px 8px #00000024"},{"note":"Five pickable kinds, from CanvasFormField in loops-frontend: text, textarea, email, radio, checkbox-group. The consent question is locked."}]'></ol>
@@ -753,8 +741,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=e3cd43a"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=e3cd43a"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=215cb88"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=215cb88"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -1643,7 +1631,6 @@
     const formTitle = document.getElementById('formSheetTitle');
     const formCopy = document.getElementById('formCopy');
     const formList = document.getElementById('formFields');
-    const formShow = document.getElementById('formShow');
     const formBack = document.getElementById('formBack');
     const formKinds = document.getElementById('formKinds');
     const formActions = document.querySelector('#formSheet .sheet-actions');
@@ -1654,7 +1641,7 @@
     const formQKind = document.getElementById('formQKind');
     const formQFields = document.getElementById('formQFields');
     const formViews = [...document.querySelectorAll('[data-form-view]')];
-    let formView = 'show';
+    let formView = 'edit';
     const formDoneBtn = document.getElementById('formDone');
     const formCancelBtn = document.getElementById('formCancel');
     const FORM_BUILD_MS = 1600;
@@ -1756,39 +1743,6 @@
       b.innerHTML = TRASH_SVG;
       b.addEventListener('click', (e) => { e.stopPropagation(); onClick(); });
       return b;
-    }
-
-    /* == Reading the form ==
-       One row per question: what is asked, and under it what the visitor is
-       given to answer with. The choices are named on that same line,
-       because a choice question is not described by saying it is one. */
-    function renderFormShow() {
-      formShow.innerHTML = '';
-      formDraft.forEach((f, i) => {
-        const li = document.createElement('li');
-        li.className = 'form-preview-row' + (f.locked ? ' form-preview-row--locked' : '');
-        const num = document.createElement('span');
-        num.className = 'form-preview-index';
-        num.setAttribute('aria-hidden', 'true');
-        num.textContent = String(i + 1);
-        const copy = document.createElement('span');
-        copy.className = 'form-preview-copy';
-        const label = document.createElement('span');
-        label.className = 'form-preview-label';
-        label.setAttribute('data-no-phrase', '');
-        label.textContent = f.label;
-        copy.appendChild(label);
-        const kind = document.createElement('span');
-        kind.className = 'form-preview-kind';
-        kind.setAttribute('data-no-phrase', '');
-        kind.textContent = f.locked ? 'A tick box, on every form'
-          : KIND_TAKES_OPTIONS(f.type)
-            ? kindLabel(f.type) + ': ' + (f.options || []).filter((o) => o.trim()).join(', ')
-            : kindLabel(f.type);
-        copy.appendChild(kind);
-        li.append(num, copy);
-        formShow.appendChild(li);
-      });
     }
 
     /* == The question list ==
@@ -2055,7 +2009,7 @@
         const f = formDraft[formOpen];
         return (f && f.label.trim()) || 'New question';
       }
-      if (formEditing) return view === 'edit' ? 'Edit questions' : 'Your form';
+      if (formEditing) return 'Your form';
       return 'Here is the form we wrote';
     }
 
@@ -2072,7 +2026,7 @@
       /* Each level's own actions. The form's two only belong to the form:
          committing it from inside "which kind of question" or from inside
          one question would answer something nobody asked. */
-      const onForm = view === 'show' || view === 'edit';
+      const onForm = view === 'edit';
       /* --end keeps the answers together at the right. The question level
          carries a destructive action, and .sheet-actions is explicit about
          where that belongs: apart from the button you meant to press. So
@@ -2087,14 +2041,15 @@
       /* Only while the list is on screen: there is nothing to add to a
          preview, to one question, or to the kind picker. */
       formAddBtn.hidden = view !== 'edit';
-      formBack.hidden = view === 'show';
+      /* The list is the sheet's own top now, so there is nothing above it
+         to go back to. Only the two levels under it carry the arrow. */
+      formBack.hidden = view === 'edit';
       /* While it is still being written the bar says so; the moment it
          lands, it says what it is. */
       if (!formSheet.hasAttribute('data-busy')) formTitle.textContent = formTitleFor(view);
       if (view === 'edit') renderFormEdit();
       else if (view === 'pick') renderKinds();
-      else if (view === 'question') renderQuestion();
-      else renderFormShow();
+      else renderQuestion();
     }
 
     /* The grip moves the row; this moves the question it stands for. The
@@ -2110,11 +2065,8 @@
       renderFormEdit();
     });
 
-    document.getElementById('formEdit').addEventListener('click', () => setFormView('edit'));
-    formBack.addEventListener('click', () => {
-      if (formView === 'pick' || formView === 'question') { formOpen = -1; setFormView('edit'); }
-      else setFormView('show');
-    });
+    /* Up one level, and there is only one level to come up from. */
+    formBack.addEventListener('click', () => { formOpen = -1; setFormView('edit'); });
     /* ── The shape a booking takes ──
        A booking made from scratch picks its shape before its setup, the
        way the Bookings event setup does. The type step steps back to the
@@ -2160,11 +2112,11 @@
       formEditing = null;
       formDraft = copyFields(FORM_DEFAULT);
       formCopy.textContent = 'These are the questions people will answer. Have a look before it goes on your page.';
-      /* Straight into the editor. The read-only pass was a step between
-         the wait and the work: on a form nobody has seen before, the thing
-         to do with it is change it, and showing it twice before letting
-         them is a page-turn for its own sake. The preview is still a back
-         arrow away for anyone who wants the plain list. */
+      /* Straight into the editor. The read-only pass was a step between the
+         wait and the work: the thing to do with a form is change it, and
+         showing it twice before letting them is a page-turn for its own
+         sake. It is gone now rather than one arrow away, so the arrow in
+         this sheet only ever means "up out of a question". */
       formOpen = -1;
       formDoneBtn.textContent = 'Add to my page';
       setFormView('edit');
@@ -2186,11 +2138,9 @@
       const b = BLOCKS.get(key);
       formDraft = copyFields((b && b.fields) || FORM_DEFAULT);
       formCopy.textContent = 'These are the questions people answer when they fill this in.';
-      /* Already on the page, so the thing to do with it is read it. Only a
-         form nobody has seen opens in the editor. */
       formOpen = -1;
       formDoneBtn.textContent = 'Done';
-      setFormView('show');
+      setFormView('edit');
       formSheet.removeAttribute('data-busy');
       formSheet.setAttribute('data-open', 'true');
     }
@@ -2855,7 +2805,6 @@
       openEdit(false);
       if (formSheet.getAttribute('data-open') !== 'true') { closeForm(); return; }
       if (formView === 'pick' || formView === 'question') { formOpen = -1; setFormView('edit'); }
-      else if (formView === 'edit') setFormView('show');
       else closeForm();
     });
 
