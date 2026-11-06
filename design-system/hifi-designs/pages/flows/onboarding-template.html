@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Onboarding — Template</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=4c648fa">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=4c648fa">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=d6775ef">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=d6775ef">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=4c648fa">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=d6775ef">
 <style>
   /* ─── Screen overrides ───
      The question centres on mobile like every other step, and on desktop it
@@ -51,6 +51,18 @@
   .template-carousel {
     --card-w: 180px;     /* .template-card-inner width */
     --half-card-w: 90px; /* half of it */
+    /* ── Room for the chosen card's own size ──
+       The selected layout is drawn 6% bigger than the rest, about its own
+       centre, so half that growth hangs off each side of the box the row
+       lays out: 180 × 0.06 / 2 = 5.4px. Left as it was, the chosen card —
+       the subject of the screen — started 5.4px left of the title above it
+       and came within 10 of the edge of a phone.
+       The row starts that much further in, and 4 further still so the card
+       has air rather than only clearance. Both numbers are derived, so a
+       change to the card's width or its zoom moves the row with it. */
+    --card-zoom: 1.06;
+    --card-nudge: calc(
+      var(--card-w) * (var(--card-zoom) - 1) / 2 + var(--jui-layout-padding-xxs));
     display: flex;
     gap: var(--jui-layout-gap-l);
     overflow-x: auto;
@@ -67,7 +79,7 @@
        itself back to that edge, which keeps the cards already scrolled past
        on screen and clickable in the gutter. */
     --bleed: var(--jui-layout-padding-m);
-    padding-left: var(--bleed);
+    padding-left: calc(var(--bleed) + var(--card-nudge));
     /* Trailing room so the last layout can still reach the first place. */
     padding-right: calc(100vw - var(--card-w));
     /* One stop per layout, each at the first place. Free scrolling let the
@@ -76,7 +88,9 @@
        "start" mean the content edge rather than the scroller's own, so a
        snapped card lands exactly where the first one sits at rest. */
     scroll-snap-type: x mandatory;
-    scroll-padding-left: var(--bleed);
+    /* The stop has to move with the resting place, or the snapped card
+       lands 9.4px left of where the first one sits. */
+    scroll-padding-left: calc(var(--bleed) + var(--card-nudge));
     scroll-padding-inline-end: 0;
   }
 
@@ -108,8 +122,11 @@
          clickable again. It also gives the selected card's glow room, which
          a scroller would otherwise clip. */
       --bleed: calc(50vw - var(--setup-single-max) / 2 + var(--jui-layout-padding-m));
+      /* The nudge rides on the padding alone. --bleed is cancelled by its own
+         negative margin — adding to it would move the scroller's left edge
+         and its content edge by the same amount and change nothing. */
       margin-left: calc(-1 * var(--bleed));
-      padding-left: var(--bleed);
+      padding-left: calc(var(--bleed) + var(--card-nudge));
       margin-right: calc(-1 * var(--bleed));
       /* Trailing room so the last layout can still reach the first place.
          Without it the scroller runs out before the later cards get there
@@ -117,7 +134,7 @@
          happened to leave on the left. */
       padding-right: calc(100vw - var(--card-w));
       scroll-snap-type: x mandatory;
-      scroll-padding-left: var(--bleed);
+      scroll-padding-left: calc(var(--bleed) + var(--card-nudge));
       scroll-padding-inline-end: 0;
     }
   }
@@ -152,7 +169,7 @@
     border: 2px solid var(--jui-color-actions-primary-rest);
     border-radius: calc(var(--jui-style-radius-l) + 2px); /* concentric: image radius + border-width */
     box-shadow: 0 5px 16px 0 var(--jui-color-blue-50);
-    transform: scale(1.06);
+    transform: scale(var(--card-zoom));
   }
 
   .template-thumb {
@@ -465,7 +482,7 @@
       });
     })();
   </script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=4c648fa"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=d6775ef"></script>
 
 </body>
 </html>
