@@ -2327,125 +2327,229 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   LAYER 22b — Banner (.banner)
-   loops-frontend src/components/Banner, as the bio page is shown on the
-   dashboard by src/components/BioPage/BioPageBanner.
+   LAYER 22b — Page preview card (.ppc)
+   loops-frontend src/components/PagePreviewCard, as BioPageCardConnected
+   fills it on src/pages/BioDashboard: the page as it stands on the left,
+   its address and the two ways into it on the right.
 
-   An outer carrier with a header strip over an inner card. The strip names
-   the thing and holds what can be done with its address; the card is the
-   thing, and the card alone is the way in — so the actions on the strip are
-   reachable without the link swallowing them.
-
-   Three radii, each one inset of 4 from the last: 16 outside, 12 on the
-   card, 8 on the picture. (Production's own comment asks for 16 outside and
-   one step in; its pinned @jimdo/ui resolved $jui-style-radius-l to 12, so
-   it spells the 16 literally. Ours resolves l to 16, so the tokens say it.)
+   A grid, not two flex columns. The picture spans both rows on a wide
+   screen and sits between the address and the name on a phone — one box,
+   two arrangements, no second copy of the markup. Three cells in source
+   order: address, picture, body.
    ═══════════════════════════════════════════════════════════════ */
-.banner {
-  display: flex;
-  flex-direction: column;
+.ppc {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--jui-layout-padding-s);
+  width: 100%;
+  padding: var(--jui-layout-base);
   border: 1px solid var(--jui-color-stroke-gray-default);
   border-radius: var(--jui-style-radius-l);
-}
-.banner--with-head {
-  gap: var(--jui-layout-gap-xxs);
-  padding: var(--jui-layout-padding-xxs);
-  background: var(--jui-color-background-gray-canvas);
-}
-/* The ring is the whole carrier's, not the link's. The link covers only the
-   card, but what it opens is the thing the strip above also names, so the
-   two have to light up together or the card reads as a tile inside a
-   separate frame. */
-.banner--with-head:has(.banner-link:hover),
-.banner--with-head:has(.banner-link:focus-visible) {
-  outline: var(--jui-style-stroke-width-large) solid var(--jui-color-stroke-primary-actionable);
-  outline-offset: 2px;
+  background: var(--jui-color-background-gray-light);
 }
 
-.banner-head {
+/* ── The address ── (LinkContainer)
+   Asymmetric inset: 12 at the text, 8 at the button, because a button's ink
+   already sits inboard of its own edge. */
+.ppc-linkbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--jui-layout-gap-xs);
-  /* Asymmetric on purpose: the title is text and wants the 8 the card's own
-     padding does not give it, the buttons are 32 boxes whose ink already
-     sits inboard of their edge. */
-  padding: 0 var(--jui-layout-padding-xxs) 0 var(--jui-layout-padding-xs);
+  min-width: 0;
+  padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-xs)
+           var(--jui-layout-padding-xs) var(--jui-layout-padding-s);
+  border-radius: var(--jui-style-radius-l);
+  background: var(--jui-color-background-gray-dark);
+  transition: background-color 200ms ease;
 }
-.banner-head-title {
-  margin: 0;
+/* The address is the interactive thing; the bar tints under it. Hovering
+   Share must not light up the whole bar — it goes somewhere else. */
+.ppc-linkbar:has(.ppc-url:hover),
+.ppc-linkbar:has(.ppc-url:focus-visible) {
+  background: var(--jui-color-background-primary-light);
+}
+.ppc-url {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
+  min-width: 0;
+  padding: var(--jui-layout-padding-xxs);
+  /* Transparent until focused, so the ring costs the row no height. */
+  border: 2px solid transparent;
+  border-radius: var(--jui-style-radius-s);
+  color: var(--jui-color-typography-gray-on-light-default);
+  text-decoration: none;
+}
+.ppc-url:hover,
+.ppc-url:focus-visible { color: var(--jui-color-actions-primary-rest); }
+.ppc-url:focus-visible {
+  border-color: var(--jui-color-decorative-primary);
+  outline: none;
+}
+.ppc-url svg { width: 16px; height: 16px; flex-shrink: 0; color: inherit; }
+.ppc-url-text {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: var(--jui-typography-sub-headline-small-size);
-  font-weight: var(--jui-typography-sub-headline-small-weight);
-  line-height: var(--jui-typography-sub-headline-small-lh);
-  color: var(--jui-color-typography-gray-on-light-default);
-}
-.banner-head-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--jui-layout-gap-xs);
-  flex-shrink: 0;
-}
-
-.banner-link {
-  display: block;
-  border-radius: var(--jui-style-radius-m);
-  text-decoration: none;
+  font-size: var(--jui-typography-body-small-medium-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  line-height: var(--jui-typography-body-small-medium-lh);
+  /* The anchor's per-state colour, not the body default. */
   color: inherit;
-  cursor: pointer;
 }
-/* The carrier draws the ring; a second one inside it reads as two things
-   focused at once. */
-.banner-link:focus-visible { outline: none; }
+/* The address truncates; the button keeps its width. */
+.ppc-share { flex-shrink: 0; width: auto; }
 
-.banner-card {
-  padding: var(--jui-layout-padding-xxs);
-  background: var(--jui-color-background-gray-light);
-  border-radius: var(--jui-style-radius-m);
+/* ── The page itself ──
+   On a phone it is cut off rather than shrunk: 180 of a 300-tall frame,
+   rounded at the top only, with the card's own rule under it. A whole page
+   at thumbnail size says nothing; the top of one says what it looks like. */
+.ppc-preview-cell {
+  justify-self: center;
+  /* So the rule under the picture runs wider than the picture. */
+  padding-inline: var(--jui-layout-padding-l);
+  border-bottom: 1px solid var(--jui-color-stroke-gray-default);
 }
-/* The row is held at 64 rather than left to the picture, so a portrait that
-   has not loaded leaves the card the same height as one that has. */
-.banner-card-row {
-  display: flex;
-  align-items: center;
-  gap: var(--jui-layout-gap-s);
-  height: var(--jui-layout-dimension-xl);
+.ppc-preview {
+  width: 160px;
+  height: 180px;
+  overflow: hidden;
+  border-radius: var(--jui-style-radius-l) var(--jui-style-radius-l) 0 0;
+  box-shadow: var(--jui-effects-on-light-shadow-lvl-2);
 }
-.banner-img {
-  flex-shrink: 0;
-  width: var(--jui-layout-dimension-xl);
-  height: var(--jui-layout-dimension-xl);
-  border-radius: var(--jui-style-radius-8);
-  object-fit: cover;
+/* The frame is a whole mobile page. Laid out at its own width and scaled
+   down, rather than squeezed into 160 — squeezing relays it at a width no
+   phone has. */
+.ppc-scaler {
+  width: 360px;
+  height: 675px;
+  transform: scale(calc(160 / 360));
+  transform-origin: top left;
+}
+.ppc-scaler iframe {
+  width: 360px;
+  height: 675px;
+  border: 0;
   display: block;
-  background: var(--jui-color-background-gray-canvas);
+  background: var(--jui-color-gray-black);
+  pointer-events: none;
 }
-.banner-text {
-  flex: 1;
+
+.ppc-body {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
+  gap: var(--jui-layout-gap-m);
 }
-.banner-name {
+.ppc-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xxs);
+}
+/* Hidden on a phone: the picture above it already carries the name, and
+   printing it twice in a column reads as a mistake. */
+.ppc-title {
+  display: none;
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: var(--jui-typography-sub-headline-medium-size);
-  font-weight: var(--jui-typography-sub-headline-medium-weight);
-  line-height: var(--jui-typography-sub-headline-medium-lh);
+  font-size: var(--jui-typography-sub-headline-large-size);
+  font-weight: var(--jui-typography-sub-headline-large-weight);
+  line-height: var(--jui-typography-sub-headline-large-lh);
   color: var(--jui-color-typography-gray-on-light-default);
 }
-.banner-meta {
+/* Centred under a centred picture on a phone, left-aligned once the two
+   sit side by side. The two switches are not the same one: the counts
+   align at sm, the block they live in at md. */
+.ppc-stats {
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--jui-layout-gap-xxs);
+}
+.ppc-counts {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
   margin: 0;
   font-size: var(--jui-typography-body-small-regular-size);
   font-weight: var(--jui-typography-body-small-regular-weight);
   line-height: var(--jui-typography-body-small-regular-lh);
-  color: var(--jui-color-typography-gray-on-light-default);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
+.ppc-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--jui-layout-gap-s);
+  width: 100%;
+}
+.ppc-actions > .btn { flex: 0 0 auto; }
+
+@media (min-width: 576px) {
+  .ppc-actions { flex-direction: row; align-items: center; width: auto; }
+  /* Content width once they are side by side. Our buttons are full-width by
+     default; production's carry noGutter and their own padding. */
+  /* primitive-override */
+  .ppc-actions > .btn {
+    width: auto;
+    padding-left: var(--jui-layout-padding-l);
+    padding-right: var(--jui-layout-padding-l);
+  }
+  .ppc-stats { align-items: flex-start; }
+}
+
+@media (min-width: 768px) {
+  .ppc {
+    grid-template-columns: 160px 1fr;
+    grid-template-rows: auto 1fr;
+    gap: var(--jui-layout-padding-m);
+  }
+  .ppc-linkbar { grid-column: 2; grid-row: 1; }
+  /* The picture takes the whole left side and loses the phone's cut. */
+  .ppc-preview-cell {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    align-self: stretch;
+    padding-inline: 0;
+    border-bottom: none;
+  }
+  .ppc-preview { height: 300px; border-radius: var(--jui-style-radius-m); }
+  .ppc-body { grid-column: 2; grid-row: 2; padding: var(--jui-layout-padding-m); }
+  .ppc-title { display: block; }
+  .ppc-stats { align-self: flex-start; }
+  .ppc-counts {
+    font-size: var(--jui-typography-body-medium-regular-size);
+    font-weight: var(--jui-typography-body-medium-regular-weight);
+    line-height: var(--jui-typography-body-medium-regular-lh);
+  }
+  .ppc-body .upgrade-link {
+    font-size: var(--jui-typography-body-medium-medium-size);
+    font-weight: var(--jui-typography-body-medium-medium-weight);
+    line-height: var(--jui-typography-body-medium-medium-lh);
+  }
+}
+
+/* A separator, not a word: it carries no meaning for a screen reader and
+   would be read as "dot" between two numbers. */
+.ppc-counts-sep { color: var(--jui-color-gray-300); }
+
+/* ── Subheadline/Large is two sizes in @jimdo/ui ──
+   Typography steps it to 20 at and below 1200 and holds 24 above; our token
+   is one value, so every screen in this system draws the 24. The card
+   carries the step itself rather than the token changing under everything
+   else — it is the one place here that is a port of that component. */
+@media (max-width: 1200px) {
+  .ppc-title {
+    font-size: var(--jui-typography-sub-headline-medium-size);
+    line-height: var(--jui-typography-sub-headline-medium-lh);
+  }
 }
 
 
