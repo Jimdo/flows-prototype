@@ -5385,9 +5385,26 @@ body {
 .edit-row[data-state="creating"] .edit-row-label {
   color: var(--jui-color-typography-gray-on-light-subdued);
 }
-.edit-row[data-state="creating"] .edit-row-icon,
+/* The handle goes while there is nothing to reorder. The icon's cell stays
+   and its glyph gives up the place to the spinner, so the name does not
+   step left and back again as the thing behind the row starts existing. */
 .edit-row[data-state="creating"] .edit-row-grip { opacity: 0; }
-.edit-row:not([data-state="creating"]) .edit-row-mark .setup-status-spinner { display: none; }
+.edit-row[data-state="creating"] .edit-row-icon > svg { visibility: hidden; }
+/* One slot, two marks. The spinner is a child of the icon cell now rather
+   than a sibling inside a .edit-row-mark — that wrapper went with the
+   hover swap — so it is stacked on the glyph rather than laid beside it.
+   Without the stack it was an inline span with width and height that
+   inline boxes ignore: a 2px ring squashed into a lozenge next to every
+   icon, on every made row, at every moment rather than only while one was
+   being made. */
+.edit-row-icon { position: relative; }
+.edit-row-icon > .setup-status-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -8px 0 0 -8px;
+}
+.edit-row:not([data-state="creating"]) .setup-status-spinner { display: none; }
 
 /* One cell, two marks — a suggestion and a finished row both. The piece
    wears what it is until the pointer arrives, and then wears what you can
