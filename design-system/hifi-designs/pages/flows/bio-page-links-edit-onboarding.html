@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=ee71bb8">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=ee71bb8">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=fbefa0c">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=fbefa0c">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=ee71bb8">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=fbefa0c">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -753,8 +753,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=ee71bb8"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=ee71bb8"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=fbefa0c"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=fbefa0c"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -1162,6 +1162,12 @@
        idea picked out of the add list has a name and a shape but no
        suggestion behind it, and Save has to know what to build. */
     let activeMake = null;
+    /* The same question for the pieces the page switches on rather than
+       adds. A contact button picked out of the add list opens its editor
+       before it is anywhere, so Save is what puts it on the page — the
+       editor cannot tell that from editing one already there unless it is
+       told. */
+    let activeAdd = null;
 
     /* ── One dialog, two jobs ──
        Making a thing and editing the button that points at it are not the
@@ -1175,6 +1181,7 @@
       /* Reset on every open, so a dialog reached any other way can never
          commit a thing an earlier one was asked for and left. */
       activeMake = opts.make || null;
+      activeAdd = opts.add || null;
       const b = blockKey ? BLOCKS.get(blockKey) : null;
       // Nothing to point at yet means there is nothing to edit about the
       // button either — the first pass through makes the thing itself.
@@ -1190,7 +1197,13 @@
         // the suggestion that asked for it. Not from the table: the
         // suggestions can be regenerated, and a dialog that opened on the
         // first round's name would build the wrong thing.
-        const seed = b ? b.label : (activeMake ? activeMake.label : seedName(kind));
+        /* What goes in the Name field. An idea arrives already named, so it
+           is seeded with its own name; a booking made from the add list has
+           no name yet, and seeding it with the word "Booking" would hand
+           the seller a placeholder to clear. */
+        const seed = b ? b.label
+          : activeMake ? (activeMake.seed !== undefined ? activeMake.seed : activeMake.label)
+          : seedName(kind);
         editTitle.textContent = thing.title;
         /* Two shapes of booking, two forms. A fixed session asks when it
            happens; a pick-a-time booking asks how long each one runs and
@@ -1233,11 +1246,15 @@
 
       editFields.appendChild(visibleRow(kind, b));
 
+      /* Nothing to remove while the thing is still being added, and nothing
+         to be done with — the dialog is where it gets filled in, and the
+         button at the end is what puts it on the page. */
+      const adding = !!(activeAdd || activeMake);
       // The label is the markup's, not set here — it never changes, and
       // writing it back would take the icon with it.
-      editRemove.hidden = false;
-      actionsRow.classList.remove('sheet-actions--end');
-      editSave.textContent = 'Done';
+      editRemove.hidden = adding;
+      actionsRow.classList.toggle('sheet-actions--end', adding);
+      editSave.textContent = adding ? 'Add' : 'Done';
       openEdit(true);
     }
 
@@ -2086,7 +2103,13 @@
        way the Bookings event setup does. The type step steps back to the
        picker; the setup form behind it steps back to the type step. */
     const typeSheet = document.getElementById('typeSheet');
-    function openBookingType() {
+    /* What the type step is on its way to making, held across the step so
+       the setup behind it knows. Without it, Continue opened a setup that
+       could only finish a suggestion — and when there was none to finish,
+       Save made nothing at all. */
+    let typeMake = null;
+    function openBookingType(make = null) {
+      typeMake = make;
       closeAdd();
       typeSheet.querySelectorAll('input[name="booking-type"]').forEach((r) => {
         r.checked = r.value === bookingType;
@@ -2101,7 +2124,7 @@
     typeSheet.addEventListener('click', (e) => { if (e.target === typeSheet) closeType(); });
     document.getElementById('typeContinue').addEventListener('click', () => {
       closeType();
-      showEditor('offer');
+      showEditor('offer', null, typeMake ? { make: typeMake } : {});
     });
 
     document.getElementById('formAdd').addEventListener('click', () => setFormView('pick'));
@@ -2268,6 +2291,20 @@
         return;
       }
 
+      /* Adding one of the switch-backed pieces, rather than editing one
+         already on the page. Same editor, but this is the moment it lands.
+         Before the branch below, which matches on the same META entry and
+         would close the dialog having changed nothing. */
+      if (activeAdd) {
+        const m = META[activeAdd];
+        if (m && value && !TYPES[activeAdd].noLabel) m.label = value;
+        ON[activeAdd] = true;
+        openEdit(false);
+        refresh();
+        split.sync();
+        return;
+      }
+
       // Editing one of the switch-backed pieces.
       const meta = META[activeEditor];
       if (meta) {
@@ -2282,9 +2319,7 @@
       // a suggestion, because the same page is being made behind it.
       if (activeMake) {
         const make = activeMake;
-        editSave.setAttribute('data-busy', 'true');
-        setTimeout(() => {
-          editSave.removeAttribute('data-busy');
+        const land = () => {
           openEdit(false);
           addBlock({
             label: value || make.label,
@@ -2296,10 +2331,16 @@
                full is not waiting to be reviewed, and a booking set up
                here still has a reply and a page behind it they have not
                seen. */
-            review: !make.fields,
+            review: make.review !== undefined ? make.review : !make.fields,
             fields: make.fields || null,
           });
-        }, CREATE_MS);
+        };
+        /* Only the things with a page behind them wait. A link points at an
+           address the seller just typed; there is nothing being built, and
+           a spinner over it would be the product pretending to work. */
+        if (make.wait === false) { land(); return; }
+        editSave.setAttribute('data-busy', 'true');
+        setTimeout(() => { editSave.removeAttribute('data-busy'); land(); }, CREATE_MS);
         return;
       }
 
@@ -2629,6 +2670,15 @@
             }));
             return;
           }
+          /* Create new, from inside the picker. Same road as the row that
+             opens the picker when there is nothing in it yet: pick the
+             shape, fill in the setup, and the row lands on Save. It used
+             to drop a row called "Create new booking" with times nobody
+             had chosen. */
+          if (isMake && kind === 'booking') {
+            openBookingType({ label: 'Booking', seed: '', kind: 'book', editor: 'offer', review: true });
+            return;
+          }
           addBlock({
             label: item.title,
             kind: PICKER_KIND[kind] || 'link',
@@ -2825,7 +2875,7 @@
         const creates = kind !== 'pages' && !PICKER_HAS_ANY[kind]();
         if (!creates) return openPicker(kind);
         if (limitReached()) { window.location.href = PAYWALL; return; }
-        if (kind === 'booking') return openBookingType();
+        if (kind === 'booking') return openBookingType({ label: 'Booking', seed: '', kind: 'book', editor: 'offer', review: true });
         closeAdd();
         openFormDraft((fields) => addBlock({
           label: 'Ask me a question', kind: 'form', editor: 'form',
@@ -2900,20 +2950,29 @@
     const ADD_ALIAS = {
       directions: 'map', tiktok: 'social', facebook: 'social', youtube: 'social', linkedin: 'social',
     };
+    /* ── Picking a piece opens it ──
+       Every one of these used to land on the page the moment it was
+       pressed: a link called "My website" pointing at a placeholder, a
+       WhatsApp button with somebody else's number on it. The seller then
+       had to find the row they had just been given and open it to say what
+       it actually was. The dialog comes first now — it is where the thing
+       gets filled in — and the page gets it when they press Add. */
     addContent.querySelectorAll('[data-add]:not([data-picker])').forEach((o) =>
       o.addEventListener('click', () => {
         const key = o.getAttribute('data-add');
         if (key === 'idea') return;             // the card wires its own
         closeAdd();
         if (key === 'mainlink') {
-          addBlock({ label: 'My website', kind: 'link', editor: 'mainlink' });
+          showEditor('mainlink', null, {
+            make: { label: 'My website', kind: 'link', editor: 'mainlink',
+                    /* Nothing is built behind a link, so nothing waits. */
+                    wait: false, review: false },
+          });
           return;
         }
         const slot = ADD_ALIAS[key] || key;
         if (!(slot in ON)) return;
-        ON[slot] = true;
-        refresh();
-        split.sync();
+        showEditor(slot, null, { add: slot });
       }));
 
     const VARIANTS = {
