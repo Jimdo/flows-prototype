@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Onboarding — Name</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=582ccb0">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=582ccb0">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=38330df">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=38330df">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=582ccb0">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=38330df">
 <style>
   /* ─── Screen overrides ───
      Layout, preview stage, drawer, progress pill and field sizing all come
@@ -27,18 +27,18 @@
       data-inspect-label="Setup Header — no close control"
       data-inspect-tokens='[{"prop":"padding-inline","figma":"$jui-layout-padding-l","css":"--layout-spacing-lg","value":"24px (desktop)"},{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px (desktop) / 48px (mobile)"}]'>
       <button class="setup-back-btn" aria-label="Back" data-no-phrase
-        data-nav-to="flows/onboarding-template.html">
+        data-nav-to="flows/onboarding-purpose.html" data-nav-screen-id="scr-481">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
       </button>
 
-      <div class="progress-pill" role="progressbar" aria-valuemin="1" aria-valuemax="5" aria-valuenow="2" aria-label="Step 2 of 5"
+      <div class="progress-pill" role="progressbar" aria-valuemin="1" aria-valuemax="5" aria-valuenow="3" aria-label="Step 3 of 5"
         data-inspect-label="Progress Pill"
         data-inspect-tokens='[{"prop":"background","figma":"color/gray/50","css":"--jui-color-gray-50","value":"#f8f8f8"},{"prop":"border-radius","figma":"style/radius/16","css":"--jui-style-radius-16","value":"16px"},{"prop":"padding","figma":"6 / measurements/size/8","css":"--jui-layout-padding-xs","value":"6px 8px"},{"prop":"gap","figma":"measurements/size/8","css":"--jui-layout-gap-xs","value":"8px"}]'>
+        <span class="progress-pill-step is-done"></span>
         <span class="progress-pill-step is-done"></span>
         <span class="progress-pill-step is-current"
           data-inspect-label="Progress Pill — Step in progress"
           data-inspect-tokens='[{"prop":"background","figma":"color/blue/500","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"width","figma":"measurements/size/16","css":"—","value":"16px"},{"prop":"border-radius","figma":"style/radius/12","css":"--jui-style-radius-12","value":"12px"}]'></span>
-        <span class="progress-pill-step"></span>
         <span class="progress-pill-step"></span>
         <span class="progress-pill-step"></span>
       </div>
@@ -211,8 +211,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=582ccb0"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=582ccb0"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=38330df"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=38330df"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
 

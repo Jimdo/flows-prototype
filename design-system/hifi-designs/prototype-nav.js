@@ -46,6 +46,11 @@
   function onNavClick(e) {
     var trigger = e.target.closest('[data-trigger], [data-nav-to]');
     if (!trigger) return;
+    /* A control the screen has marked as not ready does not navigate. The
+       target stays in the markup either way, because build-journey-graph.js
+       reads data-nav-to out of the file and the edge is real — it is the
+       click that is conditional, not the destination. */
+    if (trigger.getAttribute('aria-disabled') === 'true') return;
 
     var triggerName = trigger.getAttribute('data-trigger');
     var navTarget = trigger.getAttribute('data-nav-to');

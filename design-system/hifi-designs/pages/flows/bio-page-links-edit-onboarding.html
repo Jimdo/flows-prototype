@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=582ccb0">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=582ccb0">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=38330df">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=38330df">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=582ccb0">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=38330df">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -153,36 +153,59 @@
             </ul>
           </div>
 
-          <div class="edit-section" id="sectionBlocks" data-view-only="list">
-            <!-- Figma 17764:3805. The head and the pair are one group at gap 12,
-                 so that 12 is not the gap the section puts between its own
-                 label and its rows. -->
-            <div class="edit-suggest-block">
+          <!-- Figma 17765:1960. The pair and what sits over it, in a container
+               of their own — the group is the object, and the ground under it
+               is what separates it from the lists below. -->
+          <div class="edit-section" id="sectionSuggest" data-view-only="list">
               <!-- Figma 17764:3806. One tag over the pair and one way to
                    refuse them, rather than both repeated on each card: the two
                    are one offer, and saying no to it once is the whole of what
                    the seller wants to say. -->
               <div class="edit-suggest-head" id="suggestHead">
                 <span class="tag tag--positive" data-inspect-phrase="">Suggested</span>
-                <button type="button" class="btn btn-subtle btn-sm" id="dropSuggestions"
-                  aria-label="Not interested in either suggestion"
-                  data-inspect-label="Subtle Button — Not interested, Size=Small"
-                  data-inspect-phrase="suggestion.notInterested">Not interested</button>
               </div>
 
-              <!-- First load: the ideas are still being worked out. Two of them,
-                   because the pair is always one thing people book and one thing
-                   they ask about — the words are unknown, the shape is not, and
-                   standing in for one card while two arrive dropped everything
-                   below by a third of a screen. Not a skeleton: each says what
-                   is being looked for. -->
-              <div class="suggest-pending" id="suggestPending" data-pending
-                data-inspect-label="Suggestions — still coming"
-                data-inspect-phrase=""><svg class="smart-ring" aria-hidden="true"><defs><linearGradient id="smartRingPendingA" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><rect stroke="url(#smartRingPendingA)"/></svg><span class="ai-suggest-dots" aria-hidden="true"><i></i><i></i><i></i></span><p class="suggest-pending-copy">Working out something people can book…</p></div>
+              <!-- First load: the ideas are still being worked out. Two ghosts,
+                   because round one is always one thing people book and one
+                   thing they ask about — the words are unknown, the shape is
+                   not. Each is the finished card's own scaffold with bars where
+                   its name, reason and button will be, inside the same drawn
+                   gradient ring the suggestion wears, so nothing below moves
+                   when the pair lands and the wait still reads as the product
+                   thinking rather than as a failed load. -->
+              <div class="suggest-pending" id="suggestPending" data-pending aria-busy="true"
+                data-inspect-label="Suggestions — still coming"><svg class="smart-ring" aria-hidden="true"><defs><linearGradient id="smartRingPendingA" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><rect stroke="url(#smartRingPendingA)"/></svg><span class="visually-hidden" data-inspect-phrase="">Working out two suggestions…</span>
+                <span class="edit-suggestion-copy">
+                  <span class="edit-suggestion-head">
+                    <span class="skeleton suggest-ghost-glyph"></span>
+                    <span class="suggest-ghost-line suggest-ghost-name"><span class="skeleton"></span></span>
+                  </span>
+                  <span class="suggest-ghost-why">
+                    <span class="suggest-ghost-line"><span class="skeleton"></span></span>
+                    <span class="suggest-ghost-line"><span class="skeleton"></span></span>
+                  </span>
+                </span>
+                <span class="edit-suggestion-actions">
+                  <span class="skeleton suggest-ghost-action"></span>
+                </span>
+              </div>
 
-              <div class="suggest-pending" data-pending
-                data-inspect-label="Suggestions — still coming"
-                data-inspect-phrase=""><svg class="smart-ring" aria-hidden="true"><defs><linearGradient id="smartRingPendingB" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><rect stroke="url(#smartRingPendingB)"/></svg><p class="suggest-pending-copy">…and something they ask about first.</p></div>
+              <div class="suggest-pending" data-pending aria-busy="true"
+                data-inspect-label="Suggestions — still coming"><svg class="smart-ring" aria-hidden="true"><defs><linearGradient id="smartRingPendingB" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><rect stroke="url(#smartRingPendingB)"/></svg>
+                <span class="edit-suggestion-copy">
+                  <span class="edit-suggestion-head">
+                    <span class="skeleton suggest-ghost-glyph"></span>
+                    <span class="suggest-ghost-line suggest-ghost-name"><span class="skeleton"></span></span>
+                  </span>
+                  <span class="suggest-ghost-why">
+                    <span class="suggest-ghost-line"><span class="skeleton"></span></span>
+                    <span class="suggest-ghost-line"><span class="skeleton"></span></span>
+                  </span>
+                </span>
+                <span class="edit-suggestion-actions">
+                  <span class="skeleton suggest-ghost-action"></span>
+                </span>
+              </div>
 
               <ul class="edit-list" id="suggestionList">
                 <li>
@@ -231,19 +254,29 @@
                 </li>
               </ul>
 
-              <!-- Both of these are guesses about someone else's business.
-                   The way to disagree with a guess is to ask for another one. -->
-              <button type="button" class="regen regen--smart" id="regenSuggest" data-busy="false"
-                data-inspect-label="Regenerate — smart"
-                data-inspect-tokens='[{"prop":"label","figma":"@jimdo/ui smartSecondaryButton","css":"--jui-gradient-smart","value":"gradient 111deg blue-500 \u2192 red-300 \u2192 yellow-300"},{"prop":"icon","figma":"reload","css":"--jui-color-blue-500","value":"16px #004ced"}]'
-                data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="smartRegenSuggest" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><path d="M14.5 1.99976L15.5 4.54791C14.3079 3.91092 12.9461 3.5498 11.5 3.5498C6.80558 3.5498 3 7.35538 3 12.0498C3 13.8409 3.554 15.6294 4.5 16.9998" stroke="url(#smartRegenSuggest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M8.5 21.9997L7.5 19.4516C8.69215 20.0885 10.0539 20.4497 11.5 20.4497C16.1944 20.4497 20 16.6441 20 11.9497C20 10.1585 19.446 8.37009 18.5 6.99976" stroke="url(#smartRegenSuggest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span class="regen-label">Regenerate</span></button>
-            </div>
+              <!-- The two answers to the offer, side by side under it: ask for
+                   another go, or say it is not wanted. Refusing it used to sit
+                   beside the tag at the top, which put the way out above the
+                   thing it was a way out of. -->
+              <div class="edit-suggest-foot" id="suggestFoot">
+                <!-- Both of these are guesses about someone else's business.
+                     The way to disagree with a guess is to ask for another one. -->
+                <button type="button" class="regen regen--smart" id="regenSuggest" data-busy="false"
+                  data-inspect-label="Regenerate — smart"
+                  data-inspect-tokens='[{"prop":"label","figma":"@jimdo/ui smartSecondaryButton","css":"--jui-gradient-smart","value":"gradient 111deg blue-500 \u2192 red-300 \u2192 yellow-300"},{"prop":"icon","figma":"reload","css":"--jui-color-blue-500","value":"16px #004ced"}]'
+                  data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="smartRegenSuggest" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><path d="M14.5 1.99976L15.5 4.54791C14.3079 3.91092 12.9461 3.5498 11.5 3.5498C6.80558 3.5498 3 7.35538 3 12.0498C3 13.8409 3.554 15.6294 4.5 16.9998" stroke="url(#smartRegenSuggest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M8.5 21.9997L7.5 19.4516C8.69215 20.0885 10.0539 20.4497 11.5 20.4497C16.1944 20.4497 20 16.6441 20 11.9497C20 10.1585 19.446 8.37009 18.5 6.99976" stroke="url(#smartRegenSuggest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span class="regen-label">Regenerate</span></button>
+                <button type="button" class="btn btn-subtle btn-sm" id="dropSuggestions"
+                  aria-label="Not interested in either suggestion"
+                  data-inspect-label="Subtle Button — Not interested, Size=Small"
+                  data-inspect-phrase="suggestion.notInterested">Not interested</button>
+              </div>
+          </div>
 
-            <!-- Main links is the one section that is always here. Contact
-                 links and Social links arrive with their first item, because
-                 a page need never have either; the main list is what a bio
-                 page is, so it says it is empty rather than not being
-                 there. -->
+          <!-- Main links is the one section that is always here. Contact
+               links and Social links arrive with their first item, because
+               a page need never have either; the main list is what a bio
+               page is, so it says it is empty rather than not being there. -->
+          <div class="edit-section" id="sectionBlocks" data-view-only="list">
             <div class="edit-section-head" id="headBlocks">
               <p class="edit-section-title" data-inspect-phrase="biopage.edit.section.blocks">Main links</p>
             </div>
@@ -774,8 +807,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=582ccb0"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=582ccb0"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=38330df"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=38330df"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -1602,10 +1635,22 @@
       const blocksEmpty = document.getElementById('blocksEmpty');
       if (blocksEmpty) blocksEmpty.hidden = hasBlockRow;
       const noSuggestions = pending().length === 0;
-      document.getElementById('suggestHead').hidden = noSuggestions || suggestionsPending;
+      /* The tag stays up through the wait. It labels the group, and the group
+         is there while it is being filled — hiding it cost 32px that landed
+         on everything below the moment the pair arrived, which is the jump
+         the placeholder's whole height exists to prevent. */
+      document.getElementById('suggestHead').hidden = noSuggestions;
+      /* The container goes with its contents. Left in place it was a bordered
+         box round nothing, which reads as something that failed to load. */
+      document.getElementById('sectionSuggest').hidden = noSuggestions;
       // Nothing to ask again about once the pair is gone — nor once the plan
       // is full, where a re-roll only swaps one locked card for another.
-      document.getElementById('regenSuggest').hidden = noSuggestions || capped;
+      const regen = document.getElementById('regenSuggest');
+      regen.hidden = noSuggestions || capped;
+      /* The refusal stays while there is an offer to refuse, including the
+         one the plan has put a price on. */
+      const drop = document.getElementById('dropSuggestions');
+      drop.hidden = noSuggestions || suggestionsPending;
 
       /* Three states, one list. While the ideas are being worked out the
          placeholder stands where they will land; once they arrive it goes.
@@ -1622,7 +1667,6 @@
          state a re-roll wears rather than vanishing: same spinner, same
          subdued label, and it holds its own line so nothing below it steps
          down when the pair lands. */
-      const regen = document.getElementById('regenSuggest');
       if (suggestionsPending) {
         regen.hidden = false;
         regen.setAttribute('data-busy', 'true');
@@ -1631,6 +1675,11 @@
         regen.setAttribute('data-busy', 'false');
         regen.removeAttribute('aria-disabled');
       }
+      /* The row goes when neither answer is in it — worked out here, after
+         the wait has had its say about Regenerate. A flex child at zero
+         height is still a flex child, so leaving it would spend one gap on
+         nothing. */
+      document.getElementById('suggestFoot').hidden = regen.hidden && drop.hidden;
       document.getElementById('listEmpty').hidden =
         suggestionsPending || !noSuggestions || hasBlockRow;
 

@@ -536,6 +536,15 @@
    progress bar. A screen that carries a close instead needs the edges back —
    centring left the dismiss floating in the middle of the bar. */
 .app-shell-setup-single .setup-split-header { justify-content: center; }
+/* A back button is the other kind of second edge. Once a single-column step
+   is not the first one it carries one, which gives the bar a start and an end
+   again — centring the row put the back arrow next to the progress bar in the
+   middle of the screen instead of on the edge the column reads from. Scoped
+   away from the paywall variants, which answer the same question with
+   [data-explore] above and below. */
+.app-shell-setup-single:not([data-explore]) .setup-split-header:has(.setup-back-btn) {
+  justify-content: space-between;
+}
 /* The spacer that balanced the bar is dropped on desktop, which left the
    lone close button sitting at the start of a space-between row — on the
    left, where a dismiss never belongs. */

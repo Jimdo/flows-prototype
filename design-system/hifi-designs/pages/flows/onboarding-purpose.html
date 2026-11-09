@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Onboarding — Work or personal</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=38330df">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=38330df">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=38330df">
+<style>
+  /* ─── Screen overrides ───
+     The single-column setup frame, no preview: the subject of this step is
+     the answer, and there is nothing on the bio page for it to change yet.
+     Same frame as the layout picker before it. */
+
+  /* The flow's phone gutter is 16: every step before and after this one
+     starts its title there, and the shell's own 12 would put the question
+     4px left of all of them. Same override the layout picker carries — a
+     candidate for promotion into layout.css once a third step needs it. */
+  @media (max-width: 767px) {
+    .setup-split-fields { padding-left: var(--jui-layout-padding-m); padding-right: var(--jui-layout-padding-m); }
+    .setup-split-actions { padding-left: var(--jui-layout-padding-m); padding-right: var(--jui-layout-padding-m); }
+  }
+
+  /* Two cards and nothing else in the column, so on a tall screen there is a
+     lot of leftover height to place. The layout picker answers this by
+     centring its row in the space under the question; tried here, it left the
+     question stranded at the top with a 400px hole under it, because two text
+     cards do not have the visual weight a row of phone mockups does. So the
+     answers stay directly under the question they answer — which is also what
+     the name step either side of this one does with its field — and the
+     leftover collects below them, above Continue. */
+  @media (min-width: 768px) {
+    .select-card-list { flex: 0 0 auto; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="variant active" id="variant-default">
+    <div class="app-shell app-shell-setup-split app-shell-setup-single">
+
+      <div class="setup-split-header"
+        data-inspect-label="Setup Header — back + progress">
+        <button class="setup-back-btn" aria-label="Back" data-no-phrase
+          data-nav-to="flows/onboarding-template.html" data-nav-screen-id="scr-010">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+        </button>
+
+        <div class="progress-pill" role="progressbar" aria-valuemin="1" aria-valuemax="5" aria-valuenow="2" aria-label="Step 2 of 5"
+          data-inspect-label="Progress Pill"
+          data-inspect-tokens='[{"prop":"background","figma":"color/gray/50","css":"--jui-color-gray-50","value":"#f8f8f8"},{"prop":"border-radius","figma":"style/radius/16","css":"--jui-style-radius-16","value":"16px"}]'>
+          <span class="progress-pill-step is-done"></span>
+          <span class="progress-pill-step is-current"></span>
+          <span class="progress-pill-step"></span>
+          <span class="progress-pill-step"></span>
+          <span class="progress-pill-step"></span>
+        </div>
+
+        <div class="header-spacer"></div>
+      </div>
+
+      <div class="setup-split-main">
+        <div class="setup-split-form">
+          <div class="setup-split-fields">
+            <div class="setup-split-intro">
+              <!-- The question is about the page, not about the person. A
+                   solopreneur identifies with their craft and will not call
+                   themselves a business, so asking whether they are one gets
+                   the wrong answer from exactly the people this is meant to
+                   find (kb/solopreneur/01). Asking what the page is for gets
+                   the same split without making anyone claim a label. -->
+              <h1 class="setup-split-title" data-inspect-phrase="">What's this page for?</h1>
+              <!-- The reason for asking, in the same breath as the ask. -->
+              <p class="setup-split-subtitle" data-inspect-phrase="">So we set it up the right way</p>
+            </div>
+
+            <!-- Nothing is pre-selected. Every other step opens on a sensible
+                 default, but the answer is the whole point of this one, and a
+                 default is the answer most people would leave in place. The
+                 way forward waits instead. -->
+            <div class="select-card-list" role="radiogroup" aria-label="What's this page for?"
+              data-inspect-label="Select card list"
+              data-inspect-tokens='[{"prop":"gap","figma":"measurements/size/12","css":"--jui-layout-gap-s","value":"12px"},{"prop":"padding","figma":"$jui-layout-padding-m","css":"--jui-layout-padding-m","value":"16px"},{"prop":"border-radius","figma":"$jui-style-radius-l","css":"--jui-style-radius-16","value":"16px"}]'>
+
+              <!-- "or soon will" is load-bearing. Most solo businesses take
+                   one to three years to reach stability (kb/solopreneur/02),
+                   so a label that asked whether they earn from this today
+                   would push everyone still getting there into the wrong
+                   answer — and they are the ones the campaign is for. -->
+              <button type="button" class="select-card" role="radio" aria-checked="false" data-purpose="work"
+                data-inspect-label="Select card — resting"
+                data-inspect-tokens='[{"prop":"border","figma":"color/gray/100","css":"--jui-color-gray-100","value":"#e6e6e6 2px"},{"prop":"background","figma":"color/gray/white","css":"--jui-color-gray-white","value":"#ffffff"}]'>
+                <span class="select-card-copy">
+                  <span class="select-card-label" data-inspect-phrase="">My work</span>
+                  <span class="select-card-desc" data-inspect-phrase="">Something people pay me for, or soon will</span>
+                </span>
+                <span class="select-card-radio" aria-hidden="true"></span>
+              </button>
+
+              <button type="button" class="select-card" role="radio" aria-checked="false" data-purpose="personal"
+                data-inspect-label="Select card — resting">
+                <span class="select-card-copy">
+                  <span class="select-card-label" data-inspect-phrase="">Something personal</span>
+                  <span class="select-card-desc" data-inspect-phrase="">A hobby, a project, or a page about me</span>
+                </span>
+                <span class="select-card-radio" aria-hidden="true"></span>
+              </button>
+            </div>
+          </div>
+
+          <div class="setup-split-actions">
+            <button class="btn btn-primary" aria-disabled="true" id="purposeContinue"
+              data-inspect-label="Primary Button — Continue, waiting for an answer"
+              data-inspect-tokens='[{"prop":"background","figma":"color/actions/primary/rest","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"height","figma":"layout/dimension/m","css":"--jui-layout-dimension-m","value":"48px"},{"prop":"border-radius","figma":"component/button/radius","css":"--jui-component-button-radius","value":"8px"},{"prop":"opacity","figma":"—","css":"@jimdo/ui Button[aria-disabled]","value":"0.3"}]'
+              data-inspect-phrase="questionaire.cta"
+              data-trigger="primary-cta"
+              data-nav-to="flows/onboarding-name.html"
+              data-nav-screen-id="scr-011">Continue</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    var VARIANTS = {
+      'default': 'variant-default'
+    };
+    function showVariant(key) {
+      document.querySelectorAll('.variant').forEach(function(v) { v.classList.remove('active'); });
+      var target = document.getElementById(VARIANTS[key]);
+      if (target) target.classList.add('active');
+    }
+    window.addEventListener('message', function(e) {
+      if (e.data && e.data.type === 'set-variant' && VARIANTS[e.data.variant]) {
+        showVariant(e.data.variant);
+      }
+    });
+
+    /* ─── Picking one ─── */
+    /* A radiogroup of two: click or arrow-key to move the choice, and the way
+       forward opens as soon as there is one. Only the checked card is in the
+       tab order, which is what a radiogroup does — with nothing checked yet
+       the first card holds the tab stop so the group is still reachable. */
+    (function(){
+      var list = document.querySelector('.select-card-list');
+      var next = document.getElementById('purposeContinue');
+      if (!list || !next) return;
+      var cards = Array.prototype.slice.call(list.querySelectorAll('.select-card'));
+
+      function select(card, opts) {
+        cards.forEach(function(c){
+          var isSel = c === card;
+          c.setAttribute('aria-checked', isSel ? 'true' : 'false');
+          c.tabIndex = isSel ? 0 : -1;
+          c.setAttribute('data-inspect-label', isSel ? 'Select card — selected' : 'Select card — resting');
+        });
+        next.setAttribute('aria-disabled', 'false');
+        next.setAttribute('data-inspect-label', 'Primary Button — Continue');
+        if (opts && opts.focus) card.focus();
+      }
+
+      /* Nothing is checked, so the group needs one tab stop to be reachable
+         at all. */
+      cards.forEach(function(c, i){ c.tabIndex = i === 0 ? 0 : -1; });
+
+      cards.forEach(function(card){
+        card.addEventListener('click', function(){ select(card); });
+      });
+
+      list.addEventListener('keydown', function(e){
+        var i = cards.indexOf(document.activeElement);
+        if (i < 0) return;
+        var to = null;
+        if (e.key === 'ArrowDown' || e.key === 'ArrowRight') to = cards[(i + 1) % cards.length];
+        if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') to = cards[(i - 1 + cards.length) % cards.length];
+        if (e.key === 'Home') to = cards[0];
+        if (e.key === 'End') to = cards[cards.length - 1];
+        if (!to) return;
+        e.preventDefault();
+        select(to, { focus: true });
+      });
+    })();
+  </script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=38330df"></script>
+</body>
+</html>

@@ -77,6 +77,67 @@ body {
 .variant { display: none; }
 .variant.active { display: flex; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden; }
 
+/* ── Skeleton ──
+   @jimdo/ui ships one (Feedback/Skeleton, dist class hPYjN7DX) and only as
+   React, which these pages cannot import, so its rules are transcribed here
+   rather than invented: the same grey, the same white sweep at the same
+   100px over a 100deg, the same two speeds, and the same swap to a slow
+   colour pulse when motion is turned down. Upstream writes the grey as
+   rgba(230, 230, 230, …), which is gray-100 at an alpha, so it is spelled
+   that way here.
+
+   Upstream's component is a wrapper: given children it flattens them and
+   paints over their own boxes, and given none it is the shape itself. Only
+   the second half is ported — a static page knows the shape it is waiting
+   for and can just say it, and masking real text would leave the words in
+   the page for a screen reader to read out as though they had arrived. */
+.skeleton {
+  --skeleton-radius: var(--jui-style-radius-xs);
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  border-radius: var(--skeleton-radius);
+}
+.skeleton::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-color: color-mix(in srgb, var(--jui-color-gray-100) 64%, transparent);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background-color: transparent;
+  background-image: linear-gradient(100deg,
+    transparent,
+    color-mix(in srgb, var(--jui-color-gray-white) 20%, transparent) 50%,
+    transparent 80%);
+  background-repeat: repeat-y;
+  background-size: 100px 100%;
+  animation: skeleton-sweep 0.5s infinite;
+}
+/* Slower on the wide layout, where the sweep has further to travel. Both
+   numbers are upstream's. */
+@media (min-width: 768px) {
+  .skeleton::after { animation: skeleton-sweep 1s infinite; }
+}
+@keyframes skeleton-sweep {
+  to { transform: translate3d(100%, 0, 0); }
+}
+@media (prefers-reduced-motion) {
+  .skeleton::after {
+    background-image: none;
+    animation: skeleton-pulse 1.5s infinite ease-in-out;
+  }
+}
+@keyframes skeleton-pulse {
+  0%, 100% { background-color: color-mix(in srgb, var(--jui-color-gray-100) 40%, transparent); }
+  50% { background-color: color-mix(in srgb, var(--jui-color-gray-100) 64%, transparent); }
+}
+
 
 /* ─── Layer 2: Buttons ─── */
 
@@ -93,6 +154,19 @@ body {
 .btn-primary:hover { background: var(--jui-color-actions-primary-hover); }
 .btn-primary:active { background: var(--jui-color-actions-primary-pressed); }
 .btn-primary:focus-visible { outline: 2px solid var(--jui-color-actions-primary-rest); outline-offset: 2px; }
+
+/* ── A button that is not ready yet ──
+   @jimdo/ui's Button marks this with aria-disabled rather than the disabled
+   attribute, so the control keeps its tab stop and a screen reader can say
+   that it will not move yet rather than skipping it silently. Upstream drops
+   it to 0.3 and stops answering hover and active; prototype-nav.js refuses to
+   follow the link, so the two halves agree. */
+.btn[aria-disabled="true"] {
+  opacity: 0.3;
+  cursor: default;
+}
+.btn-primary[aria-disabled="true"]:hover,
+.btn-primary[aria-disabled="true"]:active { background: var(--jui-color-actions-primary-rest); }
 
 /* Subtle — mirrors @jimdo/ui Button buttonStyle="subtle":
    same dimensions as primary, transparent bg, black text,
@@ -3536,6 +3610,19 @@ body {
   color: var(--jui-color-typography-gray-on-light-default);
 }
 
+/* The second line the copy column was always built for — .select-card-copy is
+   a column with 4 between its children and until now only ever held one. A
+   card whose label is a short phrase needs a line saying what the phrase
+   covers; one whose label is already a sentence does not, so this is optional
+   rather than part of the card. */
+.select-card-desc {
+  margin: 0;
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+
 /* Radio mark — drawn rather than an <input> so the whole card is the
    control and the dot can sit on the card's own selected state. */
 .select-card-radio {
@@ -6007,16 +6094,36 @@ body {
    put the two buttons at opposite ends of a narrow card so the thumb could
    not confuse them — there is only one button in the card now. */
 
-/* ── The pair and what sits over it ──
-   Figma 17764:3805: one column at gap 12 — the head, then the cards. Its
-   own group, so the 12 inside it is not the gap the section uses between
-   its label and its rows. */
-.edit-suggest-block {
-  display: flex;
-  flex-direction: column;
+/* ── Each section in its own container ──
+   Figma 17765:1984. A 12-padded box at radius 16, gray/10 with a gray/50
+   hairline. The label and the rows it names become one object, and the
+   ground under them is what separates one group from the next — no rule
+   between them, and no guessing which label a row belongs to when the list
+   gets long.
+
+   12 inside, between the label and its rows and between the rows; 16
+   between one container and the next, which is the only gap in the column
+   wider than the gaps inside it. */
+.app-shell-setup-split[data-layout="step"] .edit-section {
+  gap: var(--jui-layout-gap-s);
+  padding: var(--jui-layout-padding-s);
+  border: 1px solid var(--jui-color-gray-50);
+  border-radius: var(--jui-style-radius-16);
+  background: var(--jui-color-background-gray-medium);
+}
+.app-shell-setup-split[data-layout="step"] .edit-section > .edit-list,
+.app-shell-setup-split[data-layout="step"] .edit-section > .edit-section-rows {
   gap: var(--jui-layout-gap-s);
 }
-.edit-suggest-block > .edit-list { gap: var(--jui-layout-gap-s); }
+/* The column's own gap is the one between containers. */
+.app-shell-setup-split[data-layout="step"] .setup-split-fields {
+  --setup-fields-gap: var(--jui-layout-gap-m);
+}
+/* A section with nothing in it is not a container with nothing in it. */
+.app-shell-setup-split[data-layout="step"] .edit-section[hidden] { display: none; }
+
+/* The group that held the head and the pair is gone: the section's own
+   container is that group now, and it already runs at gap 12. */
 
 /* ── One head over the pair ──
    Figma 17764:3806: the tag and the way to refuse, on one row above both
@@ -6028,13 +6135,28 @@ body {
   gap: var(--jui-layout-gap-s);
 }
 .edit-suggest-head[hidden] { display: none; }
-/* Content width: it is one of two things on that line, not the line. */
+
+/* ── The two answers, together under the offer ──
+   Ask for another go, or say it is not wanted. The refusal used to sit
+   beside the tag at the top, which put the way out above the thing it was a
+   way out of; down here the pair reads as the two things that can be done
+   about what is between them. Regenerate first, because the one that ends
+   the offer should not be the one the thumb reaches first. */
+.edit-suggest-foot {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-s);
+  flex-wrap: wrap;
+}
+.edit-suggest-foot[hidden] { display: none; }
+/* Content width, so the two sit together rather than each taking a line. */
 /* primitive-override */
-.edit-suggest-head > .btn {
+.edit-suggest-foot > .btn {
   width: auto;
   padding-left: var(--jui-layout-padding-s);
   padding-right: var(--jui-layout-padding-s);
 }
+/* The head is the tag alone now; what answers the offer sits under it. */
 
 /* Each card wears a Suggested tag of its own now, so the heading over them
    says the same word twice. Kept in the markup because the screen's own JS
@@ -6072,39 +6194,92 @@ body {
 }
 
 /* ── Suggestions still coming ──
-   Not a skeleton. This screen already settled that argument for the domain
-   row: a skeleton stands in for text whose shape you already know, and an
-   offer the seller has not seen yet has no shape to stand in for — a bar of
-   nothing says nothing. So the card says what is happening instead, inside
-   the same drawn gradient ring the finished suggestion wears, because the
-   thing being waited for is the product thinking. */
+   A ghost of the card, not a sentence about it. This block used to argue the
+   other way — that an offer the seller has not seen has no shape to stand in
+   for, so the wait should say what was being looked for — and it held a line
+   of copy per card. The shape is in fact known: round one is always one
+   thing people book and one thing they ask about, each a name over a reason
+   with one button beside it, and saying so in bars is quieter than saying it
+   in words the seller then has to read and discard.
+
+   The dashed gradient ring stays. It is the mark the finished suggestion
+   wears, so keeping it through the wait says the thing arriving in this box
+   is the product thinking, which no amount of grey can.
+
+   The ghost is built out of the card's own scaffold — .edit-suggestion-copy,
+   .edit-suggestion-head, the same paddings and gaps — so its height is the
+   card's height by construction. The min-height this carried before was a
+   number kept in step by hand, and it had already drifted twice. */
 .suggest-pending {
   position: relative;
   display: flex;
-  align-items: center;
+  /* Held to the top, like the card: the button sits on the name's line, not
+     halfway down a reason of unknown depth. */
+  align-items: flex-start;
   gap: var(--jui-layout-gap-s);
   width: 100%;
-  /* The height a first-round card lands at, so the list below does not move
-     when the pair arrives. It was one 56px card standing in for 368, and
-     everything under it — Regenerate, the page's own rows, the footer —
-     dropped a third of a screen the moment the ideas came back.
-     A first load is always round one, which is the only round this is ever
-     shown against, so the number is the one that will actually arrive. */
-  min-height: 180px;
-  padding: var(--jui-layout-padding-m);
+  /* 12 at the top and the sides, 16 at the foot — the card's own figures. */
+  padding: var(--jui-layout-padding-s) var(--jui-layout-padding-s)
+           var(--jui-layout-padding-m);
+  /* Transparent rather than absent, so the drawn ring does not change the
+     box — and so the two border pixels are in both heights, not one. */
   border: 1px dashed transparent;
   border-radius: var(--jui-style-radius-16);
   background: var(--jui-color-background-gray-medium);
 }
-@media (min-width: 768px) {
-  .suggest-pending { min-height: 126px; }
-}
 .suggest-pending[hidden] { display: none; }
-.suggest-pending-copy {
-  margin: 0;
-  font-size: var(--jui-typography-body-small-regular-size);
-  line-height: var(--jui-typography-body-small-regular-lh);
-  color: var(--jui-color-typography-gray-on-light-subdued);
+
+/* The icon's box. */
+.suggest-ghost-glyph { width: 16px; height: 16px; }
+
+/* One line of text: a box the height of the line it stands in for, holding a
+   bar the height of the words inside it. Two elements rather than one because
+   a bar filling the whole line box leaves no leading, and two of them stacked
+   stop reading as two lines and start reading as one grey shape with a step
+   in it. The box keeps the height structural; the bar inside keeps the white
+   between the lines. */
+.suggest-ghost-line {
+  display: flex;
+  align-items: center;
+  height: calc(var(--jui-typography-body-small-regular-size)
+             * var(--jui-typography-body-small-regular-lh));
+}
+.suggest-ghost-line > .skeleton {
+  width: 100%;
+  height: var(--jui-typography-body-small-regular-size);
+}
+/* The name is as long as the name, which does not depend on the viewport:
+   round one's two run 90px and 172px, so the pair gets 96 and 168 rather
+   than one width twice. Two identical ghosts read as one thing repeated. */
+.suggest-ghost-name { width: 96px; }
+.suggest-pending + .suggest-pending .suggest-ghost-name { width: 168px; }
+
+/* The lines of a reason have no gap between them — they are one paragraph,
+   not a stack — so they get a column of their own inside the copy, which
+   keeps the 4 above them that separates the reason from the name. */
+.suggest-ghost-why {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+/* A last line is short. */
+.suggest-ghost-why > .suggest-ghost-line:last-child { width: 70%; }
+/* Above 768 the column is wide enough that the second of the pair fits its
+   reason on one line, which is what round two actually does there. Dropping
+   the first line rather than the last leaves the short one, so the single
+   bar looks like a short reason and not a truncated long one. */
+@media (min-width: 768px) {
+  .suggest-pending + .suggest-pending .suggest-ghost-why > .suggest-ghost-line:first-child {
+    display: none;
+  }
+}
+
+/* The one button, at the size of the one button: Add it measures 67 wide at
+   both widths, and btn-sm is 32 tall. */
+.suggest-ghost-action {
+  --skeleton-radius: var(--jui-component-button-radius);
+  width: 67px;
+  height: var(--jui-layout-dimension-s);
 }
 
 /* ── A form being built ──
