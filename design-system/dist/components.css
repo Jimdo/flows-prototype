@@ -6203,13 +6203,29 @@ body {
 }
 /* The frame draws the fold as a 32px subtle button with a 16px glyph. The
    control is the whole head, so this is the glyph's box inside that button
-   rather than a button of its own. */
+   rather than a button of its own.
+
+   It belongs to the group's name, so it is centred on the name's line and
+   not on the head. Both boxes start at the same top and the box is 32 against
+   a 20 line, which put the glyph 6px low — far enough to read as a mistake
+   next to a label that is only 20 tall. The lift is half the difference,
+   worked out from the two tokens rather than written as -6, so a change to
+   either moves it. The box keeps its full 32 for the thumb, which now reaches
+   6 above the line and 6 below it: the right shape for a control that belongs
+   to that line.
+
+   Figma centres this against the whole copy column instead. That works where
+   the line under the name is one line and drifts into the middle of it as
+   soon as it wraps, which ours does at both widths. */
 .edit-section-head--suggest .edit-section-chevron {
   display: flex;
   align-items: center;
   justify-content: center;
   width: var(--jui-layout-dimension-s);
   height: var(--jui-layout-dimension-s);
+  margin-top: calc((var(--jui-typography-label-small-size)
+                  * var(--jui-typography-label-small-lh)
+                  - var(--jui-layout-dimension-s)) / 2);
   border-radius: var(--jui-component-button-radius);
 }
 .edit-section-head--suggest .edit-section-chevron svg { width: 16px; height: 16px; }
@@ -6224,8 +6240,15 @@ body {
    a group that can be re-rolled and dismissed and folded is three answers to
    a question nobody asked. Figma 17767:5477 shows neither control; Regenerate
    stays because disagreeing with a guess by asking for another is the thing a
-   seller actually does with one. It needs no rule here — .regen is already
-   inline-flex and flex-start. */
+   seller actually does with one.
+
+   .regen carries a -8 left margin so its glyph lines up with text in a column
+   that has its own padding. In here that cancelled the group's 8 exactly and
+   left the control flush against the green edge, 8px outside the column the
+   cards stand in. Zeroed, so its box starts where their boxes start — the
+   cards' borders are the line the eye tracks down this group, and the control
+   under them belongs on it. */
+.edit-section-body > .regen { margin-left: 0; }
 
 /* Each card wears a Suggested tag of its own now, so the heading over them
    says the same word twice. Kept in the markup because the screen's own JS
