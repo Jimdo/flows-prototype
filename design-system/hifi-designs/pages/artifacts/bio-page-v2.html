@@ -1476,6 +1476,13 @@
             var el = document.getElementById(id);
             if (!el) return;
             if (typeof value === 'string') el.textContent = value;
+            // A sample is a sample only until there are words. The card is
+            // authored with its title and meta drawn as bars, because on its
+            // own it is an example of what is being made; the moment a host
+            // names the thing, the bars are standing in front of the answer.
+            // (The picture keeps its placeholder — no host has supplied one,
+            // and a missing picture is its own kind of missing.)
+            if (typeof value === 'string' && value) el.classList.remove('bio-sample-text');
             el.hidden = fallbackHide || (typeof value === 'string' && !value);
           };
           set('bio-offer-title', d.offer.title);

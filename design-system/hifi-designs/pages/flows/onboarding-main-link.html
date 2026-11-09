@@ -4,21 +4,34 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Onboarding — Your most important link</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=b57f07b">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=b57f07b">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=de15ea7">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=de15ea7">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=b57f07b">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=de15ea7">
 <style>
   /* ─── Screen overrides ───
      The split frame the tagline step uses, because the argument this step
      makes is made by the preview rather than by the words: a tall card above
      two thin bars is the hierarchy, and no sentence does that job as well.
 
-     Only the resting drawer height is local: a question, two cards with a
-     line each, and the way to ask again. */
-  .app-shell-setup-split { --setup-drawer-rest-h: 420px; }
+     Only two things are local. The resting drawer height — measured, not
+     guessed: a question, two cards with a line each and the way to ask again
+     come to 368, and with the handle and the buttons that is 476. At the
+     tagline step's own height the second card was cut in half, which turns a
+     choice of two into one answer and a sliver of something. The page is one
+     drag or one tap on the handle away, and the hierarchy the preview draws
+     is below its own fold on a phone either way — and the page the frame is
+     cut to: the rich card is the tallest block a bio page carries
+     and it is the one this step is about, so the frame has to hold it *and*
+     the link bar under it. At the earlier steps' 686 the card filled the
+     frame and the thing it is supposed to sit above fell off the bottom,
+     which is the whole argument lost. Same figure the offer step used. */
+  .app-shell-setup-split {
+    --setup-drawer-rest-h: 480px;
+    --bp-natural-h: 752px;
+  }
 </style>
 </head>
 <body>
@@ -62,7 +75,7 @@
           <span class="setup-drawer-grip-shape"></span>
         </button>
 
-        <div class="setup-split-fields">
+        <div class="setup-split-fields setup-split-fields--scroll">
           <div class="setup-split-intro">
             <!-- The page already has links; what it does not have is a top of
                  the list. Naming the slot rather than the feature is what lets
@@ -187,8 +200,11 @@
        suggestion. -->
   <div class="sheet-backdrop" id="typeSheet" data-open="false" role="dialog" aria-modal="true" aria-labelledby="typeSheetTitle">
     <div class="sheet">
+      <!-- No back arrow. Edit links opens this sheet out of the add list and
+           has a level to return to; here there is nothing above it, and an
+           arrow beside the close that does the same thing is two ways out
+           drawn as two different promises. -->
       <div class="sheet-head">
-        <button type="button" class="setup-back-btn add-head-back" id="typeBack" aria-label="Back" data-no-phrase><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
         <p class="sheet-title" id="typeSheetTitle" data-inspect-phrase="">Create booking</p>
         <button type="button" class="setup-back-btn" id="typeClose" aria-label="Close" data-no-phrase><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
       </div>
@@ -266,8 +282,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=b57f07b"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=b57f07b"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=de15ea7"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=de15ea7"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
 
@@ -278,6 +294,13 @@
     const cards = [...offerList.querySelectorAll('.select-card')];
 
     let picked = null;
+
+    /* data-offer says which sheet Continue opens; the artifact's own card
+       takes one of book / pay / promo, and 'promo' is the shape with no
+       calendar icon and no price — which is what an enquiry is. Two
+       vocabularies, one line to cross between them, rather than a value the
+       artifact does not document quietly landing in the right branch. */
+    const ARTIFACT_KIND = { book: 'book', form: 'promo' };
 
     /* ── The preview ───────────────────────────────────────────────────
        The step's argument, drawn rather than said. Before a choice the
@@ -297,7 +320,7 @@
         offer: picked
           ? {
               on: true,
-              kind: picked.dataset.offer,
+              kind: ARTIFACT_KIND[picked.dataset.offer],
               title: picked.dataset.title,
               meta: picked.dataset.meta,
               cta: picked.dataset.cta,
@@ -358,6 +381,12 @@
        of vanishing, so nothing below it steps down when the pair lands. */
     const THINK_MS = 1400;
 
+    /* The capture is of the step, not of its first second and a half. The
+       screenshotter holds for this pair of flags (data/scripts/screenshot.js,
+       PAGE_SETTLE_FN) and a page that did not raise them would be filed in
+       the funnel simulator as two grey bars. */
+    window.__screenshotPending = true;
+
     function land() {
       pendingList.hidden = true;
       pendingList.removeAttribute('aria-busy');
@@ -365,6 +394,7 @@
       regen.hidden = false;
       regen.setAttribute('data-busy', 'false');
       regen.removeAttribute('aria-disabled');
+      window.__screenshotReady = true;
     }
 
     function think() {
@@ -446,11 +476,11 @@
       else openForm();
     });
 
-    /* Both ways out of the booking sheet come back here rather than going
-       on: the seller has not made anything yet, and the choice they left
-       is still on screen behind it. */
-    ['typeBack', 'typeClose'].forEach((id) =>
-      document.getElementById(id).addEventListener('click', () => closeSheet(typeSheet)));
+    /* Leaving the booking sheet comes back here rather than going on: the
+       seller has not made anything yet, and the choice they left is still on
+       screen behind it. */
+    document.getElementById('typeClose')
+      .addEventListener('click', () => closeSheet(typeSheet));
     typeSheet.addEventListener('click', (e) => { if (e.target === typeSheet) closeSheet(typeSheet); });
 
     /* ── The form ──────────────────────────────────────────────────────
