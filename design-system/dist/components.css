@@ -5275,13 +5275,32 @@ body {
   gap: var(--jui-layout-gap-xs);
   flex-wrap: wrap;
 }
+/* Label/Uppercase/Small, as the frame binds it: 12 / 600 / 1.66 with 8% of
+   tracking, in the default ink rather than the subdued one. A section title
+   is not a sentence about the rows under it — it is the name of the drawer
+   they are in, and the label style is what the system uses to say so. */
 .edit-section-title {
   margin: 0;
-  font-size: var(--jui-typography-body-small-medium-size);
-  font-weight: var(--jui-typography-body-small-medium-weight);
-  line-height: var(--jui-typography-body-small-medium-lh);
+  font-size: var(--jui-typography-label-small-size);
+  font-weight: var(--jui-typography-label-small-weight);
+  line-height: var(--jui-typography-label-small-lh);
+  letter-spacing: var(--jui-typography-label-small-ls);
+  text-transform: uppercase;
   color: var(--jui-color-typography-gray-on-light-default);
 }
+
+/* Nothing here yet. Body/Small/Regular and subdued, left under the label —
+   it is a statement about the drawer, not an invitation, so it sits where
+   the first row would and says what is missing without asking for
+   anything. */
+.edit-section-empty {
+  margin: 0;
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+.edit-section-empty[hidden] { display: none; }
 /* Why this group cannot be dragged, said once where the question comes up. */
 .edit-section-note {
   margin: 0;
@@ -5313,7 +5332,10 @@ body {
   gap: var(--jui-layout-gap-s);
   width: 100%;
   min-height: var(--jui-layout-dimension-m);
-  padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-s);
+  /* 8 on every side, the way the frame binds it — layout/base at the tile
+     and padding-xs at the menu, which are the same 8. The 40 tile inside
+     makes the row 56. */
+  padding: var(--jui-layout-padding-xs);
   border: 1px solid var(--jui-color-stroke-gray-default);
   border-radius: var(--jui-style-radius-12);
   background: var(--jui-color-gray-white);
@@ -5367,12 +5389,48 @@ body {
 }
 .edit-row-icon svg { width: 100%; height: 100%; display: block; }
 
-.edit-row-grip {
+/* ── The tile the kind wears ──
+   Figma 17758:3618. A 40 square of background-positive-light — 12 of padding
+   round a 16 glyph — at radius layout/base. The green says the row is a
+   thing the page is carrying, which is what separates it from the dashed
+   suggestion above it.
+
+   Two marks live in this one cell: the kind's icon, and the drag handle
+   that takes its place under the pointer. Stacked rather than side by side,
+   because the name must not step sideways when the pointer crosses the
+   row. */
+.edit-row-tile {
+  position: relative;
   flex-shrink: 0;
-  width: 20px;
-  height: 20px;
-  /* It is a button now rather than a span, so the browser's own button
-     fill and border have to be cleared or the handle sits in a grey box. */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--jui-layout-padding-s);
+  border-radius: var(--jui-layout-base);
+  background: var(--jui-color-background-positive-light);
+}
+.edit-row-tile > .edit-row-icon {
+  width: 16px;
+  height: 16px;
+  /* The glyph is the default ink, not the positive one — only the ground
+     under it is green. Read off the frame, where it samples pure black. */
+  color: var(--jui-color-typography-gray-on-light-default);
+  transition: opacity 120ms ease;
+}
+
+/* ── The handle ──
+   The whole tile, always, rather than a 20px glyph that appears on hover.
+   Only its mark waits for the pointer: a handle that is not there until a
+   pointer arrives is a handle nobody finds, and on a touch screen there is
+   no pointer at all — so the surface stays and the drawing is what comes
+   and goes. */
+.edit-row-grip {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* It is a button, so the browser's own fill and border have to go. */
   padding: 0;
   border: 0;
   background: none;
@@ -5381,23 +5439,37 @@ body {
   /* Above the open target's overlay. The overlay is a ::after on a later
      sibling, so at auto z-index it paints over anything positioned before
      it — the handle would be visible and dead. */
-  position: relative;
   z-index: 1;
   /* The browser's own scroll gesture and a drag start the same way on touch;
      this one is ours. */
   touch-action: none;
+  opacity: 0;
+  transition: opacity 120ms ease;
 }
-.edit-row-grip svg { width: 100%; height: 100%; display: block; }
+.edit-row-grip svg { width: 16px; height: 16px; display: block; }
 .edit-row-grip:active { cursor: grabbing; }
 
+/* The swap. Focus counts as well as hover, or the handle is unreachable by
+   keyboard — it is a button in the tab order either way, and one that shows
+   nothing when focused is a button that cannot be seen to be focused. */
+.edit-row:hover .edit-row-grip,
+.edit-row:focus-within .edit-row-grip,
+.edit-list li.is-dragging .edit-row-grip { opacity: 1; }
+.edit-row:hover .edit-row-tile > .edit-row-icon,
+.edit-row:focus-within .edit-row-tile > .edit-row-icon,
+.edit-list li.is-dragging .edit-row-tile > .edit-row-icon { opacity: 0; }
+
+/* Body/Small/Medium, which is what the frame binds — it had been regular,
+   so every row's name sat a weight below the one the design asks for. */
 .edit-row-label {
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: var(--jui-typography-body-small-regular-size);
-  line-height: var(--jui-typography-body-small-regular-lh);
+  font-size: var(--jui-typography-body-small-medium-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  line-height: var(--jui-typography-body-small-medium-lh);
   color: var(--jui-color-typography-gray-on-light-default);
 }
 

@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=d6775ef">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=d6775ef">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=4f7bf59">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=4f7bf59">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=d6775ef">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=4f7bf59">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -114,32 +114,38 @@
 
           <div class="edit-section" id="sectionContact" data-edits="contact" data-view-only="list" hidden>
             <div class="edit-section-head">
-              <p class="edit-section-title" data-inspect-phrase="biopage.edit.section.contact">Contact buttons</p>
+              <p class="edit-section-title" data-inspect-phrase="biopage.edit.section.contact">Contact links</p>
             </div>
             <ul class="edit-list">
               <li>
                 <div class="edit-row" id="rowWhatsapp" data-no-phrase data-editor="whatsapp" hidden>
-                  <button type="button" class="edit-row-grip" data-drag-handle aria-label="Drag to reorder: WhatsApp" data-no-phrase><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></button>
-                  <button type="button" class="edit-row-open" data-row-open aria-haspopup="dialog" aria-label="Edit: WhatsApp" data-no-phrase>
+                  <span class="edit-row-tile">
                     <span class="edit-row-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 21a9 9 0 1 0-7.8-4.5L3 21l4.5-1.2A9 9 0 0 0 12 21Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                    <button type="button" class="edit-row-grip" data-drag-handle aria-label="Drag to reorder: WhatsApp" data-no-phrase><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></button>
+                  </span>
+                  <button type="button" class="edit-row-open" data-row-open aria-haspopup="dialog" aria-label="Edit: WhatsApp" data-no-phrase>
                     <span class="edit-row-label">WhatsApp</span>
                   </button>
                 </div>
               </li>
               <li>
                 <div class="edit-row" id="rowEmail" data-no-phrase data-editor="email" hidden>
-                  <button type="button" class="edit-row-grip" data-drag-handle aria-label="Drag to reorder: Email me" data-no-phrase><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></button>
-                  <button type="button" class="edit-row-open" data-row-open aria-haspopup="dialog" aria-label="Edit: Email me" data-no-phrase>
+                  <span class="edit-row-tile">
                     <span class="edit-row-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="m22 7-10 5L2 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                    <button type="button" class="edit-row-grip" data-drag-handle aria-label="Drag to reorder: Email me" data-no-phrase><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></button>
+                  </span>
+                  <button type="button" class="edit-row-open" data-row-open aria-haspopup="dialog" aria-label="Edit: Email me" data-no-phrase>
                     <span class="edit-row-label">Email me</span>
                   </button>
                 </div>
               </li>
               <li>
                 <div class="edit-row" id="rowCall" data-no-phrase data-editor="call" hidden>
-                  <button type="button" class="edit-row-grip" data-drag-handle aria-label="Drag to reorder: Call" data-no-phrase><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></button>
-                  <button type="button" class="edit-row-open" data-row-open aria-haspopup="dialog" aria-label="Edit: Call" data-no-phrase>
+                  <span class="edit-row-tile">
                     <span class="edit-row-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1.1 1A16 16 0 0 1 4 5.1 1 1 0 0 1 5 4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                    <button type="button" class="edit-row-grip" data-drag-handle aria-label="Drag to reorder: Call" data-no-phrase><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></button>
+                  </span>
+                  <button type="button" class="edit-row-open" data-row-open aria-haspopup="dialog" aria-label="Edit: Call" data-no-phrase>
                     <span class="edit-row-label">Call</span>
                   </button>
                 </div>
@@ -233,24 +239,37 @@
               data-inspect-tokens='[{"prop":"label","figma":"@jimdo/ui smartSecondaryButton","css":"--jui-gradient-smart","value":"gradient 111deg blue-500 \u2192 red-300 \u2192 yellow-300"},{"prop":"icon","figma":"reload","css":"--jui-color-blue-500","value":"16px #004ced"}]'
               data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="smartRegenSuggest" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><path d="M14.5 1.99976L15.5 4.54791C14.3079 3.91092 12.9461 3.5498 11.5 3.5498C6.80558 3.5498 3 7.35538 3 12.0498C3 13.8409 3.554 15.6294 4.5 16.9998" stroke="url(#smartRegenSuggest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M8.5 21.9997L7.5 19.4516C8.69215 20.0885 10.0539 20.4497 11.5 20.4497C16.1944 20.4497 20 16.6441 20 11.9497C20 10.1585 19.446 8.37009 18.5 6.99976" stroke="url(#smartRegenSuggest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span class="regen-label">Regenerate</span></button>
 
-            <div class="edit-section-head" id="headBlocks" hidden>
-              <p class="edit-section-title" data-inspect-phrase="biopage.edit.section.blocks">On your page</p>
+            <!-- Main links is the one section that is always here. Contact
+                 links and Social links arrive with their first item, because
+                 a page need never have either; the main list is what a bio
+                 page is, so it says it is empty rather than not being
+                 there. -->
+            <div class="edit-section-head" id="headBlocks">
+              <p class="edit-section-title" data-inspect-phrase="biopage.edit.section.blocks">Main links</p>
             </div>
+            <p class="edit-section-empty" id="blocksEmpty"
+              data-inspect-label="Main links — empty"
+              data-inspect-tokens='[{"prop":"name","figma":"Body/Small/Regular","css":"--jui-typography-body-small-regular-size","value":"14 / 400 / 1.57"},{"prop":"color","figma":"$jui-color-typography-gray-on-light-subdued","css":"--jui-color-typography-gray-on-light-subdued","value":"#6d6d6d"}]'
+              data-inspect-phrase="biopage.edit.section.blocksEmpty" hidden>Nothing added yet</p>
             <ul class="edit-list" id="blockList">
               <li>
                 <div class="edit-row" id="rowMainlink" data-edits="mainlink" data-no-phrase data-editor="mainlink" hidden>
-                  <button type="button" class="edit-row-grip" data-drag-handle aria-label="Drag to reorder: My website" data-no-phrase><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></button>
-                  <button type="button" class="edit-row-open" data-row-open aria-haspopup="dialog" aria-label="Edit: My website" data-no-phrase>
+                  <span class="edit-row-tile">
                     <span class="edit-row-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M10 14L15 9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M12.5 15.5C13.0523 16.0523 13.0523 16.9477 12.5 17.5L8.91422 21.0858C8.13317 21.8668 6.86684 21.8668 6.08579 21.0858L2.91422 17.9142C2.13317 17.1332 2.13317 15.8668 2.91422 15.0858L6.5 11.5C7.05229 10.9477 7.94772 10.9477 8.5 11.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M11.5 8.5C10.9477 7.94771 10.9477 7.05228 11.5 6.5L15.0858 2.91421C15.8668 2.13316 17.1331 2.13316 17.9142 2.91421L21.0858 6.08579C21.8668 6.86683 21.8668 8.13316 21.0858 8.91421L17.5 12.5C16.9477 13.0523 16.0523 13.0523 15.5 12.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></span>
+                    <button type="button" class="edit-row-grip" data-drag-handle aria-label="Drag to reorder: My website" data-no-phrase><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></button>
+                  </span>
+                  <button type="button" class="edit-row-open" data-row-open aria-haspopup="dialog" aria-label="Edit: My website" data-no-phrase>
                     <span class="edit-row-label">My website</span>
                   </button>
                 </div>
               </li>
               <li>
                 <div class="edit-row" id="rowMap" data-edits="map" data-no-phrase data-editor="map" hidden>
-                  <button type="button" class="edit-row-grip" data-drag-handle aria-label="Drag to reorder: Elbe Einkaufszentrum" data-no-phrase><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></button>
-                  <button type="button" class="edit-row-open" data-row-open aria-haspopup="dialog" aria-label="Edit: Elbe Einkaufszentrum" data-no-phrase>
+                  <span class="edit-row-tile">
                     <span class="edit-row-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/></svg></span>
+                    <button type="button" class="edit-row-grip" data-drag-handle aria-label="Drag to reorder: Elbe Einkaufszentrum" data-no-phrase><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></button>
+                  </span>
+                  <button type="button" class="edit-row-open" data-row-open aria-haspopup="dialog" aria-label="Edit: Elbe Einkaufszentrum" data-no-phrase>
                     <span class="edit-row-label">Elbe Einkaufszentrum</span>
                   </button>
                 </div>
@@ -264,15 +283,17 @@
 
           <div class="edit-section" id="sectionSocial" data-view-only="list" hidden>
             <div class="edit-section-head">
-              <p class="edit-section-title" data-inspect-phrase="biopage.edit.section.social">Social icons</p>
+              <p class="edit-section-title" data-inspect-phrase="biopage.edit.section.social">Social links</p>
               <p class="edit-section-note" data-inspect-phrase="biopage.edit.section.socialNote">A row at the foot</p>
             </div>
             <ul class="edit-list">
               <li>
                 <div class="edit-row" id="rowSocial" data-no-phrase data-editor="social" hidden>
-                  <button type="button" class="edit-row-grip" data-drag-handle aria-label="Drag to reorder: Instagram" data-no-phrase><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></button>
-                  <button type="button" class="edit-row-open" data-row-open aria-haspopup="dialog" aria-label="Edit: Instagram" data-no-phrase>
+                  <span class="edit-row-tile">
                     <span class="edit-row-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M10 14L15 9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M12.5 15.5C13.0523 16.0523 13.0523 16.9477 12.5 17.5L8.91422 21.0858C8.13317 21.8668 6.86684 21.8668 6.08579 21.0858L2.91422 17.9142C2.13317 17.1332 2.13317 15.8668 2.91422 15.0858L6.5 11.5C7.05229 10.9477 7.94772 10.9477 8.5 11.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M11.5 8.5C10.9477 7.94771 10.9477 7.05228 11.5 6.5L15.0858 2.91421C15.8668 2.13316 17.1331 2.13316 17.9142 2.91421L21.0858 6.08579C21.8668 6.86683 21.8668 8.13316 21.0858 8.91421L17.5 12.5C16.9477 13.0523 16.0523 13.0523 15.5 12.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></span>
+                    <button type="button" class="edit-row-grip" data-drag-handle aria-label="Drag to reorder: Instagram" data-no-phrase><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></button>
+                  </span>
+                  <button type="button" class="edit-row-open" data-row-open aria-haspopup="dialog" aria-label="Edit: Instagram" data-no-phrase>
                     <span class="edit-row-label">Instagram</span>
                   </button>
                 </div>
@@ -428,7 +449,7 @@
                quick actions step does it: a list that opens at its full
                length is a list to get through. -->
           <div class="add-group">
-            <p class="add-group-title" data-inspect-phrase="biopage.add.group.contact">Contact buttons</p>
+            <p class="add-group-title" data-inspect-phrase="biopage.add.group.contact">Contact links</p>
             <button type="button" class="add-option" data-add="whatsapp" data-no-phrase>
               <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 21a9 9 0 1 0-7.8-4.5L3 21l4.5-1.2A9 9 0 0 0 12 21Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
               <span class="add-option-copy">
@@ -477,7 +498,7 @@
           </div>
 
           <div class="add-group">
-            <p class="add-group-title" data-inspect-phrase="biopage.edit.section.social">Social icons</p>
+            <p class="add-group-title" data-inspect-phrase="biopage.edit.section.social">Social links</p>
             <button type="button" class="add-option" data-add="social" data-no-phrase>
               <span class="add-option-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M17.5 6.5h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
               <span class="add-option-copy">
@@ -753,8 +774,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=d6775ef"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=d6775ef"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=4f7bf59"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=4f7bf59"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -1028,16 +1049,23 @@
          a booking they filled in and a form they approved are both
          finished. What was written for them is said inside the editor,
          where they can act on it. */
-      open.innerHTML =
+      /* The kind's mark goes in the tile beside the body, not inside it —
+         the tile is a cell of its own now, holding the icon and the drag
+         handle that replaces it under the pointer. */
+      const tile = document.createElement('span');
+      tile.className = 'edit-row-tile';
+      tile.innerHTML =
         '<span class="edit-row-icon">' + iconFor(kind) +
-          '<span class="setup-status-spinner" aria-hidden="true"></span></span>' +
-        '<span class="edit-row-label">' + label + '</span>';
+          '<span class="setup-status-spinner" aria-hidden="true"></span></span>';
+      tile.appendChild(handle);
+
+      open.innerHTML = '<span class="edit-row-label">' + label + '</span>';
       open.addEventListener('click', () => {
         if (BLOCKS.get(key).creating) return;
         showEditor(BLOCKS.get(key).editor, key);
       });
 
-      row.append(handle, open, rowMenu({ label, kind: editor, blockKey: key }));
+      row.append(tile, open, rowMenu({ label, kind: editor, blockKey: key }));
       li.appendChild(row);
       document.getElementById('blockList').appendChild(li);
 
@@ -1567,7 +1595,10 @@
 
       const hasBlockRow = Object.keys(BLOCK_ROWS).some((id) => ON[BLOCK_ROWS[id]]) ||
         BLOCKS.size > 0;
-      document.getElementById('headBlocks').hidden = !hasBlockRow;
+      /* The label stays; what changes under it is a list or a line saying
+         there is nothing in it yet. */
+      const blocksEmpty = document.getElementById('blocksEmpty');
+      if (blocksEmpty) blocksEmpty.hidden = hasBlockRow;
       const noSuggestions = pending().length === 0;
       document.getElementById('headSuggest').hidden = noSuggestions;
       // Nothing to ask again about once the pair is gone — nor once the plan
