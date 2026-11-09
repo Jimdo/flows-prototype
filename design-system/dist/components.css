@@ -5408,6 +5408,7 @@ body {
   padding: var(--jui-layout-padding-s);
   border-radius: var(--jui-layout-base);
   background: var(--jui-color-background-positive-light);
+  transition: background-color 120ms ease;
 }
 .edit-row-tile > .edit-row-icon {
   width: 16px;
@@ -5451,7 +5452,16 @@ body {
 
 /* The swap. Focus counts as well as hover, or the handle is unreachable by
    keyboard — it is a button in the tab order either way, and one that shows
-   nothing when focused is a button that cannot be seen to be focused. */
+   nothing when focused is a button that cannot be seen to be focused.
+
+   The ground changes with the mark: green says what the row is, and primary
+   says what you can do to it. Holding the green under a drag handle asked
+   one tile to mean both at once. */
+.edit-row:hover .edit-row-tile,
+.edit-row:focus-within .edit-row-tile,
+.edit-list li.is-dragging .edit-row-tile {
+  background: var(--jui-color-background-primary-light);
+}
 .edit-row:hover .edit-row-grip,
 .edit-row:focus-within .edit-row-grip,
 .edit-list li.is-dragging .edit-row-grip { opacity: 1; }
@@ -5541,12 +5551,10 @@ body {
    booking" — so it carries no separate tag beside it. It is set a step up
    from a finished row's label: a suggestion is the thing being read, where a
    row is one of a list being scanned. */
-.edit-suggestion-head .edit-row-label {
-  white-space: normal;
-  font-size: var(--jui-typography-sub-headline-small-size);
-  font-weight: var(--jui-typography-sub-headline-small-weight);
-  line-height: var(--jui-typography-sub-headline-small-lh);
-}
+/* No size of its own. The frame binds Body/Small/Medium here, which is what
+   .edit-row-label already is — this used to lift the name to
+   subheadline/small, from when the head was the tag's row rather than the
+   name's. Wrapping is set with the rest of the card's step rules. */
 
 /* ── A row being made ──
    The page it points at does not exist yet, so the row says so rather than
@@ -5910,16 +5918,18 @@ body {
    the gradient says the product wrote this, which is what a suggestion is. */
 .app-shell-setup-split[data-layout="step"] .edit-suggestion {
   position: relative;
-  /* A column at every width. The v1 card turns into a row above 768, which
-     worked when its head carried the icon and the words together — here the
-     head carries the icon and the tag, and the name is a sibling, so a row
-     laid the tag across the name. Specificity does the overriding: the rule
-     that sets the row is a bare .edit-suggestion inside a media query, and a
-     media query adds none. */
-  flex-direction: column;
-  align-items: stretch;
+  /* Figma 17764:3809. The words on the left and the one way in on the right,
+     at every width, both held to the top. The tag that used to share the
+     card's first line with the icon has gone to the head above the pair, so
+     the icon joins the name where the frame puts it and the card is two
+     columns rather than two rows. */
+  flex-direction: row;
+  align-items: flex-start;
   gap: var(--jui-layout-gap-s);
-  padding: var(--jui-layout-padding-m);
+  /* 12 at the top and the sides, 16 at the foot — the frame is deeper under
+     the reason than over the name. */
+  padding: var(--jui-layout-padding-s) var(--jui-layout-padding-s)
+           var(--jui-layout-padding-m);
   /* Transparent rather than removed, so the ring drawn over it does not
      change the box the frame measures. */
   border: 1px dashed transparent;
@@ -5955,64 +5965,75 @@ body {
   stroke-width: 1px;
   stroke-dasharray: 3 3;
 }
-/* Icon and tag on one line, the name and its reason under them. The icon
-   labels the card from above now rather than from beside it, so it sits on
-   the tag's centre instead of the name's first line. */
+/* The icon beside the name, 8 apart, on the words' first line — the mark
+   labels the name rather than the card. */
 .app-shell-setup-split[data-layout="step"] .edit-suggestion-head {
+  display: flex;
   align-items: center;
-  gap: var(--jui-layout-gap-s);
-  /* Neither half of the card grows. The width rule above lays the v1
-     suggestion out as a row on desktop and stretches these two to fill it;
-     in a column that turns a 20px strip into whatever is left over. */
+  gap: var(--jui-layout-gap-xs);
   flex: 0 0 auto;
+  width: 100%;
 }
-.app-shell-setup-split[data-layout="step"] .edit-suggestion-mark {
-  width: 16px;
-  height: 16px;
-  margin-top: 0;
-}
-/* The glyph inside it too — the mark is 16 but the icon it holds is sized
-   for a row, where it is 20. */
+/* 16, not the 20 a row gives it. */
 .app-shell-setup-split[data-layout="step"] .edit-suggestion .edit-row-icon,
 .app-shell-setup-split[data-layout="step"] .edit-suggestion .edit-row-icon svg {
   width: 16px;
   height: 16px;
+  flex-shrink: 0;
 }
+/* The name does not truncate here: a suggestion is read, and the reason
+   under it already wraps. */
+.app-shell-setup-split[data-layout="step"] .edit-suggestion .edit-row-label {
+  white-space: normal;
+  overflow: visible;
+}
+/* The words take the room; 4 between the name and its reason. */
 .app-shell-setup-split[data-layout="step"] .edit-suggestion-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   gap: var(--jui-layout-gap-xxs);
-  flex: 0 0 auto;
+  flex: 1 0 0;
+  min-width: 0;
 }
 .app-shell-setup-split[data-layout="step"] .edit-suggestion-actions {
   justify-content: flex-end;
   gap: var(--jui-layout-gap-s);
+  flex-shrink: 0;
 }
 
-/* ── Refusing a suggestion, on a phone ──
-   "Not interested" and "Add it" are the same size and the same shape, and
-   side by side at the right end of a narrow card the thumb has to pick the
-   right one of two adjacent words. So the refusal becomes its mark and goes
-   to the far left: the card's two ends are as far apart as the card allows,
-   and only one of them still reads as an offer. The words stay on the
-   button for anyone listening to it. */
-.edit-suggestion-drop-mark { display: none; }
-@media (max-width: 767px) {
-  .app-shell-setup-split[data-layout="step"] .edit-suggestion-actions {
-    justify-content: space-between;
-  }
-  /* A 32 square, which is what btn-sm is tall — so the X keeps the row's
-     height and only loses its words. */
-  .app-shell-setup-split[data-layout="step"] .edit-suggestion-drop {
-    width: var(--jui-layout-dimension-s);
-    min-width: var(--jui-layout-dimension-s);
-    padding: 0;
-    flex-shrink: 0;
-  }
-  .app-shell-setup-split[data-layout="step"] .edit-suggestion-drop > span { display: none; }
-  .app-shell-setup-split[data-layout="step"] .edit-suggestion-drop .edit-suggestion-drop-mark {
-    display: block;
-    width: 16px;
-    height: 16px;
-  }
+/* The per-card refusal is gone and the X it wore on a phone with it: one
+   offer, one way to refuse it, on the head above the pair. What was here
+   put the two buttons at opposite ends of a narrow card so the thumb could
+   not confuse them — there is only one button in the card now. */
+
+/* ── The pair and what sits over it ──
+   Figma 17764:3805: one column at gap 12 — the head, then the cards. Its
+   own group, so the 12 inside it is not the gap the section uses between
+   its label and its rows. */
+.edit-suggest-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-s);
+}
+.edit-suggest-block > .edit-list { gap: var(--jui-layout-gap-s); }
+
+/* ── One head over the pair ──
+   Figma 17764:3806: the tag and the way to refuse, on one row above both
+   cards, 12 apart. They used to sit inside each card — two tags saying the
+   same word, and two ways to say no to halves of one offer. */
+.edit-suggest-head {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-s);
+}
+.edit-suggest-head[hidden] { display: none; }
+/* Content width: it is one of two things on that line, not the line. */
+/* primitive-override */
+.edit-suggest-head > .btn {
+  width: auto;
+  padding-left: var(--jui-layout-padding-s);
+  padding-right: var(--jui-layout-padding-s);
 }
 
 /* Each card wears a Suggested tag of its own now, so the heading over them
@@ -6175,19 +6196,9 @@ body {
     padding-top: var(--jui-layout-padding-m);
   }
 
-  /* Two rows: the tag and the actions share the first, the words take the
-     second whole. 12 between them, 16 around. */
-  .app-shell-setup-split[data-layout="step"] .edit-suggestion {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    grid-template-areas: "head actions" "copy copy";
-    align-items: center;
-    row-gap: var(--jui-layout-gap-s);
-    column-gap: var(--jui-layout-gap-s);
-  }
-  .app-shell-setup-split[data-layout="step"] .edit-suggestion-head { grid-area: head; }
-  .app-shell-setup-split[data-layout="step"] .edit-suggestion-actions { grid-area: actions; }
-  .app-shell-setup-split[data-layout="step"] .edit-suggestion-copy { grid-area: copy; }
+  /* No grid any more. The card is the same two columns at every width now
+     that the tag has left its first line — it was a grid to keep the tag
+     off the name, and there is no tag in it to keep off. */
 
   /* Figma 17672:2865. The desktop frame has no bar above the columns at
      all: the switch and Done move down to the foot of the setup column,
