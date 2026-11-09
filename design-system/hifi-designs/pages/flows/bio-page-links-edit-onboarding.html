@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=38330df">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=38330df">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=986c446">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=986c446">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=38330df">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=986c446">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -156,14 +156,33 @@
           <!-- Figma 17765:1960. The pair and what sits over it, in a container
                of their own — the group is the object, and the ground under it
                is what separates it from the lists below. -->
-          <div class="edit-section" id="sectionSuggest" data-view-only="list">
-              <!-- Figma 17764:3806. One tag over the pair and one way to
-                   refuse them, rather than both repeated on each card: the two
-                   are one offer, and saying no to it once is the whole of what
-                   the seller wants to say. -->
-              <div class="edit-suggest-head" id="suggestHead">
-                <span class="tag tag--positive" data-inspect-phrase="">Suggested</span>
-              </div>
+          <div class="edit-section edit-section--fold" id="sectionSuggest" data-view-only="list" data-open="true" data-tone="positive">
+              <!-- Figma 17767:5590. The group names itself and says what the
+                   pair is, and the whole head folds it shut. The tag that used
+                   to sit here read "Suggested" and nothing else; the way to
+                   refuse both has gone, because folding the group away is
+                   already how a seller puts an offer down. -->
+              <button type="button" class="edit-section-head edit-section-head--suggest" id="suggestHead"
+                aria-expanded="true" aria-controls="suggestBody" data-no-phrase
+                data-inspect-label="Suggestions — group head, folds">
+                <span class="edit-suggest-head-copy">
+                  <p class="edit-section-title" data-inspect-phrase="">Suggestions</p>
+                  <!-- What adding one actually does, which is the part a
+                       seller cannot guess: a suggestion is not a link to
+                       somewhere else, it is a page of their own with one
+                       thing on it to act on. Said without naming the thing —
+                       "action page" is Jimdo's word for it, not theirs, and a
+                       product noun here would be a term to learn before the
+                       sentence pays off. Ends on what it is for, in their
+                       register: clients, not conversions or customers.
+                       Hardcoded for now; the real one reads from what the
+                       seller said they do. -->
+                  <p class="edit-suggest-note" data-inspect-phrase="">Each adds a page with something to book or ask about, so people who find you become clients.</p>
+                </span>
+                <span class="edit-section-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5.99977 9.00005L11.9998 15L17.9998 9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></span>
+              </button>
+
+              <div class="edit-section-body" id="suggestBody">
 
               <!-- First load: the ideas are still being worked out. Two ghosts,
                    because round one is always one thing people book and one
@@ -254,21 +273,12 @@
                 </li>
               </ul>
 
-              <!-- The two answers to the offer, side by side under it: ask for
-                   another go, or say it is not wanted. Refusing it used to sit
-                   beside the tag at the top, which put the way out above the
-                   thing it was a way out of. -->
-              <div class="edit-suggest-foot" id="suggestFoot">
                 <!-- Both of these are guesses about someone else's business.
                      The way to disagree with a guess is to ask for another one. -->
                 <button type="button" class="regen regen--smart" id="regenSuggest" data-busy="false"
                   data-inspect-label="Regenerate — smart"
                   data-inspect-tokens='[{"prop":"label","figma":"@jimdo/ui smartSecondaryButton","css":"--jui-gradient-smart","value":"gradient 111deg blue-500 \u2192 red-300 \u2192 yellow-300"},{"prop":"icon","figma":"reload","css":"--jui-color-blue-500","value":"16px #004ced"}]'
                   data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="smartRegenSuggest" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><path d="M14.5 1.99976L15.5 4.54791C14.3079 3.91092 12.9461 3.5498 11.5 3.5498C6.80558 3.5498 3 7.35538 3 12.0498C3 13.8409 3.554 15.6294 4.5 16.9998" stroke="url(#smartRegenSuggest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M8.5 21.9997L7.5 19.4516C8.69215 20.0885 10.0539 20.4497 11.5 20.4497C16.1944 20.4497 20 16.6441 20 11.9497C20 10.1585 19.446 8.37009 18.5 6.99976" stroke="url(#smartRegenSuggest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span class="regen-label">Regenerate</span></button>
-                <button type="button" class="btn btn-subtle btn-sm" id="dropSuggestions"
-                  aria-label="Not interested in either suggestion"
-                  data-inspect-label="Subtle Button — Not interested, Size=Small"
-                  data-inspect-phrase="suggestion.notInterested">Not interested</button>
               </div>
           </div>
 
@@ -807,8 +817,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=38330df"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=38330df"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=986c446"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=986c446"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -1623,10 +1633,12 @@
         if (go.innerHTML !== want) go.innerHTML = want;
       });
 
-      /* One tag for the pair, so it changes colour once rather than twice. */
-      const suggestTag = document.querySelector('#suggestHead .tag');
-      suggestTag.classList.toggle('tag--positive', !capped);
-      suggestTag.classList.toggle('tag--upgrade', capped);
+      /* The tag that carried the pair's colour has gone with the head
+         rework, and the group's own ground carries it instead: green while
+         the offer is free to take, the upgrade tint once the plan has put a
+         price on it. */
+      document.getElementById('sectionSuggest')
+        .setAttribute('data-tone', capped ? 'upgrade' : 'positive');
 
       const hasBlockRow = Object.keys(BLOCK_ROWS).some((id) => ON[BLOCK_ROWS[id]]) ||
         BLOCKS.size > 0;
@@ -1635,10 +1647,10 @@
       const blocksEmpty = document.getElementById('blocksEmpty');
       if (blocksEmpty) blocksEmpty.hidden = hasBlockRow;
       const noSuggestions = pending().length === 0;
-      /* The tag stays up through the wait. It labels the group, and the group
-         is there while it is being filled — hiding it cost 32px that landed
-         on everything below the moment the pair arrived, which is the jump
-         the placeholder's whole height exists to prevent. */
+      /* The head stays up through the wait. It names the group, and the
+         group is there while it is being filled — hiding it cost 32px that
+         landed on everything below the moment the pair arrived, which is the
+         jump the placeholder's whole height exists to prevent. */
       document.getElementById('suggestHead').hidden = noSuggestions;
       /* The container goes with its contents. Left in place it was a bordered
          box round nothing, which reads as something that failed to load. */
@@ -1647,10 +1659,6 @@
       // is full, where a re-roll only swaps one locked card for another.
       const regen = document.getElementById('regenSuggest');
       regen.hidden = noSuggestions || capped;
-      /* The refusal stays while there is an offer to refuse, including the
-         one the plan has put a price on. */
-      const drop = document.getElementById('dropSuggestions');
-      drop.hidden = noSuggestions || suggestionsPending;
 
       /* Three states, one list. While the ideas are being worked out the
          placeholder stands where they will land; once they arrive it goes.
@@ -1675,11 +1683,6 @@
         regen.setAttribute('data-busy', 'false');
         regen.removeAttribute('aria-disabled');
       }
-      /* The row goes when neither answer is in it — worked out here, after
-         the wait has had its say about Regenerate. A flex child at zero
-         height is still a flex child, so leaving it would spend one gap on
-         nothing. */
-      document.getElementById('suggestFoot').hidden = regen.hidden && drop.hidden;
       document.getElementById('listEmpty').hidden =
         suggestionsPending || !noSuggestions || hasBlockRow;
 
@@ -2331,14 +2334,20 @@
       }, REGEN_MS);
     });
 
-    /* Both at once. The pair is one offer — one thing people book and one
-       thing they ask about — so refusing it is one act, and making the
-       seller say no twice asked them to repeat themselves. */
-    document.getElementById('dropSuggestions').addEventListener('click', () => {
-      Object.keys(SUGGESTIONS).forEach((id) => { SUGGESTIONS[id].removed = true; });
-      refresh();
-      split.sync();
-    });
+    /* Open on arrival, because the pair is what the screen is for, and shut
+       by its own head. Folding replaced refusing: a seller who does not want
+       the suggestions now puts them away rather than destroying them, which
+       is reversible and does not ask whether they are sure. */
+    const suggestSection = document.getElementById('sectionSuggest');
+    const suggestToggle = document.getElementById('suggestHead');
+    if (suggestToggle) {
+      suggestToggle.addEventListener('click', () => {
+        const open = suggestSection.getAttribute('data-open') !== 'true';
+        suggestSection.setAttribute('data-open', String(open));
+        suggestToggle.setAttribute('aria-expanded', String(open));
+        split.sync();
+      });
+    }
 
     document.getElementById('editClose').addEventListener('click', () => openEdit(false));
     /* Saving the setup of a suggestion is what finishes it. The same sheet

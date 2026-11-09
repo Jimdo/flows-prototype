@@ -6111,6 +6111,38 @@ body {
   border-radius: var(--jui-style-radius-16);
   background: var(--jui-color-background-gray-medium);
 }
+
+/* The suggestions group stands on green rather than grey: Figma 17767:5588,
+   background-positive-light inside a gray-50 keyline, and 8 of padding
+   instead of 12 so the cards sit nearer its edge than the rows of a list do.
+   It is the one group on this screen the seller did not make. */
+.app-shell-setup-split[data-layout="step"] .edit-section[data-tone] {
+  gap: var(--jui-layout-gap-xs);
+  padding: var(--jui-layout-padding-xs);
+}
+.app-shell-setup-split[data-layout="step"] .edit-section[data-tone="positive"] {
+  background: var(--jui-color-background-positive-light);
+}
+/* …and once the plan has put a price on the offer, the ground says so. This
+   is the colour the "Suggested" tag used to change to; the tag has gone and
+   the group carries it instead, which is one surface changing rather than a
+   chip changing inside an unchanged box. */
+.app-shell-setup-split[data-layout="step"] .edit-section[data-tone="upgrade"] {
+  background: var(--jui-color-background-upgrade-light);
+}
+.edit-section[data-tone="upgrade"] > .edit-section-head--suggest {
+  color: var(--jui-color-typography-upgrade-on-light);
+}
+
+/* Everything the fold hides. The footer section folds a plain .edit-list, so
+   that rule names the list directly; this one holds a wait, a list and a
+   re-roll, which need a wrapper to be hidden together. */
+.edit-section-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xs);
+}
+.edit-section--fold[data-open="false"] > .edit-section-body { display: none; }
 .app-shell-setup-split[data-layout="step"] .edit-section > .edit-list,
 .app-shell-setup-split[data-layout="step"] .edit-section > .edit-section-rows {
   gap: var(--jui-layout-gap-s);
@@ -6126,37 +6158,74 @@ body {
    container is that group now, and it already runs at gap 12. */
 
 /* ── One head over the pair ──
-   Figma 17764:3806: the tag and the way to refuse, on one row above both
-   cards, 12 apart. They used to sit inside each card — two tags saying the
-   same word, and two ways to say no to halves of one offer. */
-.edit-suggest-head {
-  display: flex;
-  align-items: center;
-  gap: var(--jui-layout-gap-s);
-}
-.edit-suggest-head[hidden] { display: none; }
+   Figma 17767:5590. Was a tag reading "Suggested" and a way to refuse both.
+   The tag has gone: the group now says its own name in the same uppercase
+   label every other section uses, so it is a section rather than a chip
+   floating over two cards. Under the name, one line saying what the pair is
+   and why it is these two — a label alone tells a seller the product picked
+   something, not what it picked or what adding it does.
 
-/* ── The two answers, together under the offer ──
-   Ask for another go, or say it is not wanted. The refusal used to sit
-   beside the tag at the top, which put the way out above the thing it was a
-   way out of; down here the pair reads as the two things that can be done
-   about what is between them. Regenerate first, because the one that ends
-   the offer should not be the one the thumb reaches first. */
-.edit-suggest-foot {
+   The whole head is the fold, like the footer section's: a chevron beside a
+   title is a title you have to aim at, and the head is already the width of
+   the group. So this is the footer's own .edit-section-head with two
+   differences — it holds two lines rather than one, and it carries the 8 the
+   frame insets it by, which puts the name 16 from the group's edge while the
+   cards stay at 8. The head is the thing you read; the cards are the things
+   you act on. */
+/* Doubled class, because the fold's own reset zeroes this padding and is
+   declared further down the sheet — same weight, later wins. */
+.edit-section--fold > .edit-section-head.edit-section-head--suggest {
+  align-items: flex-start;
+  padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-xs) 0;
+  /* Both lines are green-800 on the green ground, not the grey the other
+     section titles use — Figma 17767:5591 sets the colour on the column and
+     lets the name and the line inherit it. */
+  color: var(--jui-color-typography-positive-on-light);
+}
+.edit-section-head--suggest .edit-section-title,
+.edit-section-head--suggest .edit-section-chevron { color: inherit; }
+.edit-section-head--suggest[hidden] { display: none; }
+/* The name over the line, no gap: one block of text, not two stacked
+   things. */
+.edit-suggest-head-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1 0 0;
+  min-width: 0;
+}
+.edit-suggest-note {
+  margin: 0;
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: inherit;
+}
+/* The frame draws the fold as a 32px subtle button with a 16px glyph. The
+   control is the whole head, so this is the glyph's box inside that button
+   rather than a button of its own. */
+.edit-section-head--suggest .edit-section-chevron {
   display: flex;
   align-items: center;
-  gap: var(--jui-layout-gap-s);
-  flex-wrap: wrap;
+  justify-content: center;
+  width: var(--jui-layout-dimension-s);
+  height: var(--jui-layout-dimension-s);
+  border-radius: var(--jui-component-button-radius);
 }
-.edit-suggest-foot[hidden] { display: none; }
-/* Content width, so the two sit together rather than each taking a line. */
-/* primitive-override */
-.edit-suggest-foot > .btn {
-  width: auto;
-  padding-left: var(--jui-layout-padding-s);
-  padding-right: var(--jui-layout-padding-s);
-}
-/* The head is the tag alone now; what answers the offer sits under it. */
+.edit-section-head--suggest .edit-section-chevron svg { width: 16px; height: 16px; }
+/* Folded, the line goes with the pair it describes. It explains what the
+   suggestions are; with none on screen there is nothing for it to explain,
+   and leaving it would make the shut group taller than the reason to open
+   it. The name stays, because that is what the seller opens. */
+.edit-section--fold[data-open="false"] .edit-suggest-note { display: none; }
+
+/* Regenerate is the only answer to the offer now. The way to refuse both has
+   gone, because a group that folds shut is already a way to put it down, and
+   a group that can be re-rolled and dismissed and folded is three answers to
+   a question nobody asked. Figma 17767:5477 shows neither control; Regenerate
+   stays because disagreeing with a guess by asking for another is the thing a
+   seller actually does with one. It needs no rule here — .regen is already
+   inline-flex and flex-start. */
 
 /* Each card wears a Suggested tag of its own now, so the heading over them
    says the same word twice. Kept in the markup because the screen's own JS
