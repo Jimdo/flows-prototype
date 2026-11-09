@@ -1403,7 +1403,8 @@
          offer:{ on:bool, kind:'book'|'pay'|'promo', title?, meta?, cta?,
                  price? },             // the action-page card
          mainlink:string,              // label on the main link button
-         ghost:['contact'|'mainlink'|'map'|'socials'|'subtitle'],  // empty shapes
+         ghost:['offer'|'contact'|'mainlink'|'map'|'socials'|'subtitle'],
+                                       // empty shapes
          highlight:'title'|'image'|'offer'|'contact-buttons'|'mainlink'|'map'
                                        // outline that region and scroll to it,
                                        // null clears and returns to the top -->
@@ -1556,7 +1557,13 @@
         var row = document.getElementById('bio-contact-row');
         if (row && wants.contact && !hasReal) row.hidden = false;
 
-        [['mainlink', 'bio-mainlink', 'bio-ghost'],
+        // 'offer' ghosts the rich card the way the others ghost a link or the
+        // map. It is the one block whose ghost carries an argument: a tall
+        // shape above a thin one is the page's own hierarchy, which is how a
+        // host can show what the top of the list is before anything is in it.
+        // The offer branch above hid it; a ghost is a thing that is there.
+        [['offer', 'bio-offer', 'bio-ghost'],
+         ['mainlink', 'bio-mainlink', 'bio-ghost'],
          ['map', 'bio-map', 'bio-ghost'],
          ['socials', 'bio-socials', 'bio-ghost'],
          ['subtitle', 'bio-subtitle', 'bio-ghost-text']].forEach(function (r) {
