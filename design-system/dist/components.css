@@ -5987,6 +5987,10 @@ body {
    the back button. */
 .seg-control--header { flex-shrink: 0; }
 
+/* The bar's own Add link. Hidden on the phone, where the bar sits outside the
+   drawer and the column carries the button instead. */
+.add-in-bar { display: none; }
+
 @media (min-width: 768px) {
   /* The spacer drops at this width (see .setup-split-header .header-spacer),
      which would leave the switch sitting next to the back button, reading as
@@ -6654,7 +6658,23 @@ body {
      foot. */
   .app-shell-setup-split[data-layout="step"] .setup-split-header {
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
+  }
+  /* Figma 17767:5584. The switch and Add link share the row: what you are
+     editing at one end, the one thing you can add at the other. Content
+     width and the frame's own 24, against .btn-primary's full-width
+     default. */
+  /* primitive-override */
+  .app-shell-setup-split[data-layout="step"] .add-in-bar {
+    display: inline-flex;
+    width: auto;
+    padding: 0 var(--jui-layout-padding-l);
+  }
+  /* The column's copy goes, and the row that held it with the title — both
+     of its children are in the bar now, so the block would be an empty one. */
+  .app-shell-setup-split[data-layout="step"]
+    .setup-split-intro[data-view-only="list"] {
+    display: none;
   }
   /* Done is at the foot of the column at this width, so the bar's own copy
      of it would be the second one on screen. */
