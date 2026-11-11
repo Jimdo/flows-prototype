@@ -6337,63 +6337,41 @@ body {
    frame insets it by, which puts the name 16 from the group's edge while the
    cards stay at 8. The head is the thing you read; the cards are the things
    you act on. */
-/* Doubled class, because the fold's own reset zeroes this padding and is
-   declared further down the sheet — same weight, later wins. */
-.edit-section--fold > .edit-section-head.edit-section-head--suggest {
-  align-items: flex-start;
-  padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-xs) 0;
-  /* Both lines are green-800 on the green ground, not the grey the other
-     section titles use — Figma 17767:5591 sets the colour on the column and
-     lets the name and the line inherit it. */
-  color: var(--jui-color-typography-positive-on-light);
-}
-.edit-section-head--suggest .edit-section-title,
-.edit-section-head--suggest .edit-section-chevron { color: inherit; }
+/* The same head the page footer folds with. Everything that used to set this
+   one apart belonged to the green wrapper: 8 of inset on a ground that no
+   longer exists, green-800 on a tint that is gone, and a 32px chevron lifted
+   by half its own height to sit on the title's line. With the ground removed
+   those left one fold flush and black and the other inset and green, which is
+   two patterns for one control.
+
+   What it still needs is the one thing the footer's head does not have: a
+   second line under the title. The copy column carries it, and align-items
+   centre — the footer's own — puts the chevron against the pair. */
 .edit-section-head--suggest[hidden] { display: none; }
-/* The name over the line, no gap: one block of text, not two stacked
-   things. */
 .edit-suggest-head-copy {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   flex: 1 0 0;
   min-width: 0;
+  /* 8, on the sheet's own rhythm — the tag and the line under it are one
+     thing, and the head already puts 12 between that block and the caret.
+     At nothing they touched, which read as the chip having fallen onto the
+     sentence. */
+  gap: var(--jui-layout-gap-xs);
 }
 .edit-suggest-note {
   margin: 0;
   font-size: var(--jui-typography-body-small-regular-size);
   font-weight: var(--jui-typography-body-small-regular-weight);
   line-height: var(--jui-typography-body-small-regular-lh);
-  color: inherit;
+  color: var(--jui-color-typography-gray-on-light-subdued);
 }
-/* The frame draws the fold as a 32px subtle button with a 16px glyph. The
-   control is the whole head, so this is the glyph's box inside that button
-   rather than a button of its own.
-
-   It belongs to the group's name, so it is centred on the name's line and
-   not on the head. Both boxes start at the same top and the box is 32 against
-   a 20 line, which put the glyph 6px low — far enough to read as a mistake
-   next to a label that is only 20 tall. The lift is half the difference,
-   worked out from the two tokens rather than written as -6, so a change to
-   either moves it. The box keeps its full 32 for the thumb, which now reaches
-   6 above the line and 6 below it: the right shape for a control that belongs
-   to that line.
-
-   Figma centres this against the whole copy column instead. That works where
-   the line under the name is one line and drifts into the middle of it as
-   soon as it wraps, which ours does at both widths. */
-.edit-section-head--suggest .edit-section-chevron {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--jui-layout-dimension-s);
-  height: var(--jui-layout-dimension-s);
-  margin-top: calc((var(--jui-typography-label-small-size)
-                  * var(--jui-typography-label-small-lh)
-                  - var(--jui-layout-dimension-s)) / 2);
-  border-radius: var(--jui-component-button-radius);
-}
-.edit-section-head--suggest .edit-section-chevron svg { width: 16px; height: 16px; }
+/* Folded, the line goes with the pair it describes. It explains what the
+   suggestions are; with none on screen there is nothing for it to explain,
+   and leaving it would make the shut group taller than the reason to open
+   it. The name stays, because that is what the seller opens. */
+.edit-section--fold[data-open="false"] .edit-suggest-note { display: none; }
 /* Folded, the line goes with the pair it describes. It explains what the
    suggestions are; with none on screen there is nothing for it to explain,
    and leaving it would make the shut group taller than the reason to open
@@ -6430,16 +6408,25 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: var(--jui-layout-gap-xs);
   padding: var(--jui-layout-padding-xl) var(--jui-layout-padding-m);
+  /* The block keeps the room it had when it carried a second line, so the
+     column does not close up around the one line that is left — an empty
+     page should look like somewhere things go. */
+  min-height: 152px;
   text-align: center;
 }
 .list-empty[hidden] { display: none; }
+/* One line, and quieter than it was. At 16/500 it was the loudest thing on
+   an empty screen and read as a heading for the section above it; the second
+   line it used to explain itself with has gone, so it says the one thing and
+   stops. */
 .list-empty-title {
   margin: 0;
-  font-size: var(--jui-typography-sub-headline-small-size);
-  font-weight: var(--jui-typography-sub-headline-small-weight);
-  line-height: var(--jui-typography-sub-headline-small-lh);
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
   color: var(--jui-color-typography-gray-on-light-subdued);
 }
 .list-empty-copy {
