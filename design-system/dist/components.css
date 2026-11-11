@@ -7332,7 +7332,21 @@ body {
   line-height: var(--jui-typography-body-small-regular-lh);
   color: var(--jui-color-typography-gray-on-light-default);
 }
-/* The way out stays the page's blue. It is an ordinary link to an ordinary
+
+
+/* ── …and the same note when what it says is good news ──
+   The notice ramp is for something to watch out for. A line saying what the
+   seller already gets for nothing is the opposite, and on the yellow it read
+   as a warning about free features. Green is the ground this screen already
+   uses for what the product is giving rather than selling — the suggestions
+   group stands on it — and it keeps the notice away from the purple that
+   means a thing costs money. */
+.sheet-notice--positive {
+  background: var(--jui-color-background-positive-light);
+}
+.sheet-notice--positive .sheet-notice-copy {
+  color: var(--jui-color-typography-positive-on-light);
+}/* The way out stays the page's blue. It is an ordinary link to an ordinary
    screen; painting it the notice colour made it look like part of the
    warning rather than the thing that answers it. */
 
