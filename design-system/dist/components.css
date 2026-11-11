@@ -77,6 +77,66 @@ body {
 .variant { display: none; }
 .variant.active { display: flex; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden; }
 
+/* ── A day and the hours it is open ──
+   Ported from bookings-management
+   frontend/src/components/EventForm/components/WeekdaysAvailability, the
+   inline layout: a grid of day name, the hours, and room for a second range,
+   inside a 1px keyline at radius-s. Production gives every weekday a row with
+   a toggle; here the chips above are that toggle, so only the days the seller
+   actually works get a row and nobody is asked to fill in seven.
+
+   That split matters. ins-158 found the opening-hours form too rigid because
+   it "wants specific times for every day" for a therapist who works by
+   appointment — so the days stay optional. What it could not do was give
+   Tuesday different hours from Monday, which is what these rows add. */
+.day-hours {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xs);
+}
+.day-hours-row {
+  display: grid;
+  grid-template-columns: minmax(72px, 1fr) 2fr;
+  align-items: center;
+  column-gap: var(--jui-layout-gap-m);
+  padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-s);
+  border: 1px solid var(--jui-color-stroke-gray-default);
+  border-radius: var(--jui-style-radius-s);
+}
+.day-hours-day {
+  min-width: 0;
+  font-size: var(--jui-typography-body-medium-regular-size);
+  font-weight: var(--jui-typography-body-medium-regular-weight);
+  line-height: var(--jui-typography-body-medium-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+/* The two times are one range, so they share a line with the word between
+   them rather than stacking as two unrelated questions. */
+.day-hours-times {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
+  min-width: 0;
+}
+.day-hours-times .form-input {
+  min-width: 0;
+  flex: 1 1 0;
+}
+.day-hours-sep {
+  flex-shrink: 0;
+  font-size: var(--jui-typography-body-small-regular-size);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+/* Production stacks the times under the name on a narrow screen rather than
+   squeezing two time inputs into half a row. */
+@media (max-width: 540px) {
+  .day-hours-row {
+    grid-template-columns: 1fr;
+    row-gap: var(--jui-layout-gap-xs);
+  }
+}
+
 /* ── Skeleton ──
    @jimdo/ui ships one (Feedback/Skeleton, dist class hPYjN7DX) and only as
    React, which these pages cannot import, so its rules are transcribed here

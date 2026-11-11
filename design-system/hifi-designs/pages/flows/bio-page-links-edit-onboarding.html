@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=32dee6c">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=32dee6c">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=3ae6df0">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=3ae6df0">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=32dee6c">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=3ae6df0">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -818,8 +818,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=32dee6c"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=32dee6c"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=3ae6df0"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=3ae6df0"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -1564,10 +1564,25 @@
     }
 
     function openSlotFields(seed, b) {
+      /* Hours live per day, keyed by the same weekday numbers the chips use.
+         bookings-management models this as availabilityPerWeekday: every
+         weekday independently on or off, each holding its own time frames,
+         and its DEFAULT_TIME_FRAME is 09:00–17:00 — the same pair this form
+         already defaulted to for the whole week. A day missing from `hours`
+         is a day the seller does not work. */
       slotDraft = (b && b.slot) || {
-        duration: 60, days: [1, 2, 3, 4, 5], from: '09:00', to: '17:00', price: '',
+        duration: 60, days: [1, 2, 3, 4, 5], price: '',
+        hours: { 1: { from: '09:00', to: '17:00' }, 2: { from: '09:00', to: '17:00' },
+                 3: { from: '09:00', to: '17:00' }, 4: { from: '09:00', to: '17:00' },
+                 5: { from: '09:00', to: '17:00' } },
       };
       const d = slotDraft;
+      /* A draft saved before hours were per-day carries one range for the
+         week; spread it over the days it was standing for. */
+      if (!d.hours) {
+        d.hours = {};
+        d.days.forEach((k) => { d.hours[k] = { from: d.from || '09:00', to: d.to || '17:00' }; });
+      }
 
       editFields.appendChild(field('Name', 'text', (b && b.label) || seed || ''));
 
@@ -1575,33 +1590,75 @@
       editFields.appendChild(slotGroup('Session length',
         chipRow(lengths, (it) => d.duration === it.key, (it) => { d.duration = it.key; })));
 
+      /* The chips are production's per-weekday toggle: turning a day on gives
+         it the default range, turning it off takes its hours with it. */
       editFields.appendChild(slotGroup('Days',
         chipRow(WEEK, (it) => d.days.indexOf(it.key) !== -1, (it) => {
           const at = d.days.indexOf(it.key);
-          if (at === -1) d.days.push(it.key); else d.days.splice(at, 1);
+          if (at === -1) {
+            d.days.push(it.key);
+            if (!d.hours[it.key]) d.hours[it.key] = { from: '09:00', to: '17:00' };
+          } else {
+            d.days.splice(at, 1);
+            delete d.hours[it.key];
+          }
+          renderDayHours();
         })));
 
-      /* From and To share a line: they are one range, and stacked they read
-         as two unrelated questions. */
-      const hours = document.createElement('div');
-      hours.className = 'sheet-field-row';
-      ['from', 'to'].forEach((which) => {
-        const w = document.createElement('label');
-        w.className = 'sheet-field';
-        const l = document.createElement('span');
-        l.className = 'sheet-label';
-        l.setAttribute('data-no-phrase', '');
-        l.textContent = which === 'from' ? 'From' : 'To';
-        const i = document.createElement('input');
-        i.className = 'form-input';
-        i.type = 'time';
-        i.value = d[which];
-        i.setAttribute('data-no-phrase', '');
-        i.addEventListener('input', () => { d[which] = i.value; });
-        w.append(l, i);
-        hours.appendChild(w);
-      });
-      editFields.appendChild(hours);
+      /* One row per day the seller works, in week order. A single From/To for
+         the whole week was the gap the interviews named: a therapist with
+         Monday mornings and Thursday evenings had to pick one or the other.
+         Only the days that are on get a row, so the common case — the same
+         hours all week — is still five identical rows the seller can leave
+         alone, and nobody is asked to fill in a day they do not work. */
+      const hoursGroup = slotGroup('Hours', document.createElement('div'));
+      const hoursList = hoursGroup.lastChild;
+      hoursList.className = 'day-hours';
+      editFields.appendChild(hoursGroup);
+
+      function renderDayHours() {
+        hoursList.innerHTML = '';
+        const on = WEEK.filter((it) => d.days.indexOf(it.key) !== -1);
+        if (!on.length) {
+          const none = document.createElement('p');
+          none.className = 'edit-section-empty';
+          none.setAttribute('data-inspect-phrase', '');
+          none.textContent = 'Pick a day above to say when you are free.';
+          hoursList.appendChild(none);
+          return;
+        }
+        on.forEach((it) => {
+          const row = document.createElement('div');
+          row.className = 'day-hours-row';
+          row.setAttribute('data-inspect-label', 'Availability — one day');
+          const name = document.createElement('span');
+          name.className = 'day-hours-day';
+          name.setAttribute('data-no-phrase', '');
+          name.textContent = it.label;
+          const times = document.createElement('div');
+          times.className = 'day-hours-times';
+          ['from', 'to'].forEach((which, i) => {
+            if (i === 1) {
+              const sep = document.createElement('span');
+              sep.className = 'day-hours-sep';
+              sep.setAttribute('data-no-phrase', '');
+              sep.textContent = 'to';
+              times.appendChild(sep);
+            }
+            const input = document.createElement('input');
+            input.className = 'form-input';
+            input.type = 'time';
+            input.value = d.hours[it.key][which];
+            input.setAttribute('data-no-phrase', '');
+            input.setAttribute('aria-label', (which === 'from' ? 'From' : 'To') + ' on ' + it.label);
+            input.addEventListener('input', () => { d.hours[it.key][which] = input.value; });
+            times.appendChild(input);
+          });
+          row.append(name, times);
+          hoursList.appendChild(row);
+        });
+      }
+      renderDayHours();
 
       const price = field('Price (€)', 'text', d.price);
       price.querySelector('input').addEventListener('input', (e) => { d.price = e.target.value; });
