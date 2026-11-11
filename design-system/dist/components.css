@@ -5661,7 +5661,10 @@ body {
   justify-content: center;
   padding: var(--jui-layout-padding-s);
   border-radius: var(--jui-layout-base);
-  background: var(--jui-color-background-positive-light);
+  /* Figma 17778:5814. yellow-10, not the positive green: the tile marks what
+     kind of thing a row is, and green on this screen means the product is
+     giving rather than selling. A row the seller made is neither. */
+  background: var(--jui-color-background-notice-light);
   transition: background-color 120ms ease;
 }
 .edit-row-tile > .edit-row-icon {
@@ -6265,55 +6268,34 @@ body {
    put the two buttons at opposite ends of a narrow card so the thumb could
    not confuse them — there is only one button in the card now. */
 
-/* ── Each section in its own container ──
-   Figma 17765:1984. A 12-padded box at radius 16, gray/10 with a gray/50
-   hairline. The label and the rows it names become one object, and the
-   ground under them is what separates one group from the next — no rule
-   between them, and no guessing which label a row belongs to when the list
-   gets long.
+/* ── Sections, separated by space ──
+   Figma 17778:5814 puts the lists straight on the page. Each used to stand
+   in a container of its own, which made four grounds on one screen and a lot
+   of edge for a list of links; the gap between them says where one ends just
+   as well and costs nothing.
 
-   12 inside, between the label and its rows and between the rows; 16
-   between one container and the next, which is the only gap in the column
-   wider than the gaps inside it. */
+   One label covers all of them — see .edit-page-title. Contact, the main
+   list and the social row are one thing from the visitor's side, and three
+   headings over three grounds read as a filing system rather than a page. */
 .app-shell-setup-split[data-layout="step"] .edit-section {
   gap: var(--jui-layout-gap-s);
-  padding: var(--jui-layout-padding-s);
-  border: 1px solid var(--jui-color-gray-50);
-  border-radius: var(--jui-style-radius-16);
-  background: var(--jui-color-background-gray-medium);
 }
+/* The umbrella label sits on the list, not on a band above it. */
+.edit-page-title { margin: 0; }
+.edit-page-title[hidden] { display: none; }
 
-/* The suggestions group stands on green rather than grey: Figma 17767:5588,
-   background-positive-light inside a gray-50 keyline, and 8 of padding
-   instead of 12 so the cards sit nearer its edge than the rows of a list do.
-   It is the one group on this screen the seller did not make. */
-.app-shell-setup-split[data-layout="step"] .edit-section[data-tone] {
-  gap: var(--jui-layout-gap-xs);
-  padding: var(--jui-layout-padding-xs);
+/* The one rule on the screen: everything above it is the page the seller is
+   making, and the footer below it is Jimdo's. A line says that in less room
+   than a second ground would. */
+.edit-divider {
+  width: 100%;
+  height: 0;
+  margin: 0;
+  border: 0;
+  border-top: 1px solid var(--jui-color-stroke-gray-default);
 }
-.app-shell-setup-split[data-layout="step"] .edit-section[data-tone="positive"] {
-  background: var(--jui-color-background-positive-light);
-}
-/* …and once the plan has put a price on the offer, the ground says so. This
-   is the colour the "Suggested" tag used to change to; the tag has gone and
-   the group carries it instead, which is one surface changing rather than a
-   chip changing inside an unchanged box. */
-.app-shell-setup-split[data-layout="step"] .edit-section[data-tone="upgrade"] {
-  background: var(--jui-color-background-upgrade-light);
-}
-.edit-section[data-tone="upgrade"] > .edit-section-head--suggest {
-  color: var(--jui-color-typography-upgrade-on-light);
-}
+.edit-divider[hidden] { display: none; }
 
-/* Everything the fold hides. The footer section folds a plain .edit-list, so
-   that rule names the list directly; this one holds a wait, a list and a
-   re-roll, which need a wrapper to be hidden together. */
-.edit-section-body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--jui-layout-gap-xs);
-}
-.edit-section--fold[data-open="false"] > .edit-section-body { display: none; }
 .app-shell-setup-split[data-layout="step"] .edit-section > .edit-list,
 .app-shell-setup-split[data-layout="step"] .edit-section > .edit-section-rows {
   gap: var(--jui-layout-gap-s);

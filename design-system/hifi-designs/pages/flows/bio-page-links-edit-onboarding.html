@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=1f0013a">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=1f0013a">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=7231ce2">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=7231ce2">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=1f0013a">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=7231ce2">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -121,8 +121,18 @@
                item, so the panel grows into a list the seller recognises
                rather than starting as empty scaffolding. -->
 
+          <!-- One label over everything the page carries. Contact buttons,
+               the main list and the social row were three labelled groups in
+               three grounds; they are one thing from the visitor's side — what
+               is on the page — and the space between them is enough to say
+               where one ends. Figma 17778:5814 drops the grounds; dropping two
+               of the three labels with them is what keeps a list of links from
+               reading as a filing system. -->
+          <p class="edit-section-title edit-page-title" data-view-only="list"
+            data-inspect-phrase="">On your page</p>
+
           <div class="edit-section" id="sectionContact" data-edits="contact" data-view-only="list" hidden>
-            <div class="edit-section-head">
+            <div class="edit-section-head" hidden>
               <p class="edit-section-title" data-inspect-phrase="biopage.edit.section.contact">Contact links</p>
             </div>
             <ul class="edit-list">
@@ -162,148 +172,14 @@
             </ul>
           </div>
 
-          <!-- Figma 17765:1960. The pair and what sits over it, in a container
-               of their own — the group is the object, and the ground under it
-               is what separates it from the lists below. -->
-          <div class="edit-section edit-section--fold" id="sectionSuggest" data-view-only="list" data-open="true" data-tone="positive">
-              <!-- Figma 17767:5590. The group names itself and says what the
-                   pair is, and the whole head folds it shut. The tag that used
-                   to sit here read "Suggested" and nothing else; the way to
-                   refuse both has gone, because folding the group away is
-                   already how a seller puts an offer down. -->
-              <button type="button" class="edit-section-head edit-section-head--suggest" id="suggestHead"
-                aria-expanded="true" aria-controls="suggestBody" data-no-phrase
-                data-inspect-label="Suggestions — group head, folds">
-                <span class="edit-suggest-head-copy">
-                  <p class="edit-section-title" data-inspect-phrase="">Suggestions</p>
-                  <!-- What adding one actually does, which is the part a
-                       seller cannot guess: a suggestion is not a link to
-                       somewhere else, it is a page of their own with one
-                       thing on it to act on. Said without naming the thing —
-                       "action page" is Jimdo's word for it, not theirs, and a
-                       product noun here would be a term to learn before the
-                       sentence pays off. Ends on what it is for, in their
-                       register: clients, not conversions or customers. Kept
-                       short — it is read once, over the thing it describes.
-                       Hardcoded for now; the real one reads from what the
-                       seller said they do. -->
-                  <p class="edit-suggest-note" data-inspect-phrase="">Each adds a page where people can book or ask, so they become clients.</p>
-                </span>
-                <span class="edit-section-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5.99977 9.00005L11.9998 15L17.9998 9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></span>
-              </button>
-
-              <div class="edit-section-body" id="suggestBody">
-
-              <!-- First load: the ideas are still being worked out. Two ghosts,
-                   because round one is always one thing people book and one
-                   thing they ask about — the words are unknown, the shape is
-                   not. Each is the finished card's own scaffold with bars where
-                   its name, reason and button will be, inside the same drawn
-                   gradient ring the suggestion wears, so nothing below moves
-                   when the pair lands and the wait still reads as the product
-                   thinking rather than as a failed load. -->
-              <div class="suggest-pending" id="suggestPending" data-pending aria-busy="true"
-                data-inspect-label="Suggestions — still coming"><svg class="smart-ring" aria-hidden="true"><defs><linearGradient id="smartRingPendingA" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><rect stroke="url(#smartRingPendingA)"/></svg><span class="visually-hidden" data-inspect-phrase="">Working out two suggestions…</span>
-                <span class="edit-suggestion-copy">
-                  <span class="edit-suggestion-head">
-                    <span class="skeleton suggest-ghost-glyph"></span>
-                    <span class="suggest-ghost-line suggest-ghost-name"><span class="skeleton"></span></span>
-                  </span>
-                  <span class="suggest-ghost-why">
-                    <span class="suggest-ghost-line"><span class="skeleton"></span></span>
-                    <span class="suggest-ghost-line"><span class="skeleton"></span></span>
-                  </span>
-                </span>
-                <span class="edit-suggestion-actions">
-                  <span class="skeleton suggest-ghost-action"></span>
-                </span>
-              </div>
-
-              <div class="suggest-pending" data-pending aria-busy="true"
-                data-inspect-label="Suggestions — still coming"><svg class="smart-ring" aria-hidden="true"><defs><linearGradient id="smartRingPendingB" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><rect stroke="url(#smartRingPendingB)"/></svg>
-                <span class="edit-suggestion-copy">
-                  <span class="edit-suggestion-head">
-                    <span class="skeleton suggest-ghost-glyph"></span>
-                    <span class="suggest-ghost-line suggest-ghost-name"><span class="skeleton"></span></span>
-                  </span>
-                  <span class="suggest-ghost-why">
-                    <span class="suggest-ghost-line"><span class="skeleton"></span></span>
-                    <span class="suggest-ghost-line"><span class="skeleton"></span></span>
-                  </span>
-                </span>
-                <span class="edit-suggestion-actions">
-                  <span class="skeleton suggest-ghost-action"></span>
-                </span>
-              </div>
-
-              <ul class="edit-list" id="suggestionList">
-                <li>
-                  <div class="edit-suggestion" id="sugEvent" data-suggestion="sugEvent" data-edits="link-sugEvent"
-                    data-inspect-label="Suggestion"
-                    data-inspect-tokens='[{"prop":"background","figma":"$jui-color-background-gray-medium","css":"--jui-color-background-gray-medium","value":"#fdfdfd"},{"prop":"border","figma":"color/blue/500","css":"--jui-color-blue-500","value":"1px dashed #004ced"},{"prop":"border-radius","figma":"$jui-style-radius-l","css":"--jui-style-radius-16","value":"16px"},{"prop":"padding","figma":"$jui-layout-padding-m","css":"--jui-layout-padding-m","value":"16px"},{"prop":"gap","figma":"$jui-layout-padding-s","css":"--jui-layout-gap-s","value":"12px"},{"prop":"name","figma":"Subheadline/Small","css":"--jui-typography-sub-headline-small-size","value":"16px / 500"}]'>
-                    <!-- The dashes are the smart gradient, so they are drawn
-                         rather than bordered — see .smart-ring. -->
-                    <svg class="smart-ring" aria-hidden="true"><defs><linearGradient id="smartRingSugEvent" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><rect stroke="url(#smartRingSugEvent)"/></svg>
-                                        <span class="edit-suggestion-copy">
-                        <span class="edit-suggestion-head">
-                          <span class="edit-row-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M12 8V12L14.5 14.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></span>
-                          <span class="edit-row-label">Free intro call</span>
-                        </span>
-                        <p class="edit-suggestion-why" data-inspect-phrase="">People pick a time that suits them, with no messages back and forth.</p>
-                      </span>
-                    <div class="edit-suggestion-actions">
-                      <button type="button" class="btn btn-secondary btn-sm" data-setup="offer"
-                        data-inspect-label="Secondary Button — Add it"
-                        data-inspect-tokens='[{"prop":"border","figma":"color/blue/100","css":"--jui-color-blue-100","value":"1px #b4c4ff"},{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px"}]'
-                        data-inspect-phrase="">Add it</button>
-                    </div>
-                  </div>
-                </li>
-                <li>
-                  <div class="edit-suggestion" id="sugForm" data-suggestion="sugForm" data-edits="link-sugForm"
-                    data-inspect-label="Suggestion"
-                    data-inspect-tokens='[{"prop":"background","figma":"$jui-color-background-gray-medium","css":"--jui-color-background-gray-medium","value":"#fdfdfd"},{"prop":"border","figma":"color/blue/500","css":"--jui-color-blue-500","value":"1px dashed #004ced"},{"prop":"border-radius","figma":"$jui-style-radius-l","css":"--jui-style-radius-16","value":"16px"},{"prop":"padding","figma":"$jui-layout-padding-m","css":"--jui-layout-padding-m","value":"16px"},{"prop":"gap","figma":"$jui-layout-padding-s","css":"--jui-layout-gap-s","value":"12px"},{"prop":"name","figma":"Subheadline/Small","css":"--jui-typography-sub-headline-small-size","value":"16px / 500"}]'>
-                    <!-- The dashes are the smart gradient, so they are drawn
-                         rather than bordered — see .smart-ring. -->
-                    <svg class="smart-ring" aria-hidden="true"><defs><linearGradient id="smartRingSugForm" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><rect stroke="url(#smartRingSugForm)"/></svg>
-                                        <span class="edit-suggestion-copy">
-                        <span class="edit-suggestion-head">
-                          <span class="edit-row-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M11 6L21 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 12L21 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 18L21 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 7.5L4.5 9L8.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 18.5L4.5 20L8.5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                          <span class="edit-row-label">Private class enquiry form</span>
-                        </span>
-                        <p class="edit-suggestion-why" data-inspect-phrase="">Private classes start with a question, not a booking.</p>
-                      </span>
-                    <div class="edit-suggestion-actions">
-                      <button type="button" class="btn btn-secondary btn-sm" data-setup="form"
-                        data-inspect-label="Secondary Button — Add it"
-                        data-inspect-tokens='[{"prop":"border","figma":"color/blue/100","css":"--jui-color-blue-100","value":"1px #b4c4ff"},{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px"}]'
-                        data-inspect-phrase="">Add it</button>
-                    </div>
-                  </div>
-                </li>
-              </ul>
-
-                <!-- Both of these are guesses about someone else's business.
-                     The way to disagree with a guess is to ask for another one. -->
-                <button type="button" class="regen regen--smart" id="regenSuggest" data-busy="false"
-                  data-inspect-label="Regenerate — smart"
-                  data-inspect-tokens='[{"prop":"label","figma":"@jimdo/ui smartSecondaryButton","css":"--jui-gradient-smart","value":"gradient 111deg blue-500 \u2192 red-300 \u2192 yellow-300"},{"prop":"icon","figma":"reload","css":"--jui-color-blue-500","value":"16px #004ced"}]'
-                  data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="smartRegenSuggest" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><path d="M14.5 1.99976L15.5 4.54791C14.3079 3.91092 12.9461 3.5498 11.5 3.5498C6.80558 3.5498 3 7.35538 3 12.0498C3 13.8409 3.554 15.6294 4.5 16.9998" stroke="url(#smartRegenSuggest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M8.5 21.9997L7.5 19.4516C8.69215 20.0885 10.0539 20.4497 11.5 20.4497C16.1944 20.4497 20 16.6441 20 11.9497C20 10.1585 19.446 8.37009 18.5 6.99976" stroke="url(#smartRegenSuggest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span class="regen-label">Regenerate</span></button>
-              </div>
-          </div>
-
           <!-- Main links is the one section that is always here. Contact
                links and Social links arrive with their first item, because
                a page need never have either; the main list is what a bio
                page is, so it says it is empty rather than not being there. -->
           <div class="edit-section" id="sectionBlocks" data-view-only="list">
-            <div class="edit-section-head" id="headBlocks">
+            <div class="edit-section-head" id="headBlocks" hidden>
               <p class="edit-section-title" data-inspect-phrase="biopage.edit.section.blocks">Main links</p>
             </div>
-            <p class="edit-section-empty" id="blocksEmpty"
-              data-inspect-label="Main links — empty"
-              data-inspect-tokens='[{"prop":"name","figma":"Body/Small/Regular","css":"--jui-typography-body-small-regular-size","value":"14 / 400 / 1.57"},{"prop":"color","figma":"$jui-color-typography-gray-on-light-subdued","css":"--jui-color-typography-gray-on-light-subdued","value":"#6d6d6d"}]'
-              data-inspect-phrase="biopage.edit.section.blocksEmpty" hidden>Nothing added yet</p>
             <ul class="edit-list" id="blockList">
               <li>
                 <div class="edit-row" id="rowMainlink" data-edits="mainlink" data-no-phrase data-editor="mainlink" hidden>
@@ -335,7 +211,7 @@
           <div class="add-host" id="addDrawerHost" data-view-only="add"></div>
 
           <div class="edit-section" id="sectionSocial" data-view-only="list" hidden>
-            <div class="edit-section-head">
+            <div class="edit-section-head" hidden>
               <p class="edit-section-title" data-inspect-phrase="biopage.edit.section.social">Social links</p>
               <p class="edit-section-note" data-inspect-phrase="biopage.edit.section.socialNote">A row at the foot</p>
             </div>
@@ -357,6 +233,11 @@
           <!-- The last two lines of the published page, closing the list that
                is in the page's own order. Both are paid, both wear the crown,
                and neither pretends to be a switch — see .edit-row--footer. -->
+          <!-- The one line on the screen. Everything above it is the page
+               the seller is making; the footer is Jimdo's, and a rule says
+               that in less room than a second ground would. -->
+          <hr class="edit-divider" data-view-only="list" aria-hidden="true">
+
           <div class="edit-section edit-section--fold" id="sectionFooter" data-view-only="list" data-open="false">
             <button type="button" class="edit-section-head" id="footerToggle"
               aria-expanded="false" aria-controls="footerList" data-no-phrase>
@@ -827,8 +708,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=1f0013a"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=1f0013a"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=7231ce2"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=7231ce2"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -838,70 +719,6 @@
     /* What is on the page, and what is only suggested. A new page starts
        with nothing added and two suggestions standing in. */
     const ON = { whatsapp: false, email: false, call: false, mainlink: false, map: false, social: false };
-
-    const SUGGESTIONS = {
-      /* A pick-a-time booking, not a dated one. loops-frontend swapped these
-         in PR #2599: LISTED_SUGGESTIONS is ['openSlot', 'form'], and the
-         date booking keeps its place in the picker. A dated session only
-         helps someone who already has one planned — they have to know what
-         it is and when before the suggestion is worth anything. A
-         pick-a-time calendar has no such precondition. */
-      sugEvent: { editor: 'offer', removed: false, done: false, section: 'blocks',
-                  card: { kind: 'book', title: 'Free intro call', meta: '30 min · you pick a time', cta: 'Book a time', price: '' },
-                  row: 'rowOfferDone' },
-      sugForm:  { editor: 'form', removed: false, done: false, section: 'blocks',
-                  card: { kind: 'promo', title: 'Ask me about private classes', meta: '', cta: 'Get in touch', price: '' },
-                  row: 'rowFormDone' },
-    };
-
-    /* Rounds of guesses, because one guess the seller cannot refuse is not
-       a suggestion. Each round asks a different question a service business
-       gets asked — what you run, how someone starts, what a group costs —
-       and each pairs the thing people book with the thing people ask about,
-       which is the shape of the choice rather than two of the same. */
-    const SUGGESTION_ROUNDS = [
-      {
-        sugEvent: { label: 'Free intro call', title: 'Free intro call',
-                    why: 'People pick a time that suits them, with no messages back and forth.' },
-        sugForm:  { label: 'Private class enquiry form', title: 'Ask me about private classes',
-                    why: 'Private classes start with a question, not a booking.' },
-      },
-      {
-        sugEvent: { label: 'Taster session', title: 'Taster session',
-                    why: 'Someone new can try one before committing to a course.' },
-        sugForm:  { label: 'Sessions for a team form', title: 'Sessions for your team',
-                    why: 'A company asks what it would cost before it books anything.' },
-      },
-      {
-        sugEvent: { label: 'One-to-one session', title: 'One-to-one session',
-                    why: 'A private slot is the easiest thing to put a price on.' },
-        sugForm:  { label: 'Private group enquiry form', title: 'Book me for your group',
-                    why: 'A group has a date and a size to settle before anything is booked.' },
-      },
-    ];
-
-    let suggestRound = 0;
-
-    function paintSuggestions() {
-      const set = SUGGESTION_ROUNDS[suggestRound % SUGGESTION_ROUNDS.length];
-      Object.keys(set).forEach((id) => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.querySelector('.edit-row-label').textContent = set[id].label;
-        el.querySelector('.edit-suggestion-why').textContent = set[id].why;
-        const drop = el.querySelector('[data-drop]');
-        if (drop) drop.setAttribute('aria-label', 'Remove ' + set[id].label);
-        SUGGESTIONS[id].card.title = set[id].title;
-      });
-    }
-
-    // Still on the page at all — a set-up suggestion is a real piece, and
-    // the preview draws it as one.
-    const live = () => Object.keys(SUGGESTIONS).filter((k) => !SUGGESTIONS[k].removed);
-    // Still only a suggestion. The note is about these: once a piece is set
-    // up it is no longer something being proposed, so a line recommending
-    // it would be arguing for what is already there.
-    const pending = () => live().filter((k) => !SUGGESTIONS[k].done);
 
     /* ── What each kind of button is made of ──
        Figma 11241:80504. A button on the page is a label, the thing it
@@ -960,12 +777,6 @@
 
     function links() {
       const out = [];
-      document.querySelectorAll('#suggestionList > li').forEach((li) => {
-        const el = li.querySelector('.edit-suggestion');
-        const id = el && el.id;
-        if (!id || li.hidden) return;
-        out.push({ id: id, label: SUGGESTIONS[id].card.title, pending: true });
-      });
       // DOM order, not insertion order: the drag moves the node, and this is
       // what makes the page follow it.
       document.querySelectorAll('#blockList > li').forEach((li) => {
@@ -1020,30 +831,11 @@
       },
     });
 
-    /* The page marks what is being moved, not what the pointer passes over.
-       Hover did it for a while and the preview scrolled every time the
-       pointer crossed a row on its way somewhere else — a page that jumps
-       when you are not asking it to is a page you stop looking at. */
-    const suggestionList = document.getElementById('suggestionList');
-    suggestionList.addEventListener('pointerdown', (e) => {
-      const row = e.target.closest('.edit-suggestion');
-      if (!row || !e.target.closest('.edit-row-grip')) return;
-      dragRegion = row.getAttribute('data-edits');
-      split.sync();
-    });
-    suggestionList.addEventListener('pointerup', () => {
-      dragRegion = null;
-    });
-
     /* A drag ends with the node somewhere new, and the page has to follow.
        pointerup fires before the module's own handler moves it, so the sync
-       waits a frame. Both lists, because both are on the page — reordering
-       the finished rows did nothing at all while only the suggestions were
-       listened to. */
-    ['suggestionList', 'blockList'].forEach((id) => {
-      document.getElementById(id).addEventListener('pointerup', () => {
-        requestAnimationFrame(() => split.sync());
-      });
+       waits a frame. */
+    document.getElementById('blockList').addEventListener('pointerup', () => {
+      requestAnimationFrame(() => split.sync());
     });
 
     /* ── Adding ──
@@ -1373,14 +1165,10 @@
       return el ? el.outerHTML : iconFor((TYPES[kind] || TYPES.mainlink).kind);
     }
 
-    /* The suggestion this kind of thing would finish, if one is still
-       standing. Same search editSave does when it marks one done, so the
-       name the dialog opens on is the name of the thing it will build. */
-    function seedName(kind) {
-      const id = Object.keys(SUGGESTIONS).find((k) =>
-        SUGGESTIONS[k].editor === kind && !SUGGESTIONS[k].done && !SUGGESTIONS[k].removed);
-      return id ? SUGGESTIONS[id].card.title : null;
-    }
+    /* Nothing proposes a name any more: the suggestions that used to arrive
+       already named are gone, so a thing made from the add list starts
+       unnamed rather than carrying a placeholder to clear. */
+    function seedName() { return null; }
 
     function labelOf(kind, b) {
       if (b) return b.label;
@@ -1727,19 +1515,14 @@
     }
 
     /* ── What shows ──
-       A section heading arrives with its first real item. The suggestions
-       sit in the page's own section but do not bring its heading with them:
-       they are not yet things the seller put there. */
+       A group arrives with its first real item. Contact and social hold
+       their rows back until there is one; the main list is what a bio page
+       is, so it says it is empty rather than not being there. */
     const SECTIONS = {
       sectionContact: ['whatsapp', 'email', 'call'],
       sectionSocial: ['social'],
     };
     const BLOCK_ROWS = { rowMainlink: 'mainlink', rowMap: 'map' };
-
-    /* The ideas are asked for when the screen opens and land a moment later.
-       Held in one flag so refresh() can own all three states of the list. */
-    let suggestionsPending = true;
-    const SUGGEST_MS = 1400;
 
     /* The capture script would otherwise freeze the screen mid-wait, and
        every thumbnail of it would be a placeholder. This is the protocol
@@ -1767,83 +1550,14 @@
         if (row) row.toggleAttribute('data-off', b.visible === false);
       });
 
-      const capped = limitReached();
-      Object.keys(SUGGESTIONS).forEach((id) => {
-        const s = SUGGESTIONS[id];
-        // Set up, it stops being a suggestion and becomes a row like any
-        // other — the dashed outline is the whole of what marked it. The row
-        // itself is a block now, made by finishSuggestion().
-        //
-        // While the ideas are still being worked out there are no ideas to
-        // show: the placeholder stands where they will land, not beside them.
-        const el = document.getElementById(id);
-        el.closest('li').hidden = s.removed || s.done || suggestionsPending;
-
-        /* Taking one of the pair puts the other past the plan's one action
-           page. It used to leave the list and reappear inside the add sheet,
-           which asked the seller to go and find a thing they had already
-           been offered — and read as the product quietly withdrawing it.
-           It stays in its place and changes what it costs instead: the same
-           card, the upgrade ramp, and a price on the button. */
-        el.toggleAttribute('data-upgrade', capped);
-        const go = el.querySelector('[data-setup]');
-        go.classList.toggle('btn-upgrade', capped);
-        const want = capped ? CROWN_SVG + 'Upgrade and add it' : 'Add it';
-        if (go.innerHTML !== want) go.innerHTML = want;
-      });
-
-      /* The tag that carried the pair's colour has gone with the head
-         rework, and the group's own ground carries it instead: green while
-         the offer is free to take, the upgrade tint once the plan has put a
-         price on it. */
-      document.getElementById('sectionSuggest')
-        .setAttribute('data-tone', capped ? 'upgrade' : 'positive');
-
       const hasBlockRow = Object.keys(BLOCK_ROWS).some((id) => ON[BLOCK_ROWS[id]]) ||
         BLOCKS.size > 0;
       /* The label stays; what changes under it is a list or a line saying
          there is nothing in it yet. */
-      const blocksEmpty = document.getElementById('blocksEmpty');
-      if (blocksEmpty) blocksEmpty.hidden = hasBlockRow;
-      const noSuggestions = pending().length === 0;
-      /* The head stays up through the wait. It names the group, and the
-         group is there while it is being filled — hiding it cost 32px that
-         landed on everything below the moment the pair arrived, which is the
-         jump the placeholder's whole height exists to prevent. */
-      document.getElementById('suggestHead').hidden = noSuggestions;
-      /* The container goes with its contents. Left in place it was a bordered
-         box round nothing, which reads as something that failed to load. */
-      document.getElementById('sectionSuggest').hidden = noSuggestions;
-      // Nothing to ask again about once the pair is gone — nor once the plan
-      // is full, where a re-roll only swaps one locked card for another.
-      const regen = document.getElementById('regenSuggest');
-      regen.hidden = noSuggestions || capped;
-
-      /* Three states, one list. While the ideas are being worked out the
-         placeholder stands where they will land; once they arrive it goes.
-         Empty is the third: nothing on the page and nothing left to
-         suggest, which is only reachable by clearing both. */
-      document.querySelectorAll('[data-pending]').forEach((el) => {
-        el.hidden = !suggestionsPending;
-      });
-      /* And the list it stands in for goes with them. Left in place at zero
-         height it still counted as a flex child, so the column carried one
-         gap too many and the pair arrived 8px shorter than the wait. */
-      document.getElementById('suggestionList').hidden = suggestionsPending;
-      /* The first load is a generation in flight, so Regenerate wears the
-         state a re-roll wears rather than vanishing: same spinner, same
-         subdued label, and it holds its own line so nothing below it steps
-         down when the pair lands. */
-      if (suggestionsPending) {
-        regen.hidden = false;
-        regen.setAttribute('data-busy', 'true');
-        regen.setAttribute('aria-disabled', 'true');
-      } else if (regen.getAttribute('aria-disabled') === 'true') {
-        regen.setAttribute('data-busy', 'false');
-        regen.removeAttribute('aria-disabled');
-      }
-      document.getElementById('listEmpty').hidden =
-        suggestionsPending || !noSuggestions || hasBlockRow;
+      /* One empty state, not two. With the three lists under a single label
+         there is no "main links" group that can be empty on its own, and the
+         page-level line below says the same thing with more help in it. */
+      document.getElementById('listEmpty').hidden = hasBlockRow;
 
     }
 
@@ -1865,25 +1579,6 @@
     const PAGE_KINDS = ['book', 'form'];
     const limitReached = () =>
       [...BLOCKS.values()].some((b) => PAGE_KINDS.indexOf(b.kind) !== -1);
-
-    const SUGGESTION_KIND = { offer: 'book', form: 'form' };
-
-    function finishSuggestion(id, { creating = true, fields = null } = {}) {
-      const s = SUGGESTIONS[id];
-      if (!s || s.done || s.removed) return;
-      s.done = true;
-      addBlock({
-        label: s.card.title,
-        kind: SUGGESTION_KIND[s.editor] || 'link',
-        editor: s.editor,
-        creating,
-        remember: true,
-        /* A form the seller read and approved is not waiting to be reviewed.
-           The badge is for the ones made without them looking. */
-        review: !fields,
-        fields,
-      });
-    }
 
     /* ── The form sheet ──
        It used to make the form first and then describe it: the row was on
@@ -2468,48 +2163,8 @@
           return;
         }
         if (kind !== 'form') return showEditor(kind);
-        const match = Object.keys(SUGGESTIONS).find((k) => SUGGESTIONS[k].editor === 'form');
-        openFormDraft((fields) => {
-          /* Not creating: the form was written in the sheet and read there.
-             The spinner on the row stood for work the seller could not see,
-             and there is none left by the time they press Add. */
-          if (match) finishSuggestion(match, { creating: false, fields });
-        });
+        openFormDraft(() => {});
       }));
-
-    /* Another round. The two step back while the next pair is found — the
-       wait belongs to the suggestions, not to the button that asked. */
-    const REGEN_MS = 900;
-    const regenSuggest = document.getElementById('regenSuggest');
-    const suggestionListEl = document.getElementById('suggestionList');
-
-    regenSuggest.addEventListener('click', () => {
-      if (regenSuggest.getAttribute('data-busy') === 'true') return;
-      regenSuggest.setAttribute('data-busy', 'true');
-      suggestionListEl.setAttribute('data-regenerating', 'true');
-      window.setTimeout(() => {
-        suggestRound += 1;
-        paintSuggestions();
-        suggestionListEl.removeAttribute('data-regenerating');
-        regenSuggest.setAttribute('data-busy', 'false');
-        split.sync();
-      }, REGEN_MS);
-    });
-
-    /* Open on arrival, because the pair is what the screen is for, and shut
-       by its own head. Folding replaced refusing: a seller who does not want
-       the suggestions now puts them away rather than destroying them, which
-       is reversible and does not ask whether they are sure. */
-    const suggestSection = document.getElementById('sectionSuggest');
-    const suggestToggle = document.getElementById('suggestHead');
-    if (suggestToggle) {
-      suggestToggle.addEventListener('click', () => {
-        const open = suggestSection.getAttribute('data-open') !== 'true';
-        suggestSection.setAttribute('data-open', String(open));
-        suggestToggle.setAttribute('aria-expanded', String(open));
-        split.sync();
-      });
-    }
 
     document.getElementById('editClose').addEventListener('click', () => openEdit(false));
     /* Saving the setup of a suggestion is what finishes it. The same sheet
@@ -2599,18 +2254,10 @@
         return;
       }
 
-      // Making the thing a suggestion asked for.
-      const match = Object.keys(SUGGESTIONS).find((k) => SUGGESTIONS[k].editor === activeEditor && !SUGGESTIONS[k].done);
-      if (!match) { openEdit(false); return; }
-      editSave.setAttribute('data-busy', 'true');
-      setTimeout(() => {
-        editSave.removeAttribute('data-busy');
-        openEdit(false);
-        if (value) SUGGESTIONS[match].card.title = value;
-        // The wait already happened on the button, so the row it makes
-        // arrives finished rather than waiting a second time.
-        finishSuggestion(match, { creating: false });
-      }, CREATE_MS);
+      /* Nothing left to finish. Every thing on this screen is made from the
+         add list now, and that path has already put its row on the page by
+         the time Save is pressed. */
+      openEdit(false);
     });
 
     function paintRow(key) {
@@ -2625,9 +2272,6 @@
         // A switch-backed piece is removed by switching it off; there is
         // one of each, and the add list is how it comes back.
         ON[activeEditor] = false;
-      } else {
-        const match = Object.keys(SUGGESTIONS).find((k) => SUGGESTIONS[k].editor === activeEditor);
-        if (match) SUGGESTIONS[match].removed = true;
       }
       openEdit(false);
       refresh();
@@ -3244,10 +2888,6 @@
       const v = VARIANTS[e.data.variant];
       if (!v) return;
       Object.keys(ON).forEach((k) => { ON[k] = v.on.indexOf(k) !== -1; });
-      Object.keys(SUGGESTIONS).forEach((k) => {
-        SUGGESTIONS[k].removed = v.removed.indexOf(k) !== -1;
-        SUGGESTIONS[k].done = v.done.indexOf(k) !== -1;
-      });
       refresh();
       split.setState(v.drawer);
       if (v.add) openAdd(); else closeAdd();
@@ -3256,13 +2896,10 @@
     });
 
     /* ── Leaving with an empty page ──
-       A suggestion that has not been set up is not something on the page, so
-       it does not count here: the whole point of the question is that a
-       visitor would find nothing to press. */
+       The question is whether a visitor would find anything to press, so it
+       counts what the seller has actually put there. */
     function pageIsEmpty() {
-      const anyAdded = Object.keys(ON).some((k) => ON[k]);
-      const anyDone = Object.keys(SUGGESTIONS).some((k) => SUGGESTIONS[k].done && !SUGGESTIONS[k].removed);
-      return !anyAdded && !anyDone;
+      return !Object.keys(ON).some((k) => ON[k]) && BLOCKS.size === 0;
     }
 
     const emptySheet = document.getElementById('emptySheet');
@@ -3299,14 +2936,9 @@
 
     refresh();
 
-    /* Settles once, on first load. Regenerate has a wait of its own — it
-       dims the pair that is already there rather than replacing the list. */
-    setTimeout(() => {
-      suggestionsPending = false;
-      refresh();
-      split.sync();
-      window.__screenshotReady = true;
-    }, SUGGEST_MS);
+    /* Nothing is fetched on load any more, so the capture script is released
+       on the same turn rather than after a wait that no longer happens. */
+    window.__screenshotReady = true;
   </script>
 
 </body>
