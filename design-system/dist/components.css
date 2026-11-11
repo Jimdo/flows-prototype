@@ -79,16 +79,19 @@ body {
 
 /* ── A day and the hours it is open ──
    Ported from bookings-management
-   frontend/src/components/EventForm/components/WeekdaysAvailability, the
-   inline layout: a grid of day name, the hours, and room for a second range,
-   inside a 1px keyline at radius-s. Production gives every weekday a row with
-   a toggle; here the chips above are that toggle, so only the days the seller
-   actually works get a row and nobody is asked to fill in seven.
+   frontend/src/components/EventForm/components/WeekdaysAvailability: the
+   inline layout's grid — day, hours, control — inside a 1px keyline at
+   radius-s, with the stacked layout's per-day toggle as that control.
 
-   That split matters. ins-158 found the opening-hours form too rigid because
-   it "wants specific times for every day" for a therapist who works by
-   appointment — so the days stay optional. What it could not do was give
-   Tuesday different hours from Monday, which is what these rows add. */
+   Every weekday has a row whether or not it is worked, and the row holds its
+   own switch. The first attempt put chips above and grew rows beneath them,
+   which made one decision in two places: the thing you pressed was at the top
+   and the thing that changed was somewhere below, sometimes past the bottom
+   of the sheet. Seven steady rows are taller at rest and never move.
+
+   ins-158 found the opening-hours form too rigid because it "wants specific
+   times for every day"; a day left off says Unavailable and asks nothing,
+   which is the difference between offering seven days and demanding them. */
 .day-hours {
   display: flex;
   flex-direction: column;
@@ -96,22 +99,24 @@ body {
 }
 .day-hours-row {
   display: grid;
-  grid-template-columns: minmax(72px, 1fr) 2fr;
+  grid-template-columns: minmax(72px, auto) 1fr auto;
   align-items: center;
-  column-gap: var(--jui-layout-gap-m);
+  column-gap: var(--jui-layout-gap-s);
   padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-s);
   border: 1px solid var(--jui-color-stroke-gray-default);
   border-radius: var(--jui-style-radius-s);
 }
 .day-hours-day {
   min-width: 0;
-  font-size: var(--jui-typography-body-medium-regular-size);
-  font-weight: var(--jui-typography-body-medium-regular-weight);
-  line-height: var(--jui-typography-body-medium-regular-lh);
+  font-size: var(--jui-typography-body-small-medium-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  line-height: var(--jui-typography-body-small-medium-lh);
   color: var(--jui-color-typography-gray-on-light-default);
 }
-/* The two times are one range, so they share a line with the word between
-   them rather than stacking as two unrelated questions. */
+/* A day that is off keeps its row and loses its question. */
+.day-hours-row[data-on="false"] .day-hours-day {
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
 .day-hours-times {
   display: flex;
   align-items: center;
@@ -121,20 +126,36 @@ body {
 .day-hours-times .form-input {
   min-width: 0;
   flex: 1 1 0;
+  /* The row is the line; the inputs inside it should not each look like one
+     more box. 32 against the field's 48, which is what a control sitting
+     inside another control's keyline gets elsewhere on this screen. */
+  height: var(--jui-layout-dimension-s);
+  padding: 0 var(--jui-layout-padding-xs);
 }
-.day-hours-sep {
+.day-hours-sep,
+.day-hours-off {
   flex-shrink: 0;
+  margin: 0;
   font-size: var(--jui-typography-body-small-regular-size);
   line-height: var(--jui-typography-body-small-regular-lh);
   color: var(--jui-color-typography-gray-on-light-subdued);
 }
-/* Production stacks the times under the name on a narrow screen rather than
-   squeezing two time inputs into half a row. */
+.day-hours-row .toggle { flex-shrink: 0; }
+
+/* Narrow keeps one line and shortens the day instead. Production stacks the
+   hours under the name here, which on a phone made each row 82px and the
+   seven of them 602 — most of the screen, and a lot of scrolling to reach
+   Save. Monday becomes Mon, the label column gives up its width, and the row
+   holds at 50. */
+.day-hours-day-short { display: none; }
 @media (max-width: 540px) {
   .day-hours-row {
-    grid-template-columns: 1fr;
-    row-gap: var(--jui-layout-gap-xs);
+    grid-template-columns: 38px 1fr auto;
+    column-gap: var(--jui-layout-gap-xs);
   }
+  .day-hours-day-full { display: none; }
+  .day-hours-day-short { display: inline; }
+  .day-hours-times .form-input { padding: 0 var(--jui-layout-padding-xxs); }
 }
 
 /* ── Skeleton ──
