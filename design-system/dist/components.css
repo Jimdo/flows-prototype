@@ -8322,6 +8322,84 @@ body {
   color: var(--jui-color-typography-gray-on-light-default);
 }
 
+/* ── Advanced button — the switch, its line, and what it reveals ──
+
+   Turning a link into a card is not something the word on a switch can
+   explain, so this row carries a line under it where Visible carries
+   nothing. What the switch reveals sits behind a rule: the fields above
+   are about the button, these are about the card it becomes, and without
+   the rule the dialog reads as one long form that grew.
+
+   Used by: bio-page-links-edit-onboarding (scr-477). */
+.sheet-adv { gap: var(--jui-layout-gap-xs); }
+.sheet-adv-note {
+  margin: 0;
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+.sheet-adv .sheet-toggle { justify-content: space-between; }
+.sheet-adv-fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-s);
+  margin-top: var(--jui-layout-gap-xs);
+  padding-top: var(--jui-layout-gap-s);
+  border-top: 1px solid var(--jui-color-stroke-gray-decorative);
+}
+.sheet-adv-fields[hidden] { display: none; }
+
+/* Three shapes, compared at a glance. The segmented control is already what
+   this screen uses for a small closed set the seller flicks between while
+   watching the preview — same job, at the width of a sheet field. */
+.seg-control--adv { width: 100%; }
+.seg-control--adv .seg-control-item { flex: 1 1 0; min-width: 0; }
+
+/* The picture, at the size and radius it has on the card, so the control
+   and the thing it changes read as one object — the same argument the
+   avatar control makes for the page's own photo. */
+.pic-upload {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.pic-upload-empty,
+.pic-upload-img {
+  display: block;
+  width: 80px;
+  height: 80px;
+  border-radius: var(--jui-style-radius-8);
+  object-fit: cover;
+}
+.pic-upload-empty { background: var(--jui-color-blue-10); }
+/* Straddling the corner, like the avatar control's — a badge inside the
+   frame covers the picture it is offering to change. */
+.pic-upload-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--jui-layout-dimension-xs, 24px);
+  height: var(--jui-layout-dimension-xs, 24px);
+  border-radius: 999px;
+  background: var(--jui-color-actions-primary-rest);
+  color: var(--jui-color-gray-white);
+}
+.pic-upload-badge svg { width: 14px; height: 14px; }
+.pic-upload:focus-visible {
+  outline: 2px solid var(--jui-color-stroke-primary-on-light);
+  outline-offset: 4px;
+  border-radius: var(--jui-style-radius-8);
+}
+
 /* Hidden, not gone. The row keeps its place in the list so it can be
    switched back on; the page is where it stops appearing. */
 .edit-row[data-off] .edit-row-label,

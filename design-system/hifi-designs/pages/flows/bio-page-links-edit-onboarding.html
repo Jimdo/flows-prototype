@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=b52d53a">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=b52d53a">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=699cf3d">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=699cf3d">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=b52d53a">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=699cf3d">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -941,8 +941,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=b52d53a"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=b52d53a"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=699cf3d"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=699cf3d"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -1086,12 +1086,72 @@
     const BLOCKS = new Map();   // key -> { label, kind, editor, creating }
     let blockSeq = 0;
 
+    /* ── Advanced buttons ──────────────────────────────────────────────
+       Any button in the main list can wear the card the bio page already
+       draws for an offer: a picture, a line about what it is, and its own
+       call to action. It is the same entry in the same list at a size that
+       carries weight, which is what makes it worth paying for — a second
+       plain link costs nothing to add and nothing to look at.
+
+       One comes with the free plan. A second is an upgrade, and the ramp is
+       its own: the action-page limit sells pages, this sells the treatment,
+       and tying them would make one purchase quietly answer the other.
+
+       The contact row and the social icons are out of scope by their own
+       shape — a WhatsApp button is a way to reach someone, not an offer,
+       and the icons are marks with nothing to title. */
+    var ADV_EDITORS = ['offer', 'form', 'page', 'mainlink'];
+    var ADV_CTA = { book: 'Book now', form: 'Get in touch', page: 'Take a look', link: 'Take a look' };
+    /* Which block is holding the free one, if any. A key rather than a
+       boolean, so the ramp can name the button the seller would have to
+       take it off. */
+    function advancedHolder() {
+      for (const [key, b] of BLOCKS) if (b.advanced && b.advanced.on) return key;
+      return null;
+    }
+    /* Free for this block when nothing holds it, or when this block is what
+       holds it — turning one off has to stay free. */
+    function advancedFree(key) {
+      const held = advancedHolder();
+      return !held || held === key;
+    }
+    /* What a button says when it is first made advanced. Enough that the
+       preview changes the moment the switch moves: an advanced button whose
+       card is empty looks like a broken plain one. */
+    function advancedSeed(b) {
+      return {
+        on: true,
+        layout: 'beside',
+        title: b.label || '',
+        meta: '',
+        cta: ADV_CTA[b.kind] || ADV_CTA.link,
+        image: '',
+      };
+    }
+    /* What the preview draws it as. Null is a plain bar. */
+    function advancedOf(b) {
+      if (!(b.advanced && b.advanced.on)) return null;
+      return {
+        layout: b.advanced.layout || 'beside',
+        title: b.advanced.title || b.label || '',
+        meta: b.advanced.meta || '',
+        cta: b.advanced.cta || '',
+        price: b.advanced.price || '',
+        image: b.advanced.image || '',
+        kind: b.kind,
+      };
+    }
+
     function links() {
       const out = [];
       document.querySelectorAll('#suggestionList > li').forEach((li) => {
         const el = li.querySelector('.edit-suggestion');
         const id = el && el.id;
         if (!id || li.hidden) return;
+        /* Plain bars, even though taking one would make it advanced. Three
+           cards in the preview would show three free advanced buttons where
+           the plan gives one — the offer is a card, the page is not three
+           of them. What a suggestion becomes is settled when it is taken. */
         out.push({ id: id, label: SUGGESTIONS[id].card.title, pending: true });
       });
       // DOM order, not insertion order: the drag moves the node, and this is
@@ -1103,7 +1163,7 @@
         // Hidden is not removed: the row stays in the list, where it can be
         // switched back on, and only the page stops carrying it.
         if (!b || li.hidden || b.visible === false) return;
-        out.push({ id: key, label: b.label, pending: !!b.creating });
+        out.push({ id: key, label: b.label, pending: !!b.creating, advanced: advancedOf(b) });
       });
       return out;
     }
@@ -1197,9 +1257,27 @@
       return el ? el.outerHTML : '';
     }
 
-    function addBlock({ label, kind = 'link', editor = 'mainlink', creating = true, remember = false, review = false, fields = null }) {
+    function addBlock({ label, kind = 'link', editor = 'mainlink', creating = true, remember = false, review = false, fields = null, advanced = null }) {
       const key = 'blk' + (++blockSeq);
       BLOCKS.set(key, { label, kind, editor, creating, review, fields });
+      /* A suggestion arrives wearing the card, while the free one is going
+         spare. The product proposed this button; proposing it at the size
+         that sells and then handing over a bar is a worse bargain than the
+         one that was offered, and the seller has to find the switch to get
+         back what they thought they were taking. The second one along is a
+         bar, because by then the free one is spoken for. */
+      if (advanced && advancedFree(null)) {
+        const b = BLOCKS.get(key);
+        b.advanced = {
+          on: true,
+          layout: advanced.layout || 'beside',
+          title: advanced.title || label || '',
+          meta: advanced.meta || '',
+          cta: advanced.cta || ADV_CTA[kind] || ADV_CTA.link,
+          price: advanced.price || '',
+          image: advanced.image || '',
+        };
+      }
       if (remember) rememberMade(kind, label);
 
       const li = document.createElement('li');
@@ -1377,6 +1455,11 @@
        editor cannot tell that from editing one already there unless it is
        told. */
     let activeAdd = null;
+    /* Where the card's settings live while the button is still being added.
+       There is no entry to hang them on until Save, and asking the seller to
+       add the link, find it again and open it a second time to say what it
+       should look like is three steps for one decision. */
+    let addDraft = null;
 
     /* ── One dialog, two jobs ──
        Making a thing and editing the button that points at it are not the
@@ -1391,6 +1474,7 @@
          commit a thing an earlier one was asked for and left. */
       activeMake = opts.make || null;
       activeAdd = opts.add || null;
+      addDraft = null;
       const b = blockKey ? BLOCKS.get(blockKey) : null;
       // Nothing to point at yet means there is nothing to edit about the
       // button either — the first pass through makes the thing itself.
@@ -1452,6 +1536,19 @@
         (t.fields || []).forEach(([label, type, value]) => {
           editFields.appendChild(field(label, type, value));
         });
+      }
+
+      /* Only the main list — and on the way in as well as afterwards. The
+         dialog that adds a link is the same dialog that edits one, so the
+         decision is offered in the same place both times. The editors that
+         build something first are out: that pass is about the thing behind
+         the button, and it asks enough already. */
+      if (ADV_EDITORS.indexOf(kind) !== -1) {
+        if (b) editFields.appendChild(advancedRow(kind, b));
+        else if (activeMake) {
+          addDraft = { label: activeMake.label, kind: activeMake.kind, advanced: null };
+          editFields.appendChild(advancedRow(kind, addDraft));
+        }
       }
 
       editFields.appendChild(visibleRow(kind, b));
@@ -1626,6 +1723,198 @@
         el.classList.add('sheet-ref--flat');
       }
       return el;
+    }
+
+    /* The switch that changes what the button is, and under it the one
+       line saying what changes. Built on the Visible row's pattern because
+       it is the same kind of statement about the same button — but it
+       carries a note, because turning a link into a card is not something
+       the word on the switch can explain on its own. */
+    function advancedRow(kind, b) {
+      const wrapRow = document.createElement('div');
+      wrapRow.className = 'sheet-field sheet-adv';
+
+      const row = document.createElement('div');
+      row.className = 'sheet-toggle';
+      const label = document.createElement('span');
+      label.className = 'sheet-toggle-label';
+      label.setAttribute('data-inspect-phrase', '');
+      label.textContent = 'Advanced button';
+
+      const free = advancedFree(activeBlock);
+      const on = !!(b && b.advanced && b.advanced.on);
+
+      const note = document.createElement('p');
+      note.className = 'sheet-adv-note';
+      note.setAttribute('data-inspect-phrase', '');
+
+      if (!free) {
+        /* Taken, and by which button — a limit that will not say what is
+           using it leaves the seller hunting for it. */
+        const held = BLOCKS.get(advancedHolder());
+        note.textContent = 'Your plan comes with one, and ' +
+          (held && held.label ? '“' + held.label + '”' : 'another button') + ' has it.';
+        const up = document.createElement('button');
+        up.type = 'button';
+        up.className = 'btn btn-secondary btn-sm btn-upgrade';
+        up.setAttribute('data-inspect-label', 'Upgrade — a second advanced button');
+        up.setAttribute('data-inspect-phrase', '');
+        up.innerHTML = CROWN_SVG + 'Upgrade';
+        up.addEventListener('click', () => { window.location.href = PAYWALL; });
+        row.append(label, up);
+        wrapRow.append(row, note);
+        return wrapRow;
+      }
+
+      note.textContent = 'A bigger button with a picture, a line about it and its own call to action.';
+
+      const sw = document.createElement('span');
+      sw.className = 'jui-toggle';
+      sw.innerHTML =
+        '<input type="checkbox" id="editAdvanced" aria-label="Advanced button">' +
+        '<span class="jui-toggle-indicator"><span class="jui-toggle-circle">' +
+        '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+        '<path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>' +
+        '</svg></span></span>';
+      const input = sw.querySelector('input');
+      input.checked = on;
+      input.addEventListener('change', () => {
+        if (!b) return;
+        /* Off keeps what was written. A seller who switches it off to see
+           the plain bar and switches back should not have to type the
+           words again — and the free slot is released either way, because
+           what holds it is being advanced, not having been. */
+        if (input.checked) b.advanced = Object.assign(advancedSeed(b), b.advanced || {}, { on: true });
+        else b.advanced = Object.assign({}, b.advanced || {}, { on: false });
+        paintAdvancedFields(b);
+        refresh();
+        split.sync();
+      });
+      row.append(label, sw);
+      wrapRow.append(row, note, advancedFields(b));
+      return wrapRow;
+    }
+
+    /* What the card is made of, revealed by the switch above. The picture
+       comes first because it is what the treatment is mostly buying — the
+       other three the plain button already had in some form.
+
+       The CTA icon is not here: it is read off what the button points at, a
+       calendar for a booking and nothing for the rest. Letting a seller pick
+       a calendar for a link to a shop is a way to promise a schedule that
+       does not exist. */
+    function advancedFields(b) {
+      const box = document.createElement('div');
+      box.className = 'sheet-adv-fields';
+      box.id = 'editAdvFields';
+      paintAdvancedFields(b, box);
+      return box;
+    }
+
+    function paintAdvancedFields(b, into) {
+      const box = into || document.getElementById('editAdvFields');
+      if (!box) return;
+      const a = b && b.advanced;
+      box.hidden = !(a && a.on);
+      if (box.hidden) { box.innerHTML = ''; return; }
+      box.innerHTML = '';
+
+      /* 80 square at radius 8, which is the picture's own size on the card
+         — the control and the thing it changes read as one object. */
+      const pic = document.createElement('div');
+      pic.className = 'sheet-field';
+      const picLabel = document.createElement('span');
+      picLabel.className = 'sheet-label';
+      picLabel.textContent = 'Picture';
+      const picBtn = document.createElement('button');
+      picBtn.type = 'button';
+      picBtn.className = 'pic-upload';
+      picBtn.id = 'editAdvImage';
+      picBtn.setAttribute('data-inspect-label', 'Picture upload');
+      picBtn.setAttribute('aria-label', a.image ? 'Change picture' : 'Add a picture');
+      picBtn.setAttribute('data-no-phrase', '');
+      const paintPic = () => {
+        picBtn.innerHTML =
+          (a.image ? '<img class="pic-upload-img" src="' + a.image + '" alt="">' : '<span class="pic-upload-empty" aria-hidden="true"></span>') +
+          '<span class="pic-upload-badge" aria-hidden="true">' + (a.image ? PENCIL_SVG : PLUS_SVG) + '</span>';
+        picBtn.setAttribute('aria-label', a.image ? 'Change picture' : 'Add a picture');
+      };
+      paintPic();
+      /* No file dialog in a prototype — the one picture this page has stands
+         in for whichever the seller would choose, and pressing again takes
+         it off so the empty state stays reachable. */
+      picBtn.addEventListener('click', () => {
+        a.image = a.image ? '' : SAMPLE_PICTURE;
+        paintPic();
+        refresh();
+        split.sync();
+      });
+      pic.append(picLabel, picBtn);
+      box.appendChild(pic);
+
+      /* Three shapes, and the whole of the difference between them is where
+         the picture sits — so that is what they are called. Beside the
+         words, above them, or behind them with the words on top.
+
+         A segmented control rather than a dropdown: three options the
+         seller should be able to compare at a glance, on a choice they will
+         want to flick between while watching the preview. */
+      const style = document.createElement('div');
+      style.className = 'sheet-field';
+      const styleLabel = document.createElement('span');
+      styleLabel.className = 'sheet-label';
+      /* Named for the answer it takes, not for the thing it is about: the
+         upload above it is already called Picture, and two fields under one
+         word is a dialog that cannot be read down its left edge. */
+      styleLabel.textContent = 'Where the picture sits';
+      const seg = document.createElement('div');
+      seg.className = 'seg-control seg-control--adv';
+      seg.id = 'editAdvLayout';
+      seg.setAttribute('role', 'radiogroup');
+      seg.setAttribute('aria-label', 'Where the picture sits');
+      [['beside', 'Beside'], ['above', 'Above'], ['behind', 'Behind']].forEach(([value, text]) => {
+        const item = document.createElement('button');
+        item.type = 'button';
+        item.className = 'seg-control-item' + ((a.layout || 'beside') === value ? ' active' : '');
+        item.setAttribute('role', 'radio');
+        item.setAttribute('data-adv-layout', value);
+        item.setAttribute('aria-checked', String((a.layout || 'beside') === value));
+        item.setAttribute('data-inspect-phrase', '');
+        item.textContent = text;
+        item.addEventListener('click', () => {
+          a.layout = value;
+          /* Repainted, not just re-marked: behind the words there is no bar
+             to put a label on, so the field that asks for one goes. */
+          paintAdvancedFields(b);
+          refresh();
+          split.sync();
+        });
+        seg.appendChild(item);
+      });
+      style.append(styleLabel, seg);
+      box.appendChild(style);
+
+      const fieldSet = [['Headline', 'title', 'What it is', b.label || ''],
+       ['Description', 'meta', 'One line about it', '']];
+      /* The immersive shape draws an arrow where the others draw a labelled
+         bar. Asking for words that will not appear is how a seller ends up
+         believing they wrote something the page never showed. */
+      if ((a.layout || 'beside') !== 'behind') {
+        fieldSet.push(['Button text', 'cta', ADV_CTA[b.kind] || ADV_CTA.link, '']);
+      }
+      fieldSet.forEach(([label, key, hint]) => {
+        const f = field(label, 'text', a[key] || '');
+        const input = f.querySelector('input');
+        if (input) {
+          input.placeholder = hint;
+          input.addEventListener('input', () => {
+            a[key] = input.value;
+            refresh();
+            split.sync();
+          });
+        }
+        box.appendChild(f);
+      });
     }
 
     function visibleRow(kind, b) {
@@ -1984,6 +2273,11 @@
     /* The one mark the seller has already learned means "this costs" — she
        named it unprompted in testing, and then met a paywall that had none. */
     const TRASH_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3M6 7l.9 13.1A2 2 0 0 0 8.9 22h6.2a2 2 0 0 0 2-1.9L18 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const PENCIL_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M15.7071 5.29289L17.5 3.5C17.8905 3.10948 18.5237 3.10948 18.9142 3.5L20.5 5.08579C20.8905 5.47631 20.8905 6.10947 20.5 6.5L18.7071 8.29289M15.7071 5.29289L9.59886 11.4012C9.34255 11.6575 9.16071 11.9787 9.07279 12.3303L8.20715 15.7929L11.6697 14.9272C12.0214 14.8393 12.3425 14.6575 12.5989 14.4012L18.7071 8.29289M15.7071 5.29289L18.7071 8.29289" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M10.7071 4.79289H5.20715C4.10258 4.79289 3.20715 5.68832 3.20715 6.79289V18.7929C3.20715 19.8975 4.10258 20.7929 5.20715 20.7929H17.2071C18.3117 20.7929 19.2071 19.8975 19.2071 18.7929V13.2929" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>';
+    /* The one picture this page has. A prototype cannot open a file
+       dialog, and a made-up photo is a better stand-in than a grey box
+       for judging whether the card earns its height. */
+    const SAMPLE_PICTURE = '/flows-prototype/design-system/hifi-designs/pages/images/clara-stone.jpg';
     const CROWN_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg>';
 
     const PAGE_KINDS = ['book', 'form'];
@@ -2006,6 +2300,9 @@
            The badge is for the ones made without them looking. */
         review: !fields,
         fields,
+        /* The card the suggestion was shown as is what it becomes — same
+           name, same line, same call to action. */
+        advanced: { title: s.card.title, meta: s.card.meta, cta: s.card.cta, price: s.card.price },
       });
     }
 
@@ -2798,9 +3095,14 @@
       // a suggestion, because the same page is being made behind it.
       if (activeMake) {
         const make = activeMake;
+        const draft = addDraft;
         const land = () => {
           openEdit(false);
           addBlock({
+            /* What was said about the card while the button was being added.
+               Read here rather than in the dialog, because the name may have
+               been typed after the switch was moved. */
+            advanced: draft && draft.advanced && draft.advanced.on ? draft.advanced : null,
             label: value || make.label,
             kind: make.kind,
             editor: make.editor,
@@ -2978,6 +3280,7 @@
             openFormDraft((fields) => addBlock({
               label: idea.title, kind: 'form', editor: 'form',
               creating: false, remember: true, review: false, fields,
+              advanced: { title: idea.title, meta: idea.detail },
             }));
             return;
           }

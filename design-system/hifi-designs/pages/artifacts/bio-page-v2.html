@@ -1086,6 +1086,20 @@
     border-color: transparent;
   }
 
+  /* A real picture replaces the stand-in rather than stacking on top of it.
+     Nothing hid it before because nothing ever set a picture on one of these
+     — the offer card was authored with one and the host only ever changed
+     its words. Advanced buttons are the first thing that puts a picture in. */
+  .bio-rich-btn-img:not(.bio-sample-img) > .bio-rich-btn-img-placeholder {
+    display: none;
+  }
+  /* Behind the words, the picture is the card. With none, the frame holds
+     its height and shows the same translucent panel the hero does, so the
+     shape the seller chose is still the shape they see. */
+  .bio-rich-btn--immersive.bio-sample-img {
+    background: rgba(255, 255, 255, 0.15);
+  }
+
 </style>
 </head>
 <body>
@@ -1201,6 +1215,49 @@
     </div>
     -->
     <!-- /TEMPORARILY HIDDEN -->
+
+    <!-- The other two shapes an advanced button can take, authored here and
+         never shown: the host clones one of them per button, the same way it
+         clones the plain bar and the standard card. They were kept as
+         commented-out examples, which meant nothing could reach them.
+
+         Beside / above / behind, which is the whole of the difference: where
+         the picture sits relative to the words. -->
+    <div class="bio-rich-proto" id="bio-rich-proto-above" hidden aria-hidden="true">
+      <div class="bio-rich-btn bio-rich-btn--featured" role="button" tabindex="0">
+        <div class="bio-rich-btn-hero">
+          <img src="../images/clara-stone.jpg" alt="">
+        </div>
+        <div class="bio-rich-btn-info">
+          <h3 class="bio-rich-btn-title">Jewellery intensive retreat</h3>
+          <p class="bio-rich-btn-meta">Sat 10 May · 14:00 · Düsseldorf</p>
+        </div>
+        <div class="bio-rich-btn-cta">
+          <svg class="bio-rich-btn-cta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          <span class="bio-rich-btn-cta-label">Reserve your spot</span>
+          <span class="bio-rich-btn-cta-price">€120</span>
+          <svg class="bio-rich-btn-cta-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="bio-rich-proto" id="bio-rich-proto-behind" hidden aria-hidden="true">
+      <div class="bio-rich-btn bio-rich-btn--immersive" role="button" tabindex="0">
+        <img class="bio-rich-btn-immersive-img" src="../images/clara-stone.jpg" alt="">
+        <div class="bio-rich-btn-immersive-overlay">
+          <span class="bio-rich-btn-immersive-eyebrow">Spring collection</span>
+          <div class="bio-rich-btn-immersive-headline-row">
+            <h3 class="bio-rich-btn-immersive-headline">Up to 30% off</h3>
+            <svg class="bio-rich-btn-immersive-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- The offer card — one live rich button, driven by {type:'bio-config',
          offer:{…}}. Hidden unless a host turns it on, so pages that do not
@@ -1521,10 +1578,104 @@
           var proto = group.querySelector('.bio-link-btn');
           if (proto) group.linkModel = proto.cloneNode(true);
         }
+        /* The rich card, taken from the authored one the same way. A page
+           carries its advanced button among its links rather than instead of
+           them, so it is drawn in the list at the position the host gives it
+           — #bio-offer stays where it is for the onboarding steps, which
+           show one card and nothing else. Ids are stripped on the way out:
+           the original keeps them, and two nodes answering to
+           #bio-offer-title is a bug that only shows up later. */
+        if (group && !group.richModels) {
+          var take = function (node) {
+            if (!node) return null;
+            var copy = node.cloneNode(true);
+            copy.removeAttribute('id');
+            copy.removeAttribute('hidden');
+            copy.querySelectorAll('[id]').forEach(function (el) { el.removeAttribute('id'); });
+            return copy;
+          };
+          var above = document.getElementById('bio-rich-proto-above');
+          var behind = document.getElementById('bio-rich-proto-behind');
+          group.richModels = {
+            beside: take(document.getElementById('bio-offer')),
+            above: take(above && above.firstElementChild),
+            behind: take(behind && behind.firstElementChild),
+          };
+        }
         if (group && group.linkModel) {
           var model = group.linkModel;
           group.innerHTML = '';
           d.links.forEach(function (l) {
+            /* An advanced button is the same entry in the same list wearing
+               a bigger shape — that is the whole of what the seller is
+               buying — so it is cloned from the rich card rather than from
+               the bar, and everything else about it is unchanged. */
+            var models = group.richModels || {};
+            var model3 = l.advanced && (models[l.advanced.layout] || models.beside);
+            if (l.advanced && model3) {
+              var card = model3.cloneNode(true);
+              var layout = l.advanced.layout || 'beside';
+              card.className = 'bio-rich-btn bio-edit-target' +
+                (layout === 'above' ? ' bio-rich-btn--featured' :
+                 layout === 'behind' ? ' bio-rich-btn--immersive' : '');
+              if (l.id) card.id = 'bio-link-' + l.id;
+              card.setAttribute('data-link', 'real');
+              card.setAttribute('data-advanced', 'true');
+              if (l.pending) card.setAttribute('data-pending', 'true');
+              else card.removeAttribute('data-pending');
+              var a = l.advanced;
+              var put = function (sel, value) {
+                var el = card.querySelector(sel);
+                if (!el) return;
+                el.textContent = typeof value === 'string' ? value : '';
+                /* The authored card draws its words as bars, because on its
+                   own it is an example of what is being made. The moment the
+                   host names the thing, the bars stand in front of the
+                   answer. */
+                if (value) el.classList.remove('bio-sample-text');
+                el.hidden = !value;
+              };
+              /* Behind the words, the card is the picture: an eyebrow naming
+                 the thing and a headline doing the selling, with the arrow
+                 standing in for the call to action. There is no bar to put a
+                 label on, which is why the host stops asking for one. */
+              if (layout === 'behind') {
+                put('.bio-rich-btn-immersive-eyebrow', a.title || l.label || '');
+                put('.bio-rich-btn-immersive-headline', a.meta || a.cta || '');
+              } else {
+                put('.bio-rich-btn-title', a.title || l.label || '');
+                put('.bio-rich-btn-meta', a.meta);
+                put('.bio-rich-btn-cta-label', a.cta);
+                put('.bio-rich-btn-cta-price', a.price);
+              }
+              /* Only a date-bound offer earns the calendar; the others would
+                 be claiming a schedule they do not have. */
+              var ic = card.querySelector('.bio-rich-btn-cta-icon');
+              if (ic) ic.style.display = a.kind === 'book' ? '' : 'none';
+              /* No picture yet is its own kind of missing, so the frame
+                 stays and the placeholder shows through it. */
+              /* One picture, three places it can sit. The frame stays when
+                 there is none — a missing picture is its own kind of
+                 missing, and a card that collapses to the shape of a plain
+                 one hides the choice that was made. */
+              /* Behind the words there is no frame around the picture — the
+                 card is the frame, so it carries the empty state itself. */
+              var wrap = card.querySelector('.bio-rich-btn-img, .bio-rich-btn-hero') ||
+                (layout === 'behind' ? card : null);
+              var im = card.querySelector('.bio-rich-btn-img img, .bio-rich-btn-hero img, .bio-rich-btn-immersive-img');
+              if (im) {
+                if (a.image) {
+                  im.src = a.image;
+                  im.hidden = false;
+                  if (wrap) wrap.classList.remove('bio-sample-img');
+                } else {
+                  im.hidden = true;
+                  if (wrap) wrap.classList.add('bio-sample-img');
+                }
+              }
+              group.appendChild(card);
+              return;
+            }
             var btn = model.cloneNode(true);
             btn.hidden = false;
             btn.className = 'bio-link-btn bio-edit-target';
