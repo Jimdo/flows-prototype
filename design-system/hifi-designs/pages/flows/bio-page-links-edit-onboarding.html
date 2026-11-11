@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=e3df800">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=e3df800">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=0def391">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=0def391">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=e3df800">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=0def391">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -133,29 +133,22 @@
               <button type="button" class="edit-section-head edit-section-head--suggest" id="suggestHead"
                 aria-expanded="true" aria-controls="suggestBody" data-no-phrase
                 data-inspect-label="Suggestions — group head, folds">
-                <span class="edit-suggest-head-copy">
-                  <!-- Figma 17778:5814 gives this one a tag, not a section
-                       title: everything else on the screen is a group of
-                       things on the page, and this is the product offering
-                       something. The tag is what says that. -->
+                <!-- Figma 17788:6610. The tag and the fold share a row, pushed to its
+                     two ends, and the line sits under both at full width. It used
+                     to be a copy column with the fold beside it, which left the
+                     fold centred against two lines of prose instead of against
+                     the thing it opens. -->
+                <span class="edit-suggest-head-row">
+                  <!-- Figma 17778:5814 gives this one a tag, not a section title:
+                       everything else on the screen is a group of things on the
+                       page, and this is the product offering something. -->
                   <span class="tag tag--positive"
                     data-inspect-label="Tag — Positive"
                     data-inspect-tokens='[{"prop":"background","figma":"$jui-color-background-positive-medium","css":"--jui-color-background-positive-medium","value":"#e0faeb"},{"prop":"color","figma":"$jui-color-typography-positive-on-light","css":"--jui-color-typography-positive-on-light","value":"#00260d"},{"prop":"border-radius","figma":"badge/radius","css":"--jui-style-radius-4","value":"4px"}]'
                     data-inspect-phrase="">Suggestions</span>
-                  <!-- What adding one actually does, which is the part a
-                       seller cannot guess: a suggestion is not a link to
-                       somewhere else, it is a page of their own with one
-                       thing on it to act on. Said without naming the thing —
-                       "action page" is Jimdo's word for it, not theirs, and a
-                       product noun here would be a term to learn before the
-                       sentence pays off. Ends on what it is for, in their
-                       register: clients, not conversions or customers. Kept
-                       short — it is read once, over the thing it describes.
-                       Hardcoded for now; the real one reads from what the
-                       seller said they do. -->
-                  <p class="edit-suggest-note" data-inspect-phrase="">Each adds a page where people can book or ask, so they become clients.</p>
+                  <span class="edit-section-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M18 15L12 9L6 15" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></span>
                 </span>
-                <span class="edit-section-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5.99977 9.00005L11.9998 15L17.9998 9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></span>
+                <p class="edit-suggest-note" data-inspect-phrase="">Each adds a page where people can book or ask, so they become clients.</p>
               </button>
 
               <div class="edit-section-body" id="suggestBody">
@@ -845,8 +838,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=e3df800"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=e3df800"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=0def391"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=0def391"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';

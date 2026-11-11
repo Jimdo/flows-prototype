@@ -6304,7 +6304,9 @@ body {
 .edit-section-body {
   display: flex;
   flex-direction: column;
-  gap: var(--jui-layout-gap-xs);
+  /* Figma 17788:6365 — 12 between the head and the cards, and between the
+     cards themselves. */
+  gap: var(--jui-layout-gap-s);
 }
 .edit-section--fold[data-open="false"] > .edit-section-body { display: none; }
 
@@ -6312,9 +6314,13 @@ body {
 .app-shell-setup-split[data-layout="step"] .edit-section > .edit-section-rows {
   gap: var(--jui-layout-gap-s);
 }
-/* The column's own gap is the one between containers. */
+/* Figma 17788:6364 — 24 between the groups. It was 16, set when each group
+   had a container of its own to separate it; with the containers gone the
+   space is the only thing doing that work and it has to be the larger step.
+   The frame's own ladder: 4 inside the head, 12 between a head and its cards
+   and between the cards, 24 between one group and the next. */
 .app-shell-setup-split[data-layout="step"] .setup-split-fields {
-  --setup-fields-gap: var(--jui-layout-gap-m);
+  --setup-fields-gap: var(--jui-layout-gap-l);
 }
 /* A section with nothing in it is not a container with nothing in it. */
 .app-shell-setup-split[data-layout="step"] .edit-section[hidden] { display: none; }
@@ -6337,46 +6343,70 @@ body {
    frame insets it by, which puts the name 16 from the group's edge while the
    cards stay at 8. The head is the thing you read; the cards are the things
    you act on. */
-/* The same head the page footer folds with. Everything that used to set this
-   one apart belonged to the green wrapper: 8 of inset on a ground that no
-   longer exists, green-800 on a tint that is gone, and a 32px chevron lifted
-   by half its own height to sit on the title's line. With the ground removed
-   those left one fold flush and black and the other inset and green, which is
-   two patterns for one control.
+/* ── The suggestions head ──
+   Figma 17788:6610. The tag and the fold share a row pushed to its two ends,
+   and the line that says what the pair is sits under both at full width. It
+   was a copy column with the fold beside it, which left the fold centred
+   against two lines of prose rather than against the thing it opens — and on
+   a phone, where the line wraps, drifting further from it.
 
-   What it still needs is the one thing the footer's head does not have: a
-   second line under the title. The copy column carries it, and align-items
-   centre — the footer's own — puts the chevron against the pair. */
-.edit-section-head--suggest[hidden] { display: none; }
-.edit-suggest-head-copy {
-  display: flex;
+   4 between the row and the line (padding-xxs), which is the frame's; 12
+   from the head down to the first card, which the body carries. */
+.edit-section--fold > .edit-section-head.edit-section-head--suggest {
   flex-direction: column;
-  align-items: flex-start;
-  flex: 1 0 0;
-  min-width: 0;
-  /* 8, on the sheet's own rhythm — the tag and the line under it are one
-     thing, and the head already puts 12 between that block and the caret.
-     At nothing they touched, which read as the chip having fallen onto the
-     sentence. */
-  gap: var(--jui-layout-gap-xs);
+  align-items: stretch;
+  gap: var(--jui-layout-padding-xxs);
 }
+.edit-section-head--suggest[hidden] { display: none; }
+.edit-suggest-head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--jui-layout-gap-s);
+  width: 100%;
+}
+/* Figma 17788:6368: a 32 box at the button radius holding a 16 glyph — the
+   fold is a control of its own here, not a mark beside a title. */
+.edit-section-head--suggest .edit-section-chevron {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--jui-layout-dimension-s);
+  height: var(--jui-layout-dimension-s);
+  border-radius: var(--jui-component-button-radius);
+}
+.edit-section-head--suggest .edit-section-chevron svg { width: 16px; height: 16px; }
+/* The frame draws it pointing up while the group is open, which is the
+   direction that says "fold me away" rather than the one the rotation of a
+   down arrow would give. */
+.edit-section--fold[data-open="false"] > .edit-section-head--suggest .edit-section-chevron {
+  transform: rotate(180deg);
+}
+/* The line reads at full strength here, not subdued: Figma 17788 sets it in
+   gray-on-light-default. It is the only thing on the screen saying what a
+   suggestion is for. */
 .edit-suggest-note {
   margin: 0;
   font-size: var(--jui-typography-body-small-regular-size);
   font-weight: var(--jui-typography-body-small-regular-weight);
   line-height: var(--jui-typography-body-small-regular-lh);
-  color: var(--jui-color-typography-gray-on-light-subdued);
+  color: var(--jui-color-typography-gray-on-light-default);
 }
+/* Folded, the line goes with the pair it describes: with none on screen
+   there is nothing for it to explain, and leaving it would make the shut
+   group taller than the reason to open it. */
+.edit-section--fold[data-open="false"] .edit-suggest-note { display: none; }
+
+/* The cards sit 12 apart like everything else in this group — Figma
+   17788:6365. The list's own 8 is for the rows of a page, and leaving it here
+   made the pair land 4px shorter than the wait that stood in for it, because
+   the ghosts are the body's children and take the body's gap. */
+#suggestionList { gap: var(--jui-layout-gap-s); }
 /* Folded, the line goes with the pair it describes. It explains what the
    suggestions are; with none on screen there is nothing for it to explain,
    and leaving it would make the shut group taller than the reason to open
    it. The name stays, because that is what the seller opens. */
-.edit-section--fold[data-open="false"] .edit-suggest-note { display: none; }
-/* Folded, the line goes with the pair it describes. It explains what the
-   suggestions are; with none on screen there is nothing for it to explain,
-   and leaving it would make the shut group taller than the reason to open
-   it. The name stays, because that is what the seller opens. */
-.edit-section--fold[data-open="false"] .edit-suggest-note { display: none; }
+
 
 /* Regenerate is the only answer to the offer now. The way to refuse both has
    gone, because a group that folds shut is already a way to put it down, and
