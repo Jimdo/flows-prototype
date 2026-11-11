@@ -6402,6 +6402,197 @@ body {
    made the pair land 4px shorter than the wait that stood in for it, because
    the ghosts are the body's children and take the body's gap. */
 #suggestionList { gap: var(--jui-layout-gap-s); }
+
+/* ── Suggestions, one at a time ──
+
+   Three guesses about someone else's business, stacked, made a wall of the
+   product's opinions above the page the seller came to build — and the
+   screen's whole argument is that the page is the thing. One card at a time
+   asks one question, and the count says how short the list is.
+
+   A real scroll container with snap points rather than a transform: the
+   swipe is free on a phone, the arrows are a convenience over the same
+   scroll on a desktop, and nothing has to be kept in sync.
+
+   Used by: bio-page-links-edit-onboarding (scr-477). */
+.sug-carousel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-s);
+}
+
+.sug-track {
+  flex-direction: row;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  /* The gradient ring is drawn 1px outside the card it rings. In a scroll
+     container that overhang is overflow, so the track gives it a pixel on
+     every side and tells the snap to ignore it — without this the ring's
+     top and bottom edges are shaved and the first card snaps a pixel short. */
+  padding: 1px;
+  scroll-padding-inline: 1px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  /* The bar is the counter and the arrows; a system scrollbar under three
+     cards reads as an accident. */
+  overscroll-behavior-x: contain;
+}
+.sug-track::-webkit-scrollbar { display: none; }
+
+/* The track pads itself by a pixel so the drawn ring is not overflow. The
+   ghost stands in for the track, so it carries the same pixel — without it
+   the dots and the arrows underneath stepped down 2px at the moment the
+   card arrived, which is the one thing the ghost exists to prevent. */
+.sug-carousel > .suggest-pending { margin-block: 1px; }
+
+/* Author styles beat the UA's [hidden] at equal specificity, so a taken
+   card would have stayed on the track as an empty slide the arrows still
+   stopped at. */
+.sug-slide[hidden] { display: none; }
+.sug-slide {
+  flex: 0 0 100%;
+  min-width: 0;
+  scroll-snap-align: start;
+  display: flex;
+}
+/* Every card is the height of the tallest, so the arrows do not move under
+   the thumb as the reasons change length. */
+.sug-slide > .edit-suggestion,
+.sug-slide > .sug-regen { flex: 1 1 auto; }
+
+/* The fourth card. Same frame as a suggestion, because it belongs to the
+   same set — but it proposes a way out of the set rather than a thing to
+   add, so it is a column rather than words beside a button. */
+.sug-regen {
+  position: relative;
+  /* The same two columns as the three cards it sits behind — words on the
+     left, the one way out on the right. Stacked, its title, its line and its
+     button came to twice a suggestion's height, and because the slides are
+     the height of the tallest, that height went onto all four. */
+  display: flex;
+  flex-direction: row;
+  /* Centred, where the three cards hold their contents to the top. Every
+     slide is the height of the tallest, and this one has a line less in it
+     than a suggestion does — held to the top it read as a card that had
+     failed to finish loading. */
+  align-items: center;
+  gap: var(--jui-layout-gap-s);
+  padding: var(--jui-layout-padding-s) var(--jui-layout-padding-s)
+           var(--jui-layout-padding-m);
+  /* Not a proposal, so not the proposal's clothes: a plain outline on the
+     page's own ground where the three cards carry a filled panel under a
+     drawn gradient edge. The padding is theirs exactly — it is the same
+     stop on the same track, and a card that shifts its words by 4px as you
+     swipe onto it reads as a different component. */
+  border: 1px solid var(--jui-color-stroke-gray-decorative);
+  border-radius: var(--jui-style-radius-16);
+  background: transparent;
+}
+.sug-regen-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--jui-layout-gap-xxs);
+  flex: 1 0 0;
+  min-width: 0;
+}
+.sug-regen-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+/* The card's own name line, exactly: a subheadline here stood 2px taller
+   than the 24 an icon gives the three cards, and because the slides take
+   the tallest, those 2px were the whole carousel's — and the ghost that
+   stands in for it during the wait is built to the card's figures. */
+.sug-regen-title {
+  margin: 0;
+  font-size: var(--jui-typography-body-small-medium-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  line-height: var(--jui-typography-body-small-medium-lh);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+.sug-regen-why {
+  margin: 0;
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+/* Standing where a card's button stands, it takes that button's box rather
+   than the inline padding a control on its own line carries. */
+.sug-regen .regen {
+  height: var(--jui-layout-dimension-s);
+  padding-inline: var(--jui-layout-padding-xs);
+}
+
+/* Where you are, and the two ways to move. */
+/* Left, with the column's own edge, not centred under the card. The screen
+   reads down a left margin — the label, the cards, the page's list all start
+   there — and a centred control under one of them is the only thing that
+   does not. */
+.sug-nav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--jui-layout-gap-s);
+}
+/* Four dots between the two arrows. A written count had to say something
+   other than a number on the last card, because that card is not one of the
+   three — the dots just show it as the stop it is. */
+.sug-dots {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
+}
+/* The step dots' own two colours — .progress-pill-step, which is what the
+   steps of this same flow wear in the header above. Grey dots said the set
+   was inert; these say the same thing the header says, that you are at one
+   of a few places and the rest are ahead of you. */
+.sug-dot {
+  width: 6px;
+  height: 6px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--jui-color-blue-100);
+  cursor: pointer;
+  transition: background 150ms ease-out;
+}
+.sug-dot[hidden] { display: none; }
+.sug-dot[aria-current="true"] { background: var(--jui-color-actions-primary-rest); }
+.sug-dot:focus-visible {
+  outline: 2px solid var(--jui-color-stroke-primary-on-light);
+  outline-offset: 2px;
+}
+.sug-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--jui-layout-dimension-s);
+  height: var(--jui-layout-dimension-s);
+  padding: 0;
+  border: 1px solid var(--jui-color-stroke-gray-default);
+  border-radius: var(--jui-component-button-radius);
+  background: var(--jui-color-gray-white);
+  color: var(--jui-color-typography-gray-on-light-default);
+  cursor: pointer;
+}
+.sug-arrow svg { width: 16px; height: 16px; }
+.sug-arrow:hover { background: var(--jui-color-actions-static-hover); }
+.sug-arrow:active { background: var(--jui-color-actions-static-pressed); }
+.sug-arrow:focus-visible {
+  outline: 2px solid var(--jui-color-stroke-primary-on-light);
+  outline-offset: 2px;
+}
+/* Disabled rather than removed: an arrow that disappears at the ends moves
+   the other one, and the pair is the thing the thumb aims at. */
+.sug-arrow[aria-disabled="true"] {
+  opacity: 0.3;
+  cursor: default;
+}
 /* Folded, the line goes with the pair it describes. It explains what the
    suggestions are; with none on screen there is nothing for it to explain,
    and leaving it would make the shut group taller than the reason to open
@@ -6538,17 +6729,11 @@ body {
 }
 /* A last line is short. */
 .suggest-ghost-why > .suggest-ghost-line:last-child { width: 70%; }
-/* Above 768 both cards fit their reason on one line. They did not while the
-   group had a wrapper: its padding took 16 off the column and pushed the
-   first card's reason onto a second line, so only the second ghost dropped a
-   line. With the wrapper gone the column is wider and the pair is even again.
-   Dropping the first line rather than the last leaves the short one, so the
-   single bar looks like a short reason and not a truncated long one. */
-@media (min-width: 768px) {
-  .suggest-pending .suggest-ghost-why > .suggest-ghost-line:first-child {
-    display: none;
-  }
-}
+/* Two lines at every width. The one-line version above 768 was measured
+   against a card that filled the panel; a card on the carousel is the track
+   less its padding, and the reasons wrap there at both widths. The media
+   query was asking about the viewport while the wrapping is decided by the
+   panel, which is why it read as true on a 1200 window and was not. */
 
 /* The one button, at the size of the one button: Add it measures 67 wide at
    both widths, and btn-sm is 32 tall. */

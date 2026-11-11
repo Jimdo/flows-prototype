@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=b9bbb44">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=b9bbb44">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=291b7dc">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=291b7dc">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=b9bbb44">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=291b7dc">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -153,50 +153,44 @@
 
               <div class="edit-section-body" id="suggestBody">
 
-              <!-- First load: the ideas are still being worked out. Two ghosts,
-                   because round one is always one thing people book and one
-                   thing they ask about — the words are unknown, the shape is
-                   not. Each is the finished card's own scaffold with bars where
-                   its name, reason and button will be, inside the same drawn
-                   gradient ring the suggestion wears, so nothing below moves
-                   when the pair lands and the wait still reads as the product
-                   thinking rather than as a failed load. -->
-              <div class="suggest-pending" id="suggestPending" data-pending aria-busy="true"
-                data-inspect-label="Suggestions — still coming"><svg class="smart-ring" aria-hidden="true"><defs><linearGradient id="smartRingPendingA" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><rect stroke="url(#smartRingPendingA)"/></svg><span class="visually-hidden" data-inspect-phrase="">Working out two suggestions…</span>
-                <span class="edit-suggestion-copy">
-                  <span class="edit-suggestion-head">
-                    <span class="skeleton suggest-ghost-glyph"></span>
-                    <span class="suggest-ghost-line suggest-ghost-name"><span class="skeleton"></span></span>
-                  </span>
-                  <span class="suggest-ghost-why">
-                    <span class="suggest-ghost-line"><span class="skeleton"></span></span>
-                    <span class="suggest-ghost-line"><span class="skeleton"></span></span>
-                  </span>
-                </span>
-                <span class="edit-suggestion-actions">
-                  <span class="skeleton suggest-ghost-action"></span>
-                </span>
-              </div>
+              <!-- Three suggestions, one at a time. Stacked, they were a wall
+                   of the product's guesses above the seller's own page, and
+                   the third would have made it taller than the thing it is
+                   meant to help with. One card at a time asks one question,
+                   and the counter says how many are left to refuse.
 
-              <div class="suggest-pending" data-pending aria-busy="true"
-                data-inspect-label="Suggestions — still coming"><svg class="smart-ring" aria-hidden="true"><defs><linearGradient id="smartRingPendingB" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><rect stroke="url(#smartRingPendingB)"/></svg>
-                <span class="edit-suggestion-copy">
-                  <span class="edit-suggestion-head">
-                    <span class="skeleton suggest-ghost-glyph"></span>
-                    <span class="suggest-ghost-line suggest-ghost-name"><span class="skeleton"></span></span>
+                   The track is a real scroll container with snap points, so a
+                   swipe on a phone and the arrows on a desktop move the same
+                   thing, and the arrows are only a convenience over it. -->
+              <div class="sug-carousel" id="sugCarousel"
+                data-inspect-label="Suggestions — carousel">
+                <!-- First load: the idea is still being worked out. One ghost
+                     now, because the cards are a carousel and only one of them
+                     is ever on screen — it is the finished card's own scaffold
+                     with bars where its name, reason and button will be, inside
+                     the same drawn gradient ring the suggestion wears, so
+                     nothing below moves when the first card lands and the wait
+                     still reads as the product thinking rather than as a failed
+                     load. -->
+  <div class="suggest-pending" id="suggestPending" data-pending aria-busy="true"
+                  data-inspect-label="Suggestions — still coming"><svg class="smart-ring" aria-hidden="true"><defs><linearGradient id="smartRingPendingA" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><rect stroke="url(#smartRingPendingA)"/></svg><span class="visually-hidden" data-inspect-phrase="">Working out a suggestion…</span>
+                  <span class="edit-suggestion-copy">
+                    <span class="edit-suggestion-head">
+                      <span class="skeleton suggest-ghost-glyph"></span>
+                      <span class="suggest-ghost-line suggest-ghost-name"><span class="skeleton"></span></span>
+                    </span>
+                    <span class="suggest-ghost-why">
+                      <span class="suggest-ghost-line"><span class="skeleton"></span></span>
+                      <span class="suggest-ghost-line"><span class="skeleton"></span></span>
+                    </span>
                   </span>
-                  <span class="suggest-ghost-why">
-                    <span class="suggest-ghost-line"><span class="skeleton"></span></span>
-                    <span class="suggest-ghost-line"><span class="skeleton"></span></span>
+                  <span class="edit-suggestion-actions">
+                    <span class="skeleton suggest-ghost-action"></span>
                   </span>
-                </span>
-                <span class="edit-suggestion-actions">
-                  <span class="skeleton suggest-ghost-action"></span>
-                </span>
-              </div>
+                </div>
 
-              <ul class="edit-list" id="suggestionList">
-                <li>
+                <ul class="edit-list sug-track" id="suggestionList">
+                <li class="sug-slide">
                   <div class="edit-suggestion" id="sugEvent" data-suggestion="sugEvent" data-edits="link-sugEvent"
                     data-inspect-label="Suggestion"
                     data-inspect-tokens='[{"prop":"background","figma":"$jui-color-background-gray-medium","css":"--jui-color-background-gray-medium","value":"#fdfdfd"},{"prop":"border","figma":"color/blue/500","css":"--jui-color-blue-500","value":"1px dashed #004ced"},{"prop":"border-radius","figma":"$jui-style-radius-l","css":"--jui-style-radius-16","value":"16px"},{"prop":"padding","figma":"$jui-layout-padding-m","css":"--jui-layout-padding-m","value":"16px"},{"prop":"gap","figma":"$jui-layout-padding-s","css":"--jui-layout-gap-s","value":"12px"},{"prop":"name","figma":"Subheadline/Small","css":"--jui-typography-sub-headline-small-size","value":"16px / 500"}]'>
@@ -218,7 +212,7 @@
                     </div>
                   </div>
                 </li>
-                <li>
+                <li class="sug-slide">
                   <div class="edit-suggestion" id="sugForm" data-suggestion="sugForm" data-edits="link-sugForm"
                     data-inspect-label="Suggestion"
                     data-inspect-tokens='[{"prop":"background","figma":"$jui-color-background-gray-medium","css":"--jui-color-background-gray-medium","value":"#fdfdfd"},{"prop":"border","figma":"color/blue/500","css":"--jui-color-blue-500","value":"1px dashed #004ced"},{"prop":"border-radius","figma":"$jui-style-radius-l","css":"--jui-style-radius-16","value":"16px"},{"prop":"padding","figma":"$jui-layout-padding-m","css":"--jui-layout-padding-m","value":"16px"},{"prop":"gap","figma":"$jui-layout-padding-s","css":"--jui-layout-gap-s","value":"12px"},{"prop":"name","figma":"Subheadline/Small","css":"--jui-typography-sub-headline-small-size","value":"16px / 500"}]'>
@@ -240,14 +234,75 @@
                     </div>
                   </div>
                 </li>
-              </ul>
+                <li class="sug-slide">
+                  <div class="edit-suggestion" id="sugDated" data-suggestion="sugDated" data-edits="link-sugDated"
+                    data-inspect-label="Suggestion"
+                    data-inspect-tokens='[{"prop":"background","figma":"$jui-color-background-gray-medium","css":"--jui-color-background-gray-medium","value":"#fdfdfd"},{"prop":"border","figma":"color/blue/500","css":"--jui-color-blue-500","value":"1px dashed #004ced"},{"prop":"border-radius","figma":"$jui-style-radius-l","css":"--jui-style-radius-16","value":"16px"},{"prop":"padding","figma":"$jui-layout-padding-m","css":"--jui-layout-padding-m","value":"16px"},{"prop":"gap","figma":"$jui-layout-padding-s","css":"--jui-layout-gap-s","value":"12px"},{"prop":"name","figma":"Subheadline/Small","css":"--jui-typography-sub-headline-small-size","value":"16px / 500"}]'>
+                    <!-- The dashes are the smart gradient, so they are drawn
+                         rather than bordered — see .smart-ring. -->
+                    <svg class="smart-ring" aria-hidden="true"><defs><linearGradient id="smartRingSugDated" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><rect stroke="url(#smartRingSugDated)"/></svg>
+                      <span class="edit-suggestion-copy">
+                        <span class="edit-suggestion-head">
+                          <span class="edit-row-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 3v4M16 3v4M3 10h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                          <span class="edit-row-label">Beginner workshop</span>
+                        </span>
+                        <p class="edit-suggestion-why" data-inspect-phrase="">A date on the calendar gives someone a reason to decide now.</p>
+                      </span>
+                    <div class="edit-suggestion-actions">
+                      <button type="button" class="btn btn-secondary btn-sm" data-setup="offer"
+                        data-inspect-label="Secondary Button — Add it"
+                        data-inspect-tokens='[{"prop":"border","figma":"color/blue/100","css":"--jui-color-blue-100","value":"1px #b4c4ff"},{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px"}]'
+                        data-inspect-phrase="">Add it</button>
+                    </div>
+                  </div>
+                </li>
+                  <!-- The fourth card is not a suggestion: it is what to do when
+                       none of the three fit. Asking for another round used to
+                       be a button under the pair, which only made sense while
+                       every card was on screen at once. -->
+                  <li class="sug-slide">
+                    <div class="sug-regen" id="sugRegen"
+                      data-inspect-label="Suggestions — another round"
+                      data-inspect-tokens='[{"prop":"background","figma":"$jui-color-background-gray-medium","css":"--jui-color-background-gray-medium","value":"#fdfdfd"},{"prop":"border","figma":"color/blue/500","css":"--jui-color-blue-500","value":"1px dashed #004ced"},{"prop":"border-radius","figma":"$jui-style-radius-l","css":"--jui-style-radius-16","value":"16px"},{"prop":"padding","figma":"$jui-layout-padding-s","css":"--jui-layout-padding-s","value":"12px"}]'>
+                      <span class="sug-regen-copy">
+                        <p class="sug-regen-title" data-inspect-phrase="">None of these fit?</p>
+                        <p class="sug-regen-why" data-inspect-phrase="">Three new ideas, based on what you do.</p>
+                      </span>
+                      <span class="sug-regen-actions"><button type="button" class="regen regen--smart" id="regenSuggest" data-busy="false"
+                      data-inspect-label="Regenerate — smart"
+                      data-inspect-tokens='[{"prop":"label","figma":"@jimdo/ui smartSecondaryButton","css":"--jui-gradient-smart","value":"gradient 111deg blue-500 \u2192 red-300 \u2192 yellow-300"},{"prop":"icon","figma":"reload","css":"--jui-color-blue-500","value":"16px #004ced"}]'
+                      data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="smartRegenSuggest" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><path d="M14.5 1.99976L15.5 4.54791C14.3079 3.91092 12.9461 3.5498 11.5 3.5498C6.80558 3.5498 3 7.35538 3 12.0498C3 13.8409 3.554 15.6294 4.5 16.9998" stroke="url(#smartRegenSuggest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M8.5 21.9997L7.5 19.4516C8.69215 20.0885 10.0539 20.4497 11.5 20.4497C16.1944 20.4497 20 16.6441 20 11.9497C20 10.1585 19.446 8.37009 18.5 6.99976" stroke="url(#smartRegenSuggest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span class="regen-label">Suggest new ones</span></button>
+                      </span>
+                    </div>
+                  </li>
+                </ul>
 
-                <!-- Both of these are guesses about someone else's business.
-                     The way to disagree with a guess is to ask for another one. -->
-                <button type="button" class="regen regen--smart" id="regenSuggest" data-busy="false"
-                  data-inspect-label="Regenerate — smart"
-                  data-inspect-tokens='[{"prop":"label","figma":"@jimdo/ui smartSecondaryButton","css":"--jui-gradient-smart","value":"gradient 111deg blue-500 \u2192 red-300 \u2192 yellow-300"},{"prop":"icon","figma":"reload","css":"--jui-color-blue-500","value":"16px #004ced"}]'
-                  data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="smartRegenSuggest" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><path d="M14.5 1.99976L15.5 4.54791C14.3079 3.91092 12.9461 3.5498 11.5 3.5498C6.80558 3.5498 3 7.35538 3 12.0498C3 13.8409 3.554 15.6294 4.5 16.9998" stroke="url(#smartRegenSuggest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M8.5 21.9997L7.5 19.4516C8.69215 20.0885 10.0539 20.4497 11.5 20.4497C16.1944 20.4497 20 16.6441 20 11.9497C20 10.1585 19.446 8.37009 18.5 6.99976" stroke="url(#smartRegenSuggest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span class="regen-label">Regenerate</span></button>
+                <!-- Where you are, and the two ways to move. The count is the
+                     reason the arrows are legible: three cards you can reach
+                     the end of, not an endless feed. -->
+                <!-- Where you are, and the two ways to move. Four dots, not
+                     three: the last card is a stop on the same track, and a
+                     count of the suggestions would have had to say something
+                     other than a number once you reached it. -->
+                <div class="sug-nav">
+                  <button type="button" class="sug-arrow" id="sugPrev" aria-label="Previous suggestion"
+                    aria-controls="suggestionList" aria-disabled="true" data-no-phrase
+                    data-inspect-label="Carousel — previous"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><polyline points="15 18 9 12 15 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                  <div class="sug-dots" id="sugDots">
+                    <button type="button" class="sug-dot" data-sug-dot="0" aria-label="Suggestion 1" aria-current="true"
+                      data-no-phrase data-inspect-label="Carousel — dot 1"></button>
+                    <button type="button" class="sug-dot" data-sug-dot="1" aria-label="Suggestion 2" aria-current="false"
+                      data-no-phrase data-inspect-label="Carousel — dot 2"></button>
+                    <button type="button" class="sug-dot" data-sug-dot="2" aria-label="Suggestion 3" aria-current="false"
+                      data-no-phrase data-inspect-label="Carousel — dot 3"></button>
+                    <button type="button" class="sug-dot" data-sug-dot="3" aria-label="Another round" aria-current="false"
+                      data-no-phrase data-inspect-label="Carousel — dot 4"></button>
+                  </div>
+                  <button type="button" class="sug-arrow" id="sugNext" aria-label="Next suggestion"
+                    aria-controls="suggestionList" data-no-phrase
+                    data-inspect-label="Carousel — next"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><polyline points="9 18 15 12 9 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                </div>
+              </div>
               </div>
           </div>
 
@@ -845,8 +900,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=b9bbb44"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=b9bbb44"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=291b7dc"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=291b7dc"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -870,6 +925,14 @@
       sugForm:  { editor: 'form', removed: false, done: false, section: 'blocks',
                   card: { kind: 'promo', title: 'Ask me about private classes', meta: '', cta: 'Get in touch', price: '' },
                   row: 'rowFormDone' },
+      /* A third, now that they are shown one at a time and a carousel of two
+         is a pair with arrows on it. A dated session is the other booking
+         shape the product has — fixed sessions beside open slots — so the
+         three cover what the seller can actually make: a time people pick, a
+         date people join, and a question people ask. */
+      sugDated: { editor: 'offer', removed: false, done: false, section: 'blocks',
+                  card: { kind: 'book', title: 'Beginner workshop', meta: 'A set date · limited places', cta: 'Save me a place', price: '' },
+                  row: 'rowDatedDone' },
     };
 
     /* Rounds of guesses, because one guess the seller cannot refuse is not
@@ -883,16 +946,22 @@
                     why: 'People pick a time that suits them, with no messages back and forth.' },
         sugForm:  { label: 'Private class enquiry form', title: 'Ask me about private classes',
                     why: 'Private classes start with a question, not a booking.' },
+        sugDated: { label: 'Beginner workshop', title: 'Beginner workshop',
+                    why: 'A date on the calendar gives someone a reason to decide now.' },
       },
       {
         sugEvent: { label: 'Taster session', title: 'Taster session',
                     why: 'Someone new can try one before committing to a course.' },
+        sugDated: { label: 'Saturday morning class', title: 'Saturday morning class',
+                    why: 'A regular slot people can plan around is the easiest thing to fill.' },
         sugForm:  { label: 'Sessions for a team form', title: 'Sessions for your team',
                     why: 'A company asks what it would cost before it books anything.' },
       },
       {
         sugEvent: { label: 'One-to-one session', title: 'One-to-one session',
                     why: 'A private slot is the easiest thing to put a price on.' },
+        sugDated: { label: 'Weekend retreat', title: 'Weekend retreat',
+                    why: 'One date, a set number of places, and people know what they are joining.' },
         sugForm:  { label: 'Private group enquiry form', title: 'Book me for your group',
                     why: 'A group has a date and a size to settle before anything is booked.' },
       },
@@ -1832,10 +1901,10 @@
          rather than as a separator between two things. */
       document.getElementById('sectionSuggest').hidden = noSuggestions;
       document.getElementById('suggestDivider').hidden = noSuggestions;
-      // Nothing to ask again about once the pair is gone — nor once the plan
-      // is full, where a re-roll only swaps one locked card for another.
-      const regen = document.getElementById('regenSuggest');
-      regen.hidden = noSuggestions || capped;
+      /* Nothing to ask again about once the plan is full, where a re-roll
+         only swaps one locked card for another — so the fourth card leaves
+         the carousel rather than its button leaving the card. */
+      document.getElementById('sugRegen').closest('li').hidden = capped;
 
       /* Three states, one list. While the ideas are being worked out the
          placeholder stands where they will land; once they arrive it goes.
@@ -1844,22 +1913,14 @@
       document.querySelectorAll('[data-pending]').forEach((el) => {
         el.hidden = !suggestionsPending;
       });
-      /* And the list it stands in for goes with them. Left in place at zero
+      /* And the track it stands in for goes with them. Left in place at zero
          height it still counted as a flex child, so the column carried one
-         gap too many and the pair arrived 8px shorter than the wait. */
+         gap too many and the card arrived 8px shorter than the wait. The
+         counter and the arrows stay up through the wait — they describe a
+         set of three that is on its way, and taking them away and putting
+         them back is 44px landing under the card the moment it arrives. */
       document.getElementById('suggestionList').hidden = suggestionsPending;
-      /* The first load is a generation in flight, so Regenerate wears the
-         state a re-roll wears rather than vanishing: same spinner, same
-         subdued label, and it holds its own line so nothing below it steps
-         down when the pair lands. */
-      if (suggestionsPending) {
-        regen.hidden = false;
-        regen.setAttribute('data-busy', 'true');
-        regen.setAttribute('aria-disabled', 'true');
-      } else if (regen.getAttribute('aria-disabled') === 'true') {
-        regen.setAttribute('data-busy', 'false');
-        regen.removeAttribute('aria-disabled');
-      }
+      if (sugReady) sugSync();
       /* The line is about the page, and the suggestions are not on it — they
          sit above its label precisely because they are not. So whether any
          are still standing has nothing to do with whether the page is empty,
@@ -2499,21 +2560,101 @@
         });
       }));
 
-    /* Another round. The two step back while the next pair is found — the
-       wait belongs to the suggestions, not to the button that asked. */
+    /* The carousel. Scroll position is the only state: the arrows write to
+       it, a swipe writes to it, and the counter reads it back — a held index
+       would be a second answer to the same question, and the two disagree
+       the first time a card is taken off the track. */
+    var sugReady = false;   // see refresh(): this runs after the first paint
+    const sugTrack = document.getElementById('suggestionList');
+    const sugCarousel = document.getElementById('sugCarousel');
+    const sugDots = Array.prototype.slice.call(document.querySelectorAll('.sug-dot'));
+    const sugPrev = document.getElementById('sugPrev');
+    const sugNext = document.getElementById('sugNext');
+    const sugCalm = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    const sugSlides = () => Array.prototype.filter.call(sugTrack.children, (li) => !li.hidden);
+    /* Which slide the scrollport starts on, measured rather than remembered:
+       whichever left edge is nearest the track's own. */
+    function sugIndex() {
+      const slides = sugSlides();
+      const base = sugTrack.getBoundingClientRect().left;
+      let best = 0, bestD = Infinity;
+      slides.forEach((li, i) => {
+        const d = Math.abs(li.getBoundingClientRect().left - base);
+        if (d < bestD - 0.5) { bestD = d; best = i; }
+      });
+      return best;
+    }
+
+    function sugGo(i) {
+      const slides = sugSlides();
+      const li = slides[Math.max(0, Math.min(slides.length - 1, i))];
+      if (!li) return;
+      sugTrack.scrollBy({
+        left: li.getBoundingClientRect().left - sugTrack.getBoundingClientRect().left,
+        behavior: sugCalm.matches ? 'auto' : 'smooth',
+      });
+    }
+
+    /* One dot per slide, fixed to the slide rather than to a position: a
+       suggestion that has been taken leaves the track, and its dot goes with
+       it rather than the remaining dots shuffling under the thumb. */
+    function sugSync() {
+      const all = Array.prototype.slice.call(sugTrack.children);
+      const slides = sugSlides();
+      const here = suggestionsPending ? slides[0] : slides[sugIndex()];
+      const at = all.indexOf(here);
+      sugDots.forEach((dot, n) => {
+        dot.hidden = !all[n] || all[n].hidden;
+        dot.setAttribute('aria-current', String(n === at));
+      });
+      const i = suggestionsPending ? 0 : sugIndex();
+      const stuck = suggestionsPending;
+      sugPrev.setAttribute('aria-disabled', String(stuck || i <= 0));
+      sugNext.setAttribute('aria-disabled', String(stuck || i >= slides.length - 1));
+    }
+
+    sugDots.forEach((dot) => {
+      dot.addEventListener('click', () => {
+        const all = Array.prototype.slice.call(sugTrack.children);
+        const li = all[Number(dot.getAttribute('data-sug-dot'))];
+        if (!li || li.hidden) return;
+        sugGo(sugSlides().indexOf(li));
+      });
+    });
+
+    sugReady = true;
+    sugSync();
+    sugTrack.addEventListener('scroll', sugSync, { passive: true });
+    sugPrev.addEventListener('click', () => {
+      if (sugPrev.getAttribute('aria-disabled') === 'true') return;
+      sugGo(sugIndex() - 1);
+    });
+    sugNext.addEventListener('click', () => {
+      if (sugNext.getAttribute('aria-disabled') === 'true') return;
+      sugGo(sugIndex() + 1);
+    });
+
+    /* Another round. The whole carousel steps back while the next three are
+       found — the wait belongs to the suggestions, and fading only the track
+       would leave live arrows over dead cards. */
     const REGEN_MS = 900;
     const regenSuggest = document.getElementById('regenSuggest');
-    const suggestionListEl = document.getElementById('suggestionList');
 
     regenSuggest.addEventListener('click', () => {
       if (regenSuggest.getAttribute('data-busy') === 'true') return;
       regenSuggest.setAttribute('data-busy', 'true');
-      suggestionListEl.setAttribute('data-regenerating', 'true');
+      sugCarousel.setAttribute('data-regenerating', 'true');
       window.setTimeout(() => {
         suggestRound += 1;
         paintSuggestions();
-        suggestionListEl.removeAttribute('data-regenerating');
+        sugCarousel.removeAttribute('data-regenerating');
         regenSuggest.setAttribute('data-busy', 'false');
+        /* Back to the first of the new three. Asking for another round and
+           being left looking at the card that asked is the one outcome that
+           hides what was just done. */
+        sugTrack.scrollTo({ left: 0, behavior: sugCalm.matches ? 'auto' : 'smooth' });
+        sugSync();
         split.sync();
       }, REGEN_MS);
     });
