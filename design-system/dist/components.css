@@ -6444,7 +6444,14 @@ body {
 .sheet-backdrop:not([data-busy="true"]) .sheet-busy { display: none; }
 .sheet-backdrop[data-busy="true"] .sheet-busy ~ * { display: none; }
 .sheet-backdrop[data-busy="true"] .sheet-actions,
-.sheet-backdrop[data-busy="true"] .sheet-head .setup-back-btn { display: none; }
+.sheet-backdrop[data-busy="true"] .sheet-head .setup-back-btn,
+/* …and anything else the head is holding. Add question stayed live through
+   the wait on a wide screen, where it sits beside the title: pressing it
+   opened the kind picker behind the busy overlay, so the sheet went blank
+   under "Writing your form" and arrived in a panel nobody could see it
+   reach. Nothing in the head is pressable while the thing it acts on is
+   still being written. */
+.sheet-backdrop[data-busy="true"] .sheet-head .btn { display: none; }
 .sheet-busy-copy {
   margin: 0;
   font-size: var(--jui-typography-body-small-regular-size);
