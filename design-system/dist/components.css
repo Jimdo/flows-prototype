@@ -133,6 +133,11 @@ body {
   grid-template-columns: 40px 1fr auto;
   align-items: center;
   column-gap: var(--jui-layout-gap-s);
+  /* Every row takes the same band whether it is worked or not. A day that is
+     off has no field in it, so it collapsed to the height of the word
+     Unavailable — 24 against the other rows' 42 — and the weekend bunched at
+     the bottom of a list that was otherwise evenly spaced. */
+  min-height: calc(1.5rem + 2 * var(--jui-layout-padding-xs) + 2px);
 }
 .day-hours-day {
   min-width: 0;
@@ -177,6 +182,15 @@ body {
   color: var(--jui-color-typography-gray-on-light-subdued);
 }
 .day-hours-row .toggle { flex-shrink: 0; }
+
+/* What happens after Save — the free note and what reminders cost — is one
+   thought in two parts, so they sit a row apart rather than a group apart.
+   At the group's own 24 they read as two unrelated announcements. */
+.sheet-notes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-s);
+}
 
 /* ── Skeleton ──
    @jimdo/ui ships one (Feedback/Skeleton, dist class hPYjN7DX) and only as
@@ -7451,10 +7465,20 @@ body {
    screen; painting it the notice colour made it look like part of the
    warning rather than the thing that answers it. */
 
+/* ── Three levels, and each one obvious ──
+   A dialog reads as a list of questions only if the space between questions
+   clearly beats the space inside one. The sheet ran 4 between a label and its
+   field and 16 between groups, which sounds like a 4x step and is not: the
+   day list inside one of those groups sets its own rows 12 apart, so the end
+   of a seven-row block was 16 from the next label and the block had no edge.
+
+   8 inside a field, 12 between rows of one control, 24 between groups. Every
+   step is at least half again the one below it, and all three are on the
+   layout scale — gap-xs, gap-s, gap-l. */
 .sheet-form {
   display: flex;
   flex-direction: column;
-  gap: var(--jui-layout-gap-m);
+  gap: var(--jui-layout-gap-l);
 }
 /* display:flex outranks the hidden attribute, so a hidden .sheet-form stays
    on screen. Both halves of the form sheet are one of these. */
@@ -7464,11 +7488,14 @@ body {
 .sheet-form > .btn { align-self: flex-start; }
 /* Questions carry three parts each, so they need more between them than
    between the parts. */
+/* Kept, and now the same as the base: the questions list asked for 24 before
+   the rest of the sheet did. */
 .sheet-form--questions { gap: var(--jui-layout-gap-l); }
 .sheet-field {
   display: flex;
   flex-direction: column;
-  gap: var(--jui-layout-gap-xxs);
+  /* 8, not 4. A 12px label four pixels off its field is touching it. */
+  gap: var(--jui-layout-gap-xs);
 }
 /* Two fields that are one answer — a from and a to — share a line. Stacked
    they read as two unrelated questions. */
