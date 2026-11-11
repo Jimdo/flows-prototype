@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=291b7dc">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=291b7dc">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=b52d53a">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=b52d53a">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=291b7dc">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=b52d53a">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -509,31 +509,72 @@
     <div class="sheet sheet--tall">
       <div class="sheet-head">
         <button type="button" class="setup-back-btn add-head-back" data-add-back aria-label="Back" data-no-phrase hidden><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
-        <p class="sheet-title" id="addSheetTitle" data-inspect-phrase="biopage.add.title">Add to your page</p>
+        <p class="sheet-title" id="addSheetTitle" data-inspect-phrase="biopage.add.title">Add link</p>
         <button type="button" class="setup-back-btn" id="addClose" aria-label="Close" data-no-phrase><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
       </div>
       <div class="sheet-body" id="addSheetBody">
         <div class="add-host" id="addContent" data-level="root">
           <div class="add-level" data-level-only="root">
-          <!-- Three ideas first, built from what the seller said they do:
-               two things people book, one thing people ask about. Each says
-               what it builds in its own title, the way the dashed rows in
-               the list do, and carries the same Add it. Below them, the
-               way to say what the three guesses missed. -->
+          <!-- Three ideas, built from what the seller said they do: two
+               things people book, one thing they ask about. One at a time on
+               the same carousel the suggestions above the page use — they are
+               the same object, cards the product made, and meeting them as a
+               stack here and a carousel there read as two different features.
+               The fourth stop is the way past all three. -->
           <div class="add-group">
-            <p class="add-group-title" data-inspect-phrase="">Ideas for your page</p>
-            <div class="add-grid" id="ideaGrid"></div>
+            <p class="add-group-title" data-inspect-phrase="">Suggestions</p>
 
-            <div class="add-group-actions">
-              <button type="button" class="regen regen--smart" id="regenIdeas" data-busy="false"
-                data-inspect-label="Regenerate — smart"
-                data-inspect-tokens='[{"prop":"label","figma":"@jimdo/ui smartSecondaryButton","css":"--jui-gradient-smart","value":"gradient 111deg blue-500 \u2192 red-300 \u2192 yellow-300"},{"prop":"icon","figma":"reload","css":"--jui-color-blue-500","value":"16px #004ced"}]'
-                data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="smartRegenIdeas" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><path d="M14.5 1.99976L15.5 4.54791C14.3079 3.91092 12.9461 3.5498 11.5 3.5498C6.80558 3.5498 3 7.35538 3 12.0498C3 13.8409 3.554 15.6294 4.5 16.9998" stroke="url(#smartRegenIdeas)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M8.5 21.9997L7.5 19.4516C8.69215 20.0885 10.0539 20.4497 11.5 20.4497C16.1944 20.4497 20 16.6441 20 11.9497C20 10.1585 19.446 8.37009 18.5 6.99976" stroke="url(#smartRegenIdeas)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span class="regen-label">Regenerate</span></button>
-              <button type="button" class="regen regen--smart" id="askOpen"
+            <div class="sug-carousel" id="ideaCarousel" data-inspect-label="Ideas — carousel">
+              <div class="sug-track" id="ideaGrid">
+                <!-- The three slides are written in by renderIdeas(), which
+                     leaves this one alone: the button below carries a
+                     listener, and rebuilding the whole track every round
+                     would throw it away with the markup. -->
+                <div class="sug-slide" data-regen-slide>
+                  <div class="add-card add-card--regen" data-inspect-label="Ideas — another round">
+                    <!-- Two columns, like the three cards behind it: what
+                         it asks on the left, the two answers on the right.
+                         Asking for another round and saying what the three
+                         missed are both answers to "none of these fit", so
+                         they belong on the card that asks it. -->
+                    <span class="add-card-copy">
+                      <span class="add-card-title" data-inspect-phrase="">None of these fit?</span>
+                      <span class="add-card-detail" data-inspect-phrase="">Three new ideas, or one of your own.</span>
+                    </span>
+                    <span class="add-card-regen-actions">
+                      <button type="button" class="regen regen--smart" id="regenIdeas" data-busy="false"
+                    data-inspect-label="Regenerate — smart"
+                    data-inspect-tokens='[{"prop":"label","figma":"@jimdo/ui smartSecondaryButton","css":"--jui-gradient-smart","value":"gradient 111deg blue-500 \u2192 red-300 \u2192 yellow-300"},{"prop":"icon","figma":"reload","css":"--jui-color-blue-500","value":"16px #004ced"}]'
+                    data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="smartRegenIdeas" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><path d="M14.5 1.99976L15.5 4.54791C14.3079 3.91092 12.9461 3.5498 11.5 3.5498C6.80558 3.5498 3 7.35538 3 12.0498C3 13.8409 3.554 15.6294 4.5 16.9998" stroke="url(#smartRegenIdeas)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M8.5 21.9997L7.5 19.4516C8.69215 20.0885 10.0539 20.4497 11.5 20.4497C16.1944 20.4497 20 16.6441 20 11.9497C20 10.1585 19.446 8.37009 18.5 6.99976" stroke="url(#smartRegenIdeas)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span class="regen-label">Suggest new ones</span></button>
+                      <button type="button" class="regen regen--smart" id="askOpen"
                 data-inspect-label="Offer something else — smart"
                 data-inspect-tokens='[{"prop":"label","figma":"@jimdo/ui smartSecondaryButton","css":"--jui-gradient-smart","value":"gradient 111deg blue-500 \u2192 red-300 \u2192 yellow-300"},{"prop":"icon","figma":"pencil-edit-02","value":"16px, gradient-stroked"}]'
                 data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="smartAskIdeas" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><path d="M15.7071 5.29289L17.5 3.5C17.8905 3.10948 18.5237 3.10948 18.9142 3.5L20.5 5.08579C20.8905 5.47631 20.8905 6.10947 20.5 6.5L18.7071 8.29289M15.7071 5.29289L9.59886 11.4012C9.34255 11.6575 9.16071 11.9787 9.07279 12.3303L8.20715 15.7929L11.6697 14.9272C12.0214 14.8393 12.3425 14.6575 12.5989 14.4012L18.7071 8.29289M15.7071 5.29289L18.7071 8.29289" stroke="url(#smartAskIdeas)" stroke-linejoin="round" stroke-width="1.5"/><path d="M10.7071 4.79289H5.20715C4.10258 4.79289 3.20715 5.68832 3.20715 6.79289V18.7929C3.20715 19.8975 4.10258 20.7929 5.20715 20.7929H17.2071C18.3117 20.7929 19.2071 19.8975 19.2071 18.7929V13.2929" stroke="url(#smartAskIdeas)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span class="regen-label">Offer something else</span></button>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="sug-nav">
+                <button type="button" class="sug-arrow" id="ideaPrev" aria-label="Previous idea"
+                  aria-controls="ideaGrid" aria-disabled="true" data-no-phrase
+                  data-inspect-label="Carousel — previous"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><polyline points="15 18 9 12 15 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                <div class="sug-dots" id="ideaDots">
+                  <button type="button" class="sug-dot" data-sug-dot="0" aria-label="Idea 1" aria-current="true"
+                    data-no-phrase data-inspect-label="Carousel — dot 1"></button>
+                  <button type="button" class="sug-dot" data-sug-dot="1" aria-label="Idea 2" aria-current="false"
+                    data-no-phrase data-inspect-label="Carousel — dot 2"></button>
+                  <button type="button" class="sug-dot" data-sug-dot="2" aria-label="Idea 3" aria-current="false"
+                    data-no-phrase data-inspect-label="Carousel — dot 3"></button>
+                  <button type="button" class="sug-dot" data-sug-dot="3" aria-label="Another round" aria-current="false"
+                    data-no-phrase data-inspect-label="Carousel — dot 4"></button>
+                </div>
+                <button type="button" class="sug-arrow" id="ideaNext" aria-label="Next idea"
+                  aria-controls="ideaGrid" data-no-phrase
+                  data-inspect-label="Carousel — next"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><polyline points="9 18 15 12 9 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+              </div>
             </div>
+
           </div>
 
           <div class="add-group">
@@ -900,8 +941,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=291b7dc"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=291b7dc"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=b52d53a"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=b52d53a"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -2560,80 +2601,100 @@
         });
       }));
 
-    /* The carousel. Scroll position is the only state: the arrows write to
-       it, a swipe writes to it, and the counter reads it back — a held index
-       would be a second answer to the same question, and the two disagree
-       the first time a card is taken off the track. */
+    /* The carousel, as one thing used twice: the suggestions above the page
+       and the ideas in the add sheet are the same object — cards the product
+       made, one at a time, with a way past them on the end.
+
+       Scroll position is the only state. The arrows write to it, a swipe
+       writes to it, the dots read it back; a held index would be a second
+       answer to the same question, and the two disagree the first time a
+       card leaves the track. */
+    function makeCarousel({ track, dots, prev, next, frozen }) {
+      const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
+      const all = () => Array.prototype.slice.call(track.children);
+      const shown = () => all().filter((li) => !li.hidden);
+
+      /* Which slide the scrollport starts on, measured rather than
+         remembered: whichever left edge is nearest the track's own. */
+      function index() {
+        const base = track.getBoundingClientRect().left;
+        let best = 0, bestD = Infinity;
+        shown().forEach((li, i) => {
+          const d = Math.abs(li.getBoundingClientRect().left - base);
+          if (d < bestD - 0.5) { bestD = d; best = i; }
+        });
+        return best;
+      }
+
+      function go(i) {
+        const list = shown();
+        const li = list[Math.max(0, Math.min(list.length - 1, i))];
+        if (!li) return;
+        track.scrollBy({
+          left: li.getBoundingClientRect().left - track.getBoundingClientRect().left,
+          behavior: calm.matches ? 'auto' : 'smooth',
+        });
+      }
+
+      /* One dot per slide, fixed to the slide rather than to a position: a
+         card that has been taken leaves the track, and its dot goes with it
+         rather than the remaining dots shuffling under the thumb. */
+      function sync() {
+        const stuck = frozen ? frozen() : false;
+        const list = shown();
+        const i = stuck ? 0 : index();
+        const at = all().indexOf(list[i]);
+        dots.forEach((dot, n) => {
+          const li = all()[n];
+          dot.hidden = !li || li.hidden;
+          dot.setAttribute('aria-current', String(n === at));
+        });
+        prev.setAttribute('aria-disabled', String(stuck || i <= 0));
+        next.setAttribute('aria-disabled', String(stuck || i >= list.length - 1));
+      }
+
+      track.addEventListener('scroll', sync, { passive: true });
+      prev.addEventListener('click', () => {
+        if (prev.getAttribute('aria-disabled') === 'true') return;
+        go(index() - 1);
+      });
+      next.addEventListener('click', () => {
+        if (next.getAttribute('aria-disabled') === 'true') return;
+        go(index() + 1);
+      });
+      dots.forEach((dot) => {
+        dot.addEventListener('click', () => {
+          const li = all()[Number(dot.getAttribute('data-sug-dot'))];
+          if (!li || li.hidden) return;
+          go(shown().indexOf(li));
+        });
+      });
+
+      sync();
+      /* Instant when the track is not on screen yet — a smooth scroll on a
+         hidden element goes nowhere, and the sheet opens on whatever card
+         it was left on. */
+      return { sync, go, home: (instant) => {
+        if (instant) { track.scrollLeft = 0; sync(); return; }
+        track.scrollTo({ left: 0, behavior: calm.matches ? 'auto' : 'smooth' });
+      } };
+    }
+
     var sugReady = false;   // see refresh(): this runs after the first paint
     const sugTrack = document.getElementById('suggestionList');
     const sugCarousel = document.getElementById('sugCarousel');
-    const sugDots = Array.prototype.slice.call(document.querySelectorAll('.sug-dot'));
-    const sugPrev = document.getElementById('sugPrev');
-    const sugNext = document.getElementById('sugNext');
-    const sugCalm = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-    const sugSlides = () => Array.prototype.filter.call(sugTrack.children, (li) => !li.hidden);
-    /* Which slide the scrollport starts on, measured rather than remembered:
-       whichever left edge is nearest the track's own. */
-    function sugIndex() {
-      const slides = sugSlides();
-      const base = sugTrack.getBoundingClientRect().left;
-      let best = 0, bestD = Infinity;
-      slides.forEach((li, i) => {
-        const d = Math.abs(li.getBoundingClientRect().left - base);
-        if (d < bestD - 0.5) { bestD = d; best = i; }
-      });
-      return best;
-    }
-
-    function sugGo(i) {
-      const slides = sugSlides();
-      const li = slides[Math.max(0, Math.min(slides.length - 1, i))];
-      if (!li) return;
-      sugTrack.scrollBy({
-        left: li.getBoundingClientRect().left - sugTrack.getBoundingClientRect().left,
-        behavior: sugCalm.matches ? 'auto' : 'smooth',
-      });
-    }
-
-    /* One dot per slide, fixed to the slide rather than to a position: a
-       suggestion that has been taken leaves the track, and its dot goes with
-       it rather than the remaining dots shuffling under the thumb. */
-    function sugSync() {
-      const all = Array.prototype.slice.call(sugTrack.children);
-      const slides = sugSlides();
-      const here = suggestionsPending ? slides[0] : slides[sugIndex()];
-      const at = all.indexOf(here);
-      sugDots.forEach((dot, n) => {
-        dot.hidden = !all[n] || all[n].hidden;
-        dot.setAttribute('aria-current', String(n === at));
-      });
-      const i = suggestionsPending ? 0 : sugIndex();
-      const stuck = suggestionsPending;
-      sugPrev.setAttribute('aria-disabled', String(stuck || i <= 0));
-      sugNext.setAttribute('aria-disabled', String(stuck || i >= slides.length - 1));
-    }
-
-    sugDots.forEach((dot) => {
-      dot.addEventListener('click', () => {
-        const all = Array.prototype.slice.call(sugTrack.children);
-        const li = all[Number(dot.getAttribute('data-sug-dot'))];
-        if (!li || li.hidden) return;
-        sugGo(sugSlides().indexOf(li));
-      });
+    const suggestions = makeCarousel({
+      track: sugTrack,
+      dots: Array.prototype.slice.call(document.querySelectorAll('#sugDots .sug-dot')),
+      prev: document.getElementById('sugPrev'),
+      next: document.getElementById('sugNext'),
+      /* Through the wait there is one ghost and nothing to move between, so
+         the dots and the arrows stand there dead rather than disappearing
+         and landing 44px back under the card. */
+      frozen: () => suggestionsPending,
     });
-
+    function sugSync() { suggestions.sync(); }
     sugReady = true;
-    sugSync();
-    sugTrack.addEventListener('scroll', sugSync, { passive: true });
-    sugPrev.addEventListener('click', () => {
-      if (sugPrev.getAttribute('aria-disabled') === 'true') return;
-      sugGo(sugIndex() - 1);
-    });
-    sugNext.addEventListener('click', () => {
-      if (sugNext.getAttribute('aria-disabled') === 'true') return;
-      sugGo(sugIndex() + 1);
-    });
 
     /* Another round. The whole carousel steps back while the next three are
        found — the wait belongs to the suggestions, and fading only the track
@@ -2653,7 +2714,7 @@
         /* Back to the first of the new three. Asking for another round and
            being left looking at the card that asked is the one outcome that
            hides what was just done. */
-        sugTrack.scrollTo({ left: 0, behavior: sugCalm.matches ? 'auto' : 'smooth' });
+        suggestions.home();
         sugSync();
         split.sync();
       }, REGEN_MS);
@@ -2870,7 +2931,11 @@
     const ideaGrid = document.getElementById('ideaGrid');
 
     function renderIdeas(ideas) {
-      ideaGrid.innerHTML = '';
+      /* Only the idea slides go. The round's own card holds a button with a
+         listener on it, and clearing the track would take that with it. */
+      Array.prototype.slice.call(ideaGrid.querySelectorAll('[data-idea-slide]'))
+        .forEach((el) => el.remove());
+      const regenSlide = ideaGrid.querySelector('[data-regen-slide]');
       /* Three guesses, and only guesses. The suggestion past the plan's
          limit used to be re-offered here, displacing one of them; it holds
          its place in the list wearing the upgrade ramp now, and showing it
@@ -2878,12 +2943,21 @@
       const list = ideas.slice(0, 3);
       list.forEach((idea) => {
         const capped = limitReached();
+        const slide = document.createElement('div');
+        slide.className = 'sug-slide';
+        slide.setAttribute('data-idea-slide', '');
         const card = document.createElement('div');
         card.className = 'add-card' + (capped ? ' add-card--upgrade' : '');
         card.innerHTML =
-          '<span class="add-card-icon">' + IDEA_ICONS[idea.shape] + '</span>' +
+          /* The suggestion card's own two columns — the icon on the name's
+             line, the reason under it, the one button on the right. Stacked,
+             a card on the carousel left two thirds of its width empty, which
+             the three-up grid never showed because the cards were short. */
           '<span class="add-card-copy">' +
-            '<span class="add-card-title">' + idea.title + '</span>' +
+            '<span class="add-card-head">' +
+              '<span class="add-card-icon">' + IDEA_ICONS[idea.shape] + '</span>' +
+              '<span class="add-card-title">' + idea.title + '</span>' +
+            '</span>' +
             '<span class="add-card-detail">' + idea.detail + '</span>' +
           '</span>' +
           // The crown rides along only when the card has gone paid — a free
@@ -2917,9 +2991,14 @@
             make: { label: idea.title, kind: 'book', editor: 'offer' },
           });
         });
-        ideaGrid.appendChild(card);
+        slide.appendChild(card);
+        ideaGrid.insertBefore(slide, regenSlide);
       });
+      /* Built after this function is first called, so the first round draws
+         itself before there is anything to tell. */
+      if (ideaDeck) ideaDeck.home(true);
     }
+    let ideaDeck = null;
 
     /* Kept, because the cards are rebuilt every time the list opens: they
        are drawn against the plan, and the plan changes while the list is
@@ -2941,16 +3020,27 @@
         : FIRST_IDEA_ROUNDS[ideaRound % FIRST_IDEA_ROUNDS.length];
     }
 
+    ideaDeck = makeCarousel({
+      track: ideaGrid,
+      dots: Array.prototype.slice.call(document.querySelectorAll('#ideaDots .sug-dot')),
+      prev: document.getElementById('ideaPrev'),
+      next: document.getElementById('ideaNext'),
+    });
+    ideaDeck.home(true);
+
+    const ideaCarousel = document.getElementById('ideaCarousel');
     const regenIdeas = document.getElementById('regenIdeas');
 
     regenIdeas.addEventListener('click', () => {
       if (regenIdeas.getAttribute('data-busy') === 'true') return;
       regenIdeas.setAttribute('data-busy', 'true');
-      ideaGrid.setAttribute('data-regenerating', 'true');
+      /* The whole carousel steps back, not the track alone: fading the cards
+         under live arrows leaves a control over dead content. */
+      ideaCarousel.setAttribute('data-regenerating', 'true');
       window.setTimeout(() => {
         currentIdeas = nextIdeas();
         renderIdeas(currentIdeas);
-        ideaGrid.removeAttribute('data-regenerating');
+        ideaCarousel.removeAttribute('data-regenerating');
         regenIdeas.setAttribute('data-busy', 'false');
       }, REGEN_MS);
     });

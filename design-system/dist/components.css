@@ -6397,11 +6397,10 @@ body {
    group taller than the reason to open it. */
 .edit-section--fold[data-open="false"] .edit-suggest-note { display: none; }
 
-/* The cards sit 12 apart like everything else in this group — Figma
-   17788:6365. The list's own 8 is for the rows of a page, and leaving it here
-   made the pair land 4px shorter than the wait that stood in for it, because
-   the ghosts are the body's children and take the body's gap. */
-#suggestionList { gap: var(--jui-layout-gap-s); }
+/* The cards sit 12 apart like everything else in this group — see
+   .sug-track, which carries that gap for both carousels now. The list's own
+   8 is for the rows of a page, and leaving it here made the pair land 4px
+   shorter than the wait that stood in for it. */
 
 /* ── Suggestions, one at a time ──
 
@@ -6422,7 +6421,15 @@ body {
 }
 
 .sug-track {
+  /* Declared here rather than borrowed from .edit-list: the add sheet's
+     ideas ride the same track and are a plain div, not a list. */
+  display: flex;
   flex-direction: row;
+  /* Figma 17788:6365 — everything in these groups is 12 apart. Flush, the
+     card waiting off the right edge pressed its own border against the left
+     edge of the one on screen, which read as a coloured rule down the side
+     of a card that has no such thing. */
+  gap: var(--jui-layout-gap-s);
   overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
@@ -6459,6 +6466,7 @@ body {
 /* Every card is the height of the tallest, so the arrows do not move under
    the thumb as the reasons change length. */
 .sug-slide > .edit-suggestion,
+.sug-slide > .add-card,
 .sug-slide > .sug-regen { flex: 1 1 auto; }
 
 /* The fourth card. Same frame as a suggestion, because it belongs to the
@@ -7659,6 +7667,65 @@ body {
    The same pieces, in the colour the system uses for things a plan does not
    include yet. The shape stays identical on purpose: what is on offer has
    not changed, only what it costs. */
+/* The last stop on the ideas carousel. Same card, same padding — it is the
+   same object on the same track — but it proposes a way past the three
+   rather than one of them, so it drops the actionable stroke for a
+   decorative one and is not itself a thing to press. */
+.add-card--regen {
+  border-color: var(--jui-color-stroke-gray-decorative);
+  cursor: default;
+}
+
+/* On the carousel a card is as wide as the sheet, and the stacked anatomy
+   left two thirds of that empty — the three-up grid never showed it because
+   three short cards in a column read as a list. One at a time, it takes the
+   suggestion card's shape instead: the icon on the name's line, the detail
+   under it, the one button on the right. */
+.sug-slide > .add-card {
+  flex-direction: row;
+  /* Centred, where a card that is as tall as its own words is held to the
+     top. On the track a card's height comes from whichever slide is
+     tallest, so the slack is not its own — split above and below it reads
+     as the card's padding, and all of it underneath reads as a line that
+     failed to arrive. */
+  align-items: center;
+  gap: var(--jui-layout-gap-s);
+}
+.sug-slide > .add-card > .add-card-copy {
+  gap: var(--jui-layout-gap-xxs);
+  flex: 1 0 0;
+  min-width: 0;
+}
+.add-card-head {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-s);
+  min-width: 0;
+}
+/* The margin under it is for the icon on its own line. Beside the name it
+   has none to buy back. */
+.sug-slide > .add-card .add-card-icon { margin-bottom: 0; }
+/* margin-top:auto pins the button to the foot of a column; in a row it is
+   already beside the words. */
+.sug-slide > .add-card > .add-card-action {
+  margin-top: 0;
+  padding-top: 0;
+  flex-shrink: 0;
+}
+.add-card--regen:hover { border-color: var(--jui-color-stroke-gray-decorative); transform: none; }
+
+/* Two columns like the three cards behind it: what it asks on the left,
+   the two answers stacked on the right. Both are answers to "none of these
+   fit" — another round, or saying what the three missed — so the column
+   sizes to the wider of the two labels and the question keeps the rest. */
+.add-card-regen-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--jui-layout-gap-xs);
+  flex-shrink: 0;
+}
+
 .add-card--upgrade {
   background: var(--jui-color-background-upgrade-light);
   border-color: var(--jui-color-stroke-upgrade-on-light);
