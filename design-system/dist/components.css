@@ -6296,6 +6296,18 @@ body {
 }
 .edit-divider[hidden] { display: none; }
 
+/* Everything a fold hides. Removed by accident with the section grounds —
+   it has nothing to do with them: without it the suggestions kept their gap
+   and their chevron and simply never went away when the head was pressed,
+   and the pair stood 8px taller than the wait because the ghosts had no gap
+   between them while the list they stand in for has one. */
+.edit-section-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-xs);
+}
+.edit-section--fold[data-open="false"] > .edit-section-body { display: none; }
+
 .app-shell-setup-split[data-layout="step"] .edit-section > .edit-list,
 .app-shell-setup-split[data-layout="step"] .edit-section > .edit-section-rows {
   gap: var(--jui-layout-gap-s);
@@ -6509,12 +6521,14 @@ body {
 }
 /* A last line is short. */
 .suggest-ghost-why > .suggest-ghost-line:last-child { width: 70%; }
-/* Above 768 the column is wide enough that the second of the pair fits its
-   reason on one line, which is what round two actually does there. Dropping
-   the first line rather than the last leaves the short one, so the single
-   bar looks like a short reason and not a truncated long one. */
+/* Above 768 both cards fit their reason on one line. They did not while the
+   group had a wrapper: its padding took 16 off the column and pushed the
+   first card's reason onto a second line, so only the second ghost dropped a
+   line. With the wrapper gone the column is wider and the pair is even again.
+   Dropping the first line rather than the last leaves the short one, so the
+   single bar looks like a short reason and not a truncated long one. */
 @media (min-width: 768px) {
-  .suggest-pending + .suggest-pending .suggest-ghost-why > .suggest-ghost-line:first-child {
+  .suggest-pending .suggest-ghost-why > .suggest-ghost-line:first-child {
     display: none;
   }
 }
