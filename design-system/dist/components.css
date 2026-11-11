@@ -1782,6 +1782,9 @@ body {
   background: var(--jui-color-background-gray-light);
   border-color: var(--jui-color-stroke-primary-on-light);
   color: var(--jui-color-actions-primary-rest);
+  /* Figma 17767:5585 lifts the chosen item off the tray. Without it the two
+     items differ only by a pale border and the switch reads as flat. */
+  box-shadow: var(--jui-effects-on-light-shadow-lvl-1);
 }
 .seg-control-item:hover:not(.active):not([aria-pressed="true"]) {
   background: var(--jui-color-background-gray-medium);
@@ -6638,13 +6641,54 @@ body {
      that the tag has left its first line — it was a grid to keep the tag
      off the name, and there is no tag in it to keep off. */
 
-  /* Figma 17672:2865. The desktop frame has no bar above the columns at
-     all: the switch and Done move down to the foot of the setup column,
-     and Add link stays beside the title where the phone already puts it.
-     Both research sessions caught the old arrangement — Add link sat in the
-     slot four onboarding steps had taught meant "next screen", and the foot
-     of the page was empty once Done went to the top. This swaps them. */
-  .app-shell-setup-split[data-layout="step"] .setup-split-header { display: none; }
+  /* Figma 17767:5584. The bar is back over the setup column, carrying the
+     switch — and only the switch. It is what names the view now, which is
+     why the column below has no title at this width.
+
+     This replaces Figma 17672:2865, where the desktop frame had no bar and
+     the switch sat in a floating pill at the foot. What does NOT come back
+     with it is Add link: 17767:5477 draws it at the top right, and both
+     research sessions watched someone press that slot expecting "next
+     screen", four onboarding steps having taught them so. The evidence
+     outranks the frame, so Add link stays in the column and Done keeps the
+     foot. */
+  .app-shell-setup-split[data-layout="step"] .setup-split-header {
+    display: flex;
+    justify-content: flex-start;
+  }
+  /* Done is at the foot of the column at this width, so the bar's own copy
+     of it would be the second one on screen. */
+  .app-shell-setup-split[data-layout="step"] .setup-split-header [data-done] {
+    display: none;
+  }
+  /* …and the floating pill it replaces goes with it, leaving the foot row
+     to Done alone. */
+  .app-shell-setup-split[data-layout="step"] .step-col-actions .float-nav {
+    display: none;
+  }
+  /* Both classes, because the row's space-between is declared further down
+     the sheet and would otherwise push the one remaining button to the left
+     end of a row it is meant to finish. */
+  .app-shell-setup-split[data-layout="step"] .setup-split-actions.step-col-actions {
+    justify-content: flex-end;
+  }
+  /* The bar stands over the column again, so the clearance it needs comes
+     back with it. 56 is the bar's own height. */
+  .app-shell-setup-split[data-layout="step"] .setup-split-form {
+    padding-top: 56px;
+  }
+  /* The switch names the view, so the column does not say it twice. The
+     phone keeps the title: its bar sits outside the drawer, and the drawer
+     covers the page it is about. */
+  .app-shell-setup-split[data-layout="step"]
+    .setup-split-intro[data-view-only="list"] .setup-split-title {
+    display: none;
+  }
+  /* With the title gone the head holds one button, which belongs at the end
+     of the row rather than the start. */
+  .app-shell-setup-split[data-layout="step"] .step-drawer-head {
+    justify-content: flex-end;
+  }
   /* Add link at the frame's 116x48 — the button's default size, not the
      small one the phone's drawer head uses. */
   .app-shell-setup-split[data-layout="step"] .step-drawer-head .btn-primary {
