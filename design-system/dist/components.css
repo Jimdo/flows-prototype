@@ -8350,11 +8350,65 @@ body {
 }
 .sheet-adv-fields[hidden] { display: none; }
 
-/* Three shapes, compared at a glance. The segmented control is already what
-   this screen uses for a small closed set the seller flicks between while
-   watching the preview — same job, at the width of a sheet field. */
-.seg-control--adv { width: 100%; }
-.seg-control--adv .seg-control-item { flex: 1 1 0; min-width: 0; }
+/* Three shapes, each drawn as the button it makes. A segmented control of
+   three words asked the seller to picture three cards and pick one from
+   memory; the card is what is being chosen, so the option shows the card.
+   The selection language is .select-card's — a 2px edge that goes blue —
+   because it is the same kind of choice at a different size. */
+.shape-pick {
+  display: flex;
+  gap: var(--jui-layout-gap-xs);
+  width: 100%;
+}
+.shape-pick-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--jui-layout-gap-xxs);
+  flex: 1 1 0;
+  min-width: 0;
+  padding: var(--jui-layout-padding-xs);
+  border: 2px solid var(--jui-color-gray-100);
+  border-radius: var(--jui-style-radius-12);
+  background: var(--jui-color-gray-white);
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+.shape-pick-item:hover { border-color: var(--jui-color-blue-100); }
+.shape-pick-item:focus-visible {
+  outline: 2px solid var(--jui-color-actions-primary-rest);
+  outline-offset: 2px;
+}
+.shape-pick-item.active { border-color: var(--jui-color-blue-300); }
+
+.shape-pick-art {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 72px;
+}
+.shape-pick-label {
+  font-size: var(--jui-typography-body-small-regular-size);
+  font-weight: var(--jui-typography-body-small-regular-weight);
+  line-height: var(--jui-typography-body-small-regular-lh);
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+.shape-pick-item.active .shape-pick-label {
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+
+/* The parts of the miniature: the picture block reads darkest because it is
+   the thing being placed, the words lighter, the call-to-action bar lighter
+   still. Selected, the picture block takes the accent — the drawing says
+   which one is on without the border having to carry it alone. */
+.shape-pick-art .sp-pic { fill: var(--jui-color-gray-300); }
+.shape-pick-art .sp-line { fill: var(--jui-color-gray-300); }
+.shape-pick-art .sp-bar { fill: var(--jui-color-gray-100); }
+.shape-pick-art .sp-over { fill: var(--jui-color-gray-white); }
+.shape-pick-art .sp-faint { opacity: 0.55; }
+.shape-pick-item.active .sp-pic { fill: var(--jui-color-blue-300); }
 
 /* The picture, at the size and radius it has on the card, so the control
    and the thing it changes read as one object — the same argument the
