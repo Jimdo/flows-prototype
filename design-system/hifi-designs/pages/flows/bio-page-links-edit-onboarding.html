@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=0def391">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=0def391">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=b9bbb44">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=b9bbb44">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=0def391">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=b9bbb44">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -250,6 +250,13 @@
                   data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="smartRegenSuggest" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><path d="M14.5 1.99976L15.5 4.54791C14.3079 3.91092 12.9461 3.5498 11.5 3.5498C6.80558 3.5498 3 7.35538 3 12.0498C3 13.8409 3.554 15.6294 4.5 16.9998" stroke="url(#smartRegenSuggest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M8.5 21.9997L7.5 19.4516C8.69215 20.0885 10.0539 20.4497 11.5 20.4497C16.1944 20.4497 20 16.6441 20 11.9497C20 10.1585 19.446 8.37009 18.5 6.99976" stroke="url(#smartRegenSuggest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span class="regen-label">Regenerate</span></button>
               </div>
           </div>
+
+          <!-- The same rule that separates the page from its footer, used for
+               the same reason one step earlier: what the product is offering
+               is not what the seller has made. It goes when the suggestions
+               do — a rule with nothing above it is a line across the top of
+               the screen. -->
+          <hr class="edit-divider" id="suggestDivider" data-view-only="list" aria-hidden="true">
 
           <!-- One label over everything the page carries. Contact buttons, the
                main list and the social row were three labelled groups in three
@@ -838,8 +845,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=0def391"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=0def391"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=b9bbb44"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=b9bbb44"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -1820,9 +1827,11 @@
          landed on everything below the moment the pair arrived, which is the
          jump the placeholder's whole height exists to prevent. */
       document.getElementById('suggestHead').hidden = noSuggestions;
-      /* The container goes with its contents. Left in place it was a bordered
-         box round nothing, which reads as something that failed to load. */
+      /* The group goes with its contents, and the rule under it goes with the
+         group: a line with nothing above it reads as a border on the screen
+         rather than as a separator between two things. */
       document.getElementById('sectionSuggest').hidden = noSuggestions;
+      document.getElementById('suggestDivider').hidden = noSuggestions;
       // Nothing to ask again about once the pair is gone — nor once the plan
       // is full, where a re-roll only swaps one locked card for another.
       const regen = document.getElementById('regenSuggest');
