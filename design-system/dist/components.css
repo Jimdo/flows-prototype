@@ -340,21 +340,40 @@ body {
 
 /* ─── Layer 3: Form elements ─── */
 
+/* @jimdo/ui's TextField, read off the component rather than approximated —
+   it was five values out: 40px tall where upstream is 48, 8/12 of padding
+   where upstream is 12 all round, radius-m (12) where upstream is 8, a
+   grey ground where upstream is white, and no focus ring at all. The last
+   one is the one that mattered: a field a keyboard can reach and not see is
+   a field a keyboard cannot use. */
 .form-input {
   width: 100%;
-  padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-s);
+  height: var(--jui-layout-dimension-m);
+  padding: var(--jui-layout-padding-s);
   border: 1px solid var(--jui-component-input-color-field-stroke-rest);
-  border-radius: var(--jui-style-radius-m);
+  border-radius: var(--jui-style-radius-8);
   font: inherit;
   font-size: 16px;
   font-weight: 400;
   line-height: 1.5;
   color: var(--jui-color-typography-gray-on-light-default);
-  background: var(--jui-color-background-gray-light);
-  transition: border-color 150ms ease, box-shadow 150ms ease;
+  background: var(--jui-color-gray-white);
+  transition: background-color 200ms ease, border-color 200ms ease;
 }
 
-.form-input:not(:focus):hover { border-color: var(--jui-component-input-color-field-stroke-hover); }
+.form-input:hover { border-color: var(--jui-component-input-color-field-stroke-hover); }
+.form-input:focus,
+.form-input:focus-visible {
+  outline: 2px solid var(--jui-color-actions-primary-rest);
+  outline-offset: 2px;
+}
+.form-input:active { border-color: var(--jui-color-actions-primary-rest); }
+.form-input[aria-invalid="true"] { border-color: var(--jui-color-actions-negative-rest); }
+.form-input:disabled {
+  opacity: 0.3;
+  cursor: default;
+  pointer-events: none;
+}
 /* Size modifier, on .btn-sm's scale — for fields that sit underneath a
    full-size one and must not compete with it. */
 .form-input--sm {
@@ -4245,8 +4264,9 @@ body {
   min-height: 72px;
   padding: var(--jui-layout-padding-s);
   border: 1px solid var(--jui-component-input-color-field-stroke-rest);
-  border-radius: var(--jui-style-radius-m);
-  background: var(--jui-color-background-gray-light);
+  /* 8, with the field it is a taller version of. */
+  border-radius: var(--jui-style-radius-8);
+  background: var(--jui-color-gray-white);
   font-family: inherit;
   font-size: var(--jui-typography-body-medium-regular-size);
   font-weight: var(--jui-typography-body-medium-regular-weight);
@@ -5611,6 +5631,164 @@ body {
    menu stay siblings beside it rather than buttons inside a button. It was
    one <button> with a pencil at the far end, which meant hiding or
    deleting a link went through the editor first. */
+/* ═══════════════════════════════════════════════════════════════
+   Chip row (.edit-chips / .edit-chip)
+
+   The edit list is a map of the page, so its shapes are the page's shapes.
+   A bio page carries three kinds of button and they are not the same size:
+   contact buttons are 34px pills that sit side by side and wrap, the main
+   links are full-width bars, and a featured link is a card with a picture
+   on it. The editor used to draw all three as the same 56px row, so the one
+   place a seller could compare them said they were interchangeable.
+
+   This is the small one. Inline, wrapping, as wide as its own label — and
+   still draggable, because the tile is the handle the way it is on a row.
+   Social accounts take it too: they are a row of dots at the foot of the
+   page, which is the same statement at a smaller size.
+
+   Used by: bio-page-links-edit-v2 (scr-484).
+   ═══════════════════════════════════════════════════════════════ */
+
+.edit-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--jui-layout-gap-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* The li is the flex item, not a pass-through. display:contents generates
+   no box, and a list item with no box has no rect — which is how the chips
+   came out undraggable: the reorder module measures its own children to
+   find the slots, and children it cannot measure it drops. */
+.edit-chips > li {
+  display: inline-flex;
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* The row's radius, not the page pill's. These were 20 to echo the contact
+   button as the visitor sees it, and at that radius they read as a different
+   family from the rows they sit between — the list is one list, and its
+   corners have to say so. 12, like .edit-row. */
+.edit-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
+  max-width: 100%;
+  /* No min-height. At 48 against a 32 tile the chip was taller than its own
+     padding asked for, so the four pixels declared at the left became six at
+     the top and bottom and the tile read as pushed into the corner. The
+     padding decides the height: 4 + 32 + 4, and the space around the tile is
+     the same on the three edges it touches. */
+  padding: var(--jui-layout-padding-xxs);
+  padding-right: var(--jui-layout-padding-s);
+  border: 1px solid var(--jui-color-stroke-gray-default);
+  border-radius: var(--jui-style-radius-12);
+  background: var(--jui-color-gray-white);
+  font-family: inherit;
+  text-align: left;
+  transition: border-color 160ms ease-out, background-color 160ms ease-out;
+}
+.edit-chip[hidden] { display: none; }
+.edit-chip:has(.edit-row-open:hover),
+.edit-chip:has(.edit-row-open:focus-visible) {
+  outline: var(--jui-style-stroke-width-large) solid var(--jui-color-stroke-primary-actionable);
+  outline-offset: 2px;
+}
+
+/* The tile keeps its two marks — the kind, and the handle that replaces it
+   under the pointer — and loses its corners. 32, not the row's 40: the chip
+   is 48 at its tallest and a 40 tile inside it leaves no border to see. */
+/* 8 inside 12 at 4 of padding — the nested radius the rows use, now that
+   the chip has the rows' corners. */
+.edit-chip .edit-row-tile {
+  width: var(--jui-layout-dimension-s);
+  height: var(--jui-layout-dimension-s);
+  padding: 0;
+  border-radius: var(--jui-style-radius-8);
+}
+.edit-chip .edit-row-tile > .edit-row-icon { width: 16px; height: 16px; }
+
+.edit-chip .edit-row-open {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+.edit-chip .edit-row-label {
+  font-size: var(--jui-typography-body-small-medium-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  line-height: var(--jui-typography-body-small-medium-lh);
+}
+
+/* Switched off on the page, the same way a row says it. */
+.edit-chip[data-off] { opacity: 0.55; }
+
+/* ── The featured row ──
+   The biggest block the page carries, at the size that says so. The picture
+   is 56 — the card's own thumbnail — and the call to action comes along
+   under the name, because the two of them are what the card says and this
+   row is the only place to read them side by side.
+
+   Used by: bio-page-links-edit-v2 (scr-484). */
+.edit-row--featured {
+  min-height: 72px;
+  align-items: center;
+}
+.edit-row-thumb {
+  position: relative;
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  /* 12 inside a 12 row at 8 of padding wants 8 — nested radius is the
+     outer one less the padding, and a 12 square in a 12 box reads as a
+     corner trying to escape. */
+  border-radius: var(--jui-style-radius-8);
+  background-color: var(--jui-color-background-primary-light);
+  background-size: cover;
+  background-position: center;
+}
+/* No picture yet. The card draws a silhouette in the same slot; here the
+   tint alone is enough to say the slot is waiting. */
+.edit-row-thumb[data-empty] { background-image: none; }
+.edit-row--featured .edit-row-open {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--jui-layout-gap-xxs);
+}
+/* The featured row's second line is the footer rows' .edit-row-sub — same
+   size, same ink, same job: the line under a name. One rule, declared with
+   the footer rows below. */
+/* The handle moves into the picture when the tile goes, so it keeps the
+   same place in the row and the same reach. */
+.edit-row-thumb > .edit-row-grip {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+.edit-row--featured:hover .edit-row-thumb > .edit-row-grip,
+.edit-row-thumb > .edit-row-grip:focus-visible {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.45);
+  color: var(--jui-color-gray-white);
+}
+
+/* ── Add, at the foot of the page's list ──
+   Full width, because it belongs to the whole list rather than to any row
+   in it, and the list's own width is the only width that says so. Secondary,
+   because the page-level yes on that screen is Done.
+
+   Used by: bio-page-links-edit-v2 (scr-484). */
+.edit-add-wide {
+  width: 100%;
+  flex-shrink: 0;
+}
+.edit-add-wide svg { width: 16px; height: 16px; flex-shrink: 0; }
+
 .edit-row {
   /* Anchors the open target's stretched overlay. */
   position: relative;
@@ -5700,6 +5878,11 @@ body {
   background: var(--jui-color-background-notice-light);
   transition: background-color 120ms ease;
 }
+
+/* display:flex outranks the hidden attribute, so a hidden tile stays on
+   screen — which is how a featured row first came out carrying its picture
+   and the icon the picture replaces, side by side. */
+.edit-row-tile[hidden] { display: none; }
 .edit-row-tile > .edit-row-icon {
   width: 16px;
   height: 16px;
@@ -6325,7 +6508,13 @@ body {
   height: 0;
   margin: 0;
   border: 0;
-  border-top: 1px solid var(--jui-color-stroke-gray-default);
+  /* Decorative, not default. The rows are objects and their edges are
+     stroke-gray-default; a rule between two groups drawn at the same value
+     is a fourth box edge in a column of box edges, and the eye reads it as
+     one more row rather than as the line under all of them. The decorative
+     stroke is the scale's own answer for a divider, and the space either
+     side of it was always doing most of the separating. */
+  border-top: 1px solid var(--jui-color-stroke-gray-decorative);
 }
 .edit-divider[hidden] { display: none; }
 
@@ -7209,12 +7398,29 @@ body {
 /* A submenu with nothing in it yet. Sits where the list would be, in the
    list's own gutter, so the space reads as the empty version of the thing
    rather than as a different panel. */
+/* A submenu with nothing in it yet. This was one left-aligned sentence at
+   the top of a 700px square, which reads as a page that failed to load
+   rather than as a list that is empty. Centred in the room it has, with the
+   kind's own glyph over it — the same shape .list-empty uses, because it is
+   the same statement. */
 .add-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--jui-layout-gap-s);
   margin: 0;
-  padding: var(--jui-layout-padding-xs) var(--jui-layout-padding-m) var(--jui-layout-padding-s);
+  padding: var(--jui-layout-padding-xl) var(--jui-layout-padding-m);
+  min-height: 200px;
+  text-align: center;
   font-size: var(--jui-typography-body-small-regular-size);
   line-height: var(--jui-typography-body-small-regular-lh);
   color: var(--jui-color-typography-gray-on-light-subdued);
+}
+.add-empty svg {
+  width: 24px;
+  height: 24px;
+  color: var(--jui-color-gray-300);
 }
 
 /* ── Add row ──
@@ -8305,8 +8511,11 @@ body {
   outline: 2px solid var(--jui-color-actions-primary-rest);
   outline-offset: 2px;
 }
-/* A website page is the website's, not ours — there is nothing here to
-   open, so the box says what it is and stops pretending to be a button. */
+/* .sheet-ref--flat has no users left. A website page is the website's and
+   there is nothing of ours to edit in it, which is why this box used to sit
+   dead — but which page the button points at is the seller's, so it goes
+   back to the list it was picked from instead. The modifier stays for a ref
+   that genuinely has nowhere to go. */
 .sheet-ref--flat { cursor: default; }
 .sheet-ref--flat:hover { background: var(--jui-color-gray-50); }
 .sheet-ref--flat .sheet-ref-more { display: none; }
@@ -8327,17 +8536,24 @@ body {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* What pressing the box does. It was the thing's type at gray-400, which is
+   the colour of something switched off; it is an action now, in the ink of
+   the control it belongs to. */
 .sheet-ref-type {
-  font-size: var(--jui-typography-body-small-regular-size);
-  font-weight: var(--jui-typography-body-small-regular-weight);
-  line-height: var(--jui-typography-body-small-regular-lh);
-  color: var(--jui-color-gray-400);
+  font-size: var(--jui-typography-body-small-medium-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  line-height: var(--jui-typography-body-small-medium-lh);
+  color: var(--jui-color-actions-primary-rest);
 }
+/* Primary, not ink. At the default colour the pencil was the same weight as
+   the words beside it on a grey ground, so the one mark saying the box is
+   pressable read as decoration — and the box is the only control in this
+   dialog that does not look like a field. */
 .sheet-ref-more {
   flex: 0 0 auto;
   width: 24px;
   height: 24px;
-  color: var(--jui-color-typography-gray-on-light-default);
+  color: var(--jui-color-actions-primary-rest);
 }
 
 /* Figma 11241:80518. The toggle sits next to its label, not at the far
@@ -8369,6 +8585,10 @@ body {
 
    Used by: bio-page-links-edit-onboarding (scr-477). */
 .sheet-adv { gap: var(--jui-layout-gap-xs); }
+/* The toggle inside the advanced block pushes its switch to the far edge —
+   the label and the control are the two ends of one row, not a pair.
+   Used by: bio-page-links-edit-onboarding (scr-477). */
+.sheet-adv .sheet-toggle { justify-content: space-between; }
 .sheet-adv-note {
   margin: 0;
   font-size: var(--jui-typography-body-small-regular-size);
@@ -8530,16 +8750,32 @@ body {
 }
 .layout-pick-item[data-upgrade]:hover { border-color: var(--jui-color-decorative-upgrade); }
 
-/* Three shapes, each drawn as the button it makes. A segmented control of
-   three words asked the seller to picture three cards and pick one from
-   memory; the card is what is being chosen, so the option shows the card.
-   The selection language is .select-card's — an edge that goes blue —
-   because it is the same kind of choice at a different size. */
+/* ═══════════════════════════════════════════════════════════════
+   Shape picker (.shape-pick)
+
+   Where the picture sits on a featured link: beside the words, above them,
+   or behind them. The sibling of .layout-pick — the question directly above
+   it in the same dialog is which shape the button takes, and this one is
+   which shape the shape takes — so it is drawn in the same language. It was
+   not: flat grey rectangles on a white card with a 14px label, against the
+   Layout picker's tinted mockups on a grey ground with a 12px one, which
+   read as two different controls answering one decision.
+
+   Used by: bio-page-links-edit-v2 (scr-484).
+   ═══════════════════════════════════════════════════════════════ */
+
 .shape-pick {
   display: flex;
   gap: var(--jui-layout-gap-xs);
   width: 100%;
 }
+
+/* ── The SVG miniatures (scr-477) ──
+   The picker on the current Edit links screen draws its three shapes as one
+   inline <svg> each, so the parts are rects and the only property that paints
+   them is fill. Kept beside the div-built variant below rather than replaced:
+   both screens are on the canvas, and the newer drawing is scoped so it
+   cannot reach this one's rects. */
 .shape-pick-item {
   display: flex;
   flex-direction: column;
@@ -8590,6 +8826,155 @@ body {
 .shape-pick-art .sp-faint { opacity: 0.55; }
 .shape-pick-item.active .sp-pic { fill: var(--jui-color-blue-300); }
 
+/* ── The div-built miniatures (scr-484) ──
+   Everything below is scoped to .shape-pick--layout, the modifier the v2
+   screen puts on the container. The two drawings share class names — .sp-pic,
+   .sp-line — and the scope is what keeps a height declared for a 3px div off
+   an SVG rect that carries its own. */
+/* The Layout picker's card, to the pixel: no edge at rest on a grey ground,
+   white with a 2px blue one when chosen, drawn transparent at rest so the
+   box never changes size. */
+.shape-pick--layout .shape-pick-item {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--jui-layout-gap-s);
+  padding: var(--jui-layout-padding-s) 0;
+  border: 2px solid transparent;
+  border-radius: var(--jui-style-radius-8);
+  background: var(--jui-color-gray-50);
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+.shape-pick--layout .shape-pick-item:hover { border-color: var(--jui-color-blue-100); }
+.shape-pick--layout .shape-pick-item:focus-visible {
+  outline: 2px solid var(--jui-color-actions-primary-rest);
+  outline-offset: 2px;
+}
+.shape-pick--layout .shape-pick-item.active {
+  background: var(--jui-color-gray-white);
+  border-color: var(--jui-color-blue-500);
+}
+
+/* One box for all three, so the cards are the same height whichever drawing
+   is in them — 33, the Layout picker's own figure. */
+.shape-pick--layout .shape-pick-art {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  height: 33px;
+}
+
+/* The button, at a fifth of its size: a frame holding the picture and the
+   words, with the call-to-action bar under it. */
+/* The Featured art's three tones, in the same order: blue-10 for the frame,
+   blue-50 for the blocks inside it, blue-300 for the picture and blue-100
+   for the words. Built flat at first — frame and call-to-action bar both
+   blue-50 — which made the bar invisible against the thing it sits under.
+
+   upstream: none, because this is a 48px drawing of a bio-page button, not a
+   card. It holds no content, takes no children from a caller and is never
+   read; DataDisplay/Card is a surface for real things. */
+.shape-pick--layout .sp-card {
+  display: flex;
+  width: 48px;
+  overflow: hidden;
+  border-radius: var(--jui-style-radius-4);
+  background: var(--jui-color-blue-10);
+}
+.shape-pick--layout .sp-pic {
+  flex-shrink: 0;
+  border-radius: var(--jui-style-radius-2);
+  background: var(--jui-color-blue-300);
+}
+.shape-pick--layout .sp-words {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.shape-pick--layout .sp-line {
+  height: 3px;
+  border-radius: 1.5px;
+  background: var(--jui-color-blue-100);
+}
+.shape-pick--layout .sp-line--short { width: 60%; }
+
+/* Beside — the picture at the left, the words to its right.
+   upstream: none, because it is a variant of the drawing above. */
+.shape-pick--layout .sp-card--beside {
+  align-items: center;
+  gap: 3px;
+  padding: 3px;
+}
+.shape-pick--layout .sp-card--beside .sp-pic { width: 12px; height: 12px; }
+
+/* Above — the picture across the top, the words under it.
+   upstream: none, because it is a variant of the drawing above. */
+.shape-pick--layout .sp-card--above {
+  flex-direction: column;
+  gap: 3px;
+  padding: 3px;
+}
+.shape-pick--layout .sp-card--above .sp-pic { width: 100%; height: 11px; }
+
+/* Behind — the picture is the card, the words sit on it.
+   upstream: none, because it is a variant of the drawing above. */
+.shape-pick--layout .sp-card--behind {
+  position: relative;
+  height: 28px;
+  padding: 0;
+}
+.shape-pick--layout .sp-card--behind .sp-pic {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+}
+.shape-pick--layout .sp-words--over {
+  position: relative;
+  align-self: flex-end;
+  padding: 0 3px 3px;
+}
+.shape-pick--layout .sp-words--over .sp-line { background: var(--jui-color-gray-white); }
+
+/* The bar that carries the call to action, under the card the way it is on
+   the page. Behind has none: the immersive shape draws an arrow instead of
+   a labelled bar, which is why its editor drops the Button text field. */
+.shape-pick--layout .sp-cta {
+  display: flex;
+  align-items: center;
+  width: 48px;
+  padding: 2px 3px;
+  border-radius: var(--jui-style-radius-2);
+  background: var(--jui-color-blue-50);
+}
+.shape-pick--layout .sp-cta::before {
+  content: '';
+  width: 18px;
+  height: 3px;
+  border-radius: 1.5px;
+  background: var(--jui-color-blue-100);
+}
+
+/* 12 at 500, the Layout picker's own label — one token group's size and
+   another's weight, because nothing else on the scale is 12px. */
+.shape-pick--layout .shape-pick-label {
+  font-size: var(--jui-typography-label-small-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  line-height: var(--jui-typography-label-small-lh);
+  letter-spacing: 0.02em;
+  color: var(--jui-color-typography-gray-on-light-default);
+}
 /* The picture, at the size and radius it has on the card, so the control
    and the thing it changes read as one object — the same argument the
    avatar control makes for the page's own photo. */
@@ -8815,11 +9200,57 @@ body {
    One tier for the pair, and it is the coat: these are ordinary rows of an
    ordinary list, marked enough to say they are paid. Two volumes here would
    read as nagging. */
+/* ── A two-line row ──
+   Centred, and padded for two lines rather than one. These carry a name and
+   a line under it where the made rows carry a name, so at the flat rows' 8
+   the 40px tile sat in a box the text was taller than — the tile read as
+   floating and the row read as cramped. 12 gives the tile the same air above
+   and below it that it has at its left, and the row comes out at 70, within
+   a hair of the featured row's 72. Two-line rows are one family. */
 .edit-row--footer {
-  align-items: flex-start;
+  align-items: center;
+  gap: var(--jui-layout-gap-s);
   min-height: var(--jui-layout-dimension-l);
+  /* 16 at the right, 12 everywhere else. Even padding measured even and read
+     tight: the tile at the left is a filled 40px block whose own ground
+     carries the eye to the edge, and the crown is a 16px outline with
+     nothing behind it, so the same gap leaves it looking pressed against the
+     border. The number that matches is the one that looks like it does. */
+  padding: var(--jui-layout-padding-s) var(--jui-layout-padding-m)
+           var(--jui-layout-padding-s) var(--jui-layout-padding-s);
 }
-.edit-row--footer .edit-row-mark { margin-top: 2px; }
+
+/* The same ring the made rows draw. These are buttons in their own right —
+   the whole row is the control — so there is no .edit-row-open inside them
+   for the flat rows' rule to find, and they were the only rows on the screen
+   that did not answer the pointer. */
+.edit-row--footer:hover,
+.edit-row--footer:focus-visible {
+  outline: var(--jui-style-stroke-width-large) solid var(--jui-color-stroke-primary-actionable);
+  outline-offset: 2px;
+}
+
+/* ── The tile a paid row wears ──
+   The footer rows used to carry a bare glyph where every other row carries a
+   40px tile, which is the single thing that made them read as lower-quality
+   furniture rather than as rows. They get the tile — and it is tinted rather
+   than yellow, because yellow-10 means "a thing on your page" and these two
+   are things that are not, until they are bought. The ground says that
+   before the crown at the other end has to. */
+.edit-row-tile--upgrade { background: var(--jui-color-background-upgrade-light); }
+.edit-row-tile--upgrade > .edit-row-icon { color: var(--jui-color-typography-upgrade-on-light); }
+/* A logo, not a line drawing. The stroke icons read at 16 inside the tile;
+   a solid mark at 16 is a dot, so it takes the 20 the row's own icon uses
+   and keeps the tile's ink. */
+.edit-row-icon--mark { width: 20px; height: 20px; }
+/* No handle lives in this tile, so nothing swaps under the pointer and the
+   hover state the made rows use would be a promise of a drag that is not
+   there. */
+.edit-row--footer:hover .edit-row-tile--upgrade,
+.edit-row--footer:focus-within .edit-row-tile--upgrade { background: var(--jui-color-background-upgrade-medium); }
+.edit-row--footer:hover .edit-row-tile--upgrade > .edit-row-icon,
+.edit-row--footer:focus-within .edit-row-tile--upgrade > .edit-row-icon { opacity: 1; }
+.edit-row--footer .edit-row-tile { margin-top: 0; }
 .edit-row-copy {
   display: flex;
   flex-direction: column;
@@ -8842,6 +9273,11 @@ body {
   color: var(--jui-color-typography-gray-on-light-subdued);
 }
 
+/* NOT used by bio-page-links-edit-v2 (scr-484), which carries the mark in
+   the row's tile instead: a rendered artifact sitting where every other row
+   has a line of text gave the two footer rows different rhythms, and it was
+   the only element on that screen at its own scale. Still used by scr-477,
+   so the rule stays. */
 /* The banner as it actually appears, at the size it appears — the one piece
    of the Linktree card worth keeping. A seller who has never scrolled to the
    foot of their own page cannot picture what they would be removing. */
@@ -8867,11 +9303,22 @@ body {
 /* Decorative, 16, always the crown — the settled tier-1 mark. On a row it
    keeps the trailing slot the pencil uses on every other row, so the column
    of right-hand marks stays a column. */
+/* ── The mark that means "this costs" ──
+   At the right edge of the row, on its middle. In front of the name it
+   pushed the name right and left the line under it starting further left
+   than the name above — two lines of one text block with two left edges,
+   which is what made the padding round the tile look wrong when the fault
+   was in the words. Trailing, both lines share an edge and the mark sits
+   where every other row's trailing control sits.
+
+   It failed there once before, 2px below the top of the row, which on a
+   two-line row put it level with the gap between the lines. Centred, with
+   the row's own 12 between it and the words, it reads as a statement about
+   the row rather than as a sticker on it. */
 .edit-row-crown {
   flex-shrink: 0;
   width: 16px;
   height: 16px;
-  margin-top: 2px;
   color: var(--jui-color-decorative-upgrade);
 }
 .edit-row-crown svg { width: 16px; height: 16px; display: block; }

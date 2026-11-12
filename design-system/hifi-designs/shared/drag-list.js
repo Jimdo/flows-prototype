@@ -15,6 +15,19 @@
 // The rows are buttons that open an editor when clicked, and a drag ends in a
 // click. Anything that actually moved swallows that click once — otherwise
 // every reorder would finish by opening a dialog nobody asked for.
+//
+// Direction-free. This used to assume a vertical stack — one pitch read off
+// the first two rows, translateY only, and a target index from how far the
+// finger had travelled divided by that pitch. A list that wraps breaks every
+// one of those: the pitch between items 1 and 2 is horizontal, item 3 may be
+// on the next line, and shuffling means moving in both axes at once.
+//
+// So the geometry is read from the rects themselves. Every item's resting
+// place is where one of the original rects is; a reorder is a permutation of
+// those places; and an item's offset is the difference between the rect it
+// is going to and the rect it came from. That covers a column, a row and a
+// wrapping grid with the same lines, and reproduces exactly what the stack
+// did before.
 
 const COMMIT = 3;   // px of travel before a press counts as a drag
 const EASE = 'transform 160ms cubic-bezier(0.32, 0.72, 0, 1)';
@@ -23,18 +36,50 @@ function clamp(v, lo, hi) {
   return Math.min(hi, Math.max(lo, v));
 }
 
-/* Where each row sits while one of them is being carried: everything between
-   the row's old index and its current one shuffles by exactly one step, so
-   the gap under the finger is always the size of the thing being dropped. */
+/* Where the item at original index `i` ends up once the carried one has been
+   lifted out of `from` and dropped at `to`. Everything between the two slides
+   along by one place; everything outside stays. */
+function slotFor(i, from, to) {
+  if (i === from) return to;
+  if (from < to) return (i > from && i <= to) ? i - 1 : i;
+  if (from > to) return (i >= to && i < from) ? i + 1 : i;
+  return i;
+}
+
+/* Where each item sits while one of them is being carried: at the rect of the
+   slot it would take, so the gap under the finger is always the size and the
+   shape of the thing being dropped. Both axes, because a wrapping list
+   shuffles sideways and down the moment a row end is crossed. */
 function layout(d) {
   d.items.forEach((node, i) => {
     if (node === d.li) return;
-    let y = 0;
-    if (d.from < d.to && i > d.from && i <= d.to) y = -d.step;
-    else if (d.from > d.to && i >= d.to && i < d.from) y = d.step;
+    const here = d.rects[i];
+    const there = d.rects[slotFor(i, d.from, d.to)];
+    const x = there.left - here.left;
+    const y = there.top - here.top;
     node.style.transition = EASE;
-    node.style.transform = y ? `translateY(${y}px)` : '';
+    node.style.transform = (x || y) ? `translate(${x}px, ${y}px)` : '';
   });
+}
+
+/* Which slot the carried item is nearest, measured from its own centre rather
+   than from the pointer: the finger lands somewhere inside the handle, and an
+   index read off the pointer would be that offset wrong from the first pixel.
+   Nearest-centre is what the pitch arithmetic did in a column, and it is
+   still right when the next slot is sideways. */
+function slotNearest(d, dx, dy) {
+  const me = d.rects[d.from];
+  const cx = me.left + dx + me.width / 2;
+  const cy = me.top + dy + me.height / 2;
+  let best = d.from;
+  let bestGap = Infinity;
+  d.rects.forEach((r, i) => {
+    const gx = r.left + r.width / 2 - cx;
+    const gy = r.top + r.height / 2 - cy;
+    const gap = gx * gx + gy * gy;
+    if (gap < bestGap) { bestGap = gap; best = i; }
+  });
+  return best;
 }
 
 function setupList(list) {
@@ -57,12 +102,10 @@ function setupList(list) {
 
     e.preventDefault();
     drag = {
-      li, items, grip,
+      li, items, grip, rects,
       from: items.indexOf(li),
       to: items.indexOf(li),
-      // Row pitch, not row height: the list has a gap and the rows have to
-      // travel past it to land on the next slot.
-      step: rects[1].top - rects[0].top,
+      startX: e.clientX,
       startY: e.clientY,
       moved: false,
     };
@@ -73,15 +116,16 @@ function setupList(list) {
 
   list.addEventListener('pointermove', (e) => {
     if (!drag) return;
+    const dx = e.clientX - drag.startX;
     const dy = e.clientY - drag.startY;
-    if (Math.abs(dy) > COMMIT) drag.moved = true;
+    if (Math.abs(dx) > COMMIT || Math.abs(dy) > COMMIT) drag.moved = true;
 
     // The carried row follows the finger exactly and never eases — an easing
     // row lags behind the pointer and reads as a dropped frame.
     drag.li.style.transition = '';
-    drag.li.style.transform = `translateY(${dy}px)`;
+    drag.li.style.transform = `translate(${dx}px, ${dy}px)`;
 
-    const to = clamp(drag.from + Math.round(dy / drag.step), 0, drag.items.length - 1);
+    const to = clamp(slotNearest(drag, dx, dy), 0, drag.items.length - 1);
     if (to !== drag.to) {
       drag.to = to;
       layout(drag);

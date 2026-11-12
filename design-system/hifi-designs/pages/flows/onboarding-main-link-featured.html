@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>onboarding-main-link-featured</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=a965712">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=a965712">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=25582ed">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=25582ed">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=a965712">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=25582ed">
 <style>
   /* ─── Screen overrides ───
      scr-482 with the featured button put back: the version for when the
@@ -23,24 +23,23 @@
      picture over two thin bars is the difference, and no sentence does that
      job as well.
 
-     Two things are local. The resting drawer height, measured in the state
-     that needs the most room — the question, the tag, two cards, the
-     validation line and the way to ask again come to 454, and with the
-     handle and the buttons that is 562. 22 more than scr-482 because this
-     subtitle runs to two lines on a phone where that one's runs to one, and
-     the cost lands on the preview: 54px of it at rest, against that step's
-     76. The page is one tap on the handle away, which is the trade every
-     step in this flow makes. If it has to come back, the way is to move
-     "Suggest different ones" onto the tag's row — the control acts on the
-     group, so the group's own line is a fair place for it, and it is worth
-     44px. And the page the frame is cut to:
-     the rich card is the tallest block a bio page carries and it is the one
-     this version is about, so the frame has to hold it *and* the link bar
-     under it. At the earlier steps' 686 the card filled the frame and the
-     thing it sits above fell off the bottom, which is the whole argument
-     lost. Same figure the offer step used. */
+     The drawer rests half open, which is where every other step in this
+     flow rests — the tagline step's own 320, and this one follows it. The
+     column is taller than that and scrolls, and the two stops either side of
+     it are a drag or a tap on the handle away: down to the peek for the
+     whole page, up to fully open for the whole question. Sizing the stop to
+     the content instead, which is what this screen did first, produced a
+     drawer at 544 that covered the page and had no "open" left to go to —
+     `expanded` is max(rest, main − 56), so a rest that tall swallows it and
+     the handle can only ever go one way.
+
+     The page the frame is cut to is the other local figure: the rich card is
+     the tallest block a bio page carries and it is the one this version is
+     about, so the frame has to hold it *and* the link bar under it. At the
+     earlier steps' 686 the card filled the frame and the thing it sits above
+     fell off the bottom, which is the whole argument lost. */
   .app-shell-setup-split {
-    --setup-drawer-rest-h: 566px;
+    --setup-drawer-rest-h: 320px;
     --bp-natural-h: 752px;
   }
 
@@ -412,8 +411,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=a965712"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=a965712"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=25582ed"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=25582ed"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -622,7 +621,13 @@
            announcing. */
         error.hidden = false;
         offerList.setAttribute('aria-invalid', 'true');
+        /* On a phone the drawer rests half open and the line can land under
+           the fold — an error nobody can see is the same as no error. The
+           drawer opens to its full stop, and the line is scrolled to last so
+           it is the thing guaranteed to be on screen. */
+        split.setState('expanded');
         cards[0].focus();
+        error.scrollIntoView({ block: 'nearest' });
         return;
       }
       if (picked.dataset.offer === 'book') openSheet(typeSheet);

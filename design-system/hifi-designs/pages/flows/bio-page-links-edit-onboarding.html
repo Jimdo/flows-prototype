@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=a965712">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=a965712">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=25582ed">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=25582ed">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=a965712">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=25582ed">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -941,8 +941,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=a965712"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=a965712"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=25582ed"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=25582ed"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -1132,6 +1132,7 @@
       return {
         on: true,
         layout: 'beside',
+        title: b.label || '',
         meta: '',
         cta: ADV_CTA[b.kind] || ADV_CTA.link,
         image: '',
@@ -1142,12 +1143,7 @@
       if (!(b.advanced && b.advanced.on)) return null;
       return {
         layout: b.advanced.layout || 'beside',
-        /* The button's own label, with no second field holding a copy of
-           it. The dialog used to ask for a Headline and seed it from the
-           label, so a seller renaming the button renamed it once and saw it
-           twice — and the two could then disagree, with no way to tell
-           which one the page would use. One button, one name. */
-        title: b.label || '',
+        title: b.advanced.title || b.label || '',
         meta: b.advanced.meta || '',
         cta: b.advanced.cta || '',
         price: b.advanced.price || '',
@@ -1285,6 +1281,7 @@
         b.advanced = {
           on: true,
           layout: advanced.layout || 'beside',
+          title: advanced.title || label || '',
           meta: advanced.meta || '',
           cta: advanced.cta || ADV_CTA[kind] || ADV_CTA.link,
           price: advanced.price || '',
@@ -1534,44 +1531,8 @@
 
       editTitle.textContent = t.type;
 
-      /* Which shape the button takes, before anything else is asked. It is
-         the only answer in this dialog that changes what the dialog asks
-         for, and a question that decides the shape of the form under it
-         belongs above that form rather than halfway down it.
-
-         Only the main list — and on the way in as well as afterwards. The
-         dialog that adds a link is the same dialog that edits one, so the
-         decision is offered in the same place both times. The editors that
-         build something first are out: that pass is about the thing behind
-         the button, and it asks enough already. */
-      let advTarget = null;
-      if (ADV_EDITORS.indexOf(kind) !== -1) {
-        if (b) advTarget = b;
-        else if (activeMake) {
-          /* Where the card's settings live while the button is still being
-             added: there is no entry to hang them on until Save. */
-          addDraft = { label: activeMake.label, kind: activeMake.kind, advanced: null };
-          advTarget = addDraft;
-        }
-        if (advTarget) editFields.appendChild(layoutRow(kind, advTarget));
-      }
-
       if (!t.noLabel) {
-        const nameField = field('Button label', 'text', labelOf(kind, b));
-        /* The card's headline is this field, so the preview has to follow it
-           while it is being typed — there is no second field holding a copy
-           to update instead. Live, like every field the card owns; Save
-           writes the same value again and the dialog has no Cancel. */
-        if (advTarget) {
-          const input = nameField.querySelector('input');
-          input.addEventListener('input', () => {
-            advTarget.label = input.value;
-            if (b && activeBlock) paintRow(activeBlock);
-            refresh();
-            split.sync();
-          });
-        }
-        editFields.appendChild(nameField);
+        editFields.appendChild(field('Button label', 'text', labelOf(kind, b)));
       }
 
       if (t.ref) {
@@ -1587,12 +1548,18 @@
         });
       }
 
-      /* What the card needs beyond a label and a link: the picture first,
-         then where it sits and what the bar under it says. Under the fields
-         it adds to rather than above them — the button's own answers come
-         first whichever shape it is, and these arrive when Featured is
-         picked and go when it is not. */
-      if (advTarget) editFields.appendChild(advancedFields(advTarget));
+      /* Only the main list — and on the way in as well as afterwards. The
+         dialog that adds a link is the same dialog that edits one, so the
+         decision is offered in the same place both times. The editors that
+         build something first are out: that pass is about the thing behind
+         the button, and it asks enough already. */
+      if (ADV_EDITORS.indexOf(kind) !== -1) {
+        if (b) editFields.appendChild(advancedRow(kind, b));
+        else if (activeMake) {
+          addDraft = { label: activeMake.label, kind: activeMake.kind, advanced: null };
+          editFields.appendChild(advancedRow(kind, addDraft));
+        }
+      }
 
       editFields.appendChild(visibleRow(kind, b));
 
@@ -1768,140 +1735,79 @@
       return el;
     }
 
-    /* ── Which shape the button takes ──
-       Figma 17808:67119. Two options, each drawn as the button it makes: a
-       plain bar, or the card with a picture on it.
+    /* The switch that changes what the button is, and under it the one
+       line saying what changes. Built on the Visible row's pattern because
+       it is the same kind of statement about the same button — but it
+       carries a note, because turning a link into a card is not something
+       the word on the switch can explain on its own. */
+    function advancedRow(kind, b) {
+      const wrapRow = document.createElement('div');
+      wrapRow.className = 'sheet-field sheet-adv';
 
-       It was a switch labelled "Advanced button", and the switch was wrong
-       twice over. A switch says more-or-less of one thing, and these are
-       two shapes, neither of which is the other turned up. And no word on a
-       switch can say what the shapes are, which is why it had to carry a
-       sentence underneath explaining itself — "a bigger button with a
-       picture, a line about it and its own call to action". The drawings
-       say that, so the sentence went with the switch.
-
-       The note that is left is the one carrying a fact a drawing cannot:
-       which button is holding the plan's one card. */
-    const LAYOUT_ART = {
-      simple: '<span class="layout-pick-bar"></span>',
-      featured: '<span class="layout-pick-card">'
-        + '<span class="layout-pick-card-pic"></span>'
-        + '<span class="layout-pick-card-cta"></span></span>',
-    };
-
-    function layoutRow(kind, b) {
-      const wrap = document.createElement('div');
-      wrap.className = 'sheet-field sheet-adv';
-
+      const row = document.createElement('div');
+      row.className = 'sheet-toggle';
       const label = document.createElement('span');
-      label.className = 'sheet-label';
+      label.className = 'sheet-toggle-label';
       label.setAttribute('data-inspect-phrase', '');
-      label.textContent = 'Layout';
-      wrap.appendChild(label);
+      label.textContent = 'Advanced button';
 
       const free = advancedFree(activeBlock);
+      const on = !!(b && b.advanced && b.advanced.on);
 
-      const pick = document.createElement('div');
-      pick.className = 'layout-pick';
-      pick.id = 'editLayoutPick';
-      pick.setAttribute('role', 'radiogroup');
-      pick.setAttribute('aria-label', 'Layout');
-      pick.setAttribute('data-inspect-label', 'Layout picker');
-      pick.setAttribute('data-inspect-tokens',
-        '[{"prop":"gap","figma":"measurements/size/8","css":"--jui-layout-gap-xs","value":"8px"},'
-        + '{"prop":"padding","figma":"0 / measurements/size/12","css":"--jui-layout-padding-s","value":"12px 0"},'
-        + '{"prop":"border-radius","figma":"style/radius/8","css":"--jui-style-radius-8","value":"8px"},'
-        + '{"prop":"background","figma":"color/gray/50","css":"--jui-color-gray-50","value":"#f8f8f8"},'
-        + '{"prop":"selected","figma":"color/gray/white + 2px color/blue/500","css":"--jui-color-blue-500","value":"#ffffff + #004ced"},'
-        + '{"prop":"label","figma":"label/small 12 / 500","css":"--jui-typography-label-small-size","value":"12px / 500 / 1.66"},'
-        + '{"note":"Figma 17808:67119. Two values not taken verbatim: the 11px label gap (this dialog spaces every field at 8) and the 500 weight (our label-small is the 600 uppercase eyebrow, so the size comes from label-small and the weight from body-small-medium)."}]');
-
-      [['simple', 'Simple'], ['featured', 'Featured']].forEach(([value, text]) => {
-        const isCard = value === 'featured';
-        const locked = isCard && !free;
-        const item = document.createElement('button');
-        item.type = 'button';
-        item.className = 'layout-pick-item';
-        item.setAttribute('role', 'radio');
-        item.setAttribute('data-layout', value);
-        item.setAttribute('data-no-phrase', '');
-        if (locked) item.setAttribute('data-upgrade', '');
-        item.innerHTML =
-          '<span class="layout-pick-art" aria-hidden="true">' + LAYOUT_ART[value] + '</span>' +
-          '<span class="layout-pick-label">' + (locked ? CROWN_SVG : '') + text + '</span>';
-        item.addEventListener('click', () => {
-          /* Pressing the one that costs money asks for it. Refusing the
-             press is how a product pretends the option is not there. */
-          if (locked) { window.location.href = PAYWALL; return; }
-          if (!b) return;
-          /* Off keeps what was written. A seller who switches to the plain
-             bar to see it and switches back should not have to type the
-             words again — and the plan's slot is released either way,
-             because what holds it is being a card, not having been one. */
-          if (isCard) b.advanced = Object.assign(advancedSeed(b), b.advanced || {}, { on: true });
-          else b.advanced = Object.assign({}, b.advanced || {}, { on: false });
-          paintLayoutPick(b);
-          paintAdvancedFields(b);
-          refresh();
-          split.sync();
-        });
-        pick.appendChild(item);
-      });
-
-      /* A radiogroup of two: arrow keys move the choice, and only the
-         checked option holds the tab stop. */
-      pick.addEventListener('keydown', (e) => {
-        const items = [...pick.querySelectorAll('.layout-pick-item')];
-        const i = items.indexOf(document.activeElement);
-        if (i < 0) return;
-        let to = null;
-        if (e.key === 'ArrowDown' || e.key === 'ArrowRight') to = items[(i + 1) % items.length];
-        if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') to = items[(i - 1 + items.length) % items.length];
-        if (!to) return;
-        e.preventDefault();
-        to.focus();
-        to.click();
-      });
-
-      wrap.appendChild(pick);
+      const note = document.createElement('p');
+      note.className = 'sheet-adv-note';
+      note.setAttribute('data-inspect-phrase', '');
 
       if (!free) {
         /* Taken, and by which button — a limit that will not say what is
            using it leaves the seller hunting for it. */
         const held = BLOCKS.get(advancedHolder());
-        const note = document.createElement('p');
-        note.className = 'sheet-adv-note';
-        note.setAttribute('data-inspect-phrase', '');
-        note.textContent = 'Your plan comes with one card, and ' +
-          (held && held.label ? '\u201c' + held.label + '\u201d' : 'another button') + ' has it.';
-        wrap.appendChild(note);
+        note.textContent = 'Your plan comes with one, and ' +
+          (held && held.label ? '“' + held.label + '”' : 'another button') + ' has it.';
+        const up = document.createElement('button');
+        up.type = 'button';
+        up.className = 'btn btn-secondary btn-sm btn-upgrade';
+        up.setAttribute('data-inspect-label', 'Upgrade — a second advanced button');
+        up.setAttribute('data-inspect-phrase', '');
+        up.innerHTML = CROWN_SVG + 'Upgrade';
+        up.addEventListener('click', () => { window.location.href = PAYWALL; });
+        row.append(label, up);
+        wrapRow.append(row, note);
+        return wrapRow;
       }
 
-      paintLayoutPick(b, pick);
-      return wrap;
-    }
+      note.textContent = 'A bigger button with a picture, a line about it and its own call to action.';
 
-    function paintLayoutPick(b, into) {
-      const pick = into || document.getElementById('editLayoutPick');
-      if (!pick) return;
-      const on = !!(b && b.advanced && b.advanced.on);
-      pick.querySelectorAll('.layout-pick-item').forEach((el) => {
-        const sel = (el.getAttribute('data-layout') === 'featured') === on;
-        el.setAttribute('aria-checked', String(sel));
-        el.tabIndex = sel ? 0 : -1;
-        el.setAttribute('data-inspect-label',
-          sel ? 'Layout option — selected' : 'Layout option — resting');
+      const sw = document.createElement('span');
+      sw.className = 'jui-toggle';
+      sw.innerHTML =
+        '<input type="checkbox" id="editAdvanced" aria-label="Advanced button">' +
+        '<span class="jui-toggle-indicator"><span class="jui-toggle-circle">' +
+        '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+        '<path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>' +
+        '</svg></span></span>';
+      const input = sw.querySelector('input');
+      input.checked = on;
+      input.addEventListener('change', () => {
+        if (!b) return;
+        /* Off keeps what was written. A seller who switches it off to see
+           the plain bar and switches back should not have to type the
+           words again — and the free slot is released either way, because
+           what holds it is being advanced, not having been. */
+        if (input.checked) b.advanced = Object.assign(advancedSeed(b), b.advanced || {}, { on: true });
+        else b.advanced = Object.assign({}, b.advanced || {}, { on: false });
+        paintAdvancedFields(b);
+        refresh();
+        split.sync();
       });
+      row.append(label, sw);
+      wrapRow.append(row, note, advancedFields(b));
+      return wrapRow;
     }
 
-    /* What the card is made of, revealed by picking Featured above. The
-       picture comes first because it is what the shape is mostly buying —
-       the rest the plain button already had in some form.
-
-       No Headline. The card's headline is the button's label, which the
-       field above already asks for; asking twice produced two fields
-       holding the same words, free to drift apart with nothing to say which
-       one the page would use.
+    /* What the card is made of, revealed by the switch above. The picture
+       comes first because it is what the treatment is mostly buying — the
+       other three the plain button already had in some form.
 
        The CTA icon is not here: it is read off what the button points at, a
        calendar for a booking and nothing for the rest. Letting a seller pick
@@ -2015,7 +1921,8 @@
       style.append(styleLabel, seg);
       box.appendChild(style);
 
-      const fieldSet = [['Description', 'meta', 'One line about it', '']];
+      const fieldSet = [['Headline', 'title', 'What it is', b.label || ''],
+       ['Description', 'meta', 'One line about it', '']];
       /* The immersive shape draws an arrow where the others draw a labelled
          bar. Asking for words that will not appear is how a seller ends up
          believing they wrote something the page never showed. */
@@ -2422,7 +2329,7 @@
         fields,
         /* The card the suggestion was shown as is what it becomes — same
            name, same line, same call to action. */
-        advanced: { meta: s.card.meta, cta: s.card.cta, price: s.card.price },
+        advanced: { title: s.card.title, meta: s.card.meta, cta: s.card.cta, price: s.card.price },
       });
     }
 
@@ -3419,7 +3326,7 @@
             openFormDraft((fields) => addBlock({
               label: idea.title, kind: 'form', editor: 'form',
               creating: false, remember: true, review: false, fields,
-              advanced: { meta: idea.detail },
+              advanced: { title: idea.title, meta: idea.detail },
             }));
             return;
           }

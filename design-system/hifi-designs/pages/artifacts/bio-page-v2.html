@@ -1139,6 +1139,15 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
       <span class="bio-contact-btn-label">Email Me</span>
     </span>
+    <!-- Directions, not the map. A pill that opens the seller's address in
+         whichever maps app the visitor has, which is a different thing from
+         the map block further down the page: one is a button, the other is
+         the map itself. The editor's add list has offered both since it was
+         built; this is the one it had nowhere to put. -->
+    <span class="bio-contact-btn" data-action="directions" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.5 2.5 2.5 10.2l8.1 3.2 3.2 8.1z"/></svg>
+      <span class="bio-contact-btn-label">Directions</span>
+    </span>
     <span class="bio-contact-btn" data-action="call" hidden>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.5 12.5a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.41 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
       <span class="bio-contact-btn-label">Call Me</span>
@@ -1452,6 +1461,8 @@
                                        // the button list in the order given;
                                        // each gets id bio-link-<id> so a host
                                        // can highlight one of them
+         socials:[{id:'instagram'|'tiktok'|'facebook'|'youtube'|'linkedin',
+                   label?:string}],   // rebuilds the row in the order given
          footer:'hidden'|'default',    // footer:'hidden' hides socials, Jimdo
                                        // promo, legal + withdraw sections
          title:string,                 // business name shown in the hero
@@ -1467,6 +1478,17 @@
                                        // null clears and returns to the top -->
 
 <script>
+  /* One mark per network the editor can add. The first three are lifted
+     from the dots this page was authored with; the rest are the add list's
+     own, so a network looks the same wherever a seller meets it. */
+  var SOCIAL_MARKS = {
+    instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37Z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>',
+    tiktok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4a4 4 0 0 0 4 4V11a7 7 0 0 1-4-1.3V15a5 5 0 1 1-5-5v3a2 2 0 1 0 2 2V4Z"/></svg>',
+    facebook: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h-2.5A3.5 3.5 0 0 0 9 6.5V9H7v3h2v9h3v-9h2.5l.5-3h-3V6.5a1 1 0 0 1 1-1H15Z"/></svg>',
+    youtube: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="m10 9 5 3-5 3Z"/></svg>',
+    linkedin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 10v7M8 7v.01M12 17v-4a2 2 0 0 1 4 0v4"/></svg>',
+  };
+
   (function () {
     'use strict';
     var lastHighlight = null;
@@ -1486,6 +1508,20 @@
             if (lbl) lbl.textContent = a.label;
           }
         });
+        /* The host's order, not the authored one. These used to be toggled
+           where they stood, so an editor that let the seller drag them
+           moved them in the editor and nowhere else. Appending each shown
+           chip in turn puts them in the order the array gives; the ghost
+           slots stay where they are, and they are hidden whenever a real
+           one exists. */
+        var group = document.getElementById('bio-contact-buttons');
+        if (group) {
+          contact.forEach(function (a) {
+            if (!a.on) return;
+            var chip = group.querySelector('.bio-contact-btn[data-action="' + a.id + '"]');
+            if (chip) group.appendChild(chip);
+          });
+        }
         var row = document.getElementById('bio-contact-row');
         if (row) row.hidden = Object.keys(on).length === 0;
       }
@@ -1701,6 +1737,34 @@
         document.querySelectorAll('#bio-links [data-link="extra"]').forEach(function (b) { b.hidden = true; });
         document.querySelectorAll('#bio-links [data-link="real"]').forEach(function (b) { b.hidden = hide; });
       }
+      /* ── The social row the host actually has ──
+         These were three dots written into the page — Instagram, TikTok,
+         WhatsApp — and the only thing a host could do was show or hide the
+         row. An editor that lets a seller add accounts one at a time had
+         nowhere to put the second one, so adding it changed nothing on the
+         page and nothing in the list. The row is rebuilt from what it is
+         given now, one dot per account, in the order given.
+
+         The authored three stay as the page's own default: opened on its
+         own, with no host, it still looks like a finished page. */
+      if (Array.isArray(d.socials)) {
+        var row = document.getElementById('bio-socials');
+        if (row) {
+          row.innerHTML = '';
+          d.socials.forEach(function (sc) {
+            var mark = SOCIAL_MARKS[sc.id];
+            if (!mark) return;
+            var dot = document.createElement('span');
+            dot.className = 'bio-social-dot';
+            dot.setAttribute('role', 'listitem');
+            dot.setAttribute('aria-label', sc.label || sc.id);
+            dot.innerHTML = mark;
+            row.appendChild(dot);
+          });
+          row.hidden = d.socials.length === 0;
+        }
+      }
+
       if (Array.isArray(d.ghost)) {
         var wants = {};
         d.ghost.forEach(function (g) { wants[g] = true; });
