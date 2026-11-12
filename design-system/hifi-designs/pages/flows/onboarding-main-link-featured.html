@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>onboarding-main-link-featured</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=a965712">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=a965712">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=a965712">
+<style>
+  /* ─── Screen overrides ───
+     scr-482 with the featured button put back: the version for when the
+     advanced-button work has landed. Everything else is that screen's — the
+     same tag, the same pair, the same validation. What differs is the shape
+     the chosen suggestion takes in the preview, and the one line of copy
+     that says why it is worth taking that shape.
+
+     The split frame the tagline step uses, because the argument this version
+     makes is made by the preview rather than by the words: a card with a
+     picture over two thin bars is the difference, and no sentence does that
+     job as well.
+
+     Two things are local. The resting drawer height, measured in the state
+     that needs the most room — the question, the tag, two cards, the
+     validation line and the way to ask again come to 454, and with the
+     handle and the buttons that is 562. 22 more than scr-482 because this
+     subtitle runs to two lines on a phone where that one's runs to one, and
+     the cost lands on the preview: 54px of it at rest, against that step's
+     76. The page is one tap on the handle away, which is the trade every
+     step in this flow makes. If it has to come back, the way is to move
+     "Suggest different ones" onto the tag's row — the control acts on the
+     group, so the group's own line is a fair place for it, and it is worth
+     44px. And the page the frame is cut to:
+     the rich card is the tallest block a bio page carries and it is the one
+     this version is about, so the frame has to hold it *and* the link bar
+     under it. At the earlier steps' 686 the card filled the frame and the
+     thing it sits above fell off the bottom, which is the whole argument
+     lost. Same figure the offer step used. */
+  .app-shell-setup-split {
+    --setup-drawer-rest-h: 566px;
+    --bp-natural-h: 752px;
+  }
+
+  /* The pair and what sits over it, as one block. The tag, the line and the
+     two cards belong together and the column's own gap would set them apart
+     as if they did not — the same argument the Edit links group makes with a
+     container, made here without one: this step has nothing else in the
+     column to be separated from. */
+  .ml-suggest {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-s);
+    width: 100%;
+    flex-shrink: 0;
+  }
+  /* The tag is as wide as the word. A flex column stretches its children,
+     which drew it as a full-width green bar. */
+  .ml-suggest > .tag { align-self: flex-start; }
+</style>
+</head>
+<body>
+
+  <div class="app-shell app-shell-setup-split" id="shell" data-drawer="default">
+
+    <div class="setup-split-header">
+      <button class="setup-back-btn" aria-label="Back" data-no-phrase
+        data-nav-to="flows/onboarding-offer.html" data-nav-screen-id="scr-013">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+      </button>
+
+      <div class="progress-pill" role="progressbar" aria-valuemin="1" aria-valuemax="5" aria-valuenow="5" aria-label="Step 5 of 5">
+        <span class="progress-pill-step is-done"></span>
+        <span class="progress-pill-step is-done"></span>
+        <span class="progress-pill-step is-done"></span>
+        <span class="progress-pill-step is-done"></span>
+        <span class="progress-pill-step is-current"></span>
+      </div>
+
+      <div class="header-spacer"></div>
+    </div>
+
+    <div class="setup-split-main">
+
+      <div class="setup-split-preview">
+        <div class="setup-preview-panel">
+          <span class="setup-preview-tag" data-no-phrase>Preview</span>
+          <div class="bp-stage">
+            <div class="bp-frame">
+              <iframe id="bioPreview" title="Bio page preview" tabindex="-1"
+                src="/flows-prototype/design-system/hifi-designs/pages/artifacts/bio-page-v2.html"></iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-split-form">
+
+        <button class="setup-drawer-grip" id="grip" aria-label="Resize the question panel" data-no-phrase>
+          <span class="setup-drawer-grip-shape"></span>
+        </button>
+
+        <div class="setup-split-fields setup-split-fields--scroll">
+          <div class="setup-split-intro">
+            <!-- The page already has links; what it does not have is a top of
+                 the list. Naming the slot rather than the feature is what lets
+                 the step introduce the paid button class without a product
+                 noun to learn first — "action page" is Jimdo's word, not the
+                 seller's. -->
+            <!-- Named, not described. "Your most important link" is the
+                 human frame and scr-482 keeps it, but this version is about
+                 the treatment, and a seller who cannot tell that a featured
+                 link is what they are being given cannot weigh it. It is
+                 also the word they will meet again in the editor, where the
+                 Layout picker calls it Featured. -->
+            <h1 class="setup-split-title" data-inspect-phrase="">Your featured link</h1>
+            <!-- What it is, then what it buys. Both halves asked for: the
+                 shape on its own did not read as a thing worth having, and
+                 the reason it is worth having is that more people act on it.
+
+                 Said in the seller's words. "Converts" and "conversion rate"
+                 are ours, not theirs (kb/solopreneur/05); "book or ask" is
+                 the pair this step already runs on and is what the two cards
+                 underneath describe. -->
+            <p class="setup-split-subtitle" data-inspect-phrase="">Bigger, with a picture and its own button &mdash; so more people book or ask.</p>
+          </div>
+
+          <div class="ml-suggest">
+
+              <!-- The same tag the Edit links group wears, for the same
+                   reason: everything else a seller meets in this flow is
+                   their own, and this is the product offering something.
+                   Green is what that offer looks like here. -->
+              <span class="tag tag--positive"
+                data-inspect-label="Tag — Positive"
+                data-inspect-tokens='[{"prop":"background","figma":"$jui-color-background-positive-medium","css":"--jui-color-background-positive-medium","value":"#e0faeb"},{"prop":"color","figma":"$jui-color-typography-positive-on-light","css":"--jui-color-typography-positive-on-light","value":"#00260d"},{"prop":"border-radius","figma":"badge/radius","css":"--jui-style-radius-4","value":"4px"}]'
+                data-inspect-phrase="">Suggestions</span>
+
+          <!-- The pair is worked out from the tagline typed one screen back,
+               so the step opens on a wait. Two ghosts, because round one is
+               always one thing people book and one thing they ask about —
+               the words are unknown, the shape is not. Same rule the
+               suggestion group in Edit links runs on. -->
+          <div class="select-card-list" id="pendingList" aria-busy="true"
+            data-inspect-label="Suggestions — still coming">
+            <span class="visually-hidden" data-inspect-phrase="">Working out two ideas…</span>
+            <div class="select-card select-card--pending">
+              <span class="skeleton select-card-ghost-glyph"></span>
+              <span class="select-card-copy">
+                <span class="suggest-ghost-line select-card-ghost-name"><span class="skeleton"></span></span>
+                <span class="suggest-ghost-line"><span class="skeleton"></span></span>
+              </span>
+              <span class="select-card-radio" aria-hidden="true"></span>
+            </div>
+            <div class="select-card select-card--pending">
+              <span class="skeleton select-card-ghost-glyph"></span>
+              <span class="select-card-copy">
+                <span class="suggest-ghost-line select-card-ghost-name"><span class="skeleton"></span></span>
+                <span class="suggest-ghost-line"><span class="skeleton"></span></span>
+              </span>
+              <span class="select-card-radio" aria-hidden="true"></span>
+            </div>
+          </div>
+
+          <!-- Nothing is pre-selected, and Continue waits. The whole of this
+               step is the choice, and a default is the answer most people
+               would leave in place — which here would drop a seller who
+               tapped through into a booking they never asked for. Skip is
+               live the whole time instead: that is the honest way past.
+
+               No best-fit badge. With two cards a mark on one makes the other
+               the worse fit, which is a judgement we cannot ground — and
+               bestFitIndex falling back to 0 and pointing at nothing is
+               already on the record (kno-090, que-034). -->
+          <div class="select-card-list" id="offerList" role="radiogroup"
+            aria-label="Your most important link" hidden
+            data-inspect-label="Select card list"
+            data-inspect-tokens='[{"prop":"gap","figma":"measurements/size/12","css":"--jui-layout-gap-s","value":"12px"},{"prop":"padding","figma":"$jui-layout-padding-m","css":"--jui-layout-padding-m","value":"16px"},{"prop":"border-radius","figma":"$jui-style-radius-l","css":"--jui-style-radius-16","value":"16px"}]'>
+
+            <!-- The label is the thing in the seller's own words; the line
+                 under it is what happens when someone presses it. Why these
+                 two were picked is the step's own subtitle, said once, rather
+                 than twice in small type. -->
+            <button type="button" class="select-card" role="radio" aria-checked="false"
+              data-offer="book" data-edits="offer"
+              data-title="Free intro call" data-meta="Pick a time that suits you" data-cta="Book a time"
+              data-inspect-label="Select card — resting"
+              data-inspect-tokens='[{"prop":"border","figma":"color/gray/100","css":"--jui-color-gray-100","value":"#e6e6e6 2px"},{"prop":"background","figma":"color/gray/white","css":"--jui-color-gray-white","value":"#ffffff"}]'>
+              <span class="select-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M12 8V12L14.5 14.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></span>
+              <span class="select-card-copy">
+                <span class="select-card-label" data-inspect-phrase="">Free intro call</span>
+                <span class="select-card-desc" data-inspect-phrase="">People pick a time that suits them.</span>
+              </span>
+              <span class="select-card-radio" aria-hidden="true"></span>
+            </button>
+
+            <button type="button" class="select-card" role="radio" aria-checked="false"
+              data-offer="form" data-edits="offer"
+              data-title="Private class enquiry" data-meta="" data-cta="Ask about classes"
+              data-inspect-label="Select card — resting">
+              <span class="select-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M11 6L21 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 12L21 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 18L21 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 7.5L4.5 9L8.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 18.5L4.5 20L8.5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span class="select-card-copy">
+                <span class="select-card-label" data-inspect-phrase="">Private class enquiry</span>
+                <span class="select-card-desc" data-inspect-phrase="">People tell you what they need.</span>
+              </span>
+              <span class="select-card-radio" aria-hidden="true"></span>
+            </button>
+          </div>
+
+          <!-- Said when Continue is pressed with nothing picked, under the
+               list rather than beside the button: the answer is missing
+               here, so this is where a reader is sent to fix it. Goes the
+               moment one is picked. -->
+          <div class="inline-alert inline-alert--negative" id="offerError" role="alert" aria-live="polite" hidden
+            data-inspect-label="Validation — nothing picked"
+            data-inspect-tokens='[{"prop":"color","figma":"@jimdo/ui InputError","css":"--jui-color-red-600","value":"#830b08"},{"prop":"gap","figma":"gap xs","css":"--jui-layout-gap-xs","value":"8px"},{"prop":"icon","figma":"Alert02 size s","value":"16px, stroke 1.5"},{"prop":"text","figma":"bodySmallSemibold","value":"14px / 600 / 1.57"}]'>
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M21.6718 17.3965L14.0266 4.1788C13.1175 2.60707 10.8825 2.60707 9.9734 4.1788L2.32819 17.3965C1.40619 18.9905 2.53632 21 4.35479 21H19.6452C21.4637 21 22.5938 18.9905 21.6718 17.3965Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/><path d="M12 16H12.009" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M12 9V13" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+            <span class="inline-alert-text" data-inspect-phrase="">Pick one to continue.</span>
+          </div>
+
+          <!-- Both of these are guesses about someone else's business. The way
+               to disagree with a guess is to ask for another one — without it
+               a seller whose two ideas are both wrong has only Skip, and Skip
+               is how the page ends up with nothing to act on. -->
+          <button type="button" class="regen regen--smart" id="regenSuggest" data-busy="true" hidden
+            aria-disabled="true"
+            data-inspect-label="Suggest different ones — smart"
+            data-inspect-tokens='[{"prop":"label","figma":"@jimdo/ui smartSecondaryButton","css":"--jui-gradient-smart","value":"gradient 111deg blue-500 → red-300 → yellow-300"},{"prop":"icon","figma":"reload","css":"--jui-color-blue-500","value":"16px #004ced"}]'
+            data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="smartRegenMainLink" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><path d="M14.5 1.99976L15.5 4.54791C14.3079 3.91092 12.9461 3.5498 11.5 3.5498C6.80558 3.5498 3 7.35538 3 12.0498C3 13.8409 3.554 15.6294 4.5 16.9998" stroke="url(#smartRegenMainLink)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M8.5 21.9997L7.5 19.4516C8.69215 20.0885 10.0539 20.4497 11.5 20.4497C16.1944 20.4497 20 16.6441 20 11.9497C20 10.1585 19.446 8.37009 18.5 6.99976" stroke="url(#smartRegenMainLink)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span class="regen-label">Suggest different ones</span></button>
+
+          </div>
+
+        </div>
+
+        <!-- Skip goes where Continue goes. Nothing is lost by refusing: the
+             same two ideas are in the suggestion group on the next screen,
+             just without a screen of their own. This step promotes the offer,
+             it does not gate it. -->
+        <div class="setup-split-actions">
+          <button class="btn btn-secondary"
+            data-inspect-phrase="questionaire.skipCta"
+            data-nav-to="flows/bio-page-links-edit-onboarding.html"
+            data-nav-screen-id="scr-477">Skip</button>
+          <!-- Live from the start. A greyed button is a dead end that will
+               not say why: the seller presses it, nothing happens, and
+               nothing on screen explains what is missing. It answers
+               instead, under the list where the answer belongs. -->
+          <button class="btn btn-primary" id="offerContinue"
+            aria-describedby="offerError"
+            data-inspect-label="Primary Button — Continue"
+            data-inspect-tokens='[{"prop":"background","figma":"color/actions/primary/rest","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"height","figma":"layout/dimension/m","css":"--jui-layout-dimension-m","value":"48px"},{"prop":"border-radius","figma":"component/button/radius","css":"--jui-component-button-radius","value":"8px"}]'
+            data-inspect-phrase="questionaire.cta"
+            data-trigger="primary-cta">Continue</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- The shape a booking takes, before its setup. loops-frontend's
+       BookingTypeModal, which takes the two cards in turn from the Bookings
+       event setup — same structure, same illustrations, same copy — so the
+       one choice looks the same in both products. Carried here verbatim from
+       the Edit links screen, which opens the same sheet from the same
+       suggestion. -->
+  <div class="sheet-backdrop" id="typeSheet" data-open="false" role="dialog" aria-modal="true" aria-labelledby="typeSheetTitle">
+    <div class="sheet">
+      <!-- No back arrow. Edit links opens this sheet out of the add list and
+           has a level to return to; here there is nothing above it, and an
+           arrow beside the close that does the same thing is two ways out
+           drawn as two different promises. -->
+      <div class="sheet-head">
+        <p class="sheet-title" id="typeSheetTitle" data-inspect-phrase="">Create booking</p>
+        <button type="button" class="setup-back-btn" id="typeClose" aria-label="Close" data-no-phrase><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+      </div>
+      <div class="sheet-body">
+        <p class="sheet-copy" data-inspect-phrase="">What type of event is this?</p>
+        <div class="type-card-grid" role="radiogroup" aria-label="What type of event is this?"
+          data-inspect-label="Booking type cards"
+          data-inspect-tokens='[{"prop":"card","figma":"Bookings event setup","css":"--jui-style-radius-m","value":"radius-m, 16 padding, 1px stroke-gray-default"},{"prop":"selected","css":"--jui-color-background-primary-light","value":"#eff0ff + stroke-primary-on-light, with a 0.5px ring"},{"prop":"illustration","value":"3.5rem tall, the Bookings artwork verbatim"}]'>
+            <label class="type-card">
+              <span class="type-card-head">
+                <span class="type-card-illustration" aria-hidden="true"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 278 101' width='278' height='101' fill='none'><g clip-path='url(#fs-a)' filter='url(#fs-b)'><rect width='230' height='72.871' x='16' y='12' fill='#fff' rx='3' shape-rendering='crispEdges'/><rect width='229.8' height='72.671' x='16.1' y='12.1' stroke='#E6E6E6' stroke-width='.2' rx='2.9' shape-rendering='crispEdges'/><path fill='#E6E6E6' d='M24 22.667A2.667 2.667 0 0 1 26.667 20h21.81a2.667 2.667 0 0 1 2.666 2.667v2.666A2.667 2.667 0 0 1 48.476 28h-21.81A2.667 2.667 0 0 1 24 25.333v-2.666ZM55.143 22.667A2.667 2.667 0 0 1 57.81 20h21.81a2.667 2.667 0 0 1 2.666 2.667v2.666A2.667 2.667 0 0 1 79.619 28H57.81a2.667 2.667 0 0 1-2.666-2.667v-2.666ZM86.286 22.667A2.667 2.667 0 0 1 88.952 20h21.81a2.667 2.667 0 0 1 2.667 2.667v2.666A2.667 2.667 0 0 1 110.762 28h-21.81a2.667 2.667 0 0 1-2.666-2.667v-2.666ZM117.429 22.667A2.667 2.667 0 0 1 120.095 20h21.81a2.667 2.667 0 0 1 2.667 2.667v2.666A2.667 2.667 0 0 1 141.905 28h-21.81a2.667 2.667 0 0 1-2.666-2.667v-2.666ZM148.571 22.667A2.667 2.667 0 0 1 151.238 20h21.809a2.667 2.667 0 0 1 2.667 2.667v2.666A2.667 2.667 0 0 1 173.047 28h-21.809a2.667 2.667 0 0 1-2.667-2.667v-2.666ZM179.714 22.667A2.667 2.667 0 0 1 182.381 20h21.81a2.667 2.667 0 0 1 2.666 2.667v2.666A2.667 2.667 0 0 1 204.191 28h-21.81a2.667 2.667 0 0 1-2.667-2.667v-2.666ZM210.857 22.667A2.667 2.667 0 0 1 213.524 20h21.809A2.667 2.667 0 0 1 238 22.667v2.666A2.667 2.667 0 0 1 235.333 28h-21.809a2.667 2.667 0 0 1-2.667-2.667v-2.666ZM24 34.667A2.667 2.667 0 0 1 26.667 32h21.81a2.667 2.667 0 0 1 2.666 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.81A2.667 2.667 0 0 1 24 74.205V34.667ZM55.143 34.667A2.667 2.667 0 0 1 57.81 32h21.81a2.667 2.667 0 0 1 2.666 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666H57.81a2.667 2.667 0 0 1-2.666-2.666V34.667ZM86.286 34.667A2.667 2.667 0 0 1 88.952 32h21.81a2.667 2.667 0 0 1 2.667 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.81a2.667 2.667 0 0 1-2.666-2.666V34.667ZM117.429 34.667A2.667 2.667 0 0 1 120.095 32h21.81a2.667 2.667 0 0 1 2.667 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.81a2.667 2.667 0 0 1-2.666-2.666V34.667ZM148.571 34.667A2.667 2.667 0 0 1 151.238 32h21.809a2.667 2.667 0 0 1 2.667 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.809a2.667 2.667 0 0 1-2.667-2.666V34.667ZM179.714 34.667A2.667 2.667 0 0 1 182.381 32h21.81a2.667 2.667 0 0 1 2.666 2.667v39.538a2.667 2.667 0 0 1-2.666 2.666h-21.81a2.667 2.667 0 0 1-2.667-2.666V34.667ZM210.857 34.667A2.667 2.667 0 0 1 213.524 32h21.809A2.667 2.667 0 0 1 238 34.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.809a2.667 2.667 0 0 1-2.667-2.666V34.667Z'/><rect width='23.143' height='5.625' fill='#66D999' rx='2' transform='matrix(1 0 0 -1 26 43.245)'/><rect width='23.143' height='5.625' fill='#66D999' rx='2' transform='matrix(1 0 0 -1 150.571 43.245)'/><path fill='#66D999' d='M88.286 63.745a2 2 0 0 0 2 2h19.143a2 2 0 0 0 2-2V62.12a2 2 0 0 0-2-2H90.286a2 2 0 0 0-2 2v1.625Z'/></g><defs><clipPath id='fs-a'><path fill='#fff' d='M0 0h278v100.871H0z'/></clipPath><filter id='fs-b' width='251.333' height='94.205' x='5.333' y='6.667' color-interpolation-filters='sRGB' filterUnits='userSpaceOnUse'><feFlood flood-opacity='0' result='BackgroundImageFix'/><feColorMatrix in='SourceAlpha' result='hardAlpha' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0'/><feOffset dy='5.333'/><feGaussianBlur stdDeviation='5.333'/><feComposite in2='hardAlpha' operator='out'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.14 0'/><feBlend in2='BackgroundImageFix' result='effect1_dropShadow_1955_26473'/><feBlend in='SourceGraphic' in2='effect1_dropShadow_1955_26473' result='shape'/></filter></defs></svg></span>
+                <input type="radio" name="booking-type" value="fixedSession" aria-label="Fixed session" data-no-phrase>
+              </span>
+              <span class="type-card-copy">
+                <span class="type-card-label" data-no-phrase>Fixed session</span>
+                <span class="type-card-hint" data-no-phrase>Create sessions with a fixed date and let people sign up.</span>
+              </span>
+            </label>
+            <label class="type-card">
+              <span class="type-card-head">
+                <span class="type-card-illustration" aria-hidden="true"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 278 101' width='278' height='101' fill='none'><g clip-path='url(#os-a)' filter='url(#os-b)'><rect width='230' height='72.871' x='16' y='12' fill='#fff' rx='3' shape-rendering='crispEdges'/><rect width='229.8' height='72.671' x='16.1' y='12.1' stroke='#E6E6E6' stroke-width='.2' rx='2.9' shape-rendering='crispEdges'/><path fill='#E6E6E6' d='M24 22.667A2.667 2.667 0 0 1 26.667 20h21.81a2.667 2.667 0 0 1 2.666 2.667v2.666A2.667 2.667 0 0 1 48.476 28h-21.81A2.667 2.667 0 0 1 24 25.333v-2.666ZM55.143 22.667A2.667 2.667 0 0 1 57.81 20h21.81a2.667 2.667 0 0 1 2.666 2.667v2.666A2.667 2.667 0 0 1 79.619 28H57.81a2.667 2.667 0 0 1-2.666-2.667v-2.666ZM86.286 22.667A2.667 2.667 0 0 1 88.952 20h21.81a2.667 2.667 0 0 1 2.667 2.667v2.666A2.667 2.667 0 0 1 110.762 28h-21.81a2.667 2.667 0 0 1-2.666-2.667v-2.666ZM117.429 22.667A2.667 2.667 0 0 1 120.095 20h21.81a2.667 2.667 0 0 1 2.667 2.667v2.666A2.667 2.667 0 0 1 141.905 28h-21.81a2.667 2.667 0 0 1-2.666-2.667v-2.666ZM148.571 22.667A2.667 2.667 0 0 1 151.238 20h21.809a2.667 2.667 0 0 1 2.667 2.667v2.666A2.667 2.667 0 0 1 173.047 28h-21.809a2.667 2.667 0 0 1-2.667-2.667v-2.666ZM179.714 22.667A2.667 2.667 0 0 1 182.381 20h21.81a2.667 2.667 0 0 1 2.666 2.667v2.666A2.667 2.667 0 0 1 204.191 28h-21.81a2.667 2.667 0 0 1-2.667-2.667v-2.666ZM210.857 22.667A2.667 2.667 0 0 1 213.524 20h21.809A2.667 2.667 0 0 1 238 22.667v2.666A2.667 2.667 0 0 1 235.333 28h-21.809a2.667 2.667 0 0 1-2.667-2.667v-2.666Z'/><path fill='#66D999' d='M24 34.667A2.667 2.667 0 0 1 26.667 32h21.81a2.667 2.667 0 0 1 2.666 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.81A2.667 2.667 0 0 1 24 74.205V34.667ZM55.143 34.667A2.667 2.667 0 0 1 57.81 32h21.81a2.667 2.667 0 0 1 2.666 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666H57.81a2.667 2.667 0 0 1-2.666-2.666V34.667ZM86.286 34.667A2.667 2.667 0 0 1 88.952 32h21.81a2.667 2.667 0 0 1 2.667 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.81a2.667 2.667 0 0 1-2.666-2.666V34.667ZM117.429 34.667A2.667 2.667 0 0 1 120.095 32h21.81a2.667 2.667 0 0 1 2.667 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.81a2.667 2.667 0 0 1-2.666-2.666V34.667ZM148.571 34.667A2.667 2.667 0 0 1 151.238 32h21.809a2.667 2.667 0 0 1 2.667 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.809a2.667 2.667 0 0 1-2.667-2.666V34.667Z'/><path fill='#E6E6E6' d='M179.714 34.667A2.667 2.667 0 0 1 182.381 32h21.81a2.667 2.667 0 0 1 2.666 2.667v39.538a2.667 2.667 0 0 1-2.666 2.666h-21.81a2.667 2.667 0 0 1-2.667-2.666V34.667ZM210.857 34.667A2.667 2.667 0 0 1 213.524 32h21.809A2.667 2.667 0 0 1 238 34.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.809a2.667 2.667 0 0 1-2.667-2.666V34.667Z'/></g><defs><clipPath id='os-a'><path fill='#fff' d='M0 0h278v100.871H0z'/></clipPath><filter id='os-b' width='251.333' height='94.205' x='5.333' y='6.667' color-interpolation-filters='sRGB' filterUnits='userSpaceOnUse'><feFlood flood-opacity='0' result='BackgroundImageFix'/><feColorMatrix in='SourceAlpha' result='hardAlpha' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0'/><feOffset dy='5.333'/><feGaussianBlur stdDeviation='5.333'/><feComposite in2='hardAlpha' operator='out'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.14 0'/><feBlend in2='BackgroundImageFix' result='effect1_dropShadow_1955_26496'/><feBlend in='SourceGraphic' in2='effect1_dropShadow_1955_26496' result='shape'/></filter></defs></svg></span>
+                <input type="radio" name="booking-type" value="openSlot" checked aria-label="Open slot" data-no-phrase>
+              </span>
+              <span class="type-card-copy">
+                <span class="type-card-label" data-no-phrase>Open slot</span>
+                <span class="type-card-hint" data-no-phrase>Tell people when you’re free and let them book a slot with you.</span>
+              </span>
+            </label>
+        </div>
+      </div>
+      <div class="sheet-actions sheet-actions--end">
+        <button type="button" class="btn btn-primary" id="typeContinue"
+          data-inspect-phrase=""
+          data-nav-to="flows/bio-page-links-edit-onboarding.html"
+          data-nav-screen-id="scr-477">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- The form, written and then handed over. Setting up a form is the one
+       idea where the work is done for the seller rather than asked of them,
+       so the answer to "continue" is the thing itself, not a form about the
+       form — and once it is on screen the thing to do with it is change it.
+
+       The same three panels Edit links carries, because it is the same sheet:
+       a seller meets it here while the form is being written and again from
+       the row it lands in, and two editors for one object is two things to
+       keep in step and two things to learn. Markup and behaviour are ported
+       from bio-page-links-edit-onboarding.html rather than re-invented. -->
+  <div class="sheet-backdrop" id="formSheet" data-open="false" role="dialog" aria-modal="true" aria-labelledby="formSheetTitle">
+    <div class="sheet sheet--drawer" data-grip="expanded">
+      <!-- The same grip the step's own drawer carries, on the sheet that
+           covers it. It opens at its full height, so the only move it can
+           offer is down — and down is out. Phone only: on a wide screen the
+           sheet is a centred square with nothing to drag. -->
+      <button type="button" class="setup-drawer-grip" id="formGrip" aria-label="Close the form" data-no-phrase>
+        <span class="setup-drawer-grip-shape"></span>
+      </button>
+      <div class="sheet-head">
+        <button type="button" class="setup-back-btn add-head-back" id="formBack" aria-label="Back" data-no-phrase hidden><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+        <p class="sheet-title" id="formSheetTitle" data-no-phrase>Edit form</p>
+        <!-- Beside the title on a wide screen, and above the list on a phone
+             — the head has room for a title and a close at 390 and no more.
+             Moved by placeFormAdd(), the way Edit links moves it. -->
+        <button type="button" class="btn btn-secondary btn-sm" id="formAdd" hidden
+          data-inspect-label="Secondary Button — Add question, Size=Small"
+          data-inspect-tokens='[{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px"},{"prop":"border","figma":"$jui-color-stroke-primary-on-light","css":"--jui-color-stroke-primary-on-light","value":"1px #b4c4ff"}]'
+          data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 4V20M20 12H4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span>Add question</span></button>
+        <button type="button" class="setup-back-btn" id="formClose" aria-label="Close" data-no-phrase><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
+      </div>
+      <div class="sheet-body">
+        <!-- The sheet opens on the wait, because the form it describes does
+             not exist yet. See .sheet-busy. -->
+        <div class="sheet-busy" id="formBusy" data-inspect-label="Form — being written">
+          <span class="ai-suggest-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <p class="sheet-busy-copy" data-inspect-phrase="">Writing the questions people will answer…</p>
+        </div>
+
+        <!-- Figma 3029:31429. One card per question: the kind as its own
+             control, the wording, and the choices under it. One opens at a
+             time; the rest stay readable. -->
+        <div class="sheet-form" data-form-view="edit">
+          <!-- The one line this sheet carries that Edit links does not. It
+               is the first form the seller has ever been handed, and without
+               it a list of four questions they did not write is a list of
+               four questions they did not write. It stays on this level
+               rather than going once they have read it: a line that vanishes
+               depending on where you have been is a surprise, and the second
+               half of it is still true on the tenth visit. -->
+          <p class="sheet-copy" data-inspect-phrase="">These are the questions people will answer. Change anything you like.</p>
+          <!-- Where Add question lands on a phone. Above the list, not under
+               it: the list is as long as the seller makes it, and a button at
+               its foot is a button that walks off the bottom of the sheet. -->
+          <div class="form-add-host" id="formAddHost"></div>
+          <ol class="form-q-list" id="formFields" data-drag-list
+            data-inspect-label="Form questions"
+            data-inspect-tokens='[{"prop":"card radius","figma":"style/radius/8 (old)","css":"--jui-style-radius-12","value":"12px — remapped to the current scale"},{"prop":"choice radius","figma":"style/radius/2 (old)","css":"--jui-style-radius-8","value":"8px — remapped"},{"prop":"padding","figma":"16 sides / 12 ends","css":"--jui-layout-padding-m / -s","value":"16px / 12px"},{"prop":"open border","figma":"color/blue/400","css":"--jui-color-blue-400","value":"1px #336bff"},{"prop":"open shadow","figma":"on-light-shadow-lvl-1","css":"--jui-effects-on-light-shadow-lvl-1","value":"0 4px 8px #00000024"},{"note":"Five pickable kinds, from CanvasFormField in loops-frontend: text, textarea, email, radio, checkbox-group. The consent question is locked."}]'></ol>
+        </div>
+
+        <!-- One question, a level down. The row opens it; the head's back
+             arrow returns to the list; the footer carries what this level
+             can do to the question. -->
+        <div class="sheet-form form-q-panel" data-form-view="question" hidden
+          data-inspect-label="Question editor"
+          data-inspect-tokens='[{"note":"Reached from the row body, the way PageLinkRow opens the link editor in loops-frontend (PR #2606)."}]'>
+          <span class="form-q-kind" id="formQKind" data-no-phrase></span>
+          <div class="sheet-form" id="formQFields"></div>
+        </div>
+
+        <!-- Figma 3029:31425. Picking what a new question takes, as a panel
+             of controls rather than a list of words. -->
+        <div class="sheet-form" data-form-view="pick" hidden>
+          <p class="sheet-copy" data-inspect-phrase="">What should people answer with?</p>
+          <div class="form-kind-list" id="formKinds"
+            data-inspect-label="Question kinds"
+            data-inspect-tokens='[{"prop":"row height","figma":"$jui-layout-dimension-m","css":"--jui-layout-dimension-m","value":"48px"},{"prop":"icon","figma":"16px","css":"--jui-color-typography-gray-on-light-default","value":"16px, stroke 1.5"},{"prop":"radius","figma":"button/radius 2 (old)","css":"--jui-style-radius-8","value":"8px — remapped"}]'></div>
+        </div>
+      </div>
+      <div class="sheet-actions sheet-actions--end">
+        <!-- A level down has its own way out. Hiding the row entirely left
+             the picker with 300px of white under a five-item list and no
+             control at the foot, which reads as an unfinished panel. -->
+        <button type="button" class="btn btn-secondary" id="formPickBack" hidden data-inspect-phrase="">Back</button>
+        <!-- This level's own actions, about the question rather than the
+             form. Delete is not confirmed, which matches the link editor's
+             own Delete button in loops-frontend. -->
+        <button type="button" class="btn btn-subtle" id="formQDelete" hidden data-inspect-phrase="">Delete question</button>
+        <button type="button" class="btn btn-secondary" id="formQDone" hidden data-inspect-phrase="">Done</button>
+        <button type="button" class="btn btn-secondary" id="formCancel" data-inspect-phrase="">Cancel</button>
+        <!-- Not "Done". This is the one press that puts the thing on the
+             page, and it is the step's commit as well as the sheet's — which
+             is why the navigation hangs here. -->
+        <button type="button" class="btn btn-primary" id="formDone"
+          data-inspect-phrase=""
+          data-nav-to="flows/bio-page-links-edit-onboarding.html"
+          data-nav-screen-id="scr-477">Add to my page</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=a965712"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=a965712"></script>
+  <script type="module">
+    import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
+    import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
+
+    /* Once. The handler sits on the <ol>, which survives every re-render —
+       the rows under it are what get replaced. Re-arming it per render would
+       stack one listener per draw and carry each row several places at once. */
+    initDragList(document);
+
+    const pendingList = document.getElementById('pendingList');
+    const offerList = document.getElementById('offerList');
+    const regen = document.getElementById('regenSuggest');
+    const next = document.getElementById('offerContinue');
+    const error = document.getElementById('offerError');
+    const cards = [...offerList.querySelectorAll('.select-card')];
+
+    let picked = null;
+
+    /* data-offer says which sheet Continue opens; the artifact's own card
+       takes one of book / pay / promo, and 'promo' is the shape with no
+       calendar icon and no price — which is what an enquiry is. Two
+       vocabularies, one line to cross between them, rather than a value the
+       artifact does not document quietly landing in the right branch. */
+    const ARTIFACT_KIND = { book: 'book', form: 'promo' };
+
+    /* ── The preview ───────────────────────────────────────────────────
+       The step's argument, drawn rather than said. Before a choice the
+       page carries a ghost of the rich card above a ghost of a plain link
+       bar, which is the hierarchy the title names; picking a card fills
+       the top one in. The link ghost stays either way, because a top of
+       the list needs a list under it to be the top of.
+
+       The page is still a name, a photo and a tagline at this point;
+       everything else stands in as a shape. */
+    const split = initSetupSplit({
+      state: () => ({
+        title: 'Clara and Stone',
+        subtitle: 'Yoga and mindfulness workshops for women',
+        image: 'photo',
+        contact: [],
+        /* The card, not the bar. This is the whole of what this version
+           adds, and it is why the preview is here: the subtitle can say a
+           picture helps, but the seller only believes it once their own
+           page is showing one.
+
+           Off but loaded before a choice is made, with the taller of the
+           two shapes in it, so the ghost is the height of what arrives and
+           nothing below it steps when a card is picked. */
+        offer: picked
+          ? {
+              on: true,
+              kind: ARTIFACT_KIND[picked.dataset.offer],
+              title: picked.dataset.title,
+              meta: picked.dataset.meta,
+              cta: picked.dataset.cta,
+              price: '',
+            }
+          : { on: false, kind: 'book', title: cards[0].dataset.title,
+              meta: cards[0].dataset.meta, cta: cards[0].dataset.cta, price: '' },
+        /* The bar under the card stays a ghost either way: a top of the list
+           needs a list under it to be the top of. */
+        ghost: picked
+          ? ['contact', 'mainlink', 'socials']
+          : ['offer', 'contact', 'mainlink', 'socials'],
+      }),
+    });
+
+    /* ── Picking one ───────────────────────────────────────────────────
+       A radiogroup of two: click or arrow-key to move the choice, and the
+       way forward opens as soon as there is one. Only the checked card is
+       in the tab order, which is what a radiogroup does — with nothing
+       checked yet the first card holds the tab stop so the group is still
+       reachable. */
+    function select(card, opts) {
+      picked = card;
+      cards.forEach((c) => {
+        const isSel = c === card;
+        c.setAttribute('aria-checked', isSel ? 'true' : 'false');
+        c.tabIndex = isSel ? 0 : -1;
+        c.setAttribute('data-inspect-label', isSel ? 'Select card — selected' : 'Select card — resting');
+      });
+      error.hidden = true;
+      offerList.removeAttribute('aria-invalid');
+      if (opts && opts.focus) card.focus();
+      split.sync();
+    }
+
+    cards.forEach((c, i) => { c.tabIndex = i === 0 ? 0 : -1; });
+    cards.forEach((card) => card.addEventListener('click', () => select(card)));
+
+    offerList.addEventListener('keydown', (e) => {
+      const i = cards.indexOf(document.activeElement);
+      if (i < 0) return;
+      let to = null;
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') to = cards[(i + 1) % cards.length];
+      if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') to = cards[(i - 1 + cards.length) % cards.length];
+      if (e.key === 'Home') to = cards[0];
+      if (e.key === 'End') to = cards[cards.length - 1];
+      if (!to) return;
+      e.preventDefault();
+      select(to, { focus: true });
+    });
+
+    /* ── The wait ──────────────────────────────────────────────────────
+       Hardcoded, like the pair itself. In the product these are written
+       from what the seller said they do; here the delay is what stands in
+       for that, and it is the reason the step reads as about them rather
+       than as a menu. Regenerate holds its line through the wait instead
+       of vanishing, so nothing below it steps down when the pair lands. */
+    const THINK_MS = 1400;
+
+    /* The capture is of the step, not of its first second and a half. The
+       screenshotter holds for this pair of flags (data/scripts/screenshot.js,
+       PAGE_SETTLE_FN) and a page that did not raise them would be filed in
+       the funnel simulator as two grey bars. */
+    window.__screenshotPending = true;
+
+    function land() {
+      pendingList.hidden = true;
+      pendingList.removeAttribute('aria-busy');
+      offerList.hidden = false;
+      regen.hidden = false;
+      regen.setAttribute('data-busy', 'false');
+      regen.removeAttribute('aria-disabled');
+      window.__screenshotReady = true;
+    }
+
+    function think() {
+      pendingList.hidden = false;
+      pendingList.setAttribute('aria-busy', 'true');
+      offerList.hidden = true;
+      regen.hidden = false;
+      regen.setAttribute('data-busy', 'true');
+      regen.setAttribute('aria-disabled', 'true');
+      window.setTimeout(land, THINK_MS);
+    }
+
+    /* Asking again clears the choice with it: the cards the answer pointed
+       at are gone, so a selection that survived them would be pointing at
+       whatever landed in the same slot. */
+    const ROUNDS = [
+      [
+        { offer: 'book', title: 'Free intro call', meta: 'Pick a time that suits you', cta: 'Book a time',
+          label: 'Free intro call', desc: 'People pick a time that suits them.' },
+        { offer: 'form', title: 'Private class enquiry', meta: '', cta: 'Ask about classes',
+          label: 'Private class enquiry', desc: 'People tell you what they need.' },
+      ],
+      [
+        { offer: 'book', title: 'Saturday morning class', meta: 'Sat 10 May · 09:00', cta: 'Save me a mat',
+          label: 'Saturday morning class', desc: 'People sign up for a date you set.' },
+        { offer: 'form', title: 'Workshop waiting list', meta: '', cta: 'Tell me the next date',
+          label: 'Workshop waiting list', desc: 'People leave their email for the next date.' },
+      ],
+      [
+        { offer: 'book', title: 'One-to-one session', meta: 'Pick a time that suits you', cta: 'Book a session',
+          label: 'One-to-one session', desc: "People choose from the times you're free." },
+        { offer: 'form', title: 'Ask about corporate classes', meta: '', cta: 'Get in touch',
+          label: 'Ask about corporate classes', desc: 'Bigger jobs start with a question.' },
+      ],
+    ];
+    let round = 0;
+
+    regen.addEventListener('click', () => {
+      if (regen.getAttribute('aria-disabled') === 'true') return;
+      round += 1;
+      picked = null;
+      /* A fresh pair is a fresh question, not a failed answer. */
+      error.hidden = true;
+      offerList.removeAttribute('aria-invalid');
+      const set = ROUNDS[round % ROUNDS.length];
+      cards.forEach((card, i) => {
+        const s = set[i];
+        card.dataset.offer = s.offer;
+        card.dataset.title = s.title;
+        card.dataset.meta = s.meta;
+        card.dataset.cta = s.cta;
+        card.querySelector('.select-card-label').textContent = s.label;
+        card.querySelector('.select-card-desc').textContent = s.desc;
+        card.setAttribute('aria-checked', 'false');
+        card.setAttribute('data-inspect-label', 'Select card — resting');
+        card.tabIndex = i === 0 ? 0 : -1;
+      });
+      split.sync();
+      think();
+    });
+
+    think();
+
+    /* ── Continue ──────────────────────────────────────────────────────
+       One button, two destinations, decided by what is selected: a booking
+       has a shape to pick before it can be made, and a form is written and
+       shown back. Both end on the Edit links screen with the thing already
+       on the page — which is why the navigation hangs off the sheets'
+       own buttons rather than off this one. */
+    const typeSheet = document.getElementById('typeSheet');
+    const formSheet = document.getElementById('formSheet');
+    const formList = document.getElementById('formFields');
+
+    const openSheet = (el) => el.setAttribute('data-open', 'true');
+    const closeSheet = (el) => el.setAttribute('data-open', 'false');
+
+    next.addEventListener('click', () => {
+      if (!picked) {
+        /* Say what is missing and send them to it. role="alert" on the line
+           means a screen reader hears it without the focus move doing the
+           announcing. */
+        error.hidden = false;
+        offerList.setAttribute('aria-invalid', 'true');
+        cards[0].focus();
+        return;
+      }
+      if (picked.dataset.offer === 'book') openSheet(typeSheet);
+      else openForm();
+    });
+
+    /* Leaving the booking sheet comes back here rather than going on: the
+       seller has not made anything yet, and the choice they left is still on
+       screen behind it. */
+    document.getElementById('typeClose')
+      .addEventListener('click', () => closeSheet(typeSheet));
+    typeSheet.addEventListener('click', (e) => { if (e.target === typeSheet) closeSheet(typeSheet); });
+
+    /* ══ The form editor ══════════════════════════════════════════════
+       Three panels in one sheet, ported from the Edit links screen rather
+       than written again: reading the form is the default, a row goes a
+       level down to change one question, and Add question goes one lower
+       still to say what kind. The back arrow follows.
+
+       It is the same sheet in both places on purpose. A seller meets it
+       here while the form is being written and again from the row it lands
+       in, and two editors for one object is two things to learn and two
+       things to keep in step.
+
+       The kinds are production's own, read off CanvasFormField in
+       loops-frontend (Flow/Preview/Carousel/utils/transformer.ts) rather
+       than invented: text, textarea, email, radio, checkbox-group,
+       checkbox. radio and checkbox-group are the two that carry choices.
+
+       NOT here, deliberately: the frame's menu also offers Phone number
+       and File upload. CanvasFormField has no type for either, so offering
+       them would be drawing a capability the backend does not have.
+       ══════════════════════════════════════════════════════════════════ */
+
+    const formTitle = document.getElementById('formSheetTitle');
+    const formBack = document.getElementById('formBack');
+    const formAddBtn = document.getElementById('formAdd');
+    const formKinds = document.getElementById('formKinds');
+    const formActions = document.querySelector('#formSheet .sheet-actions');
+    const formPickBack = document.getElementById('formPickBack');
+    const formQDelete = document.getElementById('formQDelete');
+    const formQDone = document.getElementById('formQDone');
+    const formQKind = document.getElementById('formQKind');
+    const formQFields = document.getElementById('formQFields');
+    const formDoneBtn = document.getElementById('formDone');
+    const formCancelBtn = document.getElementById('formCancel');
+    const formViews = [...document.querySelectorAll('[data-form-view]')];
+
+    /* The icons are the frame's. Figma 3029:31425 draws each kind as the
+       control the visitor will be given, which is how a seller recognises
+       one without reading it — and the path data comes from @jimdo/ui's
+       StrokeStandard set rather than being redrawn. */
+    const FIELD_ICONS = {
+      'text': '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 5.5V4H13V5.5M8 4V17M6 17H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 9H21M18.5 9V20M17 20H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+      'textarea': '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 5L16 5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12L20 12" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 19L12 19" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>',
+      'email': '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="m22 7-10 5L2 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+      'radio': '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>',
+      'checkbox-group': '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M21.5 4.5V19.5C21.5 20.6046 20.6046 21.5 19.5 21.5H4.5C3.39543 21.5 2.5 20.6046 2.5 19.5V4.5C2.5 3.39543 3.39543 2.5 4.5 2.5H19.5C20.6046 2.5 21.5 3.39543 21.5 4.5Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/><path d="M8.5 12.5L11 15L16 9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>',
+      'checkbox': '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M11.5 20H2C2 16.134 5.13401 13 9 13H11C12.275 13 13.4704 13.3409 14.5 13.9365M14 6C14 8.20914 12.2091 10 10 10C7.79086 10 6 8.20914 6 6C6 3.79086 7.79086 2 10 2C12.2091 2 14 3.79086 14 6Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M14.5 17.5L17 20L22 14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>',
+    };
+    const TRASH_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3M6 7l.9 13.1A2 2 0 0 0 8.9 22h6.2a2 2 0 0 0 2-1.9L18 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const KEBAB_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>';
+    const PEN_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const GRIPV_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>';
+    const PLUS_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 4V20M20 12H4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>';
+
+    /* The labels are not the frame's "Single select" / "Multi select".
+       Picking what a question takes is not picking a widget, so the list
+       says what the person answering will do. */
+    const FIELD_KINDS = [
+      { type: 'text',           label: 'Short answer' },
+      { type: 'textarea',       label: 'Long answer' },
+      { type: 'email',          label: 'Email address' },
+      { type: 'radio',          label: 'Choose one',     options: true },
+      { type: 'checkbox-group', label: 'Choose several', options: true },
+      { type: 'checkbox',       label: 'Yes or no' },
+    ];
+    const KIND_TAKES_OPTIONS = (t) =>
+      FIELD_KINDS.some((k) => k.type === t && k.options);
+    const kindLabel = (t) => (FIELD_KINDS.find((k) => k.type === t) || FIELD_KINDS[0]).label;
+    const kindIcon  = (t) => FIELD_ICONS[t] || FIELD_ICONS.text;
+
+    /* What the product writes when it writes a form. The consent question
+       is the one the seller cannot change.
+       ASSUMPTION, flagged rather than buried: a form collecting a name and
+       an email needs a consent tick, so it is not the seller's to delete or
+       re-word. Worth confirming with whoever owns forms — if consent is
+       handled elsewhere, this becomes an ordinary question like the rest. */
+    const FORM_DEFAULT = [
+      { label: 'Name', type: 'text', required: true },
+      /* `fixed`, not `locked`. The rule is production's, from the smart form
+         generation prompt: "There MUST ALWAYS be a field named 'email' in
+         the form." Always there is not the same as untouchable — the AI
+         writes its label, the seller can re-word it, change what it takes
+         and move it. The one thing missing is Delete. */
+      { label: 'Email', type: 'email', required: true, fixed: true },
+      { label: 'What would you like to ask about?', type: 'textarea', required: false },
+      { label: 'Consent to be contacted', type: 'checkbox', required: true, locked: true },
+    ];
+
+    const FORM_BUILD_MS = 1600;
+    let formTimer = null;
+    let formDraft = [];        // the working copy, which only Add commits
+    let formOpen = -1;         // which question is open; -1 is the list
+    let formView = 'edit';
+
+    /* The options array has to come along by value, or the draft shares it
+       with the default and Cancel keeps the edits anyway. */
+    const copyFields = (fields) => fields.map((f) =>
+      Object.assign({}, f, f.options ? { options: f.options.slice() } : null));
+
+    function dropBtn(label, onClick) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'icon-btn-sm subtle';
+      b.setAttribute('aria-label', label);
+      b.setAttribute('data-no-phrase', '');
+      b.innerHTML = TRASH_SVG;
+      b.addEventListener('click', (e) => { e.stopPropagation(); onClick(); });
+      return b;
+    }
+
+    /* == The question list ==
+       Rows, built to the contract loops-frontend settled on for the link
+       rows (PageLinkRow.tsx, PR #2606): the whole row body opens the editor,
+       and the handle and the action menu stay siblings beside it rather than
+       buttons inside a button. A question opens on its own level, not inside
+       its row — a list item that unfolds into a form stops being one. */
+    function renderFormEdit() {
+      formList.innerHTML = '';
+      formDraft.forEach((f, i) => {
+        const li = document.createElement('li');
+        const row = document.createElement('div');
+        row.className = 'form-q' + (f.locked ? ' form-q--locked' : '');
+        row.setAttribute('data-row-key', String(i));
+
+        if (!f.locked) {
+          const handle = document.createElement('button');
+          handle.type = 'button';
+          handle.className = 'form-q-handle';
+          handle.setAttribute('data-drag-handle', '');
+          handle.setAttribute('aria-label', 'Drag to reorder: ' + (f.label || 'question ' + (i + 1)));
+          handle.setAttribute('data-no-phrase', '');
+          handle.innerHTML = GRIPV_SVG;
+          row.appendChild(handle);
+        }
+
+        const open = document.createElement(f.locked ? 'div' : 'button');
+        open.className = 'form-q-open';
+        if (!f.locked) {
+          open.type = 'button';
+          open.setAttribute('aria-haspopup', 'dialog');
+          open.setAttribute('aria-label', 'Edit: ' + (f.label || 'question ' + (i + 1)));
+          open.addEventListener('click', () => openQuestion(i));
+        }
+        const icon = document.createElement('span');
+        icon.className = 'form-q-icon';
+        icon.setAttribute('aria-hidden', 'true');
+        icon.innerHTML = kindIcon(f.type);
+        const label = document.createElement('span');
+        label.className = 'form-q-label';
+        label.setAttribute('data-no-phrase', '');
+        label.textContent = f.label || 'Untitled question';
+        open.append(icon, label);
+        row.appendChild(open);
+
+        if (f.locked) {
+          const tag = document.createElement('span');
+          tag.className = 'tag';
+          tag.setAttribute('data-no-phrase', '');
+          tag.textContent = 'Always asked';
+          row.appendChild(tag);
+        } else {
+          row.appendChild(questionMenu(f, i));
+        }
+
+        li.appendChild(row);
+        formList.appendChild(li);
+      });
+    }
+
+    /* Edit and Delete, the two the link rows carry minus Hide — a question
+       has no hidden state. The trigger stays enabled whatever the row is
+       doing: disabling a focused element hands focus back to <body>, which
+       is the defect PR #2606 fixed upstream. */
+    function questionMenu(f, i) {
+      const menu = document.createElement('div');
+      menu.className = 'menu';
+      const trigger = document.createElement('button');
+      trigger.type = 'button';
+      trigger.className = 'icon-btn-sm subtle';
+      trigger.setAttribute('aria-label', 'Actions: ' + (f.label || 'question ' + (i + 1)));
+      trigger.setAttribute('aria-haspopup', 'menu');
+      trigger.setAttribute('aria-expanded', 'false');
+      trigger.setAttribute('data-no-phrase', '');
+      trigger.innerHTML = KEBAB_SVG;
+
+      const drop = document.createElement('div');
+      drop.className = 'menu-dropdown';
+      drop.setAttribute('role', 'menu');
+      drop.hidden = true;
+
+      const item = (label, svg, onClick, destructive) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'menu-item' + (destructive ? ' menu-item--destructive' : '');
+        b.setAttribute('role', 'menuitem');
+        b.setAttribute('data-no-phrase', '');
+        b.innerHTML = svg + '<span>' + label + '</span>';
+        b.addEventListener('click', () => { closeMenus(); onClick(); });
+        return b;
+      };
+      drop.appendChild(item('Edit', PEN_SVG, () => openQuestion(i)));
+      /* A fixed field has everything a question has except a way out. */
+      if (!f.fixed) {
+        const rule = document.createElement('hr');
+        rule.className = 'menu-divider';
+        drop.appendChild(rule);
+        drop.appendChild(item('Delete', TRASH_SVG, () => deleteQuestion(i), true));
+      }
+
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const wasOpen = !drop.hidden;
+        closeMenus();
+        if (wasOpen) return;
+        drop.hidden = false;
+        trigger.setAttribute('aria-expanded', 'true');
+      });
+      menu.append(trigger, drop);
+      return menu;
+    }
+
+    function closeMenus() {
+      document.querySelectorAll('.menu-dropdown').forEach((d) => { d.hidden = true; });
+      document.querySelectorAll('.menu [aria-expanded="true"]')
+        .forEach((t) => t.setAttribute('aria-expanded', 'false'));
+    }
+    document.addEventListener('click', closeMenus);
+
+    /* Deleting from the list puts focus on whatever takes the row's place,
+       falling through to Add question — the menu would otherwise hand it to
+       a trigger that no longer exists, and from there to <body>. */
+    function deleteQuestion(i) {
+      if (!formDraft[i] || formDraft[i].fixed || formDraft[i].locked) return;
+      formDraft.splice(i, 1);
+      if (formView === 'question') { formOpen = -1; setFormView('edit'); }
+      else renderFormEdit();
+      const rows = formList.querySelectorAll('.form-q-open');
+      const nextRow = rows[Math.min(i, rows.length - 1)];
+      if (nextRow && nextRow.tagName === 'BUTTON') nextRow.focus();
+      else formAddBtn.focus();
+    }
+
+    /* == One question, a level down == */
+    function openQuestion(i) {
+      formOpen = i;
+      setFormView('question');
+    }
+
+    function renderQuestion(focus) {
+      const f = formDraft[formOpen];
+      if (!f) { setFormView('edit'); return; }
+      formQKind.innerHTML = '<span class="form-q-icon" aria-hidden="true">' + kindIcon(f.type) +
+        '</span><span>' + kindLabel(f.type) + '</span>';
+      formQFields.innerHTML = '';
+
+      const input = document.createElement('input');
+      input.className = 'form-input';
+      input.type = 'text';
+      input.value = f.label;
+      input.placeholder = 'What do you want to ask?';
+      input.setAttribute('aria-label', 'The question');
+      input.setAttribute('data-no-phrase', '');
+      input.addEventListener('input', () => {
+        f.label = input.value;
+        formTitle.textContent = formTitleFor('question');
+      });
+      formQFields.appendChild(input);
+
+      if (KIND_TAKES_OPTIONS(f.type)) {
+        const list = document.createElement('div');
+        list.className = 'form-q-choices';
+        (f.options || []).forEach((opt, j) => {
+          const row = document.createElement('div');
+          row.className = 'form-q-choice';
+          const oi = document.createElement('input');
+          oi.className = 'form-input';
+          oi.type = 'text';
+          oi.value = opt;
+          oi.placeholder = 'Choice ' + (j + 1);
+          oi.setAttribute('aria-label', 'Choice ' + (j + 1));
+          oi.setAttribute('data-no-phrase', '');
+          oi.addEventListener('input', () => { f.options[j] = oi.value; });
+          row.appendChild(oi);
+          /* Two is the floor: one choice is not a choice. */
+          if ((f.options || []).length > 2) {
+            row.appendChild(dropBtn('Remove choice ' + (j + 1), () => {
+              f.options.splice(j, 1);
+              renderQuestion();
+            }));
+          }
+          list.appendChild(row);
+        });
+        formQFields.appendChild(list);
+
+        const more = document.createElement('button');
+        more.type = 'button';
+        more.className = 'text-action';
+        more.setAttribute('data-no-phrase', '');
+        more.innerHTML = PLUS_SVG + '<span>Add a choice</span>';
+        more.addEventListener('click', () => {
+          f.options = (f.options || []).concat('');
+          renderQuestion({ choice: f.options.length - 1 });
+        });
+        formQFields.appendChild(more);
+      }
+
+      const req = document.createElement('label');
+      req.className = 'form-q-required';
+      const reqLabel = document.createElement('span');
+      reqLabel.setAttribute('data-no-phrase', '');
+      reqLabel.textContent = 'People have to answer this';
+      const toggle = document.createElement('span');
+      toggle.className = 'toggle';
+      const box = document.createElement('input');
+      box.type = 'checkbox';
+      box.checked = f.required !== false;
+      box.setAttribute('aria-label', 'This question must be answered');
+      box.addEventListener('change', () => { f.required = box.checked; });
+      const thumb = document.createElement('span');
+      thumb.className = 'toggle-thumb';
+      toggle.append(box, thumb);
+      req.append(reqLabel, toggle);
+      formQFields.appendChild(req);
+
+      const choices = formQFields.querySelectorAll('.form-q-choice .form-input');
+      const target = focus && focus.choice != null && choices[focus.choice]
+        ? choices[focus.choice] : input;
+      target.focus();
+    }
+
+    /* == Picking what a new question takes ==
+       Figma 3029:31425. A panel of controls rather than a dropdown of words:
+       each kind is easier to recognise by the thing the visitor will see
+       than by its name. */
+    function renderKinds() {
+      formKinds.innerHTML = '';
+      FIELD_KINDS.forEach((k) => {
+        if (k.type === 'checkbox') return;   // the consent tick is ours, not theirs
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'form-kind';
+        b.setAttribute('data-kind', k.type);
+        b.setAttribute('data-no-phrase', '');
+        b.innerHTML = '<span class="form-q-icon" aria-hidden="true">' + kindIcon(k.type) +
+          '</span><span>' + k.label + '</span>';
+        b.addEventListener('click', () => {
+          /* The new one goes above consent, because consent is the last
+             thing anybody answers. */
+          const at = formDraft.findIndex((f) => f.locked);
+          const i = at === -1 ? formDraft.length : at;
+          const q = { label: '', type: k.type, required: true };
+          if (KIND_TAKES_OPTIONS(k.type)) q.options = ['', ''];
+          formDraft.splice(i, 0, q);
+          openQuestion(i);
+        });
+        formKinds.appendChild(b);
+      });
+    }
+
+    /* One place decides what the bar says, so the wait and the panel cannot
+       disagree about it. One name at every level above a question: the sheet
+       edits a form, whether the product has just written it or it has been
+       on the page a week. Two names for one surface made the second visit
+       read as a different dialog. */
+    function formTitleFor(view) {
+      if (view === 'pick') return 'Add a question';
+      if (view === 'question') {
+        const f = formDraft[formOpen];
+        return (f && f.label.trim()) || 'New question';
+      }
+      return 'Edit form';
+    }
+
+    function setFormView(view) {
+      formView = view;
+      formViews.forEach((el) => { el.hidden = el.getAttribute('data-form-view') !== view; });
+      const onForm = view === 'edit';
+      /* --end keeps the answers together at the right. The question level
+         carries a destructive action, and .sheet-actions is explicit about
+         where that belongs: apart from the button you meant to press. So
+         that level drops the modifier and lets space-between do it. */
+      formActions.classList.toggle('sheet-actions--end', view !== 'question');
+      formPickBack.hidden = view !== 'pick';
+      formQDelete.hidden = view !== 'question' ||
+        !!(formDraft[formOpen] && formDraft[formOpen].fixed);
+      formQDone.hidden = view !== 'question';
+      /* Each level's own actions. The form's two only belong to the form:
+         committing it from inside "which kind of question" or from inside
+         one question would answer something nobody asked. */
+      formCancelBtn.hidden = !onForm;
+      formDoneBtn.hidden = !onForm;
+      /* Only while the list is on screen: there is nothing to add to one
+         question or to the kind picker. */
+      formAddBtn.hidden = view !== 'edit';
+      /* The list is the sheet's own top, so there is nothing above it to go
+         back to. Only the two levels under it carry the arrow. */
+      formBack.hidden = view === 'edit';
+      if (!formSheet.hasAttribute('data-busy')) formTitle.textContent = formTitleFor(view);
+      if (view === 'edit') renderFormEdit();
+      else if (view === 'pick') renderKinds();
+      else renderQuestion();
+    }
+
+    /* The grip moves the row; this moves the question it stands for. The
+       question that was open travels with it, so reordering does not quietly
+       close what was being edited. */
+    formList.addEventListener('reorder', (e) => {
+      const { from, to } = e.detail;
+      const [q] = formDraft.splice(from, 1);
+      formDraft.splice(to, 0, q);
+      if (formOpen === from) formOpen = to;
+      else if (formOpen > from && formOpen <= to) formOpen -= 1;
+      else if (formOpen < from && formOpen >= to) formOpen += 1;
+      renderFormEdit();
+    });
+
+    /* Straight into the editor behind the wait, the way Edit links opens it.
+       A read-only pass between the wait and the work is a page-turn for its
+       own sake: the thing to do with a form is change it. The one line of
+       explanation this sheet carries rides on the list rather than on a
+       screen of its own, and goes once the seller steps into a question. */
+    function openForm() {
+      window.clearTimeout(formTimer);
+      formDraft = copyFields(FORM_DEFAULT);
+      formOpen = -1;
+      setFormView('edit');
+      openSheet(formSheet);
+      formSheet.setAttribute('data-busy', 'true');
+      formTitle.textContent = 'Writing your form';
+      formTimer = window.setTimeout(() => {
+        formSheet.removeAttribute('data-busy');
+        formTitle.textContent = formTitleFor(formView);
+      }, FORM_BUILD_MS);
+    }
+
+    function closeForm() {
+      window.clearTimeout(formTimer);
+      closeSheet(formSheet);
+      formSheet.removeAttribute('data-busy');
+    }
+
+    /* An empty question is one the seller started and left — dropping it is
+       kinder than publishing a blank line, and the same goes for a choice
+       they added and never named. A choice question left with fewer than two
+       named choices is not one, so it goes too. The navigation onward is on
+       the button itself (prototype-nav), so this only has to leave the draft
+       in the state the next screen would receive. */
+    formDoneBtn.addEventListener('click', () => {
+      formDraft = formDraft
+        .map((f) => (f.options
+          ? Object.assign({}, f, { options: f.options.filter((o) => o.trim()) })
+          : f))
+        .filter((f) => {
+          if (f.locked || f.fixed) return true;
+          if (!f.label.trim()) return false;
+          return !KIND_TAKES_OPTIONS(f.type) || f.options.length >= 2;
+        });
+    });
+
+    formAddBtn.addEventListener('click', () => setFormView('pick'));
+    formPickBack.addEventListener('click', () => setFormView('edit'));
+    formQDone.addEventListener('click', () => { formOpen = -1; setFormView('edit'); });
+    formQDelete.addEventListener('click', () => deleteQuestion(formOpen));
+    /* Up one level, and there is only one level to come up from. */
+    formBack.addEventListener('click', () => { formOpen = -1; setFormView('edit'); });
+    formCancelBtn.addEventListener('click', closeForm);
+    document.getElementById('formClose').addEventListener('click', closeForm);
+    formSheet.addEventListener('click', (e) => { if (e.target === formSheet) closeForm(); });
+
+    /* Add question sits beside the title on a wide screen and above the list
+       on a phone, where the head has room for a title and a close and no
+       more. The same move Edit links makes. */
+    const phone = window.matchMedia('(max-width: 767px)');
+    const formAddHead = document.querySelector('#formSheet .sheet-head');
+    const formAddHost = document.getElementById('formAddHost');
+    function placeFormAdd() {
+      if (phone.matches) formAddHost.appendChild(formAddBtn);
+      else formAddHead.insertBefore(formAddBtn, document.getElementById('formClose'));
+    }
+    phone.addEventListener('change', placeFormAdd);
+    placeFormAdd();
+
+    /* ── The grip ──
+       The sheet opens at its full height, so the only stop under it is
+       closed. A tap takes it there; so does a drag far enough down to mean
+       it. Anything shorter springs back, which is what tells the seller the
+       sheet was listening. */
+    const formGrip = document.getElementById('formGrip');
+    const formPanel = formSheet.querySelector('.sheet');
+    const GRIP_DISMISS = 96;   // px of pull that means "out"
+    const GRIP_COMMIT = 3;     // px of travel that means "a drag, not a press"
+    let gripFrom = null;
+    let gripMoved = false;
+    formGrip.addEventListener('pointerdown', (e) => {
+      gripFrom = e.clientY;
+      gripMoved = false;
+      formGrip.setPointerCapture(e.pointerId);
+      formPanel.style.transition = 'none';
+    });
+    formGrip.addEventListener('pointermove', (e) => {
+      if (gripFrom === null) return;
+      const dy = e.clientY - gripFrom;
+      if (Math.abs(dy) > GRIP_COMMIT) gripMoved = true;
+      formPanel.style.transform = 'translateY(' + Math.max(0, dy) + 'px)';
+    });
+    const gripEnd = (e) => {
+      if (gripFrom === null) return;
+      const dy = e.clientY - gripFrom;
+      const dragged = gripMoved;
+      gripFrom = null;
+      if (formGrip.hasPointerCapture(e.pointerId)) formGrip.releasePointerCapture(e.pointerId);
+      formPanel.style.transition = '';
+      formPanel.style.transform = '';
+      if (dy >= GRIP_DISMISS) { closeForm(); return; }
+      /* A pull that fell short ends in a click, the same as a press does.
+         Swallowing it is what makes "not far enough" mean the sheet stays —
+         without this, every spring-back closed the sheet anyway. */
+      if (dragged) {
+        formGrip.addEventListener('click', (ev) => {
+          ev.preventDefault();
+          ev.stopPropagation();
+        }, { capture: true, once: true });
+      }
+    };
+    formGrip.addEventListener('pointerup', gripEnd);
+    formGrip.addEventListener('pointercancel', gripEnd);
+    formGrip.addEventListener('click', () => closeForm());
+
+    /* Escape out of the editor goes up a level first, the way Edit links
+       does — the sheet only closes from its own top. A sheet with no way out
+       but a button is a sheet that traps a keyboard, and one that closes from
+       three levels down throws away work the seller is in the middle of. */
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      if (formSheet.getAttribute('data-open') === 'true') {
+        if (formView === 'edit') closeForm();
+        else { formOpen = -1; setFormView('edit'); }
+      } else if (typeSheet.getAttribute('data-open') === 'true') {
+        closeSheet(typeSheet);
+      }
+    });
+  </script>
+
+</body>
+</html>

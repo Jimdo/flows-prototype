@@ -2306,6 +2306,24 @@ body {
   font-weight: var(--jui-typography-body-small-medium-weight);
 }
 
+/* Negative variant — a field saying what it still needs. @jimdo/ui's
+   InputError, read off the component rather than approximated: an Alert02 at
+   size s, 8 between it and the words, and bodySmallSemibold.
+
+   The colour is red-600. Upstream sets #830b08 directly, which is not what
+   our semantic typography-negative-on-light resolves to (red-800, #380100,
+   a good deal darker) — so the palette token that carries the component's
+   actual pixel wins over the semantic one that does not.
+
+   The weight is the same kind of borrow: there is no body-small-semibold on
+   our scale, so the size and leading come from body-small-regular and the
+   600 from body-medium-semibold. */
+.inline-alert--negative { color: var(--jui-color-red-600); }
+.inline-alert--negative .inline-alert-text {
+  font-weight: var(--jui-typography-body-medium-semibold-weight);
+}
+.inline-alert[hidden] { display: none; }
+
 
 /* ═══════════════════════════════════════════════════════════════
    LAYER 22 — Action-Page Type Section (.ap-section)
@@ -3690,37 +3708,64 @@ body {
    screen. A step that waits for its answers swaps one of these for another. */
 .select-card-list[hidden] { display: none; }
 
-/* The selected card carries a 2px border where the others carry 1px.
-   Both are drawn so the row never changes height when selection moves. */
+/* ── The card ──
+   @jimdo/ui SelectCard, read off the rendered component rather than
+   approximated: jimdo.github.io/ui/latest ?path=/docs/inputs-selectcard.
+   What was here before was a lookalike — a row with a drawn dot and a 2px
+   edge — and it got the layout, the border and the control all slightly
+   wrong.
+
+   A column: the icon over the words, the control pinned to the corner. The
+   selected edge is a 1px border plus a 1px inset ring rather than a 2px
+   border, so the box never changes size and the two pixels are in every
+   state's geometry. */
 .select-card {
+  position: relative;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: var(--jui-layout-gap-s);
   width: 100%;
   padding: var(--jui-layout-padding-m);
   background: var(--jui-color-gray-white);
-  border: 2px solid var(--jui-color-gray-100);
+  border: 1px solid var(--jui-color-gray-100);
   border-radius: var(--jui-style-radius-16);
   text-align: left;
   font: inherit;
   cursor: pointer;
-  transition: border-color 150ms ease, background-color 150ms ease;
+  transition: border-color 120ms ease-out, box-shadow 120ms ease-out;
 }
-
 .select-card:hover { border-color: var(--jui-color-blue-100); }
 .select-card:focus-visible {
   outline: 2px solid var(--jui-color-actions-primary-rest);
   outline-offset: 2px;
 }
+.select-card[aria-checked="true"] {
+  border-color: var(--jui-color-blue-300);
+  box-shadow: inset 0 0 0 1px var(--jui-color-blue-300);
+}
+.select-card:hover[aria-checked="true"] {
+  border-color: var(--jui-color-actions-primary-rest);
+  box-shadow: inset 0 0 0 1px var(--jui-color-actions-primary-rest);
+}
 
-.select-card[aria-checked="true"] { border-color: var(--jui-color-blue-300); }
+/* The kind, over the words rather than beside them, and in the accent —
+   upstream colours this one blue-400 where the rest of the card is ink. */
+.select-card-icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  color: var(--jui-color-blue-400);
+}
+.select-card-icon svg { width: 100%; height: 100%; display: block; }
 
 .select-card-copy {
-  flex: 1 0 0;
-  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: var(--jui-layout-gap-xxs);
+  /* Room for the control in the corner, so a long title does not run under
+     it. 16 of padding, a 16 control and 8 of air. */
+  padding-right: var(--jui-layout-dimension-s);
+  min-width: 0;
 }
 
 .select-card-label {
@@ -3731,11 +3776,8 @@ body {
   color: var(--jui-color-typography-gray-on-light-default);
 }
 
-/* The second line the copy column was always built for — .select-card-copy is
-   a column with 4 between its children and until now only ever held one. A
-   card whose label is a short phrase needs a line saying what the phrase
-   covers; one whose label is already a sentence does not, so this is optional
-   rather than part of the card. */
+/* The line under the title, saying what the title covers. Optional —
+   upstream ships a w/o-description variant. */
 .select-card-desc {
   margin: 0;
   font-size: var(--jui-typography-body-small-regular-size);
@@ -3744,62 +3786,53 @@ body {
   color: var(--jui-color-typography-gray-on-light-subdued);
 }
 
-/* Radio mark — drawn rather than an <input> so the whole card is the
-   control and the dot can sit on the card's own selected state. */
+/* The control is a real radio in upstream, pinned to the top-right corner
+   at 20/20 and drawn by its own border: 2px grey at rest, 5px blue checked,
+   which is how the dot appears without an inner element. Ours is a span —
+   the whole card is the button — but the geometry and the states are the
+   component's.
+
+   With no icon the card is one line tall, so the control centres on the
+   title's line instead of sitting in the corner. 0.625rem is half that
+   line, which is upstream's own figure. */
 .select-card-radio {
-  flex-shrink: 0;
+  position: absolute;
+  top: 20px;
+  right: 20px;
   width: 16px;
   height: 16px;
-  border: 1px solid var(--jui-color-gray-300);
+  box-sizing: border-box;
+  border: 2px solid var(--jui-color-gray-300);
   border-radius: 50%;
-  position: relative;
-  transition: border-color 150ms ease;
+  background: var(--jui-color-gray-white);
+  transition: border 100ms ease-in;
 }
-
+.select-card:not(:has(.select-card-icon)) .select-card-radio {
+  top: calc(var(--jui-layout-padding-m) + 0.625rem);
+  right: var(--jui-layout-padding-m);
+  transform: translateY(-50%);
+}
+.select-card:hover .select-card-radio { border-color: var(--jui-color-gray-400); }
 .select-card[aria-checked="true"] .select-card-radio {
+  border-width: 5px;
   border-color: var(--jui-color-actions-primary-rest);
-  border-width: 2px;
 }
-
-.select-card[aria-checked="true"] .select-card-radio::after {
-  content: '';
-  position: absolute;
-  inset: 2px;
-  border-radius: 50%;
-  background: var(--jui-color-actions-primary-rest);
-}
-
-/* The kind, as the glyph the same idea wears in the Edit links suggestion
-   list — one thing people book, one thing they ask about — so the pair is
-   recognisable in both places. The card centres its children, which on a
-   two-line card would float the glyph between the lines; a box the height of
-   the label's line sits it on the label instead, with no offset to guess. */
-.select-card-icon {
-  display: inline-flex;
-  align-items: center;
-  align-self: flex-start;
-  flex-shrink: 0;
-  width: 16px;
-  height: calc(var(--jui-typography-sub-headline-small-size)
-             * var(--jui-typography-sub-headline-small-lh));
-  color: var(--jui-color-typography-gray-on-light-default);
-}
-.select-card-icon svg { width: 16px; height: 16px; display: block; }
 
 /* ── Waiting for the pair ──
-   A step whose answers are worked out from what the seller just said opens on
-   a wait, not on a menu. The ghost is the card's own box — same padding, same
-   two-pixel border — with bars where its glyph, name and line will be, so
-   nothing below it moves when the pair lands. The bars themselves are the
-   suggestion list's: .suggest-ghost-line and .skeleton, because a ghost is a
-   ghost and two sets of them would drift apart. */
+   A step whose answers are worked out from what the seller just said opens
+   on a wait, not on a menu. The ghost is the card's own box — same padding,
+   same column, same border — with bars where its glyph, title and line will
+   be, so nothing below it moves when the pair lands. The bars are the
+   suggestion list's own: .suggest-ghost-line and .skeleton, because a ghost
+   is a ghost and two sets of them would drift apart. */
 .select-card--pending {
   cursor: default;
   background: var(--jui-color-background-gray-medium);
 }
 .select-card--pending .select-card-radio { visibility: hidden; }
-.select-card-ghost-glyph { width: 16px; height: 16px; flex-shrink: 0; align-self: flex-start; }
-/* The name stands in for a sub-headline, which is taller than the body line
+/* The glyph's box is .select-card-icon's, which is what lands in it. */
+.select-card-ghost-glyph { width: 24px; height: 24px; flex-shrink: 0; }
+/* The title stands in for a sub-headline, which is taller than the body line
    .suggest-ghost-line is cut for. Scoped to the card rather than left bare:
    both classes sit on the same element and .suggest-ghost-line is declared
    further down this sheet, so at equal weight it would keep its own height.
@@ -8322,13 +8355,17 @@ body {
   color: var(--jui-color-typography-gray-on-light-default);
 }
 
-/* ── Advanced button — the switch, its line, and what it reveals ──
+/* ── The layout group, and what picking Featured reveals ──
 
-   Turning a link into a card is not something the word on a switch can
-   explain, so this row carries a line under it where Visible carries
-   nothing. What the switch reveals sits behind a rule: the fields above
-   are about the button, these are about the card it becomes, and without
-   the rule the dialog reads as one long form that grew.
+   The group is a label, the two options and — only when the plan's one
+   card is spoken for — the line naming the button that holds it. The
+   explanatory line the old switch carried is gone with the switch: the
+   options are drawings of the two shapes, which is the thing a word could
+   not say.
+
+   What Featured reveals sits behind a rule: the fields above are about the
+   button, these are about the card it becomes, and without the rule the
+   dialog reads as one long form that grew.
 
    Used by: bio-page-links-edit-onboarding (scr-477). */
 .sheet-adv { gap: var(--jui-layout-gap-xs); }
@@ -8339,7 +8376,6 @@ body {
   line-height: var(--jui-typography-body-small-regular-lh);
   color: var(--jui-color-typography-gray-on-light-subdued);
 }
-.sheet-adv .sheet-toggle { justify-content: space-between; }
 .sheet-adv-fields {
   display: flex;
   flex-direction: column;
@@ -8350,10 +8386,154 @@ body {
 }
 .sheet-adv-fields[hidden] { display: none; }
 
+/* ═══════════════════════════════════════════════════════════════
+   Layout picker (.layout-pick)
+
+   Figma 6nhXk3oOEpH7TbMAr430tN 17808:67119. Which of the two shapes a
+   bio-page button takes: a plain bar, or the card with a picture on it.
+
+   It replaced a switch labelled "Advanced button", and the switch was
+   wrong twice over. A switch states a property — more or less of one
+   thing — and these are two shapes, neither of which is the other turned
+   up. And a word cannot say what the shapes are, which is why the switch
+   had to carry a sentence under it explaining itself. The drawing says it.
+
+   Used by: bio-page-links-edit-onboarding (scr-477).
+   ═══════════════════════════════════════════════════════════════ */
+
+.layout-pick {
+  display: flex;
+  gap: var(--jui-layout-gap-xs);
+  width: 100%;
+}
+
+/* At rest the option carries a grey ground and no edge; selected, it goes
+   white and draws a 2px blue one. The edge is there at rest too, in
+   transparent, so the box never changes size when the choice moves — the
+   ground paints under it, so there is nothing to see. */
+.layout-pick-item {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--jui-layout-gap-s);
+  padding: var(--jui-layout-padding-s) 0;
+  border: 2px solid transparent;
+  border-radius: var(--jui-style-radius-8);
+  background: var(--jui-color-gray-50);
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+.layout-pick-item:hover { border-color: var(--jui-color-blue-100); }
+.layout-pick-item:focus-visible {
+  outline: 2px solid var(--jui-color-actions-primary-rest);
+  outline-offset: 2px;
+}
+.layout-pick-item[aria-checked="true"] {
+  background: var(--jui-color-gray-white);
+  border-color: var(--jui-color-blue-500);
+}
+
+/* One box for both miniatures, so the two options are the same height
+   whichever drawing is in them. 33 is the Figma's own figure for the
+   taller of the two. */
+.layout-pick-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 33px;
+}
+
+/* Simple — the plain bar, at about a fifth of its size. */
+.layout-pick-bar {
+  display: flex;
+  align-items: center;
+  width: 64px;
+  padding: 3px;
+  border-radius: var(--jui-style-radius-4);
+  background: var(--jui-color-gray-100);
+}
+.layout-pick-bar::before {
+  content: '';
+  width: 22px;
+  height: 4px;
+  border-radius: var(--jui-style-radius-2);
+  background: var(--jui-color-gray-200);
+}
+
+/* Featured — the card: a picture block over the bar that carries the call
+   to action. Drawn in blue where the plain one is grey, which is the whole
+   of what the two options have to say about each other. */
+.layout-pick-card {
+  display: flex;
+  flex-direction: column;
+  width: 48px;
+  overflow: hidden;
+  border-radius: var(--jui-style-radius-4);
+  background: var(--jui-color-blue-10);
+}
+.layout-pick-card-pic,
+.layout-pick-card-cta {
+  display: flex;
+  align-items: center;
+  background: var(--jui-color-blue-50);
+}
+/* No padding at the foot: the picture runs into the bar under it, the way
+   it does on the card itself. */
+.layout-pick-card-pic { padding: 2px 2px 0; }
+.layout-pick-card-pic::before {
+  content: '';
+  flex: 1;
+  height: 20px;
+  border-radius: var(--jui-style-radius-2);
+  background: var(--jui-color-blue-300);
+}
+.layout-pick-card-cta { padding: 3px; }
+.layout-pick-card-cta::before {
+  content: '';
+  width: 22px;
+  height: 4px;
+  border-radius: var(--jui-style-radius-2);
+  background: var(--jui-color-blue-100);
+}
+
+/* 12 at 500, which is one token group's size and another's weight: our
+   label-small is the uppercase eyebrow (600 at 0.08em) and nothing else on
+   the scale is 12px. The Figma pixel wins, spelled from the two tokens
+   that carry it rather than from a literal. */
+.layout-pick-label {
+  font-size: var(--jui-typography-label-small-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  line-height: var(--jui-typography-label-small-lh);
+  letter-spacing: 0.02em;
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+
+/* The plan's one card is on another button. The option stays pressable —
+   pressing it is how a seller asks for the card, and refusing the press is
+   how a product pretends the option is not there — and wears the one mark
+   the system has already taught: the crown. */
+.layout-pick-item[data-upgrade] .layout-pick-label {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xxs);
+  color: var(--jui-color-typography-upgrade-on-light);
+}
+.layout-pick-item[data-upgrade] .layout-pick-label svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  color: var(--jui-color-decorative-upgrade);
+}
+.layout-pick-item[data-upgrade]:hover { border-color: var(--jui-color-decorative-upgrade); }
+
 /* Three shapes, each drawn as the button it makes. A segmented control of
    three words asked the seller to picture three cards and pick one from
    memory; the card is what is being chosen, so the option shows the card.
-   The selection language is .select-card's — a 2px edge that goes blue —
+   The selection language is .select-card's — an edge that goes blue —
    because it is the same kind of choice at a different size. */
 .shape-pick {
   display: flex;

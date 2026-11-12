@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Onboarding — Your most important link</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=af9596a">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=af9596a">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=a965712">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=a965712">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=af9596a">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=a965712">
 <style>
   /* ─── Screen overrides ───
      The split frame the tagline step uses, because the argument this step
@@ -17,8 +17,10 @@
      two thin bars is the hierarchy, and no sentence does that job as well.
 
      Only two things are local. The resting drawer height — measured, not
-     guessed: a question, two cards with a line each and the way to ask again
-     come to 368, and with the handle and the buttons that is 476. At the
+     guessed, and measured in the state that needs the most room: the
+     question, the tag, two cards, the validation line and the way to ask
+     again come to 432, and with the handle and the buttons that is 540. At
+     the
      tagline step's own height the second card was cut in half, which turns a
      choice of two into one answer and a sliver of something. The page is one
      drag or one tap on the handle away, and the hierarchy the preview draws
@@ -29,9 +31,25 @@
      frame and the thing it is supposed to sit above fell off the bottom,
      which is the whole argument lost. Same figure the offer step used. */
   .app-shell-setup-split {
-    --setup-drawer-rest-h: 480px;
-    --bp-natural-h: 752px;
+    --setup-drawer-rest-h: 544px;
+    --bp-natural-h: 686px;
   }
+
+  /* The pair and what sits over it, as one block. The tag, the line and the
+     two cards belong together and the column's own gap would set them apart
+     as if they did not — the same argument the Edit links group makes with a
+     container, made here without one: this step has nothing else in the
+     column to be separated from. */
+  .ml-suggest {
+    display: flex;
+    flex-direction: column;
+    gap: var(--jui-layout-gap-s);
+    width: 100%;
+    flex-shrink: 0;
+  }
+  /* The tag is as wide as the word. A flex column stretches its children,
+     which drew it as a full-width green bar. */
+  .ml-suggest > .tag { align-self: flex-start; }
 </style>
 </head>
 <body>
@@ -83,11 +101,24 @@
                  noun to learn first — "action page" is Jimdo's word, not the
                  seller's. -->
             <h1 class="setup-split-title" data-inspect-phrase="">Your most important link</h1>
-            <!-- The hierarchy in one line: where it sits, and what makes it
-                 different. A regular link sends someone away; this one is
-                 where they do the thing. -->
-            <p class="setup-split-subtitle" data-inspect-phrase="">It sits above your other links, and it's where people book or ask.</p>
+            <!-- What makes it different from a link, and nothing about
+                 where it sits: the seller can reorder the page, so a claim
+                 about position is one the product cannot keep. A regular
+                 link sends someone away; this one is where they do the
+                 thing, and that is true wherever it ends up. -->
+            <p class="setup-split-subtitle" data-inspect-phrase="">It&rsquo;s where people book or ask.</p>
           </div>
+
+          <div class="ml-suggest">
+
+              <!-- The same tag the Edit links group wears, for the same
+                   reason: everything else a seller meets in this flow is
+                   their own, and this is the product offering something.
+                   Green is what that offer looks like here. -->
+              <span class="tag tag--positive"
+                data-inspect-label="Tag — Positive"
+                data-inspect-tokens='[{"prop":"background","figma":"$jui-color-background-positive-medium","css":"--jui-color-background-positive-medium","value":"#e0faeb"},{"prop":"color","figma":"$jui-color-typography-positive-on-light","css":"--jui-color-typography-positive-on-light","value":"#00260d"},{"prop":"border-radius","figma":"badge/radius","css":"--jui-style-radius-4","value":"4px"}]'
+                data-inspect-phrase="">Suggestions</span>
 
           <!-- The pair is worked out from the tagline typed one screen back,
                so the step opens on a wait. Two ghosts, because round one is
@@ -142,7 +173,7 @@
               <span class="select-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M12 8V12L14.5 14.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg></span>
               <span class="select-card-copy">
                 <span class="select-card-label" data-inspect-phrase="">Free intro call</span>
-                <span class="select-card-desc" data-inspect-phrase="">People pick a time that suits them — no messages back and forth.</span>
+                <span class="select-card-desc" data-inspect-phrase="">People pick a time that suits them.</span>
               </span>
               <span class="select-card-radio" aria-hidden="true"></span>
             </button>
@@ -154,10 +185,21 @@
               <span class="select-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M11 6L21 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 12L21 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 18L21 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 7.5L4.5 9L8.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 18.5L4.5 20L8.5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
               <span class="select-card-copy">
                 <span class="select-card-label" data-inspect-phrase="">Private class enquiry</span>
-                <span class="select-card-desc" data-inspect-phrase="">People tell you what they need, and you reply when you can.</span>
+                <span class="select-card-desc" data-inspect-phrase="">People tell you what they need.</span>
               </span>
               <span class="select-card-radio" aria-hidden="true"></span>
             </button>
+          </div>
+
+          <!-- Said when Continue is pressed with nothing picked, under the
+               list rather than beside the button: the answer is missing
+               here, so this is where a reader is sent to fix it. Goes the
+               moment one is picked. -->
+          <div class="inline-alert inline-alert--negative" id="offerError" role="alert" aria-live="polite" hidden
+            data-inspect-label="Validation — nothing picked"
+            data-inspect-tokens='[{"prop":"color","figma":"@jimdo/ui InputError","css":"--jui-color-red-600","value":"#830b08"},{"prop":"gap","figma":"gap xs","css":"--jui-layout-gap-xs","value":"8px"},{"prop":"icon","figma":"Alert02 size s","value":"16px, stroke 1.5"},{"prop":"text","figma":"bodySmallSemibold","value":"14px / 600 / 1.57"}]'>
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M21.6718 17.3965L14.0266 4.1788C13.1175 2.60707 10.8825 2.60707 9.9734 4.1788L2.32819 17.3965C1.40619 18.9905 2.53632 21 4.35479 21H19.6452C21.4637 21 22.5938 18.9905 21.6718 17.3965Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/><path d="M12 16H12.009" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M12 9V13" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+            <span class="inline-alert-text" data-inspect-phrase="">Pick one to continue.</span>
           </div>
 
           <!-- Both of these are guesses about someone else's business. The way
@@ -166,9 +208,11 @@
                is how the page ends up with nothing to act on. -->
           <button type="button" class="regen regen--smart" id="regenSuggest" data-busy="true" hidden
             aria-disabled="true"
-            data-inspect-label="Regenerate — smart"
+            data-inspect-label="Suggest different ones — smart"
             data-inspect-tokens='[{"prop":"label","figma":"@jimdo/ui smartSecondaryButton","css":"--jui-gradient-smart","value":"gradient 111deg blue-500 → red-300 → yellow-300"},{"prop":"icon","figma":"reload","css":"--jui-color-blue-500","value":"16px #004ced"}]'
-            data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="smartRegenMainLink" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><path d="M14.5 1.99976L15.5 4.54791C14.3079 3.91092 12.9461 3.5498 11.5 3.5498C6.80558 3.5498 3 7.35538 3 12.0498C3 13.8409 3.554 15.6294 4.5 16.9998" stroke="url(#smartRegenMainLink)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M8.5 21.9997L7.5 19.4516C8.69215 20.0885 10.0539 20.4497 11.5 20.4497C16.1944 20.4497 20 16.6441 20 11.9497C20 10.1585 19.446 8.37009 18.5 6.99976" stroke="url(#smartRegenMainLink)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span class="regen-label">Regenerate</span></button>
+            data-inspect-phrase=""><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="smartRegenMainLink" x1="0" y1="0" x2="0.93" y2="0.36"><stop class="smart-stop-a" offset="0"/><stop class="smart-stop-b" offset="1"/></linearGradient></defs><path d="M14.5 1.99976L15.5 4.54791C14.3079 3.91092 12.9461 3.5498 11.5 3.5498C6.80558 3.5498 3 7.35538 3 12.0498C3 13.8409 3.554 15.6294 4.5 16.9998" stroke="url(#smartRegenMainLink)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M8.5 21.9997L7.5 19.4516C8.69215 20.0885 10.0539 20.4497 11.5 20.4497C16.1944 20.4497 20 16.6441 20 11.9497C20 10.1585 19.446 8.37009 18.5 6.99976" stroke="url(#smartRegenMainLink)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span class="regen-label">Suggest different ones</span></button>
+
+          </div>
 
         </div>
 
@@ -181,9 +225,14 @@
             data-inspect-phrase="questionaire.skipCta"
             data-nav-to="flows/bio-page-links-edit-onboarding.html"
             data-nav-screen-id="scr-477">Skip</button>
-          <button class="btn btn-primary" aria-disabled="true" id="offerContinue"
-            data-inspect-label="Primary Button — Continue, waiting for an answer"
-            data-inspect-tokens='[{"prop":"background","figma":"color/actions/primary/rest","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"height","figma":"layout/dimension/m","css":"--jui-layout-dimension-m","value":"48px"},{"prop":"border-radius","figma":"component/button/radius","css":"--jui-component-button-radius","value":"8px"},{"prop":"opacity","figma":"—","css":"@jimdo/ui Button[aria-disabled]","value":"0.3"}]'
+          <!-- Live from the start. A greyed button is a dead end that will
+               not say why: the seller presses it, nothing happens, and
+               nothing on screen explains what is missing. It answers
+               instead, under the list where the answer belongs. -->
+          <button class="btn btn-primary" id="offerContinue"
+            aria-describedby="offerError"
+            data-inspect-label="Primary Button — Continue"
+            data-inspect-tokens='[{"prop":"background","figma":"color/actions/primary/rest","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"height","figma":"layout/dimension/m","css":"--jui-layout-dimension-m","value":"48px"},{"prop":"border-radius","figma":"component/button/radius","css":"--jui-component-button-radius","value":"8px"}]'
             data-inspect-phrase="questionaire.cta"
             data-trigger="primary-cta">Continue</button>
         </div>
@@ -215,7 +264,7 @@
           data-inspect-tokens='[{"prop":"card","figma":"Bookings event setup","css":"--jui-style-radius-m","value":"radius-m, 16 padding, 1px stroke-gray-default"},{"prop":"selected","css":"--jui-color-background-primary-light","value":"#eff0ff + stroke-primary-on-light, with a 0.5px ring"},{"prop":"illustration","value":"3.5rem tall, the Bookings artwork verbatim"}]'>
             <label class="type-card">
               <span class="type-card-head">
-                <span class="type-card-illustration" aria-hidden="true"><svg xmlns='http://www.w3.org/2000/svg' width='278' height='101' fill='none'><g clip-path='url(#fs-a)' filter='url(#fs-b)'><rect width='230' height='72.871' x='16' y='12' fill='#fff' rx='3' shape-rendering='crispEdges'/><rect width='229.8' height='72.671' x='16.1' y='12.1' stroke='#E6E6E6' stroke-width='.2' rx='2.9' shape-rendering='crispEdges'/><path fill='#E6E6E6' d='M24 22.667A2.667 2.667 0 0 1 26.667 20h21.81a2.667 2.667 0 0 1 2.666 2.667v2.666A2.667 2.667 0 0 1 48.476 28h-21.81A2.667 2.667 0 0 1 24 25.333v-2.666ZM55.143 22.667A2.667 2.667 0 0 1 57.81 20h21.81a2.667 2.667 0 0 1 2.666 2.667v2.666A2.667 2.667 0 0 1 79.619 28H57.81a2.667 2.667 0 0 1-2.666-2.667v-2.666ZM86.286 22.667A2.667 2.667 0 0 1 88.952 20h21.81a2.667 2.667 0 0 1 2.667 2.667v2.666A2.667 2.667 0 0 1 110.762 28h-21.81a2.667 2.667 0 0 1-2.666-2.667v-2.666ZM117.429 22.667A2.667 2.667 0 0 1 120.095 20h21.81a2.667 2.667 0 0 1 2.667 2.667v2.666A2.667 2.667 0 0 1 141.905 28h-21.81a2.667 2.667 0 0 1-2.666-2.667v-2.666ZM148.571 22.667A2.667 2.667 0 0 1 151.238 20h21.809a2.667 2.667 0 0 1 2.667 2.667v2.666A2.667 2.667 0 0 1 173.047 28h-21.809a2.667 2.667 0 0 1-2.667-2.667v-2.666ZM179.714 22.667A2.667 2.667 0 0 1 182.381 20h21.81a2.667 2.667 0 0 1 2.666 2.667v2.666A2.667 2.667 0 0 1 204.191 28h-21.81a2.667 2.667 0 0 1-2.667-2.667v-2.666ZM210.857 22.667A2.667 2.667 0 0 1 213.524 20h21.809A2.667 2.667 0 0 1 238 22.667v2.666A2.667 2.667 0 0 1 235.333 28h-21.809a2.667 2.667 0 0 1-2.667-2.667v-2.666ZM24 34.667A2.667 2.667 0 0 1 26.667 32h21.81a2.667 2.667 0 0 1 2.666 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.81A2.667 2.667 0 0 1 24 74.205V34.667ZM55.143 34.667A2.667 2.667 0 0 1 57.81 32h21.81a2.667 2.667 0 0 1 2.666 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666H57.81a2.667 2.667 0 0 1-2.666-2.666V34.667ZM86.286 34.667A2.667 2.667 0 0 1 88.952 32h21.81a2.667 2.667 0 0 1 2.667 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.81a2.667 2.667 0 0 1-2.666-2.666V34.667ZM117.429 34.667A2.667 2.667 0 0 1 120.095 32h21.81a2.667 2.667 0 0 1 2.667 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.81a2.667 2.667 0 0 1-2.666-2.666V34.667ZM148.571 34.667A2.667 2.667 0 0 1 151.238 32h21.809a2.667 2.667 0 0 1 2.667 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.809a2.667 2.667 0 0 1-2.667-2.666V34.667ZM179.714 34.667A2.667 2.667 0 0 1 182.381 32h21.81a2.667 2.667 0 0 1 2.666 2.667v39.538a2.667 2.667 0 0 1-2.666 2.666h-21.81a2.667 2.667 0 0 1-2.667-2.666V34.667ZM210.857 34.667A2.667 2.667 0 0 1 213.524 32h21.809A2.667 2.667 0 0 1 238 34.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.809a2.667 2.667 0 0 1-2.667-2.666V34.667Z'/><rect width='23.143' height='5.625' fill='#66D999' rx='2' transform='matrix(1 0 0 -1 26 43.245)'/><rect width='23.143' height='5.625' fill='#66D999' rx='2' transform='matrix(1 0 0 -1 150.571 43.245)'/><path fill='#66D999' d='M88.286 63.745a2 2 0 0 0 2 2h19.143a2 2 0 0 0 2-2V62.12a2 2 0 0 0-2-2H90.286a2 2 0 0 0-2 2v1.625Z'/></g><defs><clipPath id='fs-a'><path fill='#fff' d='M0 0h278v100.871H0z'/></clipPath><filter id='fs-b' width='251.333' height='94.205' x='5.333' y='6.667' color-interpolation-filters='sRGB' filterUnits='userSpaceOnUse'><feFlood flood-opacity='0' result='BackgroundImageFix'/><feColorMatrix in='SourceAlpha' result='hardAlpha' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0'/><feOffset dy='5.333'/><feGaussianBlur stdDeviation='5.333'/><feComposite in2='hardAlpha' operator='out'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.14 0'/><feBlend in2='BackgroundImageFix' result='effect1_dropShadow_1955_26473'/><feBlend in='SourceGraphic' in2='effect1_dropShadow_1955_26473' result='shape'/></filter></defs></svg></span>
+                <span class="type-card-illustration" aria-hidden="true"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 278 101' width='278' height='101' fill='none'><g clip-path='url(#fs-a)' filter='url(#fs-b)'><rect width='230' height='72.871' x='16' y='12' fill='#fff' rx='3' shape-rendering='crispEdges'/><rect width='229.8' height='72.671' x='16.1' y='12.1' stroke='#E6E6E6' stroke-width='.2' rx='2.9' shape-rendering='crispEdges'/><path fill='#E6E6E6' d='M24 22.667A2.667 2.667 0 0 1 26.667 20h21.81a2.667 2.667 0 0 1 2.666 2.667v2.666A2.667 2.667 0 0 1 48.476 28h-21.81A2.667 2.667 0 0 1 24 25.333v-2.666ZM55.143 22.667A2.667 2.667 0 0 1 57.81 20h21.81a2.667 2.667 0 0 1 2.666 2.667v2.666A2.667 2.667 0 0 1 79.619 28H57.81a2.667 2.667 0 0 1-2.666-2.667v-2.666ZM86.286 22.667A2.667 2.667 0 0 1 88.952 20h21.81a2.667 2.667 0 0 1 2.667 2.667v2.666A2.667 2.667 0 0 1 110.762 28h-21.81a2.667 2.667 0 0 1-2.666-2.667v-2.666ZM117.429 22.667A2.667 2.667 0 0 1 120.095 20h21.81a2.667 2.667 0 0 1 2.667 2.667v2.666A2.667 2.667 0 0 1 141.905 28h-21.81a2.667 2.667 0 0 1-2.666-2.667v-2.666ZM148.571 22.667A2.667 2.667 0 0 1 151.238 20h21.809a2.667 2.667 0 0 1 2.667 2.667v2.666A2.667 2.667 0 0 1 173.047 28h-21.809a2.667 2.667 0 0 1-2.667-2.667v-2.666ZM179.714 22.667A2.667 2.667 0 0 1 182.381 20h21.81a2.667 2.667 0 0 1 2.666 2.667v2.666A2.667 2.667 0 0 1 204.191 28h-21.81a2.667 2.667 0 0 1-2.667-2.667v-2.666ZM210.857 22.667A2.667 2.667 0 0 1 213.524 20h21.809A2.667 2.667 0 0 1 238 22.667v2.666A2.667 2.667 0 0 1 235.333 28h-21.809a2.667 2.667 0 0 1-2.667-2.667v-2.666ZM24 34.667A2.667 2.667 0 0 1 26.667 32h21.81a2.667 2.667 0 0 1 2.666 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.81A2.667 2.667 0 0 1 24 74.205V34.667ZM55.143 34.667A2.667 2.667 0 0 1 57.81 32h21.81a2.667 2.667 0 0 1 2.666 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666H57.81a2.667 2.667 0 0 1-2.666-2.666V34.667ZM86.286 34.667A2.667 2.667 0 0 1 88.952 32h21.81a2.667 2.667 0 0 1 2.667 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.81a2.667 2.667 0 0 1-2.666-2.666V34.667ZM117.429 34.667A2.667 2.667 0 0 1 120.095 32h21.81a2.667 2.667 0 0 1 2.667 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.81a2.667 2.667 0 0 1-2.666-2.666V34.667ZM148.571 34.667A2.667 2.667 0 0 1 151.238 32h21.809a2.667 2.667 0 0 1 2.667 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.809a2.667 2.667 0 0 1-2.667-2.666V34.667ZM179.714 34.667A2.667 2.667 0 0 1 182.381 32h21.81a2.667 2.667 0 0 1 2.666 2.667v39.538a2.667 2.667 0 0 1-2.666 2.666h-21.81a2.667 2.667 0 0 1-2.667-2.666V34.667ZM210.857 34.667A2.667 2.667 0 0 1 213.524 32h21.809A2.667 2.667 0 0 1 238 34.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.809a2.667 2.667 0 0 1-2.667-2.666V34.667Z'/><rect width='23.143' height='5.625' fill='#66D999' rx='2' transform='matrix(1 0 0 -1 26 43.245)'/><rect width='23.143' height='5.625' fill='#66D999' rx='2' transform='matrix(1 0 0 -1 150.571 43.245)'/><path fill='#66D999' d='M88.286 63.745a2 2 0 0 0 2 2h19.143a2 2 0 0 0 2-2V62.12a2 2 0 0 0-2-2H90.286a2 2 0 0 0-2 2v1.625Z'/></g><defs><clipPath id='fs-a'><path fill='#fff' d='M0 0h278v100.871H0z'/></clipPath><filter id='fs-b' width='251.333' height='94.205' x='5.333' y='6.667' color-interpolation-filters='sRGB' filterUnits='userSpaceOnUse'><feFlood flood-opacity='0' result='BackgroundImageFix'/><feColorMatrix in='SourceAlpha' result='hardAlpha' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0'/><feOffset dy='5.333'/><feGaussianBlur stdDeviation='5.333'/><feComposite in2='hardAlpha' operator='out'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.14 0'/><feBlend in2='BackgroundImageFix' result='effect1_dropShadow_1955_26473'/><feBlend in='SourceGraphic' in2='effect1_dropShadow_1955_26473' result='shape'/></filter></defs></svg></span>
                 <input type="radio" name="booking-type" value="fixedSession" aria-label="Fixed session" data-no-phrase>
               </span>
               <span class="type-card-copy">
@@ -225,7 +274,7 @@
             </label>
             <label class="type-card">
               <span class="type-card-head">
-                <span class="type-card-illustration" aria-hidden="true"><svg xmlns='http://www.w3.org/2000/svg' width='278' height='101' fill='none'><g clip-path='url(#os-a)' filter='url(#os-b)'><rect width='230' height='72.871' x='16' y='12' fill='#fff' rx='3' shape-rendering='crispEdges'/><rect width='229.8' height='72.671' x='16.1' y='12.1' stroke='#E6E6E6' stroke-width='.2' rx='2.9' shape-rendering='crispEdges'/><path fill='#E6E6E6' d='M24 22.667A2.667 2.667 0 0 1 26.667 20h21.81a2.667 2.667 0 0 1 2.666 2.667v2.666A2.667 2.667 0 0 1 48.476 28h-21.81A2.667 2.667 0 0 1 24 25.333v-2.666ZM55.143 22.667A2.667 2.667 0 0 1 57.81 20h21.81a2.667 2.667 0 0 1 2.666 2.667v2.666A2.667 2.667 0 0 1 79.619 28H57.81a2.667 2.667 0 0 1-2.666-2.667v-2.666ZM86.286 22.667A2.667 2.667 0 0 1 88.952 20h21.81a2.667 2.667 0 0 1 2.667 2.667v2.666A2.667 2.667 0 0 1 110.762 28h-21.81a2.667 2.667 0 0 1-2.666-2.667v-2.666ZM117.429 22.667A2.667 2.667 0 0 1 120.095 20h21.81a2.667 2.667 0 0 1 2.667 2.667v2.666A2.667 2.667 0 0 1 141.905 28h-21.81a2.667 2.667 0 0 1-2.666-2.667v-2.666ZM148.571 22.667A2.667 2.667 0 0 1 151.238 20h21.809a2.667 2.667 0 0 1 2.667 2.667v2.666A2.667 2.667 0 0 1 173.047 28h-21.809a2.667 2.667 0 0 1-2.667-2.667v-2.666ZM179.714 22.667A2.667 2.667 0 0 1 182.381 20h21.81a2.667 2.667 0 0 1 2.666 2.667v2.666A2.667 2.667 0 0 1 204.191 28h-21.81a2.667 2.667 0 0 1-2.667-2.667v-2.666ZM210.857 22.667A2.667 2.667 0 0 1 213.524 20h21.809A2.667 2.667 0 0 1 238 22.667v2.666A2.667 2.667 0 0 1 235.333 28h-21.809a2.667 2.667 0 0 1-2.667-2.667v-2.666Z'/><path fill='#66D999' d='M24 34.667A2.667 2.667 0 0 1 26.667 32h21.81a2.667 2.667 0 0 1 2.666 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.81A2.667 2.667 0 0 1 24 74.205V34.667ZM55.143 34.667A2.667 2.667 0 0 1 57.81 32h21.81a2.667 2.667 0 0 1 2.666 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666H57.81a2.667 2.667 0 0 1-2.666-2.666V34.667ZM86.286 34.667A2.667 2.667 0 0 1 88.952 32h21.81a2.667 2.667 0 0 1 2.667 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.81a2.667 2.667 0 0 1-2.666-2.666V34.667ZM117.429 34.667A2.667 2.667 0 0 1 120.095 32h21.81a2.667 2.667 0 0 1 2.667 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.81a2.667 2.667 0 0 1-2.666-2.666V34.667ZM148.571 34.667A2.667 2.667 0 0 1 151.238 32h21.809a2.667 2.667 0 0 1 2.667 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.809a2.667 2.667 0 0 1-2.667-2.666V34.667Z'/><path fill='#E6E6E6' d='M179.714 34.667A2.667 2.667 0 0 1 182.381 32h21.81a2.667 2.667 0 0 1 2.666 2.667v39.538a2.667 2.667 0 0 1-2.666 2.666h-21.81a2.667 2.667 0 0 1-2.667-2.666V34.667ZM210.857 34.667A2.667 2.667 0 0 1 213.524 32h21.809A2.667 2.667 0 0 1 238 34.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.809a2.667 2.667 0 0 1-2.667-2.666V34.667Z'/></g><defs><clipPath id='os-a'><path fill='#fff' d='M0 0h278v100.871H0z'/></clipPath><filter id='os-b' width='251.333' height='94.205' x='5.333' y='6.667' color-interpolation-filters='sRGB' filterUnits='userSpaceOnUse'><feFlood flood-opacity='0' result='BackgroundImageFix'/><feColorMatrix in='SourceAlpha' result='hardAlpha' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0'/><feOffset dy='5.333'/><feGaussianBlur stdDeviation='5.333'/><feComposite in2='hardAlpha' operator='out'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.14 0'/><feBlend in2='BackgroundImageFix' result='effect1_dropShadow_1955_26496'/><feBlend in='SourceGraphic' in2='effect1_dropShadow_1955_26496' result='shape'/></filter></defs></svg></span>
+                <span class="type-card-illustration" aria-hidden="true"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 278 101' width='278' height='101' fill='none'><g clip-path='url(#os-a)' filter='url(#os-b)'><rect width='230' height='72.871' x='16' y='12' fill='#fff' rx='3' shape-rendering='crispEdges'/><rect width='229.8' height='72.671' x='16.1' y='12.1' stroke='#E6E6E6' stroke-width='.2' rx='2.9' shape-rendering='crispEdges'/><path fill='#E6E6E6' d='M24 22.667A2.667 2.667 0 0 1 26.667 20h21.81a2.667 2.667 0 0 1 2.666 2.667v2.666A2.667 2.667 0 0 1 48.476 28h-21.81A2.667 2.667 0 0 1 24 25.333v-2.666ZM55.143 22.667A2.667 2.667 0 0 1 57.81 20h21.81a2.667 2.667 0 0 1 2.666 2.667v2.666A2.667 2.667 0 0 1 79.619 28H57.81a2.667 2.667 0 0 1-2.666-2.667v-2.666ZM86.286 22.667A2.667 2.667 0 0 1 88.952 20h21.81a2.667 2.667 0 0 1 2.667 2.667v2.666A2.667 2.667 0 0 1 110.762 28h-21.81a2.667 2.667 0 0 1-2.666-2.667v-2.666ZM117.429 22.667A2.667 2.667 0 0 1 120.095 20h21.81a2.667 2.667 0 0 1 2.667 2.667v2.666A2.667 2.667 0 0 1 141.905 28h-21.81a2.667 2.667 0 0 1-2.666-2.667v-2.666ZM148.571 22.667A2.667 2.667 0 0 1 151.238 20h21.809a2.667 2.667 0 0 1 2.667 2.667v2.666A2.667 2.667 0 0 1 173.047 28h-21.809a2.667 2.667 0 0 1-2.667-2.667v-2.666ZM179.714 22.667A2.667 2.667 0 0 1 182.381 20h21.81a2.667 2.667 0 0 1 2.666 2.667v2.666A2.667 2.667 0 0 1 204.191 28h-21.81a2.667 2.667 0 0 1-2.667-2.667v-2.666ZM210.857 22.667A2.667 2.667 0 0 1 213.524 20h21.809A2.667 2.667 0 0 1 238 22.667v2.666A2.667 2.667 0 0 1 235.333 28h-21.809a2.667 2.667 0 0 1-2.667-2.667v-2.666Z'/><path fill='#66D999' d='M24 34.667A2.667 2.667 0 0 1 26.667 32h21.81a2.667 2.667 0 0 1 2.666 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.81A2.667 2.667 0 0 1 24 74.205V34.667ZM55.143 34.667A2.667 2.667 0 0 1 57.81 32h21.81a2.667 2.667 0 0 1 2.666 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666H57.81a2.667 2.667 0 0 1-2.666-2.666V34.667ZM86.286 34.667A2.667 2.667 0 0 1 88.952 32h21.81a2.667 2.667 0 0 1 2.667 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.81a2.667 2.667 0 0 1-2.666-2.666V34.667ZM117.429 34.667A2.667 2.667 0 0 1 120.095 32h21.81a2.667 2.667 0 0 1 2.667 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.81a2.667 2.667 0 0 1-2.666-2.666V34.667ZM148.571 34.667A2.667 2.667 0 0 1 151.238 32h21.809a2.667 2.667 0 0 1 2.667 2.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.809a2.667 2.667 0 0 1-2.667-2.666V34.667Z'/><path fill='#E6E6E6' d='M179.714 34.667A2.667 2.667 0 0 1 182.381 32h21.81a2.667 2.667 0 0 1 2.666 2.667v39.538a2.667 2.667 0 0 1-2.666 2.666h-21.81a2.667 2.667 0 0 1-2.667-2.666V34.667ZM210.857 34.667A2.667 2.667 0 0 1 213.524 32h21.809A2.667 2.667 0 0 1 238 34.667v39.538a2.667 2.667 0 0 1-2.667 2.666h-21.809a2.667 2.667 0 0 1-2.667-2.666V34.667Z'/></g><defs><clipPath id='os-a'><path fill='#fff' d='M0 0h278v100.871H0z'/></clipPath><filter id='os-b' width='251.333' height='94.205' x='5.333' y='6.667' color-interpolation-filters='sRGB' filterUnits='userSpaceOnUse'><feFlood flood-opacity='0' result='BackgroundImageFix'/><feColorMatrix in='SourceAlpha' result='hardAlpha' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0'/><feOffset dy='5.333'/><feGaussianBlur stdDeviation='5.333'/><feComposite in2='hardAlpha' operator='out'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.14 0'/><feBlend in2='BackgroundImageFix' result='effect1_dropShadow_1955_26496'/><feBlend in='SourceGraphic' in2='effect1_dropShadow_1955_26496' result='shape'/></filter></defs></svg></span>
                 <input type="radio" name="booking-type" value="openSlot" checked aria-label="Open slot" data-no-phrase>
               </span>
               <span class="type-card-copy">
@@ -345,8 +394,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=af9596a"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=af9596a"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=a965712"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=a965712"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -360,16 +409,10 @@
     const offerList = document.getElementById('offerList');
     const regen = document.getElementById('regenSuggest');
     const next = document.getElementById('offerContinue');
+    const error = document.getElementById('offerError');
     const cards = [...offerList.querySelectorAll('.select-card')];
 
     let picked = null;
-
-    /* data-offer says which sheet Continue opens; the artifact's own card
-       takes one of book / pay / promo, and 'promo' is the shape with no
-       calendar icon and no price — which is what an enquiry is. Two
-       vocabularies, one line to cross between them, rather than a value the
-       artifact does not document quietly landing in the right branch. */
-    const ARTIFACT_KIND = { book: 'book', form: 'promo' };
 
     /* ── The preview ───────────────────────────────────────────────────
        The step's argument, drawn rather than said. Before a choice the
@@ -386,23 +429,21 @@
         subtitle: 'Yoga and mindfulness workshops for women',
         image: 'photo',
         contact: [],
-        offer: picked
-          ? {
-              on: true,
-              kind: ARTIFACT_KIND[picked.dataset.offer],
-              title: picked.dataset.title,
-              meta: picked.dataset.meta,
-              cta: picked.dataset.cta,
-              price: '',
-            }
-          /* Off, but with the taller of the two shapes still loaded, so the
-             ghost is the height of what arrives and nothing below it steps
-             when a card is picked. */
-          : { on: false, kind: 'book', title: cards[0].dataset.title,
-              meta: cards[0].dataset.meta, cta: cards[0].dataset.cta, price: '' },
+        /* A plain button, not the card with a picture on it. The featured
+           shape is still being built — see the Layout picker on the Edit
+           links screen — and a preview that drew it here would be promising
+           a thing this step cannot yet deliver. The suggestions are what is
+           shipping; the shape they take is a later question.
+
+           TEMPORARY. When the featured work lands, this goes back to
+           offer:{on:true, kind, title, meta, cta} with 'offer' in the ghost
+           list, and --bp-natural-h back to 752 so the taller card fits. */
+        offer: { on: false },
+        mainlink: picked ? picked.dataset.title : '',
+        links: picked ? 'default' : 'none',
         ghost: picked
-          ? ['contact', 'mainlink', 'socials']
-          : ['offer', 'contact', 'mainlink', 'socials'],
+          ? ['contact', 'socials']
+          : ['contact', 'mainlink', 'socials'],
       }),
     });
 
@@ -420,8 +461,8 @@
         c.tabIndex = isSel ? 0 : -1;
         c.setAttribute('data-inspect-label', isSel ? 'Select card — selected' : 'Select card — resting');
       });
-      next.setAttribute('aria-disabled', 'false');
-      next.setAttribute('data-inspect-label', 'Primary Button — Continue');
+      error.hidden = true;
+      offerList.removeAttribute('aria-invalid');
       if (opts && opts.focus) card.focus();
       split.sync();
     }
@@ -482,21 +523,21 @@
     const ROUNDS = [
       [
         { offer: 'book', title: 'Free intro call', meta: 'Pick a time that suits you', cta: 'Book a time',
-          label: 'Free intro call', desc: 'People pick a time that suits them — no messages back and forth.' },
+          label: 'Free intro call', desc: 'People pick a time that suits them.' },
         { offer: 'form', title: 'Private class enquiry', meta: '', cta: 'Ask about classes',
-          label: 'Private class enquiry', desc: 'People tell you what they need, and you reply when you can.' },
+          label: 'Private class enquiry', desc: 'People tell you what they need.' },
       ],
       [
         { offer: 'book', title: 'Saturday morning class', meta: 'Sat 10 May · 09:00', cta: 'Save me a mat',
-          label: 'Saturday morning class', desc: 'People sign up for a date you set, so you know who is coming.' },
+          label: 'Saturday morning class', desc: 'People sign up for a date you set.' },
         { offer: 'form', title: 'Workshop waiting list', meta: '', cta: 'Tell me the next date',
-          label: 'Workshop waiting list', desc: 'People leave their email, so the next date is never a cold start.' },
+          label: 'Workshop waiting list', desc: 'People leave their email for the next date.' },
       ],
       [
         { offer: 'book', title: 'One-to-one session', meta: 'Pick a time that suits you', cta: 'Book a session',
-          label: 'One-to-one session', desc: 'People choose from the times you are free, and it lands in your calendar.' },
+          label: 'One-to-one session', desc: "People choose from the times you're free." },
         { offer: 'form', title: 'Ask about corporate classes', meta: '', cta: 'Get in touch',
-          label: 'Ask about corporate classes', desc: 'Bigger jobs start with a question. This is where it reaches you.' },
+          label: 'Ask about corporate classes', desc: 'Bigger jobs start with a question.' },
       ],
     ];
     let round = 0;
@@ -505,8 +546,9 @@
       if (regen.getAttribute('aria-disabled') === 'true') return;
       round += 1;
       picked = null;
-      next.setAttribute('aria-disabled', 'true');
-      next.setAttribute('data-inspect-label', 'Primary Button — Continue, waiting for an answer');
+      /* A fresh pair is a fresh question, not a failed answer. */
+      error.hidden = true;
+      offerList.removeAttribute('aria-invalid');
       const set = ROUNDS[round % ROUNDS.length];
       cards.forEach((card, i) => {
         const s = set[i];
@@ -540,7 +582,15 @@
     const closeSheet = (el) => el.setAttribute('data-open', 'false');
 
     next.addEventListener('click', () => {
-      if (next.getAttribute('aria-disabled') === 'true' || !picked) return;
+      if (!picked) {
+        /* Say what is missing and send them to it. role="alert" on the line
+           means a screen reader hears it without the focus move doing the
+           announcing. */
+        error.hidden = false;
+        offerList.setAttribute('aria-invalid', 'true');
+        cards[0].focus();
+        return;
+      }
       if (picked.dataset.offer === 'book') openSheet(typeSheet);
       else openForm();
     });
