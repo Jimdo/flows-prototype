@@ -393,7 +393,11 @@
      applyConfig says the same thing from luminance when a real colour
      arrives; this covers the switch on its own. */
   html[data-theme="light"],
-  .bio-page[data-theme="light"] { --bio-surface-lift: 7%; }
+  .bio-page[data-theme="light"] {
+    --bio-surface-lift: 7%;
+    --bio-fx-blend: multiply;
+    --bio-fx-opacity: 0.9;
+  }
 
   /* The field is absolutely positioned and inset -35%, so it hangs well
      below the card — and an overhang nobody clips is scrollable overflow.
@@ -500,41 +504,40 @@
 
        Over a light ground screen does nothing (white screened with
        anything is white), so there it stays an ordinary tint. */
-    mix-blend-mode: screen;
-    opacity: 0.52;
+    /* The ground decides, and the ground is a colour rather than a theme.
+       Screen puts the palette on top of a dark page instead of mixing into
+       it — 40% of an amber over near-black is dark olive, the hue surviving
+       and the chroma not. Over a light page screen does nothing at all
+       (white screened with anything is white), so there it multiplies,
+       which is the same move from the other end.
+
+       Read from --bio-fx-blend, which applyConfig sets from the luminance
+       of the colour the seller actually picked. Keying this on
+       data-theme="light" was the bug: the design editor never sets that
+       attribute — it hands over a colour — so a seller who chose white got
+       a field screened onto white, which is white, and a layout that looked
+       switched off. The opacity travels with it, because multiply needs far
+       more of this layer than screen does: most of it is transparent by
+       design, and over black the transparent parts are the ground while
+       over white they are white. */
+    mix-blend-mode: var(--bio-fx-blend, screen);
+    opacity: var(--bio-fx-opacity, 0.52);
     /* Drift, not rotation. A rotating layer has to be wider than the card's
        diagonal or its own straight edge swings into view — which is what
        drew a hard diagonal rule down the left of the page, and no amount of
        blur hides a straight line next to a colour. The layer is bigger than
        the card on both axes and never turns, so there is no edge to find;
-       it breathes between two near-identical positions over ninety
-       seconds, which is movement you notice by looking away and back. */
-    animation: bio-aurora-drift 90s ease-in-out infinite;
+       it breathes rather than turns. Forty seconds and a little further
+       each way: at ninety and two per cent it was movement you had to take
+       on trust. The travel is 3.5% of a 446px layer against the 54px of
+       margin that -12% gives, so there is still nothing near an edge. */
+    animation: bio-aurora-drift 40s ease-in-out infinite;
     will-change: transform;
   }
-  /* The mirror of screen. A coloured layer multiplied into white comes back
-     as the colour, the way one screened onto black does — the two modes are
-     the same move from opposite ends. As an ordinary tint at 0.4 the pools
-     mixed toward the white they sat on and the page came out pastel, which
-     is the light ground's own version of the mud. */
-  .bio-page[data-theme="light"][data-header="aurora"] .bio-page-fx,
-  html[data-theme="light"] .bio-page[data-header="aurora"] .bio-page-fx {
-    mix-blend-mode: multiply;
-    /* Much higher than the dark ground's, and for a reason that is not
-       taste: most of this layer is transparent by design — each pool runs
-       to nothing by about three quarters of its radius, and the noise mask
-       takes more alpha out again. Over black that costs nothing, because
-       the transparent parts are the ground. Over white the transparent
-       parts are white, so the same layer at 0.4 left a page that was almost
-       all ground and a little blush. 0.9 is what it takes for the pools to
-       read at all, and it is still light enough to keep the buttons and the
-       text on top of them well clear. */
-    opacity: 0.9;
-  }
   @keyframes bio-aurora-drift {
-    0%   { transform: translate3d(-2%, -1%, 0) scale(1.04); }
-    50%  { transform: translate3d(2%, 1.5%, 0) scale(1.1); }
-    100% { transform: translate3d(-2%, -1%, 0) scale(1.04); }
+    0%   { transform: translate3d(-3.5%, -2%, 0) scale(1.05); }
+    50%  { transform: translate3d(3.5%, 2.5%, 0) scale(1.12); }
+    100% { transform: translate3d(-3.5%, -2%, 0) scale(1.05); }
   }
   /* Grain on top of the swirl: the coarse mask gives the field shape, this
      gives it surface. A backdrop-filter over a flat wash blurs nothing and
@@ -2772,11 +2775,18 @@
            ground towards the picture's colour; multiply pulls a light one
            down into it. The wrong one of the two washes the page out. */
         var blend = onLight ? 'multiply' : 'screen';
+        /* Multiply needs far more of the field than screen does. Most of
+           the layer is transparent by design, and over black the transparent
+           parts are the ground while over white they are white — the same
+           layer at 0.52 leaves a light page almost all ground and a little
+           blush. */
+        var fxOpacity = onLight ? '0.9' : '0.52';
         [document.documentElement, page].forEach(function (el) {
           el.style.setProperty('--bio-bg', d.bg);
           el.style.setProperty('--bio-ink', ink);
           el.style.setProperty('--bio-surface-lift', lift);
           el.style.setProperty('--bio-fx-blend', blend);
+          el.style.setProperty('--bio-fx-opacity', fxOpacity);
         });
         syncMap();
       }
