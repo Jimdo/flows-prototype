@@ -512,10 +512,24 @@
     animation: bio-aurora-drift 90s ease-in-out infinite;
     will-change: transform;
   }
+  /* The mirror of screen. A coloured layer multiplied into white comes back
+     as the colour, the way one screened onto black does — the two modes are
+     the same move from opposite ends. As an ordinary tint at 0.4 the pools
+     mixed toward the white they sat on and the page came out pastel, which
+     is the light ground's own version of the mud. */
   .bio-page[data-theme="light"][data-header="aurora"] .bio-page-fx,
   html[data-theme="light"] .bio-page[data-header="aurora"] .bio-page-fx {
-    mix-blend-mode: normal;
-    opacity: 0.4;
+    mix-blend-mode: multiply;
+    /* Much higher than the dark ground's, and for a reason that is not
+       taste: most of this layer is transparent by design — each pool runs
+       to nothing by about three quarters of its radius, and the noise mask
+       takes more alpha out again. Over black that costs nothing, because
+       the transparent parts are the ground. Over white the transparent
+       parts are white, so the same layer at 0.4 left a page that was almost
+       all ground and a little blush. 0.9 is what it takes for the pools to
+       read at all, and it is still light enough to keep the buttons and the
+       text on top of them well clear. */
+    opacity: 0.9;
   }
   @keyframes bio-aurora-drift {
     0%   { transform: translate3d(-2%, -1%, 0) scale(1.04); }
@@ -537,25 +551,62 @@
     opacity: 0.14;
   }
 
-  /* The dotted one. Its ground is a field of the seller's ink rather than a
-     sweep of their colour — the other idea, not both at once. The drift is
-     one tile over forty seconds, which is slow enough that it reads as
-     texture rather than as something scrolling. */
+  /* ── The dotted one ──
+     Its ground is a field of the seller's ink rather than a sweep of their
+     colour — the other idea, not both at once.
+
+     Three grids, not one. A single grid at a single size is a texture; it
+     has no near and no far, so nothing about it can move at a different
+     rate from anything else and the page has no depth to parallax. The
+     three are a near layer (34px apart, 1.5px, brightest), a middle one at
+     the 22px this always used, and a far one (15px, 0.9px, faintest) —
+     bigger and brighter reads as nearer, which is the whole of the trick.
+     The far layer is 7% of the ink and not less: at 5% on a black ground a
+     dot is rgb(13) and there is nothing there to see, so the depth was
+     paid for with a layer nobody could find.
+
+     Two kinds of movement, on two different properties so they do not
+     fight:
+
+       transform          the ambient drift, one middle tile over forty
+                          seconds. All three layers travel together, so the
+                          page is alive when nobody is touching it.
+       background-position the parallax, set from the scroll in JS. Each
+                          layer takes a fraction of it — 0.34, 0.18, 0.07 —
+                          so the near grid lags the card most and the far
+                          one barely at all.
+
+     The element scrolls with the card, so moving the pattern *down* the
+     scroll is what makes it lag. */
   .bio-page[data-header="dots"] .bio-page-fx {
     display: block;
     position: absolute;
     inset: -8%;
     z-index: 0;
     pointer-events: none;
-    background-image: radial-gradient(circle,
-      color-mix(in srgb, var(--bio-ink) 9%, transparent) 1.2px, transparent 1.4px);
-    background-size: 22px 22px;
+    background-image:
+      radial-gradient(circle, color-mix(in srgb, var(--bio-ink) 14%, transparent) 1.5px, transparent 1.7px),
+      radial-gradient(circle, color-mix(in srgb, var(--bio-ink) 10%, transparent) 1.2px, transparent 1.4px),
+      radial-gradient(circle, color-mix(in srgb, var(--bio-ink) 7%, transparent) 0.9px, transparent 1.1px);
+    background-size: 34px 34px, 22px 22px, 15px 15px;
+    background-position:
+      0 calc(var(--bio-dots-scroll, 0px) * 0.34),
+      0 calc(var(--bio-dots-scroll, 0px) * 0.18),
+      0 calc(var(--bio-dots-scroll, 0px) * 0.07);
     animation: bio-dots 40s linear infinite;
-    will-change: transform;
+    will-change: transform, background-position;
   }
   @keyframes bio-dots {
     from { transform: translate3d(0, 0, 0); }
     to   { transform: translate3d(22px, 22px, 0); }
+  }
+  /* Someone who has asked for less movement gets the layers and the depth,
+     and neither of the two things that move. */
+  @media (prefers-reduced-motion: reduce) {
+    .bio-page[data-header="dots"] .bio-page-fx {
+      animation: none;
+      background-position: 0 0, 0 0, 0 0;
+    }
   }
 
   .bio-hero-fx { display: none; }
@@ -2395,6 +2446,31 @@
       document.documentElement.setAttribute('data-pro',
         PRO_HEADERS.indexOf(id) !== -1 ? 'true' : 'false');
     }
+
+    /* ── Dots: the scroll, handed to CSS ──
+       One number on one element. The three grids each take their own
+       fraction of it in the stylesheet, so what the layers do with the
+       scroll is a design decision that lives beside the design rather than
+       three magic numbers in here.
+
+       Read in the rAF, written in the rAF: touching scrollY inside the
+       scroll event forces layout on a thread that is already busy, and the
+       whole point of a parallax is that it does not stutter. The listener
+       is passive for the same reason. */
+    var dotsTicking = false;
+    function syncDotsScroll() {
+      dotsTicking = false;
+      var fx = document.querySelector('.bio-page-fx');
+      if (!fx) return;
+      var y = window.scrollY || document.documentElement.scrollTop || 0;
+      fx.style.setProperty('--bio-dots-scroll', y + 'px');
+    }
+    window.addEventListener('scroll', function () {
+      if (dotsTicking) return;
+      dotsTicking = true;
+      requestAnimationFrame(syncDotsScroll);
+    }, { passive: true });
+    syncDotsScroll();
 
     /* The band and the marquee draw the name as texture. Both read it off
        the title rather than carrying their own copy, so the decoration can
