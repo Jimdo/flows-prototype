@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Onboarding — Your most important link</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=aa32aac">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=aa32aac">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=ccabb6b">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=ccabb6b">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=aa32aac">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=ccabb6b">
 <style>
   /* ─── Screen overrides ───
      The split frame the tagline step uses, because the argument this step
@@ -218,8 +218,8 @@
         <div class="setup-split-actions">
           <button class="btn btn-secondary"
             data-inspect-phrase="questionaire.skipCta"
-            data-nav-to="flows/bio-page-links-edit-onboarding.html"
-            data-nav-screen-id="scr-477">Skip</button>
+            data-nav-to="flows/bio-page-links-edit-v2.html?state=skipped"
+            data-nav-screen-id="scr-484">Skip</button>
           <!-- Live from the start. A greyed button is a dead end that will
                not say why: the seller presses it, nothing happens, and
                nothing on screen explains what is missing. It answers
@@ -282,8 +282,8 @@
       <div class="sheet-actions sheet-actions--end">
         <button type="button" class="btn btn-primary" id="typeContinue"
           data-inspect-phrase=""
-          data-nav-to="flows/bio-page-links-edit-onboarding.html"
-          data-nav-screen-id="scr-477">Continue</button>
+          data-nav-to="flows/bio-page-links-edit-v2.html"
+          data-nav-screen-id="scr-484">Continue</button>
       </div>
     </div>
   </div>
@@ -383,14 +383,14 @@
              is why the navigation hangs here. -->
         <button type="button" class="btn btn-primary" id="formDone"
           data-inspect-phrase=""
-          data-nav-to="flows/bio-page-links-edit-onboarding.html"
-          data-nav-screen-id="scr-477">Add to my page</button>
+          data-nav-to="flows/bio-page-links-edit-v2.html?added=form"
+          data-nav-screen-id="scr-484">Add to my page</button>
       </div>
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=aa32aac"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=aa32aac"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=ccabb6b"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=ccabb6b"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';

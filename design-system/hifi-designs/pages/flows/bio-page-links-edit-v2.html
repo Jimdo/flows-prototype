@@ -6,12 +6,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=aa32aac">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=aa32aac">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=ccabb6b">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=ccabb6b">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=aa32aac">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=ccabb6b">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -803,8 +803,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=aa32aac"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=aa32aac"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=ccabb6b"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=ccabb6b"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -3974,22 +3974,46 @@
 
     /* What the step before hands over: one action page, wearing the card,
        because that is what it was offered as. Not `creating` — the seller
-       set it up there and watched it being made. */
-    function seedFeatured() {
-      addBlock({
+       set it up there and watched it being made.
+
+       Which of the two it is comes from the step, because the step offers
+       two and the seller picked one. Landing a booking on a seller who had
+       just written a form was the one thing about arriving here that the
+       screen could get factually wrong. The pair, the words and the call to
+       action are the ones on the cards in onboarding-main-link.html — change
+       them there and change them here. */
+    const SEED_BLOCK = {
+      booking: {
         label: 'Free intro call',
         kind: 'book',
         editor: 'offer',
+        advanced: { layout: 'beside', cta: 'Book a time', image: SAMPLE_PICTURE },
+      },
+      form: {
+        label: 'Private class enquiry',
+        kind: 'form',
+        editor: 'form',
+        advanced: { layout: 'beside', cta: 'Ask about classes', image: SAMPLE_PICTURE },
+      },
+    };
+
+    function seedFeatured(added) {
+      const seed = SEED_BLOCK[added] || SEED_BLOCK.booking;
+      addBlock({
+        label: seed.label,
+        kind: seed.kind,
+        editor: seed.editor,
         creating: false,
         remember: true,
         review: false,
-        advanced: { layout: 'beside', cta: 'Book a time', image: SAMPLE_PICTURE },
+        fields: seed.kind === 'form' ? copyFields(FORM_DEFAULT) : null,
+        advanced: seed.advanced,
       });
     }
 
-    function applyState(name) {
+    function applyState(name, added) {
       clearPage();
-      if (SEED[name]) seedFeatured();
+      if (SEED[name]) seedFeatured(added);
       closeAdd();
       openEdit(false);
       refresh();
@@ -3999,8 +4023,31 @@
     window.addEventListener('message', (e) => {
       if (!e.data || e.data.type !== 'set-variant') return;
       if (!(e.data.variant in SEED)) return;
-      applyState(e.data.variant);
+      applyState(e.data.variant, e.data.added);
     });
+
+    /* ── How the step before says which door it opened ──
+       Moving between prototype screens is a page load, so the query string
+       is the only thing the step can hand over. Two things travel:
+
+         state   which of the two designed states this is — the two in SEED,
+                 and the two the workbench lists
+         added   whether the featured link is the booking or the form, which
+                 is not a state but content: the same list, carrying what the
+                 seller chose rather than what the first card happened to say
+
+       Anything else, or nothing at all, opens on the state the step is built
+       to produce. A link into this screen from somewhere other than the step
+       — the dashboard, the preview, a paywall coming back — is a seller who
+       already has a page, and that is the one it shows. */
+    function arrival() {
+      const q = new URLSearchParams(window.location.search);
+      const state = q.get('state');
+      return {
+        state: state && state in SEED ? state : 'featured-link-added',
+        added: q.get('added') === 'form' ? 'form' : 'booking',
+      };
+    }
 
     /* ── Leaving with an empty page ──
        A suggestion that has not been set up is not something on the page, so
@@ -4050,7 +4097,8 @@
        step before is built to produce — a featured link already on the page
        — because that is the path the design is for; skipping it is the
        other door, not the front one. */
-    applyState('featured-link-added');
+    const arrived = arrival();
+    applyState(arrived.state, arrived.added);
     window.__screenshotReady = true;
   </script>
 

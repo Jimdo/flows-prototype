@@ -33,6 +33,31 @@
     /* One fill for every placeholder. Different alphas per block read as a
        hierarchy among things that do not exist yet — a ghost is a ghost. */
     --bio-ghost-fill: rgba(255, 255, 255, 0.08);
+
+    /* ── Theme ──
+       Colour and type are one axis, the header's shape is another, and the
+       six templates prove they are independent: black minimal and light
+       artistic are the same layout in opposite palettes. Keeping them apart
+       means a new palette is six lines rather than a seventh template.
+
+       Set by data-theme on this element; the values here are the dark
+       default, so a page that names no theme renders exactly as before. */
+    --bio-bg: #0a0a0a;
+    --bio-ink: #ffffff;
+    --bio-ink-dim: #aaaaaa;
+    --bio-surface: rgba(255, 255, 255, 0.08);
+    /* Three, because the pro layouts paint fields rather than fills and a
+       field of one colour is a vignette. The dark template's accent was
+       white, which made the aurora a grey smudge — technically present,
+       visibly nothing. */
+    --bio-accent: #7c5cff;
+    --bio-accent-2: #22d3ee;
+    --bio-accent-3: #ff6b9d;
+    --bio-font-display: 'Familjen Grotesk', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    --bio-font-body: var(--bio-font-display);
+    --bio-display-weight: 700;
+    --bio-display-case: uppercase;
+    --bio-display-tracking: -1.75px;
     width: 100%;
     max-width: 360px;
     min-height: 100vh;
@@ -152,6 +177,463 @@
     line-height: 1.4;
     padding: 20px 20px 40px;
     margin: 0;
+  }
+
+  /* The theme is only worth having if the page actually reads from it.
+     These were literals until the layouts needed to vary them — and a
+     half-themed page is worse than an unthemed one: the cream template
+     rendered with the dark template's buttons still on it, which reads as
+     a bug rather than as a palette. */
+  .bio-page[data-theme] { background: var(--bio-bg); color: var(--bio-ink); }
+  .bio-page[data-theme] .bio-hero-title { color: var(--bio-ink); font-family: var(--bio-font-display); }
+  .bio-page[data-theme] .bio-subtitle { color: var(--bio-ink-dim); font-family: var(--bio-font-body); }
+  .bio-page[data-theme] .bio-link-btn,
+  .bio-page[data-theme] .bio-contact-btn {
+    background: var(--bio-surface);
+    color: var(--bio-ink);
+    font-family: var(--bio-font-body);
+  }
+  .bio-page[data-theme] .bio-contact-btn {
+    border-color: color-mix(in srgb, var(--bio-ink) 16%, transparent);
+  }
+  .bio-page[data-theme] .bio-social-dot,
+  .bio-page[data-theme] .bio-link-arrow { color: var(--bio-ink); }
+  .bio-page[data-theme] .bio-rich-btn-title,
+  .bio-page[data-theme] .bio-rich-btn-cta-label { color: var(--bio-ink); }
+  .bio-page[data-theme] .bio-rich-btn-meta { color: var(--bio-ink-dim); }
+  .bio-page[data-theme] .bio-rich-btn-info,
+  .bio-page[data-theme] .bio-rich-btn-cta { background: var(--bio-surface); }
+
+  /* A theme whose ink is the same hue as its ground needs the surface to
+     carry the separation, which a translucent white cannot do on cream. */
+  .bio-page[data-theme="neon"] .bio-link-btn,
+  .bio-page[data-theme="neon"] .bio-contact-btn { color: var(--bio-bg); }
+  .bio-page[data-theme="neon"] .bio-link-btn .bio-link-arrow { color: var(--bio-bg); }
+
+  /* ═══════════════════════════════════════════════════════════════
+     HEADER LAYOUTS
+
+     The header is three things — a name, a picture and a tagline — and
+     every template in the picker is a different arrangement of those
+     three. Six templates ship today and they are four arrangements:
+     black minimal and light artistic are the same layout in opposite
+     palettes, as are bold colourful and elegant green. So the shape is
+     one axis and the palette is another, and they are kept apart here:
+     data-header picks the arrangement, data-theme picks the colours.
+
+     Heights are held close on purpose. The header is the only thing
+     above the fold on a phone, and a template that pushes the first
+     button off the screen is not a style choice, it is a worse page.
+     Every layout below lands between roughly 400 and 440.
+
+     The four marked PRO are the ones worth charging for: they do
+     something the free four cannot, and all of their motion is
+     transform and opacity so it stays on the compositor, with a static
+     frame under prefers-reduced-motion.
+     ═══════════════════════════════════════════════════════════════ */
+
+  .bio-hero-fx { display: none; }
+
+  /* ── 1. Stacked — white minimal ──
+     Picture, name, tagline, in that order and nothing else. The one that
+     has to look right with no photo and a two-word name, because it is
+     what most pages start as. */
+  .bio-page[data-header="stacked"] .bio-hero {
+    padding: 48px 20px 0;
+    gap: 24px;
+  }
+  .bio-page[data-header="stacked"] .bio-hero-title {
+    order: 2;
+    font-size: 32px;
+    line-height: 1.05;
+    margin: 0;
+    letter-spacing: -0.5px;
+    text-transform: none;
+  }
+  .bio-page[data-header="stacked"] .bio-hero-img-wrap { order: 1; }
+  .bio-page[data-header="stacked"] .bio-subtitle { order: 3; padding: 8px 20px 40px; }
+
+  /* ── 2. Overlap — black minimal, light artistic ──
+     The name set large enough to break out of its own line and sit over
+     the top of the picture. The default, and the artifact's original
+     hero; the base rules above are this layout. */
+
+  /* ── 3. Fade — bold colourful, elegant green ──
+     The picture runs the full width and dissolves into the page colour,
+     with the name over the dissolve. The mask is why it works: a hard
+     edge would read as a banner, and the point is that the photo *is*
+     the background until it stops being one. */
+  .bio-page[data-header="fade"] .bio-hero {
+    padding: 0 20px 0;
+    gap: 0;
+    min-height: 420px;
+    justify-content: flex-end;
+  }
+  .bio-page[data-header="fade"] .bio-hero-img-wrap {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 300px;
+    border-radius: 0;
+    -webkit-mask-image: linear-gradient(to bottom, #000 45%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 45%, transparent 100%);
+  }
+  .bio-page[data-header="fade"] .bio-hero-title {
+    position: relative;
+    z-index: 1;
+    font-size: 40px;
+    line-height: 1.0;
+    margin: 0;
+    letter-spacing: -1px;
+    text-transform: none;
+  }
+  .bio-page[data-header="fade"] .bio-subtitle {
+    position: relative;
+    z-index: 1;
+    padding: 10px 20px 40px;
+  }
+
+  /* ── 4. Band — soft and warm ──
+     The given name blown up past both edges of the screen, cropped by a
+     tinted band, with the picture sitting on the band's lower edge. The
+     name is used twice and means something different each time: once as
+     texture, once as the label. */
+  .bio-page[data-header="band"] .bio-hero {
+    padding: 0 20px 0;
+    gap: 0;
+  }
+  .bio-page[data-header="band"] .bio-hero-fx {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 180px;
+    background: color-mix(in srgb, var(--bio-ink) 7%, var(--bio-bg));
+    overflow: hidden;
+  }
+  /* The oversized echo is drawn from the same text, so it cannot say
+     something the name does not. */
+  .bio-page[data-header="band"] .bio-hero-fx::before {
+    content: attr(data-echo-one);
+    position: absolute;
+    left: 50%;
+    top: 46%;
+    transform: translate(-50%, -50%);
+    font-family: var(--bio-font-display);
+    font-size: 150px;
+    font-style: italic;
+    font-weight: var(--bio-display-weight);
+    line-height: 0.8;
+    white-space: nowrap;
+    color: color-mix(in srgb, var(--bio-ink) 72%, transparent);
+  }
+  .bio-page[data-header="band"] .bio-hero-img-wrap {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    margin-top: 96px;
+    z-index: 1;
+  }
+  .bio-page[data-header="band"] .bio-hero-title {
+    order: 3;
+    font-size: 28px;
+    line-height: 1.1;
+    margin: 20px 0 0;
+    letter-spacing: -0.4px;
+    text-transform: none;
+  }
+  .bio-page[data-header="band"] .bio-subtitle { order: 4; padding: 6px 20px 40px; }
+
+  /* ── 5. Aurora — PRO ──
+     A slow field of colour behind a plain stacked header. Three radial
+     gradients on one layer, drifting on transform alone, which is the
+     only way to move a background without repainting it every frame.
+     What it sells is that the page is not a still: it is the difference
+     between a printed card and a lit sign. */
+  .bio-page[data-header="aurora"] .bio-hero {
+    padding: 56px 20px 0;
+    gap: 20px;
+    overflow: hidden;
+  }
+  .bio-page[data-header="aurora"] .bio-hero-fx {
+    display: block;
+    position: absolute;
+    inset: -30% -30% 0;
+    background:
+      radial-gradient(38% 38% at 22% 28%, color-mix(in srgb, var(--bio-accent) 75%, transparent), transparent 70%),
+      radial-gradient(34% 34% at 78% 22%, color-mix(in srgb, var(--bio-accent-2, var(--bio-accent)) 65%, transparent), transparent 70%),
+      radial-gradient(44% 44% at 52% 72%, color-mix(in srgb, var(--bio-accent-3, var(--bio-accent)) 55%, transparent), transparent 70%);
+    filter: blur(10px);
+    opacity: 0.85;
+    animation: bio-aurora 22s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+  @keyframes bio-aurora {
+    0%   { transform: translate3d(0, 0, 0) scale(1); }
+    50%  { transform: translate3d(-6%, 3%, 0) scale(1.12); }
+    100% { transform: translate3d(5%, -4%, 0) scale(1.05); }
+  }
+  .bio-page[data-header="aurora"] .bio-hero-img-wrap {
+    order: 1;
+    width: 148px;
+    height: 148px;
+    border-radius: 50%;
+    z-index: 1;
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--bio-bg) 55%, transparent);
+  }
+  .bio-page[data-header="aurora"] .bio-hero-title {
+    order: 2;
+    z-index: 1;
+    font-size: 32px;
+    line-height: 1.05;
+    margin: 0;
+    letter-spacing: -0.5px;
+    text-transform: none;
+  }
+  .bio-page[data-header="aurora"] .bio-subtitle { order: 3; z-index: 1; padding: 8px 20px 44px; }
+  /* Glass, because there is something behind them worth seeing through. */
+  .bio-page[data-header="aurora"] .bio-link-btn,
+  .bio-page[data-header="aurora"] .bio-contact-btn {
+    background: color-mix(in srgb, var(--bio-ink) 12%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid color-mix(in srgb, var(--bio-ink) 18%, transparent);
+  }
+
+  /* ── 6. Marquee — PRO ──
+     The name as a moving band, repeated until it fills the width, with
+     the picture sitting in it. Repetition is what turns a name into a
+     pattern, and a pattern is what a logo does — which is the thing a
+     sole trader does not have and this stands in for. */
+  .bio-page[data-header="marquee"] .bio-hero {
+    padding: 28px 20px 0;
+    gap: 0;
+    overflow: hidden;
+  }
+  .bio-page[data-header="marquee"] .bio-hero-fx {
+    display: block;
+    position: absolute;
+    top: 72px;
+    left: 0;
+    right: 0;
+    height: 96px;
+    background: var(--bio-accent);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+  }
+  .bio-page[data-header="marquee"] .bio-hero-fx::before {
+    content: attr(data-echo) ' · ' attr(data-echo) ' · ' attr(data-echo) ' · ' attr(data-echo) ' · ';
+    font-family: var(--bio-font-display);
+    font-size: 54px;
+    font-weight: var(--bio-display-weight);
+    text-transform: var(--bio-display-case);
+    letter-spacing: var(--bio-display-tracking);
+    line-height: 1;
+    white-space: nowrap;
+    color: var(--bio-bg);
+    /* Two copies of the same run, so the loop has no seam. */
+    padding-right: 0;
+    animation: bio-marquee 18s linear infinite;
+    will-change: transform;
+  }
+  @keyframes bio-marquee {
+    from { transform: translate3d(0, 0, 0); }
+    to   { transform: translate3d(-50%, 0, 0); }
+  }
+  .bio-page[data-header="marquee"] .bio-hero-img-wrap {
+    width: 132px;
+    height: 132px;
+    border-radius: 50%;
+    margin-top: 56px;
+    z-index: 1;
+    box-shadow: 0 0 0 5px var(--bio-bg);
+  }
+  .bio-page[data-header="marquee"] .bio-hero-title {
+    order: 3;
+    font-size: 24px;
+    line-height: 1.1;
+    margin: 16px 0 0;
+    letter-spacing: -0.3px;
+    text-transform: none;
+  }
+  .bio-page[data-header="marquee"] .bio-subtitle { order: 4; padding: 6px 20px 40px; }
+
+  /* ── 7. Stroke — PRO ──
+     The picture full bleed with the name cut out of it as outline type.
+     Outline reads as expensive because it only works when the thing
+     behind it is worth seeing — it is a frame that admits the photo is
+     the subject. The photo drifts, slowly, on scale alone. */
+  .bio-page[data-header="stroke"] .bio-hero {
+    padding: 0;
+    gap: 0;
+    min-height: 420px;
+    justify-content: flex-end;
+    overflow: hidden;
+  }
+  .bio-page[data-header="stroke"] .bio-hero-img-wrap {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+  }
+  .bio-page[data-header="stroke"] .bio-hero-img {
+    animation: bio-drift 28s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+  @keyframes bio-drift {
+    from { transform: scale(1.04) translate3d(0, 0, 0); }
+    to   { transform: scale(1.16) translate3d(1.5%, -2%, 0); }
+  }
+  .bio-page[data-header="stroke"] .bio-hero-fx {
+    display: block;
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom,
+      color-mix(in srgb, var(--bio-bg) 20%, transparent) 0%,
+      color-mix(in srgb, var(--bio-bg) 10%, transparent) 40%,
+      color-mix(in srgb, var(--bio-bg) 88%, transparent) 100%);
+  }
+  .bio-page[data-header="stroke"] .bio-hero-title {
+    position: relative;
+    z-index: 1;
+    font-size: 48px;
+    line-height: 0.92;
+    margin: 0 20px;
+    letter-spacing: -1.5px;
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--bio-ink);
+    text-stroke: 1.5px var(--bio-ink);
+  }
+  .bio-page[data-header="stroke"] .bio-subtitle {
+    position: relative;
+    z-index: 1;
+    padding: 12px 20px 36px;
+    font-size: 13px;
+    letter-spacing: 2.4px;
+    text-transform: uppercase;
+  }
+
+  /* ── 8. Arch — PRO ──
+     The picture in an arch with a slow halo turning behind it. The arch
+     is the oldest way to say a thing is worth looking at, and it costs
+     one border-radius; the halo is a conic gradient on a rotation, which
+     is a single composited layer. */
+  .bio-page[data-header="arch"] .bio-hero {
+    padding: 44px 20px 0;
+    gap: 16px;
+    overflow: hidden;
+  }
+  .bio-page[data-header="arch"] .bio-hero-fx {
+    display: block;
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    width: 300px;
+    height: 300px;
+    margin-left: -150px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg,
+      color-mix(in srgb, var(--bio-accent) 70%, transparent),
+      color-mix(in srgb, var(--bio-accent-2, var(--bio-accent)) 60%, transparent),
+      color-mix(in srgb, var(--bio-accent-3, var(--bio-accent)) 70%, transparent),
+      color-mix(in srgb, var(--bio-accent) 70%, transparent));
+    filter: blur(26px);
+    opacity: 0.5;
+    animation: bio-halo 30s linear infinite;
+    will-change: transform;
+  }
+  @keyframes bio-halo {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  .bio-page[data-header="arch"] .bio-hero-img-wrap {
+    order: 1;
+    width: 164px;
+    height: 216px;
+    border-radius: 82px 82px 10px 10px;
+    z-index: 1;
+  }
+  .bio-page[data-header="arch"] .bio-hero-title {
+    order: 2;
+    z-index: 1;
+    font-size: 28px;
+    line-height: 1.1;
+    margin: 0;
+    letter-spacing: -0.3px;
+    text-transform: none;
+  }
+  /* A rule either side, which is what turns a line of text into a
+     caption and stops it competing with the name above it. */
+  .bio-page[data-header="arch"] .bio-subtitle {
+    order: 3;
+    z-index: 1;
+    padding: 2px 20px 40px;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .bio-page[data-header="arch"] .bio-subtitle-text::before,
+  .bio-page[data-header="arch"] .bio-subtitle-text::after {
+    content: '';
+    display: inline-block;
+    width: 22px;
+    height: 1px;
+    vertical-align: middle;
+    margin: 0 10px;
+    background: currentColor;
+    opacity: 0.5;
+  }
+
+  /* Every layout's motion stops, and none of them lose anything but the
+     movement — the aurora keeps its colour, the marquee its band, the
+     arch its halo. A still frame is the design; the motion is the
+     flourish on top of it. */
+  @media (prefers-reduced-motion: reduce) {
+    .bio-hero-fx,
+    .bio-hero-fx::before,
+    .bio-hero-img { animation: none !important; }
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     THEMES — colour and type only, no layout
+     ═══════════════════════════════════════════════════════════════ */
+  .bio-page[data-theme="cream"] {
+    --bio-bg: #f1efe9;
+    --bio-ink: #b81414;
+    --bio-ink-dim: #b81414;
+    --bio-surface: rgba(0, 0, 0, 0.05);
+    --bio-accent: #b81414;
+    --bio-accent-2: #e8a03c;
+    --bio-accent-3: #7a1f5c;
+    --bio-ghost-fill: rgba(0, 0, 0, 0.07);
+    --bio-font-display: 'Times New Roman', Georgia, serif;
+    --bio-font-body: var(--bio-font-display);
+  }
+  .bio-page[data-theme="neon"] {
+    --bio-bg: #d6f94e;
+    --bio-ink: #2b2a86;
+    --bio-ink-dim: #2b2a86;
+    --bio-surface: #2b2a86;
+    --bio-accent: #2b2a86;
+    --bio-accent-2: #6fd3ff;
+    --bio-accent-3: #ff7ab8;
+    --bio-ghost-fill: rgba(43, 42, 134, 0.12);
+  }
+  .bio-page[data-theme="forest"] {
+    --bio-bg: #3d4c42;
+    --bio-ink: #eef5e4;
+    --bio-ink-dim: #cfdcc4;
+    --bio-surface: rgba(255, 255, 255, 0.1);
+    --bio-accent: #8fb48a;
+    --bio-accent-2: #d8c98a;
+    --bio-accent-3: #5a7a63;
+    --bio-ghost-fill: rgba(255, 255, 255, 0.1);
+    --bio-font-display: Georgia, 'Times New Roman', serif;
+    --bio-font-body: var(--bio-font-display);
   }
 
   /* ── Zone B — Contact Buttons ──
@@ -1104,10 +1586,13 @@
 </head>
 <body>
 
-<div class="bio-page">
+<div class="bio-page" id="bio-page" data-header="overlap" data-theme="dark">
 
   <!-- Zone A — Hero -->
   <div class="bio-hero">
+    <!-- Decoration only, and only for the layouts that paint one. Empty and
+         inert everywhere else, so it costs nothing to carry. -->
+    <div class="bio-hero-fx" aria-hidden="true"></div>
     <div class="bio-hero-share" aria-label="Share">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
     </div>
@@ -1119,9 +1604,13 @@
            aria-hidden="true" />
       <div class="bio-hero-img-placeholder" id="bio-image-placeholder" hidden aria-hidden="true"></div>
     </div>
+    <!-- The tagline sat after the hero, which worked while there was one
+         header. Half the layouts set it against the photo or inside a
+         fade, so it is part of the header now; the default spacing below
+         is unchanged, so every existing consumer renders as before. -->
+    <div class="bio-subtitle"><span class="bio-subtitle-text bio-edit-target" id="bio-subtitle">Handmade Jewellery</span></div>
   </div>
 
-  <div class="bio-subtitle"><span class="bio-subtitle-text bio-edit-target" id="bio-subtitle">Handmade Jewellery</span></div>
 
   <!-- Zone B — Contact Buttons.
        Controllable via postMessage {type:'bio-config'} (see script at end).
@@ -1492,6 +1981,23 @@
   (function () {
     'use strict';
     var lastHighlight = null;
+    var page = document.getElementById('bio-page');
+
+    /* The band and the marquee draw the name as texture. Both read it off
+       the title rather than carrying their own copy, so the decoration can
+       never say something the name does not — a header whose big word is
+       last week's name is worse than one with no big word. */
+    function syncEcho() {
+      var t = document.getElementById('bio-title');
+      var fx = document.querySelector('.bio-hero-fx');
+      if (!t || !fx) return;
+      var full = (t.textContent || '').trim().replace(/\s+/g, ' ');
+      fx.setAttribute('data-echo', full);
+      /* The band crops one word to the width of the screen; the whole name
+         at that size would be three letters and a lot of faith. */
+      fx.setAttribute('data-echo-one', full.split(' ')[0] || full);
+    }
+
     function applyConfig(d) {
       if (!d || d.type !== 'bio-config') return;
       // `contact` is the current name; `actions` is the old one and still
@@ -1533,6 +2039,7 @@
           if (mlbl) mlbl.textContent = d.address.value;
         }
       }
+      syncEcho();
       if (typeof d.title === 'string') {
         var t = document.getElementById('bio-title');
         // Break on the last space so a two-word name stacks the way the
@@ -1560,6 +2067,12 @@
         if (img) img.hidden = !wantsPhoto;
         if (ph) ph.hidden = wantsPhoto;
       }
+      /* Which arrangement of name, picture and tagline, and which
+         palette. Two axes because the templates are two axes: the same
+         layout appears twice in the picker under opposite colours. */
+      if (typeof d.header === 'string') page.setAttribute('data-header', d.header);
+      if (typeof d.theme === 'string') page.setAttribute('data-theme', d.theme);
+
       if (d.offer) {
         var offer = document.getElementById('bio-offer');
         if (offer) {
@@ -1828,6 +2341,17 @@
           .forEach(function (sel) { var el = document.querySelector(sel); if (el) el.hidden = true; });
       }
     }
+    syncEcho();
+
+    /* Standalone review: ?header=aurora&theme=neon. The picker drives this
+       by postMessage in the product; opening one layout directly is how it
+       gets looked at while it is being built. */
+    (function () {
+      var q = new URLSearchParams(location.search);
+      if (q.get('header')) page.setAttribute('data-header', q.get('header'));
+      if (q.get('theme')) page.setAttribute('data-theme', q.get('theme'));
+    })();
+
     window.addEventListener('message', function (e) { applyConfig(e.data); });
     // Announce readiness so the host can push the initial config.
     try { if (window.parent && window.parent !== window) window.parent.postMessage({ type: 'bio-ready' }, '*'); } catch (_) {}

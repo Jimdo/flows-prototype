@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>design-editor-onboarding</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=aa32aac">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=aa32aac">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=ccabb6b">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=ccabb6b">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=aa32aac">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=ccabb6b">
 <style>
   /* ─── Screen overrides ───
      The frame is the setup split in editor mode, same as the link editor.
@@ -608,7 +608,7 @@
         data-inspect-label="Segmented Control — what to edit"
         data-inspect-tokens='[{"prop":"background","figma":"$jui-color-background-gray-dark","css":"--jui-color-background-gray-dark","value":"#f8f8f8"},{"prop":"border-radius","figma":"$jui-style-radius-m","css":"--jui-style-radius-12","value":"12px"},{"prop":"padding","figma":"$jui-layout-padding-xxs","css":"--jui-layout-padding-xxs","value":"4px"},{"prop":"item","figma":"Secondary / Subtle, Size=Small","css":"--jui-layout-dimension-s","value":"32px, radius 8"}]'>
         <button type="button" class="seg-control-item" role="tab" aria-selected="false" aria-pressed="false"
-          data-nav-to="flows/bio-page-links-edit-onboarding.html" data-nav-screen-id="scr-477"
+          data-nav-to="flows/bio-page-links-edit-v2.html" data-nav-screen-id="scr-484"
           data-inspect-phrase="biopage.editor.links"><span>Links</span></button>
         <button type="button" class="seg-control-item active" role="tab" aria-selected="true" aria-pressed="true"
           data-inspect-phrase="biopage.editor.design"><span>Design</span></button>
@@ -796,7 +796,7 @@
             data-inspect-label="Floating Navigation — what to edit"
             data-inspect-tokens='[{"prop":"background","figma":"$jui-color-background-gray-light","css":"--jui-color-background-gray-light","value":"#ffffff"},{"prop":"shadow","figma":"on-light-shadow-lvl-2","css":"--jui-effects-on-light-shadow-lvl-2","value":"0 8px 16px #00000024"},{"prop":"border-radius","figma":"$jui-layout-dimension-xl","css":"--jui-layout-dimension-xl","value":"64px"},{"prop":"padding","figma":"$jui-layout-padding-xxs","css":"--jui-layout-padding-xxs","value":"4px"},{"prop":"item","figma":"$jui-color-background-primary-light","css":"--jui-color-background-primary-light","value":"#eff0ff, radius 24, 8px 12px"}]'>
             <button type="button" class="float-nav-item" role="tab" aria-selected="false"
-              data-nav-to="flows/bio-page-links-edit-onboarding.html" data-nav-screen-id="scr-477"
+              data-nav-to="flows/bio-page-links-edit-v2.html" data-nav-screen-id="scr-484"
               data-inspect-phrase="biopage.editor.links"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"> <path d="M21 2H3C2.44772 2 2 2.44772 2 3V5C2 5.55228 2.44772 6 3 6H21C21.5523 6 22 5.55228 22 5V3C22 2.44772 21.5523 2 21 2Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/> <path d="M21 10H3C2.44772 10 2 10.4477 2 11V13C2 13.5523 2.44772 14 3 14H21C21.5523 14 22 13.5523 22 13V11C22 10.4477 21.5523 10 21 10Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/> <path d="M21 18H3C2.44772 18 2 18.4477 2 19V21C2 21.5523 2.44772 22 3 22H21C21.5523 22 22 21.5523 22 21V19C22 18.4477 21.5523 18 21 18Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/> </svg><span>Links</span></button>
             <button type="button" class="float-nav-item" role="tab" aria-selected="true"
               data-inspect-phrase="biopage.editor.design"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"> <path d="M5 14V12.7296C5 11.9754 5.42422 11.2854 6.09717 10.945L8.84085 9.55694C9.5139 9.21645 9.93814 8.52627 9.93802 7.772L9.93726 3.00016C9.93717 2.44781 10.3849 2 10.9373 2H13.9455C14.4978 2 14.9456 2.44781 14.9455 3.00016L14.9447 7.75902C14.9446 8.52006 15.3764 9.21521 16.0587 9.55236L18.886 10.9495C19.5682 11.2866 20 11.9816 20 12.7425L20 14C20 14.5523 19.5523 15 19 15H6C5.44772 15 5 14.5523 5 14Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/> <path d="M6 15C6 16 6 18.8 4 22C9 22 13 22 15.5 18V21C15.5 21.5523 15.9477 22 16.5 22H19C19.5523 22 20.002 21.5518 19.9972 20.9995C19.9803 19.0494 19.8596 17.5789 19 15" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/> </svg><span>Design</span></button>
@@ -812,8 +812,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=aa32aac"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=aa32aac"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=ccabb6b"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=ccabb6b"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     initSetupSplit({
