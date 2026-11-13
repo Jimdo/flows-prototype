@@ -468,18 +468,18 @@
     /* Only just off the card. At -20% the three pool centres sat outside
        it and all that showed was their far edges, which reads as a vignette
        rather than as colour on the page. */
-    inset: -8%;
+    inset: -12%;
     z-index: 0;
     pointer-events: none;
     /* A midpoint in each falloff, so a pool fades out instead of ending.
        Two stops and a blur still leave a readable edge once the mask has
        cut it. */
     background-image:
-      radial-gradient(46% 32% at 24% 18%, var(--bio-aurora-1, var(--bio-bg-warm)) 0%,
+      radial-gradient(44% 26% at 26% 20%, var(--bio-aurora-1, var(--bio-bg-warm)) 0%,
         color-mix(in srgb, var(--bio-aurora-1, var(--bio-bg-warm)) 45%, transparent) 42%, transparent 76%),
-      radial-gradient(50% 36% at 80% 46%, var(--bio-aurora-2, var(--bio-glow)) 0%,
+      radial-gradient(46% 28% at 76% 44%, var(--bio-aurora-2, var(--bio-glow)) 0%,
         color-mix(in srgb, var(--bio-aurora-2, var(--bio-glow)) 45%, transparent) 44%, transparent 78%),
-      radial-gradient(58% 40% at 46% 80%, var(--bio-aurora-3, var(--bio-bg-cool)) 0%,
+      radial-gradient(52% 30% at 46% 74%, var(--bio-aurora-3, var(--bio-bg-cool)) 0%,
         color-mix(in srgb, var(--bio-aurora-3, var(--bio-bg-cool)) 45%, transparent) 44%, transparent 78%);
     filter: blur(22px);
     /* One tile stretched over the whole field, not a 300px tile repeating.
@@ -494,8 +494,20 @@
     mask-repeat: no-repeat;
     /* A tint. The ground stays the colour the seller picked. */
     opacity: 0.4;
-    animation: bio-field 60s linear infinite;
+    /* Drift, not rotation. A rotating layer has to be wider than the card's
+       diagonal or its own straight edge swings into view — which is what
+       drew a hard diagonal rule down the left of the page, and no amount of
+       blur hides a straight line next to a colour. The layer is bigger than
+       the card on both axes and never turns, so there is no edge to find;
+       it breathes between two near-identical positions over ninety
+       seconds, which is movement you notice by looking away and back. */
+    animation: bio-aurora-drift 90s ease-in-out infinite;
     will-change: transform;
+  }
+  @keyframes bio-aurora-drift {
+    0%   { transform: translate3d(-2%, -1%, 0) scale(1.04); }
+    50%  { transform: translate3d(2%, 1.5%, 0) scale(1.1); }
+    100% { transform: translate3d(-2%, -1%, 0) scale(1.04); }
   }
   /* Grain on top of the swirl: the coarse mask gives the field shape, this
      gives it surface. A backdrop-filter over a flat wash blurs nothing and
@@ -2439,8 +2451,14 @@
       /* Three pools, spread in lightness so the field has somewhere to go
          instead of being one colour at one value. Hues cycle when the
          picture only had one or two to give. */
+      /* A picture with fewer than three hues in it still gets three pools:
+         the ones it does not have are its own hue turned a little, which
+         keeps the field from being one flat colour without introducing one
+         the picture never contained. */
       var hue = function (k) {
-        return Math.round((tops[k % tops.length][1] + 0.5) * (360 / BUCKETS));
+        var base = (tops[k % tops.length][1] + 0.5) * (360 / BUCKETS);
+        var wrapped = Math.floor(k / tops.length);
+        return Math.round((base + wrapped * 22 + 360) % 360);
       };
       set('hsl(' + hue(0) + ' 70% 58%)',
           'hsl(' + hue(1) + ' 66% 46%)',
@@ -2509,11 +2527,14 @@
       }
       if (d.image) {
         var img = document.querySelector('.bio-hero-img');
-        syncAuroraPalette();
         var ph = document.getElementById('bio-image-placeholder');
         var wantsPhoto = d.image === 'photo';
         if (img) img.hidden = !wantsPhoto;
         if (ph) ph.hidden = wantsPhoto;
+        /* After the visibility, not before it: this reads whether there is
+           a picture, and reading it first answered for the picture that was
+           there a moment ago. */
+        syncAuroraPalette();
       }
       /* Which arrangement of name, picture and tagline, and which
          palette. Two axes because the templates are two axes: the same
