@@ -492,8 +492,16 @@
     mask-size: 100%% 100%%;
     -webkit-mask-repeat: no-repeat;
     mask-repeat: no-repeat;
-    /* A tint. The ground stays the colour the seller picked. */
-    opacity: 0.4;
+    /* Over a dark ground the field adds light rather than tinting it.
+       Forty per cent of an amber over near-black is dark olive — the hue
+       survives and the chroma does not, which is the mud again by a second
+       road. Screen puts the colour on top of the black instead of mixing
+       into it, so what the palette says is what the page shows.
+
+       Over a light ground screen does nothing (white screened with
+       anything is white), so there it stays an ordinary tint. */
+    mix-blend-mode: screen;
+    opacity: 0.52;
     /* Drift, not rotation. A rotating layer has to be wider than the card's
        diagonal or its own straight edge swings into view — which is what
        drew a hard diagonal rule down the left of the page, and no amount of
@@ -503,6 +511,11 @@
        seconds, which is movement you notice by looking away and back. */
     animation: bio-aurora-drift 90s ease-in-out infinite;
     will-change: transform;
+  }
+  .bio-page[data-theme="light"][data-header="aurora"] .bio-page-fx,
+  html[data-theme="light"] .bio-page[data-header="aurora"] .bio-page-fx {
+    mix-blend-mode: normal;
+    opacity: 0.4;
   }
   @keyframes bio-aurora-drift {
     0%   { transform: translate3d(-2%, -1%, 0) scale(1.04); }
@@ -2448,21 +2461,44 @@
                      .filter(function (e) { return e[0] > 0; })
                      .sort(function (a, b) { return b[0] - a[0]; });
       if (!tops.length) return fallback();
-      /* Three pools, spread in lightness so the field has somewhere to go
-         instead of being one colour at one value. Hues cycle when the
-         picture only had one or two to give. */
-      /* A picture with fewer than three hues in it still gets three pools:
-         the ones it does not have are its own hue turned a little, which
-         keeps the field from being one flat colour without introducing one
-         the picture never contained. */
-      var hue = function (k) {
-        var base = (tops[k % tops.length][1] + 0.5) * (360 / BUCKETS);
-        var wrapped = Math.floor(k / tops.length);
-        return Math.round((base + wrapped * 22 + 360) % 360);
-      };
-      set('hsl(' + hue(0) + ' 70% 58%)',
-          'hsl(' + hue(1) + ' 66% 46%)',
-          'hsl(' + hue(2) + ' 72% 64%)');
+      /* ── The picture chooses the palette; it does not supply it ──
+         Taking the three strongest hues straight out of the photograph is
+         how the field came out brown. A portrait is mostly skin, and skin's
+         three strongest buckets are three warm neutrals a few degrees
+         apart; three neighbours at this chroma is not a palette, it is one
+         colour with a wobble. And when a picture does give three unrelated
+         hues, they are unrelated — nothing was asked of them beyond being
+         present, so they clash as often as they agree.
+
+         So the picture gets one job, the one it is good at: saying which
+         family this page belongs to. The dominant hue picks the nearest of
+         five triads, and the triad is what gets drawn. Each is built the
+         way the gradient writing of the last year builds them — two or
+         three stops in the same part of the wheel, one of them carrying the
+         chroma and the others widening it, rather than opposites fighting
+         across the middle. Aurora is the family the layout is named after:
+         violet into cyan into emerald.
+
+         Anchors are the first hue of each, and the match is on the wheel,
+         so a warm picture lands on Ember rather than being made cold. */
+      var PALETTES = [
+        [262, 190, 160],  /* Aurora — violet, cyan, emerald */
+        [243, 292, 350],  /* Dusk   — indigo, magenta, coral */
+        [38, 350, 262],   /* Ember  — amber, rose, violet */
+        [175, 85, 45],    /* Moss   — teal, lime, amber */
+        [221, 199, 174],  /* Tide   — blue, sky, teal */
+      ];
+      var dominant = Math.round((tops[0][1] + 0.5) * (360 / BUCKETS));
+      var apart = function (a, b) { var d = Math.abs(a - b) % 360; return d > 180 ? 360 - d : d; };
+      var pick = PALETTES[0];
+      PALETTES.forEach(function (pal) {
+        if (apart(pal[0], dominant) < apart(pick[0], dominant)) pick = pal;
+      });
+      /* The ladder stays: a light, a deep and a lighter still, so the field
+         has somewhere to go instead of being one value in three hues. */
+      set('hsl(' + pick[0] + ' 70% 58%)',
+          'hsl(' + pick[1] + ' 66% 46%)',
+          'hsl(' + pick[2] + ' 72% 64%)');
     }
 
     function applyConfig(d) {
