@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>design-editor-onboarding</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=19ac08f">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=19ac08f">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=ebb6410">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=ebb6410">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=19ac08f">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=ebb6410">
 <style>
   /* ─── Screen overrides ───
      The frame is the setup split in editor mode, same as the link editor.
@@ -366,6 +366,28 @@
      Squared / Rounded / Pill button shapes.
      ───────────────────────────────────────────── */
 
+  /* The one commit in the view, with the 24 that separates a group from the
+     next thing rather than the 8 that holds a group together. */
+  #panel-view-brand > .btn { margin-top: var(--jui-layout-gap-l); }
+  /* Full width is the phone's answer, where the drawer is the width of the
+     hand's reach and a button narrower than it has no edge to aim at. On a
+     wide screen the column is 556 across, and a 556px bar reads as the
+     page's own footer rather than as the end of one view. It takes its
+     label's width and sits at the end of the column, which is where every
+     other commit in this product sits. The panel is a flex column, so the
+     stretch it had was align-items doing it rather than a width. */
+  @media (min-width: 768px) {
+    #panel-view-brand > .btn {
+      align-self: flex-end;
+      width: auto;
+      /* The system's buttons are full-width bars and carry no horizontal
+         padding, because at 100% there is nothing for padding to do. Taking
+         the width away exposes that: the label sat on both edges. 24 is the
+         inset the subtle button already uses. */
+      padding: 0 var(--jui-layout-padding-l);
+    }
+  }
+
   /* No padding of its own. The panel already spaces a section title from
      its controls (8) and one section from the next (8 + a 24 margin on the
      title), and 16 on top of that put the shape cards 24 below their title
@@ -373,18 +395,6 @@
      heading on the screen that looked detached from the thing it named.
      An override further up tried to say this and lost: both rules sat
      outside a media query, and this one is later in the file. */
-  /* The one line of prose in this panel. Body/Small/Regular and subdued, the
-     same as any note under a heading here. */
-  .de-brand-note {
-    margin: 0;
-    font-size: var(--jui-typography-body-small-regular-size);
-    line-height: var(--jui-typography-body-small-regular-lh);
-    color: var(--jui-color-typography-gray-on-light-subdued);
-  }
-  /* The one commit in the view, with the 24 that separates a group from the
-     next thing rather than the 8 that holds a group together. */
-  #panel-view-brand > .btn { margin-top: var(--jui-layout-gap-l); }
-
   .de-shape-row {
     display: flex;
     gap: var(--jui-layout-gap-s);
@@ -734,7 +744,7 @@
           <div class="bp-stage">
             <div class="bp-frame">
               <iframe id="bioPreview" title="Bio page preview" tabindex="-1"
-                src="/flows-prototype/design-system/hifi-designs/pages/artifacts/bio-page-v2.html?v=19ac08f"></iframe>
+                src="/flows-prototype/design-system/hifi-designs/pages/artifacts/bio-page-v2.html?v=ebb6410"></iframe>
             </div>
             <!-- On the stage rather than inside the frame: the frame is
                  scaled to fit, and a mark inside it would shrink with the
@@ -909,23 +919,39 @@
                thing to do in this view and one button to do it with. -->
           <div id="panel-view-brand" class="de-panel-view">
             <p class="edit-section-title" data-inspect-phrase="flows.designEditor.brand.title">Your brand colours</p>
-            <p class="de-brand-note" data-inspect-phrase="flows.designEditor.brand.copy">Four colours the whole page is built from. Pick one to change it — the preview shows it on your page while you do.</p>
-            <div class="brand-swatches" id="brandSwatches" role="group" aria-label="Brand colours">
-              <button type="button" class="brand-swatch" data-brand="main" aria-expanded="false">
-                <span class="brand-swatch-chip"></span>
-                <span class="brand-swatch-label" data-inspect-phrase="flows.designEditor.brand.main">Main</span>
+            <!-- The same swatch the background row uses, and for the same
+                 reason the links editor reuses its own rows: two controls
+                 that pick a colour from a strip should not be two designs.
+                 It brings its selected state with it — the blue ring and the
+                 tick — so the one being edited is marked the way the one in
+                 use is, and nothing here has to invent a second way to say
+                 "this one".
+
+                 No labels under them. Main, Second, Shade 1 and Shade 2 are
+                 our names for slots, not the seller's names for colours, and
+                 four words of taxonomy under four colours is a legend for a
+                 thing that needs none — you press the colour you want to
+                 change. -->
+            <div class="de-bg-swatches" id="brandSwatches" role="group" aria-label="Brand colours">
+              <button type="button" class="de-bg-swatch" data-brand="main" aria-label="Main brand colour">
+                <div class="de-bg-swatch-inner">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="var(--jui-color-actions-primary-rest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                </div>
               </button>
-              <button type="button" class="brand-swatch" data-brand="secondary" aria-expanded="false">
-                <span class="brand-swatch-chip"></span>
-                <span class="brand-swatch-label" data-inspect-phrase="flows.designEditor.brand.secondary">Second</span>
+              <button type="button" class="de-bg-swatch" data-brand="secondary" aria-label="Second brand colour">
+                <div class="de-bg-swatch-inner">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="var(--jui-color-actions-primary-rest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                </div>
               </button>
-              <button type="button" class="brand-swatch" data-brand="shade1" aria-expanded="false">
-                <span class="brand-swatch-chip"></span>
-                <span class="brand-swatch-label" data-inspect-phrase="flows.designEditor.brand.shade1">Shade 1</span>
+              <button type="button" class="de-bg-swatch" data-brand="shade1" aria-label="First brand shade">
+                <div class="de-bg-swatch-inner">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="var(--jui-color-actions-primary-rest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                </div>
               </button>
-              <button type="button" class="brand-swatch" data-brand="shade2" aria-expanded="false">
-                <span class="brand-swatch-chip"></span>
-                <span class="brand-swatch-label" data-inspect-phrase="flows.designEditor.brand.shade2">Shade 2</span>
+              <button type="button" class="de-bg-swatch" data-brand="shade2" aria-label="Second brand shade">
+                <div class="de-bg-swatch-inner">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="var(--jui-color-actions-primary-rest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                </div>
               </button>
             </div>
             <div class="color-picker" id="brandPicker" hidden
@@ -944,7 +970,6 @@
                 <input type="text" class="color-picker-hex" id="brandHex" maxlength="7" spellcheck="false"
                   data-no-phrase aria-label="Hex colour">
               </div>
-              <div class="color-picker-presets" id="brandPresets"></div>
             </div>
             <button type="button" class="btn btn-primary" id="brandDone"
               data-inspect-label="Primary Button — confirm the palette"
@@ -1077,8 +1102,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=19ac08f"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=19ac08f"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=ebb6410"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=ebb6410"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
 
@@ -1262,10 +1287,15 @@ var PRO_CROWN = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2
 
 /* ══ Brand colours ══════════════════════════════════════════════════════
    Four colours, one picker, and the picker is the @jimdo/ui one rebuilt
-   rather than approximated: a saturation square over a hue bar, a hex field
-   with a preview beside it, and the ten presets the package ships. The
-   geometry is in components.css and every number there came out of the
-   installed package.
+   rather than approximated: a saturation square over a hue bar and a hex
+   field with a preview beside it. The geometry is in components.css and
+   every number there came out of the installed package.
+
+   Without the ten presets the package ships. They are brand-agnostic
+   colours — a teal, a mustard, a plum — and offering them here is Jimdo
+   proposing a brand colour, which is the same thing as the invented palette
+   that came out of the swatch row. A seller's brand is not on a menu of
+   ours.
 
    The colours live in one object. Both places that show them — the four
    chips in this sheet and the four brand swatches on the background row —
@@ -1280,9 +1310,6 @@ var PRO_CROWN = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2
    third colour: a page whose brand we have not read yet does not get a
    blue. Main is the black the page already stands on. */
 var BRAND = { main: '#000000', secondary: '#FFFFFF', shade1: '#FFFFFF', shade2: '#000000' };
-/* @jimdo/ui ColorPicker's own defaultColors, in its own order. */
-var BRAND_PRESETS = ['#3D8080', '#554780', '#F7C923', '#9E5A7C', '#72B8ED',
-                     '#9E6E49', '#9E1B5C', '#2D81C2', '#4C9E49', '#FC9003'];
 
 var brandView = document.getElementById('panel-view-brand');
 var brandReturnBg = null;   /* the ground to put back when the seller is done */
@@ -1326,8 +1353,8 @@ function hsvToHex(hsv) {
 
 /* Every surface that shows a brand colour, repainted from the one object. */
 function paintBrand() {
-  document.querySelectorAll('#brandSwatches .brand-swatch').forEach(function (b) {
-    b.querySelector('.brand-swatch-chip').style.background = BRAND[b.dataset.brand];
+  document.querySelectorAll('#brandSwatches .de-bg-swatch').forEach(function (b) {
+    b.querySelector('.de-bg-swatch-inner').style.background = BRAND[b.dataset.brand];
   });
   document.querySelectorAll('.de-bg-swatch[data-brand]').forEach(function (b) {
     var inner = b.querySelector('.de-bg-swatch-inner');
@@ -1395,24 +1422,10 @@ brandHexInput.addEventListener('input', function () {
   paintPicker();
 });
 
-BRAND_PRESETS.forEach(function (hex) {
-  var b = document.createElement('button');
-  b.type = 'button';
-  b.className = 'color-picker-preset';
-  b.style.background = hex;
-  b.setAttribute('aria-label', hex);
-  b.setAttribute('data-no-phrase', '');
-  b.addEventListener('click', function () {
-    brandHsv = hexToHsv(hex);
-    paintPicker();
-  });
-  document.getElementById('brandPresets').appendChild(b);
-});
-
 function openBrandColor(key) {
   brandEditing = key;
-  document.querySelectorAll('#brandSwatches .brand-swatch').forEach(function (b) {
-    b.setAttribute('aria-expanded', String(b.dataset.brand === key));
+  document.querySelectorAll('#brandSwatches .de-bg-swatch').forEach(function (b) {
+    b.classList.toggle('is-active', b.dataset.brand === key);
   });
   brandHsv = hexToHsv(BRAND[key]) || { h: 0, s: 0, v: 0 };
   brandPicker.hidden = false;
@@ -1431,7 +1444,7 @@ function previewBrand() {
   if (window.__designSync) window.__designSync();
 }
 
-document.querySelectorAll('#brandSwatches .brand-swatch').forEach(function (b) {
+document.querySelectorAll('#brandSwatches .de-bg-swatch').forEach(function (b) {
   b.addEventListener('click', function () { openBrandColor(b.dataset.brand); });
 });
 
@@ -1453,18 +1466,21 @@ function showPanelView(id) {
 
 document.getElementById('brandEditOpen').addEventListener('click', function () {
   brandReturnBg = window.__design ? window.__design.bg : null;
-  brandPicker.hidden = true;
-  brandEditing = null;
-  document.querySelectorAll('#brandSwatches .brand-swatch').forEach(function (b) {
-    b.setAttribute('aria-expanded', 'false');
-  });
   paintBrand();
   showPanelView('panel-view-brand');
+  /* Open on the first colour rather than on an empty frame. There is no
+     state of this view where nothing is being edited that is worth showing:
+     a seller who pressed Edit brand colors has already said which screen
+     they want, and a picker that waits for a second press is a second press
+     for nothing. */
+  openBrandColor('main');
 });
 
 document.getElementById('brandDone').addEventListener('click', function () {
   brandEditing = null;
-  brandPicker.hidden = true;
+  document.querySelectorAll('#brandSwatches .de-bg-swatch').forEach(function (b) {
+    b.classList.remove('is-active');
+  });
   /* Back to the ground the seller was on. If that ground was one of the four,
      it is now whatever they just made it — paintBrand puts the new value on
      the page, and the row's tick never moved. */

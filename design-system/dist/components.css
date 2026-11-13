@@ -3199,17 +3199,22 @@ body {
    upstream: Inputs/ColorPicker — ported, not imported, because this
    prototype has no React. Every number below is the installed package's
    rather than a guess: @jimdo/ui 84.5.1's ColorPicker.module.scss for the
-   hex field (36 tall, 14px text, 8 of indent, a 20px preview), the preset
-   grid (repeat(auto-fit, 32px) at 32×32) and the 20px pointer it overrides
-   react-colorful with; react-colorful's own stylesheet for the rest — a
+   hex field (36 tall, 14px text, 8 of indent, a 20px preview) and the 20px
+   pointer it overrides react-colorful with; react-colorful's own
+   stylesheet for the rest — a
    200-tall column, a 24px hue bar at the foot, a 12px black border between
    the two, 8px radius on the outer corners, and the pair of gradients that
    make a saturation square.
 
    Production puts this in a popover on a wide screen and inline on a
-   phone. Here it is always inline: it opens inside a sheet that is already
-   the width of a phone, and a popover inside a sheet is a second surface
-   over a surface.
+   phone. Here it is always inline, in a panel view of its own: a popover
+   would cover the preview, which is the only thing that can answer the
+   question the seller is asking while they drag.
+
+   Without upstream's preset row. Its ten defaultColors are brand-agnostic —
+   a teal, a mustard, a plum — and a menu of ours in an editor for the
+   seller's own brand proposes a brand colour, which is not a thing to
+   propose.
    ═══════════════════════════════════════════════════════════════ */
 .color-picker {
   display: flex;
@@ -3285,75 +3290,6 @@ body {
 .color-picker-hex:focus-visible {
   outline: var(--jui-style-stroke-width-large) solid var(--jui-color-stroke-primary-actionable);
   outline-offset: 2px;
-}
-.color-picker-presets {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, 32px);
-  justify-content: space-between;
-  gap: var(--jui-layout-gap-xs);
-}
-.color-picker-preset {
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  border: 0;
-  border-radius: var(--jui-style-radius-8);
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-}
-.color-picker-preset:focus-visible {
-  outline: var(--jui-style-stroke-width-large) solid var(--jui-color-stroke-primary-actionable);
-  outline-offset: 2px;
-}
-
-/* ── The four a seller can change ──
-   MainColor, SecondaryColor, Shade1, Shade2, which is the set production
-   makes editable (White and Black are excluded there and here). A row of
-   four, each one a button that opens the picker under it.
-
-   upstream: none, because this is the list of a palette's own members, not
-   a component — the thing inside each cell is the ColorPicker above. */
-.brand-swatches {
-  display: flex;
-  gap: var(--jui-layout-gap-s);
-}
-.brand-swatch {
-  flex: 1 1 0;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--jui-layout-gap-xxs);
-  padding: 0;
-  border: 0;
-  background: none;
-  font: inherit;
-  cursor: pointer;
-}
-.brand-swatch-chip {
-  width: 100%;
-  height: 44px;
-  border-radius: var(--jui-style-radius-8);
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 120ms ease-out;
-}
-.brand-swatch[aria-expanded="true"] .brand-swatch-chip {
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1),
-              0 0 0 2px var(--jui-color-actions-primary-rest);
-}
-.brand-swatch:focus-visible .brand-swatch-chip {
-  outline: var(--jui-style-stroke-width-large) solid var(--jui-color-stroke-primary-actionable);
-  outline-offset: 2px;
-}
-.brand-swatch-label {
-  font-size: var(--jui-typography-label-small-size);
-  font-weight: var(--jui-typography-body-small-medium-weight);
-  line-height: var(--jui-typography-label-small-lh);
-  letter-spacing: 0.02em;
-  color: var(--jui-color-typography-gray-on-light-subdued);
-}
-.brand-swatch[aria-expanded="true"] .brand-swatch-label {
-  color: var(--jui-color-typography-gray-on-light-default);
 }
 
 /* ── The mark that says the page is wearing something paid ──
