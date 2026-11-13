@@ -553,30 +553,30 @@
 
   /* ── The dotted one ──
      Its ground is a field of the seller's ink rather than a sweep of their
-     colour — the other idea, not both at once.
+     colour — the other idea, not both at once. What it is meant to read as
+     is dots hanging in a space that goes back, not a pattern printed on the
+     page, so every cue a flat screen has for distance is spent on it and
+     all of them point the same way.
 
-     Three grids, not one. A single grid at a single size is a texture; it
-     has no near and no far, so nothing about it can move at a different
-     rate from anything else and the page has no depth to parallax. The
-     three are a near layer (34px apart, 1.5px, brightest), a middle one at
-     the 22px this always used, and a far one (15px, 0.9px, faintest) —
-     bigger and brighter reads as nearer, which is the whole of the trick.
-     The far layer is 7% of the ink and not less: at 5% on a black ground a
-     dot is rgb(13) and there is nothing there to see, so the depth was
-     paid for with a layer nobody could find.
+                   near          middle          far
+       apart       48px          26px            14px
+       dot         2.4px         1.4px           0.9px
+       ink         22%           11%             6%
+       blur        none          0.5px           1.2px
+       scroll      0.46          0.20            0.06
+       drift       34s           56s             90s
 
-     Two kinds of movement, on two different properties so they do not
-     fight:
+     Four of those six are the ones a painter would use. Things further off
+     are smaller, closer together, paler, and softer at the edge — the last
+     is atmospheric perspective, and it is the one that stops three grids
+     from reading as three grids. It is also why each plane is its own
+     element: a filter on their parent would blur all three by the same
+     amount, and distance is exactly the thing that must not be shared.
 
-       transform          the ambient drift, one middle tile over forty
-                          seconds. All three layers travel together, so the
-                          page is alive when nobody is touching it.
-       background-position the parallax, set from the scroll in JS. Each
-                          layer takes a fraction of it — 0.34, 0.18, 0.07 —
-                          so the near grid lags the card most and the far
-                          one barely at all.
-
-     The element scrolls with the card, so moving the pattern *down* the
+     The other two are motion. Each plane takes its own fraction of the
+     scroll, so the near one lags the card most and the far one barely
+     moves, and each drifts at its own speed when nobody is scrolling at
+     all. The element scrolls with the card, so moving a pattern *down* the
      scroll is what makes it lag. */
   .bio-page[data-header="dots"] .bio-page-fx {
     display: block;
@@ -584,28 +584,79 @@
     inset: -8%;
     z-index: 0;
     pointer-events: none;
-    background-image:
-      radial-gradient(circle, color-mix(in srgb, var(--bio-ink) 14%, transparent) 1.5px, transparent 1.7px),
-      radial-gradient(circle, color-mix(in srgb, var(--bio-ink) 10%, transparent) 1.2px, transparent 1.4px),
-      radial-gradient(circle, color-mix(in srgb, var(--bio-ink) 7%, transparent) 0.9px, transparent 1.1px);
-    background-size: 34px 34px, 22px 22px, 15px 15px;
-    background-position:
-      0 calc(var(--bio-dots-scroll, 0px) * 0.34),
-      0 calc(var(--bio-dots-scroll, 0px) * 0.18),
-      0 calc(var(--bio-dots-scroll, 0px) * 0.07);
-    animation: bio-dots 40s linear infinite;
+  }
+  .bio-page[data-header="dots"] .bio-dots-plane {
+    position: absolute;
+    inset: -4%;
+    background-repeat: repeat;
     will-change: transform, background-position;
   }
-  @keyframes bio-dots {
-    from { transform: translate3d(0, 0, 0); }
-    to   { transform: translate3d(22px, 22px, 0); }
+  .bio-page[data-header="dots"] .bio-dots-plane[data-depth="near"] {
+    background-image: radial-gradient(circle,
+      color-mix(in srgb, var(--bio-ink) 22%, transparent) 2.4px, transparent 2.7px);
+    background-size: 48px 48px;
+    background-position: 0 calc(var(--bio-dots-scroll, 0px) * 0.46);
+    animation: bio-dots-near 34s linear infinite;
   }
-  /* Someone who has asked for less movement gets the layers and the depth,
-     and neither of the two things that move. */
+  .bio-page[data-header="dots"] .bio-dots-plane[data-depth="mid"] {
+    background-image: radial-gradient(circle,
+      color-mix(in srgb, var(--bio-ink) 11%, transparent) 1.4px, transparent 1.6px);
+    background-size: 26px 26px;
+    background-position: 0 calc(var(--bio-dots-scroll, 0px) * 0.20);
+    filter: blur(0.5px);
+    animation: bio-dots-mid 56s linear infinite;
+  }
+  /* The haze. Blurred hardest, palest, slowest — and masked so it thins
+     toward the foot of the card, which is where a floor would run out of
+     room if this space had one. */
+  .bio-page[data-header="dots"] .bio-dots-plane[data-depth="far"] {
+    background-image: radial-gradient(circle,
+      color-mix(in srgb, var(--bio-ink) 6%, transparent) 0.9px, transparent 1.1px);
+    background-size: 14px 14px;
+    background-position: 0 calc(var(--bio-dots-scroll, 0px) * 0.06);
+    filter: blur(1.2px);
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 52%, rgba(0, 0, 0, 0.35) 100%);
+    mask-image: linear-gradient(to bottom, #000 0%, #000 52%, rgba(0, 0, 0, 0.35) 100%);
+    animation: bio-dots-far 90s linear infinite;
+  }
+  /* Dark ink on white carries further than white ink on black at the same
+     percentage — the same number that reads as a dot hanging in the dark
+     reads as a printed spot on paper. The ladder keeps its shape and drops
+     about a third on a light ground. */
+  .bio-page[data-theme="light"][data-header="dots"] .bio-dots-plane[data-depth="near"],
+  html[data-theme="light"] .bio-page[data-header="dots"] .bio-dots-plane[data-depth="near"] {
+    background-image: radial-gradient(circle,
+      color-mix(in srgb, var(--bio-ink) 14%, transparent) 2.4px, transparent 2.7px);
+  }
+  .bio-page[data-theme="light"][data-header="dots"] .bio-dots-plane[data-depth="mid"],
+  html[data-theme="light"] .bio-page[data-header="dots"] .bio-dots-plane[data-depth="mid"] {
+    background-image: radial-gradient(circle,
+      color-mix(in srgb, var(--bio-ink) 8%, transparent) 1.4px, transparent 1.6px);
+  }
+  .bio-page[data-theme="light"][data-header="dots"] .bio-dots-plane[data-depth="far"],
+  html[data-theme="light"] .bio-page[data-header="dots"] .bio-dots-plane[data-depth="far"] {
+    background-image: radial-gradient(circle,
+      color-mix(in srgb, var(--bio-ink) 5%, transparent) 0.9px, transparent 1.1px);
+  }
+  @keyframes bio-dots-near {
+    from { transform: translate3d(0, 0, 0); }
+    to   { transform: translate3d(48px, 48px, 0); }
+  }
+  @keyframes bio-dots-mid {
+    from { transform: translate3d(0, 0, 0); }
+    to   { transform: translate3d(26px, 26px, 0); }
+  }
+  @keyframes bio-dots-far {
+    from { transform: translate3d(0, 0, 0); }
+    to   { transform: translate3d(14px, 14px, 0); }
+  }
+  /* Someone who has asked for less movement keeps the three planes and
+     everything that makes them read as depth, and loses the two things
+     that move. */
   @media (prefers-reduced-motion: reduce) {
-    .bio-page[data-header="dots"] .bio-page-fx {
+    .bio-page[data-header="dots"] .bio-dots-plane {
       animation: none;
-      background-position: 0 0, 0 0, 0 0;
+      background-position: 0 0;
     }
   }
 
@@ -2005,7 +2056,12 @@
        behind the header: a layout decides how the name, picture and tagline
        are arranged, but the ground they sit on is the page's, and a gradient
        that stopped at the hero left a seam across the middle of it. -->
-  <div class="bio-page-fx" aria-hidden="true"></div>
+  <!-- Three children, and only the dotted layout gives them anything to
+       draw. Aurora and the arch paint the parent and leave these empty, so
+       they cost nothing there; dots needs them separate because each plane
+       carries its own blur, and a filter on the parent would blur all three
+       by the same amount, which is the one thing distance must not do. -->
+  <div class="bio-page-fx" aria-hidden="true"><span class="bio-dots-plane" data-depth="far"></span><span class="bio-dots-plane" data-depth="mid"></span><span class="bio-dots-plane" data-depth="near"></span></div>
 
   <!-- Zone A — Hero -->
   <div class="bio-hero">
