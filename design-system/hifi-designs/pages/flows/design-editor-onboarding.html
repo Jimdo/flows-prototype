@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>design-editor-onboarding</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=7777585">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=7777585">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=6db92b6">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=6db92b6">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=7777585">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=6db92b6">
 <style>
   /* ─── Screen overrides ───
      The frame is the setup split in editor mode, same as the link editor.
@@ -468,12 +468,44 @@
     border-color: var(--jui-color-stroke-primary-on-light);
     background: var(--jui-color-background-primary-light);
   }
+  /* The thumb draws the header it makes. It was an empty grey rectangle
+     under a word, which asks the seller to imagine eight arrangements and
+     then pick one from memory. */
   .layout-card-thumb {
-    width: 48px;
-    height: 64px;
+    display: block;
+    width: 68px;
+    height: 46px;
+    overflow: hidden;
     background: var(--jui-color-background-gray-canvas);
     border-radius: var(--jui-style-radius-xs);
     border: 1px solid var(--jui-color-gray-100);
+  }
+  .layout-card-thumb svg { display: block; width: 100%; height: 100%; }
+  /* The picture is the thing being placed, so it reads darkest; the words
+     lighter; the bands and fields lighter still. Selected, the picture
+     takes the accent — the drawing says which is on without leaning on the
+     border alone. */
+  .layout-card-thumb .lt-pic { fill: var(--jui-color-gray-400); }
+  .layout-card-thumb .lt-line { fill: var(--jui-color-gray-300); }
+  .layout-card-thumb .lt-band { fill: var(--jui-color-gray-200); }
+  .layout-card-thumb .lt-field { fill: var(--jui-color-gray-50); }
+  .layout-card-thumb .lt-faint { opacity: 0.6; }
+  .layout-card.is-active .lt-pic { fill: var(--jui-color-actions-primary-rest); }
+
+  /* The paid four say so. A drawing cannot carry a price. */
+  .layout-card { position: relative; }
+  .layout-card-tag {
+    position: absolute;
+    top: var(--jui-layout-padding-xs);
+    right: var(--jui-layout-padding-xs);
+    padding: 0 4px;
+    border-radius: var(--jui-style-radius-4);
+    background: var(--jui-color-background-upgrade-light);
+    color: var(--jui-color-typography-upgrade-on-light);
+    font-size: var(--jui-typography-label-small-size);
+    font-weight: var(--jui-typography-body-small-medium-weight);
+    line-height: 16px;
+    letter-spacing: 0.4px;
   }
   .layout-card-label {
     font-size: var(--jui-typography-body-small-medium-size);
@@ -764,22 +796,50 @@
           <!-- The fourth heading, not a second tab. -->
           <div id="panel-view-layout" class="de-panel-view is-active">
             <h3 class="de-panel-heading" data-inspect-phrase="flows.designEditor.layout">Layout</h3>
+            <!-- The eight the page can actually be, each drawn as the header
+                 it makes. The four cards here before were Centered, Left-
+                 aligned, Split and Minimal above empty thumbnails: names for
+                 arrangements the bio page does not have, over pictures of
+                 nothing. Picking one changed a border and nothing else.
+
+                 Four come with the plan and four are paid, which is the one
+                 thing a label has to say that a drawing cannot. -->
             <div class="layout-grid">
-              <button type="button" class="layout-card is-active" onclick="selectLayout(this)" data-inspect-phrase="flows.designEditor.centered">
-                <div class="layout-card-thumb"></div>
-                <span class="layout-card-label">Centered</span>
+              <button type="button" class="layout-card" onclick="selectLayout(this)" data-layout="stacked" data-inspect-phrase="">
+                <span class="layout-card-thumb"><svg viewBox="0 0 68 46" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-pic" x="24" y="6" width="20" height="20" rx="4"/><rect class="lt-line" x="18" y="31" width="32" height="4" rx="2"/><rect class="lt-line lt-faint" x="24" y="39" width="20" height="3" rx="1.5"/></svg></span>
+                <span class="layout-card-label">Stacked</span>
               </button>
-              <button type="button" class="layout-card" onclick="selectLayout(this)" data-inspect-phrase="flows.designEditor.leftaligned">
-                <div class="layout-card-thumb"></div>
-                <span class="layout-card-label">Left-aligned</span>
+              <button type="button" class="layout-card is-active" onclick="selectLayout(this)" data-layout="overlap" data-inspect-phrase="">
+                <span class="layout-card-thumb"><svg viewBox="0 0 68 46" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-line" x="8" y="7" width="52" height="7" rx="3"/><rect class="lt-pic" x="24" y="12" width="20" height="20" rx="4"/><rect class="lt-line lt-faint" x="24" y="37" width="20" height="3" rx="1.5"/></svg></span>
+                <span class="layout-card-label">Overlap</span>
               </button>
-              <button type="button" class="layout-card" onclick="selectLayout(this)" data-inspect-phrase="flows.designEditor.split">
-                <div class="layout-card-thumb"></div>
-                <span class="layout-card-label">Split</span>
+              <button type="button" class="layout-card" onclick="selectLayout(this)" data-layout="fade" data-inspect-phrase="">
+                <span class="layout-card-thumb"><svg viewBox="0 0 68 46" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-pic" x="4" y="2" width="60" height="26" rx="3"/><rect class="lt-line" x="14" y="31" width="40" height="5" rx="2.5"/><rect class="lt-line lt-faint" x="22" y="40" width="24" height="3" rx="1.5"/></svg></span>
+                <span class="layout-card-label">Fade</span>
               </button>
-              <button type="button" class="layout-card" onclick="selectLayout(this)" data-inspect-phrase="flows.designEditor.minimal">
-                <div class="layout-card-thumb"></div>
-                <span class="layout-card-label">Minimal</span>
+              <button type="button" class="layout-card" onclick="selectLayout(this)" data-layout="band" data-inspect-phrase="">
+                <span class="layout-card-thumb"><svg viewBox="0 0 68 46" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-band" x="0" y="2" width="68" height="16" rx="2"/><rect class="lt-pic" x="26" y="10" width="16" height="16" rx="8"/><rect class="lt-line" x="18" y="30" width="32" height="4" rx="2"/><rect class="lt-line lt-faint" x="25" y="38" width="18" height="3" rx="1.5"/></svg></span>
+                <span class="layout-card-label">Band</span>
+              </button>
+              <button type="button" class="layout-card" onclick="selectLayout(this)" data-layout="aurora" data-pro="true" data-inspect-phrase="">
+                <span class="layout-card-thumb"><svg viewBox="0 0 68 46" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-field" x="0" y="0" width="68" height="46" rx="3"/><rect class="lt-pic" x="26" y="6" width="16" height="16" rx="8"/><rect class="lt-line" x="18" y="27" width="32" height="4" rx="2"/><rect class="lt-line lt-faint" x="25" y="35" width="18" height="3" rx="1.5"/></svg></span>
+                <span class="layout-card-label">Aurora</span>
+                <span class="layout-card-tag">PRO</span>
+              </button>
+              <button type="button" class="layout-card" onclick="selectLayout(this)" data-layout="marquee" data-pro="true" data-inspect-phrase="">
+                <span class="layout-card-thumb"><svg viewBox="0 0 68 46" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-band" x="0" y="8" width="68" height="13" rx="2"/><rect class="lt-pic" x="26" y="11" width="16" height="16" rx="8"/><rect class="lt-line" x="18" y="31" width="32" height="4" rx="2"/><rect class="lt-line lt-faint" x="25" y="39" width="18" height="3" rx="1.5"/></svg></span>
+                <span class="layout-card-label">Marquee</span>
+                <span class="layout-card-tag">PRO</span>
+              </button>
+              <button type="button" class="layout-card" onclick="selectLayout(this)" data-layout="dots" data-pro="true" data-inspect-phrase="">
+                <span class="layout-card-thumb"><svg viewBox="0 0 68 46" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-field lt-dotted" x="0" y="0" width="68" height="46" rx="3"/><rect class="lt-pic" x="24" y="5" width="20" height="20" rx="5"/><rect class="lt-line" x="18" y="30" width="32" height="4" rx="2"/><rect class="lt-line lt-faint" x="25" y="38" width="18" height="3" rx="1.5"/></svg></span>
+                <span class="layout-card-label">Dots</span>
+                <span class="layout-card-tag">PRO</span>
+              </button>
+              <button type="button" class="layout-card" onclick="selectLayout(this)" data-layout="arch" data-pro="true" data-inspect-phrase="">
+                <span class="layout-card-thumb"><svg viewBox="0 0 68 46" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-field" x="0" y="0" width="68" height="46" rx="3"/><path class="lt-pic" d="M26 26 V14 a8 8 0 0 1 16 0 V26 Z"/><rect class="lt-line" x="18" y="30" width="32" height="4" rx="2"/><rect class="lt-line lt-faint" x="25" y="38" width="18" height="3" rx="1.5"/></svg></span>
+                <span class="layout-card-label">Arch</span>
+                <span class="layout-card-tag">PRO</span>
               </button>
             </div>
           </div>
@@ -812,12 +872,23 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=7777585"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=7777585"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=6db92b6"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=6db92b6"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
-    initSetupSplit({
+
+    /* What the controls in this panel have chosen. The state below used to
+       be a literal: every swatch, font and layout card toggled a border and
+       the phone beside them never moved, which made the whole editor a
+       picture of an editor. */
+    const design = { header: 'overlap', bg: '#0a0a0a', shape: 'rounded' };
+    window.__design = design;
+
+    const split = initSetupSplit({
       state: () => ({
+        header: design.header,
+        bg: design.bg,
+        shape: design.shape,
         title: 'Clara and Stone',
         subtitle: 'Yoga and mindfulness workshops for women',
         image: 'photo',
@@ -829,6 +900,10 @@
         offer: { on: false },
       }),
     });
+
+    /* The handlers are plain functions on window — they predate the module
+       and are called from onclick — so the bridge is explicit. */
+    window.__designSync = () => split.sync();
   </script>
   <script>
 
@@ -900,6 +975,15 @@ function selectBgSwatch(el) {
     s.classList.remove('is-active');
   });
   el.classList.add('is-active');
+  /* The swatch's own colour, straight to the page. The artifact mixes every
+     surface, band and field from it and picks a readable ink against it, so
+     a brand colour we do not know yet works the day it arrives. */
+  var inner = el.querySelector('.de-bg-swatch-inner');
+  var picked = inner && inner.style.background;
+  if (picked && window.__design) {
+    window.__design.bg = picked;
+    if (window.__designSync) window.__designSync();
+  }
 }
 
 /* Desktop panel: Style | Layout view switch */
@@ -909,6 +993,13 @@ function selectShapeCard(el) {
     c.classList.remove('is-active');
   });
   el.classList.add('is-active');
+  /* Read off the card's own label rather than a parallel list that can
+     disagree with it. */
+  var name = (el.textContent || '').trim().toLowerCase();
+  if (window.__design && /squared|rounded|pill/.test(name)) {
+    window.__design.shape = name.match(/squared|rounded|pill/)[0];
+    if (window.__designSync) window.__designSync();
+  }
 }
 
 function selectLayout(el) {
@@ -918,6 +1009,11 @@ function selectLayout(el) {
     card.classList.remove('is-active');
   });
   el.classList.add('is-active');
+  var id = el.getAttribute('data-layout');
+  if (id && window.__design) {
+    window.__design.header = id;
+    if (window.__designSync) window.__designSync();
+  }
 }
 
 /* Escape key: close whichever drawer is open */
