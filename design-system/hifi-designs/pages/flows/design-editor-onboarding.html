@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>design-editor-onboarding</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=7395c1c">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=7395c1c">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=6012eba">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=6012eba">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=7395c1c">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=6012eba">
 <style>
   /* ─── Screen overrides ───
      The frame is the setup split in editor mode, same as the link editor.
@@ -471,18 +471,35 @@
     align-items: center;
     justify-content: center;
     padding: 0;
-    background: var(--jui-color-background-gray-light);
-    border: 1px solid var(--jui-color-stroke-gray-default);
+    border: 1px solid var(--jui-color-gray-200);
     border-radius: var(--jui-style-radius-m);
     cursor: pointer;
+    background: none;
     font-family: inherit;
     text-align: center;
-    transition: border-color 0.15s ease, background-color 0.15s ease;
+    transition: border-color 0.12s ease;
+    position: relative;
   }
-  .layout-card:hover { border-color: var(--jui-color-gray-300); }
+  /* Selected is said the way the fonts and the shapes say it: the border
+     thickens onto the accent and a check appears in the corner. This card
+     used to say it with a pale blue-100 edge over a tinted ground — a
+     different answer to the same question, two sections apart, and the
+     weaker of the two: against the panel it read as a card that happened
+     to be shaded rather than the one that is on. */
   .layout-card.is-active {
-    border-color: var(--jui-color-stroke-primary-on-light);
-    background: var(--jui-color-background-primary-light);
+    border: 2px solid var(--jui-color-blue-400);
+  }
+  .layout-card-check {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 16px;
+    height: 16px;
+    color: var(--jui-color-actions-primary-rest);
+    opacity: 0;
+  }
+  .layout-card.is-active .layout-card-check {
+    opacity: 1;
   }
   /* The thumb draws the header it makes, and it is most of the card. A
      68px drawing centred in a 250px card was a stamp in a field: the thing
@@ -505,15 +522,15 @@
   .layout-card-thumb svg { display: block; width: 100%; height: 100%; }
   /* The picture is the thing being placed, so it reads darkest; the words
      lighter; the bands and fields lighter still. Selected, the picture
-     takes the accent — the drawing says which is on without leaning on the
-     border alone. */
+     darkens to full ink — the same move .de-shape-thumb makes, so the
+     drawing says which is on without leaning on the border alone. */
   .layout-card-thumb .lt-pic { fill: var(--jui-color-gray-400); }
   .layout-card-thumb .lt-line { fill: var(--jui-color-gray-300); }
   .layout-card-thumb .lt-band { fill: var(--jui-color-gray-200); }
   .layout-card-thumb .lt-field { fill: var(--jui-color-gray-50); }
   .layout-card-thumb .lt-bar { fill: var(--jui-color-gray-200); }
   .layout-card-thumb .lt-faint { opacity: 0.6; }
-  .layout-card.is-active .lt-pic { fill: var(--jui-color-actions-primary-rest); }
+  .layout-card.is-active .lt-pic { fill: var(--jui-color-typography-gray-on-light-default); }
 
   /* The paid four say so. A drawing cannot carry a price. */
   .layout-card-tag {
@@ -534,7 +551,17 @@
     align-items: center;
     justify-content: center;
     gap: var(--jui-layout-gap-xxs);
-    padding: var(--jui-layout-padding-s) 0 24px;
+    padding: var(--jui-layout-padding-m) 0 24px;
+  }
+  /* One hover for the three pickers. The font and shape cards declared a
+     border-color transition and never had a rule to drive it; the layout
+     card had the rule and the other two did not. Cards that look alike
+     should answer the pointer alike. :not(.is-active) so hovering the
+     chosen one does not pull its border back off the accent. */
+  .de-font-card:not(.is-active):hover,
+  .de-shape-card:not(.is-active):hover,
+  .layout-card:not(.is-active):hover {
+    border-color: var(--jui-color-gray-300);
   }
   /* .de-font-card-name's figures exactly. */
   .layout-card-label {
@@ -845,30 +872,38 @@
                  thing a label has to say that a drawing cannot. -->
             <div class="layout-grid">
               <button type="button" class="layout-card" onclick="selectLayout(this)" data-layout="stacked" data-inspect-phrase="">
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="layout-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
                 <span class="layout-card-thumb"><svg viewBox="0 0 64 114" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-pic" x="22" y="10" width="20" height="20" rx="5"/><rect class="lt-line" x="16" y="38" width="32" height="5" rx="2.5"/><rect class="lt-line lt-faint" x="24" y="48" width="16" height="3" rx="1.5"/><rect class="lt-bar" x="8" y="80" width="48" height="9" rx="4"/><rect class="lt-bar" x="8" y="93" width="48" height="9" rx="4"/></svg></span>
                 <span class="layout-card-foot"><span class="layout-card-label">Stacked</span></span>              </button>
               <button type="button" class="layout-card is-active" onclick="selectLayout(this)" data-layout="overlap" data-inspect-phrase="">
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="layout-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
                 <span class="layout-card-thumb"><svg viewBox="0 0 64 114" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-line" x="6" y="12" width="52" height="8" rx="3"/><rect class="lt-pic" x="22" y="17" width="20" height="20" rx="5"/><rect class="lt-line lt-faint" x="24" y="43" width="16" height="3" rx="1.5"/><rect class="lt-bar" x="8" y="80" width="48" height="9" rx="4"/><rect class="lt-bar" x="8" y="93" width="48" height="9" rx="4"/></svg></span>
                 <span class="layout-card-foot"><span class="layout-card-label">Overlap</span></span>              </button>
               <button type="button" class="layout-card" onclick="selectLayout(this)" data-layout="fade" data-inspect-phrase="">
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="layout-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
                 <span class="layout-card-thumb"><svg viewBox="0 0 64 114" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-pic" x="0" y="0" width="64" height="32" rx="0"/><rect class="lt-line" x="16" y="38" width="32" height="5" rx="2.5"/><rect class="lt-line lt-faint" x="24" y="48" width="16" height="3" rx="1.5"/><rect class="lt-bar" x="8" y="80" width="48" height="9" rx="4"/><rect class="lt-bar" x="8" y="93" width="48" height="9" rx="4"/></svg></span>
                 <span class="layout-card-foot"><span class="layout-card-label">Fade</span></span>              </button>
               <button type="button" class="layout-card" onclick="selectLayout(this)" data-layout="band" data-inspect-phrase="">
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="layout-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
                 <span class="layout-card-thumb"><svg viewBox="0 0 64 114" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-band" x="0" y="4" width="64" height="20" rx="0"/><rect class="lt-pic" x="24" y="14" width="16" height="16" rx="8"/><rect class="lt-line" x="16" y="38" width="32" height="5" rx="2.5"/><rect class="lt-line lt-faint" x="24" y="48" width="16" height="3" rx="1.5"/><rect class="lt-bar" x="8" y="80" width="48" height="9" rx="4"/><rect class="lt-bar" x="8" y="93" width="48" height="9" rx="4"/></svg></span>
                 <span class="layout-card-foot"><span class="layout-card-label">Band</span></span>              </button>
               <button type="button" class="layout-card" onclick="selectLayout(this)" data-layout="aurora" data-pro="true" data-inspect-phrase="">
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="layout-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
                 <span class="layout-card-thumb"><svg viewBox="0 0 64 114" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-field" x="0" y="0" width="64" height="114" rx="0"/><rect class="lt-pic" x="24" y="10" width="16" height="16" rx="8"/><rect class="lt-line" x="16" y="34" width="32" height="5" rx="2.5"/><rect class="lt-line lt-faint" x="24" y="44" width="16" height="3" rx="1.5"/><rect class="lt-bar" x="8" y="80" width="48" height="9" rx="4"/><rect class="lt-bar" x="8" y="93" width="48" height="9" rx="4"/></svg></span>
                 <span class="layout-card-foot"><span class="layout-card-label">Aurora</span><span class="layout-card-tag">PRO</span></span>
               </button>
               <button type="button" class="layout-card" onclick="selectLayout(this)" data-layout="marquee" data-pro="true" data-inspect-phrase="">
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="layout-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
                 <span class="layout-card-thumb"><svg viewBox="0 0 64 114" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-band" x="0" y="10" width="64" height="14" rx="0"/><rect class="lt-pic" x="24" y="14" width="16" height="16" rx="8"/><rect class="lt-line" x="16" y="38" width="32" height="5" rx="2.5"/><rect class="lt-line lt-faint" x="24" y="48" width="16" height="3" rx="1.5"/><rect class="lt-bar" x="8" y="80" width="48" height="9" rx="4"/><rect class="lt-bar" x="8" y="93" width="48" height="9" rx="4"/></svg></span>
                 <span class="layout-card-foot"><span class="layout-card-label">Marquee</span><span class="layout-card-tag">PRO</span></span>
               </button>
               <button type="button" class="layout-card" onclick="selectLayout(this)" data-layout="dots" data-pro="true" data-inspect-phrase="">
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="layout-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
                 <span class="layout-card-thumb"><svg viewBox="0 0 64 114" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-field lt-dotted" x="0" y="0" width="64" height="114" rx="0"/><rect class="lt-pic" x="22" y="10" width="20" height="20" rx="5"/><rect class="lt-line" x="16" y="38" width="32" height="5" rx="2.5"/><rect class="lt-line lt-faint" x="24" y="48" width="16" height="3" rx="1.5"/><rect class="lt-bar" x="8" y="80" width="48" height="9" rx="4"/><rect class="lt-bar" x="8" y="93" width="48" height="9" rx="4"/></svg></span>
                 <span class="layout-card-foot"><span class="layout-card-label">Dots</span><span class="layout-card-tag">PRO</span></span>
               </button>
               <button type="button" class="layout-card" onclick="selectLayout(this)" data-layout="arch" data-pro="true" data-inspect-phrase="">
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="layout-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
                 <span class="layout-card-thumb"><svg viewBox="0 0 64 114" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-field" x="0" y="0" width="64" height="114" rx="0"/><path class="lt-pic" d="M24 32 V20 a8 8 0 0 1 16 0 V32 Z"/><rect class="lt-line" x="16" y="38" width="32" height="5" rx="2.5"/><rect class="lt-line lt-faint" x="24" y="48" width="16" height="3" rx="1.5"/><rect class="lt-bar" x="8" y="80" width="48" height="9" rx="4"/><rect class="lt-bar" x="8" y="93" width="48" height="9" rx="4"/></svg></span>
                 <span class="layout-card-foot"><span class="layout-card-label">Arch</span><span class="layout-card-tag">PRO</span></span>
               </button>
@@ -950,8 +985,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=7395c1c"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=7395c1c"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=6012eba"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=6012eba"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
 

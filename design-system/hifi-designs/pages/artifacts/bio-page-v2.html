@@ -44,13 +44,42 @@
     --bio-bg-warm: color-mix(in srgb, var(--bio-bg) 86%, var(--bio-ink));
     --bio-bg-cool: color-mix(in srgb, var(--bio-bg) 92%, var(--bio-ink));
     --bio-ink-dim: color-mix(in srgb, var(--bio-ink) 82%, var(--bio-bg));
-    --bio-surface: color-mix(in srgb, var(--bio-ink) 15%, var(--bio-bg));
+    /* How far a panel lifts off the ground. 15% of the ink over a dark
+       ground is a raised surface you read as a button; the same 15% over a
+       white one is #d9d9d9 — the grey a disabled control is — so every
+       button on a light page came out heavier than the same button on a
+       dark page. The dark one was right, so the light one moves. Lightness
+       is not symmetric and a single percentage cannot pretend it is.
+       applyConfig overrides this from the ground's own luminance, so an
+       arbitrary brand colour gets judged rather than assumed. */
+    --bio-surface-lift: 15%;
+    --bio-surface: color-mix(in srgb, var(--bio-ink) var(--bio-surface-lift), var(--bio-bg));
     /* Squared, rounded or pill — the design editor's third control, which
          had nothing to set. Two values, because a pill is a button's own
          height and a block the depth of a map is not a lozenge: cards take
          the same decision at a size that still reads as a card. */
     --bio-btn-radius: 16px;
     --bio-card-radius: 16px;
+
+    /* One family, one weight, every layout. The seller chooses the face in
+       the design editor and it applies to the whole page; a template that
+       swapped the font as part of its layout would be overriding a choice
+       they already made.
+
+       Declared here as well as on the card, for the same reason the
+       colours are: a custom property resolves against the element that
+       declares it, and <body> is above .bio-page, not inside it. With
+       these only on the card, `body { font-family: var(--bio-font-body) }`
+       had nothing to resolve and fell back to the initial value, so every
+       element that took its face by inheritance — the featured card's
+       title and its call to action, the legal line, the withdraw button —
+       rendered in Times while everything that named the token directly
+       rendered in Sofia Sans. */
+    --bio-font-display: 'Sofia Sans', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    --bio-font-body: var(--bio-font-display);
+    --bio-display-weight: 700;
+    --bio-display-case: uppercase;
+    --bio-display-tracking: -1.75px;
   }
 
   html, body {
@@ -105,7 +134,16 @@
     --bio-bg-warm: color-mix(in srgb, var(--bio-bg) 86%, var(--bio-ink));
     --bio-bg-cool: color-mix(in srgb, var(--bio-bg) 92%, var(--bio-ink));
     --bio-ink-dim: color-mix(in srgb, var(--bio-ink) 82%, var(--bio-bg));
-    --bio-surface: color-mix(in srgb, var(--bio-ink) 15%, var(--bio-bg));
+    /* How far a panel lifts off the ground. 15% of the ink over a dark
+       ground is a raised surface you read as a button; the same 15% over a
+       white one is #d9d9d9 — the grey a disabled control is — so every
+       button on a light page came out heavier than the same button on a
+       dark page. The dark one was right, so the light one moves. Lightness
+       is not symmetric and a single percentage cannot pretend it is.
+       applyConfig overrides this from the ground's own luminance, so an
+       arbitrary brand colour gets judged rather than assumed. */
+    --bio-surface-lift: 15%;
+    --bio-surface: color-mix(in srgb, var(--bio-ink) var(--bio-surface-lift), var(--bio-bg));
     /* Squared, rounded or pill — the design editor's third control, which
          had nothing to set. Two values, because a pill is a button's own
          height and a block the depth of a map is not a lozenge: cards take
@@ -268,7 +306,10 @@
   .bio-page[data-theme] .bio-social-dot,
   .bio-page[data-theme] .bio-link-arrow { color: var(--bio-ink); }
   .bio-page[data-theme] .bio-rich-btn-title,
-  .bio-page[data-theme] .bio-rich-btn-cta-label { color: var(--bio-ink); }
+  .bio-page[data-theme] .bio-rich-btn-cta-label {
+    color: var(--bio-ink);
+    font-family: var(--bio-font-body);
+  }
   .bio-page[data-theme] .bio-rich-btn-meta { color: var(--bio-ink-dim); }
   .bio-page[data-theme] .bio-rich-btn-info,
   .bio-page[data-theme] .bio-rich-btn-cta { background: var(--bio-surface); }
@@ -327,7 +368,14 @@
     will-change: transform;
   }
   /* The room matches the page in it. A dotted page on a swept field was
-     two ideas looking at each other across the card's edge. */
+     two ideas looking at each other across the card's edge — and a marquee
+     page on one is the same mistake with a different second idea. */
+  html[data-header="marquee"] body::before {
+    background: var(--bio-bg-deep);
+    filter: none;
+    opacity: 1;
+    animation: none;
+  }
   html[data-header="dots"] body::before {
     background: var(--bio-bg-deep);
     background-image: radial-gradient(circle,
@@ -341,19 +389,32 @@
     from { transform: rotate(0deg); }
     to   { transform: rotate(360deg); }
   }
-  .bio-page { position: relative; z-index: 1; }
+  /* A light ground, picked by the theme switch rather than by a colour.
+     applyConfig says the same thing from luminance when a real colour
+     arrives; this covers the switch on its own. */
+  html[data-theme="light"],
+  .bio-page[data-theme="light"] { --bio-surface-lift: 7%; }
+
+  /* The field is absolutely positioned and inset -35%, so it hangs well
+     below the card — and an overhang nobody clips is scrollable overflow.
+     Aurora and the arch were each adding ~395px of empty scroll past the
+     end of the page, dots ~87px: the paid layouts were the ones you had to
+     scroll furthest through nothing to leave. overflow: clip rather than
+     hidden, because the card is not a scroller and should not become one. */
+  .bio-page { position: relative; z-index: 1; overflow: clip; }
 
   .bio-page-fx { display: none; }
   /* Behind everything in the card, in front of nothing. */
   .bio-page > *:not(.bio-page-fx) { position: relative; z-index: 1; }
 
   /* One slow turn of the ground through its own near-neighbours, over the
-     whole page. Every paid layout carries it; what changes between them is
-     how the header is arranged on top. Sixty seconds, because at this size
-     anything faster is a screensaver and the point is to be unsure it
-     moved. */
-  .bio-page[data-header="aurora"] .bio-page-fx,
-  .bio-page[data-header="marquee"] .bio-page-fx,
+     whole page. Sixty seconds, because at this size anything faster is a
+     screensaver and the point is to be unsure it moved.
+
+     Two of the four paid layouts carry it. The marquee does not: its idea
+     is already the name going past, and a sweep behind that was a second
+     moving thing on a page with three lines of text on it. Dots has its
+     own ground. One idea each. */
   .bio-page[data-header="arch"] .bio-page-fx {
     display: block;
     position: absolute;
@@ -374,6 +435,57 @@
   @keyframes bio-field {
     from { transform: rotate(0deg); }
     to   { transform: rotate(360deg); }
+  }
+
+  /* ── Aurora's colour ──
+     A black page has no hue, so the near-neighbour sweep that the arch uses
+     resolves to grey on it — the one layout whose whole idea is colour had
+     none, and could not be given any without inventing a colour the seller
+     never picked.
+
+     Their photograph is the exception. It is already on the page, it is
+     certainly theirs, and blurred to this degree it is no longer a picture
+     of anything — it is the colour that was in their picture, spread over
+     the page. Screened onto a dark ground or multiplied into a light one,
+     so it lifts the ground rather than covering it.
+
+     The sweep stays underneath as the base, which is what a page with no
+     photograph yet still gets. */
+  .bio-page[data-header="aurora"] .bio-page-fx {
+    display: block;
+    position: absolute;
+    inset: -35%;
+    z-index: 0;
+    pointer-events: none;
+    background-image: var(--bio-hero-img, none);
+    background-size: cover;
+    background-position: 50% 35%;
+    background-repeat: no-repeat;
+    background-color: var(--bio-bg);
+    filter: blur(60px) saturate(200%);
+    mix-blend-mode: var(--bio-fx-blend, screen);
+    /* A tint, not a wash. At 0.65 the ground stopped being the colour the
+       seller picked and became their photograph — a black page came out
+       solid amber. This is the picture's colour arriving at the edge of
+       the page and in the glass, with black still reading as black. */
+    opacity: 0.26;
+    animation: bio-field 60s linear infinite;
+    will-change: transform;
+  }
+  /* Grain, so the glass has something to refract. A backdrop-filter over a
+     flat wash blurs nothing and reads as a flat panel at a different
+     opacity; over a fine texture it reads as frosted. A sibling of the
+     field rather than a child of it, because the field carries a 60px blur
+     that would erase this. */
+  .bio-page[data-header="aurora"]::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)' opacity='0.5'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+    opacity: 0.16;
   }
 
   /* The dotted one. Its ground is a field of the seller's ink rather than a
@@ -407,16 +519,41 @@
     padding: 48px 20px 0;
     gap: 24px;
   }
+  /* The name is the name, and it was sitting a step and a half above the
+     tagline's 18px — 24 on the marquee, 28 on the band and the arch. That
+     was sized for a column it did not have: the config path was breaking
+     every name before its last word, so each layout was set small enough
+     for half a name. With the break gone the whole column is available and
+     these go up roughly a fifth, which puts the smallest of them at 1.7×
+     the tagline and the rest further. Still sized so a name longer than
+     two words wraps to two balanced lines rather than overflowing. */
+  /* ── Name to tagline ──
+     The two are one block — who this is — so the space between them has to
+     read as smaller than the space from the tagline down to the first
+     button. After the names went up a fifth, the measured optical gaps ran
+     from 6px to 32px across the eight layouts: 0.18× the title on the band
+     and the marquee, 0.84× on stacked. Nothing chose those; they were
+     whatever the old sizes happened to leave.
+
+     Now each is set against its own title size. Around 0.35–0.4× where the
+     name and tagline are plain stacked text, and wider on the arch, where
+     the tagline is a ruled caption and the rules need air either side to
+     read as rules rather than as strikethrough.
+
+     Where a layout's hero sets one flex gap for every pair, this pair is
+     pulled in under it with a negative margin — the picture wants the full
+     gap above the name, the tagline wants less below it, and one gap
+     cannot say both. */
   .bio-page[data-header="stacked"] .bio-hero-title {
     order: 2;
-    font-size: 32px;
+    font-size: 38px;
     line-height: 1.05;
     margin: 0;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.7px;
     text-transform: none;
   }
   .bio-page[data-header="stacked"] .bio-hero-img-wrap { order: 1; }
-  .bio-page[data-header="stacked"] .bio-subtitle { order: 3; padding: 8px 20px 40px; }
+  .bio-page[data-header="stacked"] .bio-subtitle { order: 3; margin-top: -9px; padding: 0 20px 40px; }
 
   /* ── 2. Overlap — black minimal, light artistic ──
      The name set large enough to break out of its own line and sit over
@@ -448,16 +585,16 @@
   .bio-page[data-header="fade"] .bio-hero-title {
     position: relative;
     z-index: 1;
-    font-size: 40px;
+    font-size: 44px;
     line-height: 1.0;
     margin: 0;
-    letter-spacing: -1px;
+    letter-spacing: -1.1px;
     text-transform: none;
   }
   .bio-page[data-header="fade"] .bio-subtitle {
     position: relative;
     z-index: 1;
-    padding: 10px 20px 40px;
+    padding: 18px 20px 40px;
   }
 
   /* ── 4. Band — soft and warm ──
@@ -504,13 +641,13 @@
   }
   .bio-page[data-header="band"] .bio-hero-title {
     order: 3;
-    font-size: 28px;
+    font-size: 34px;
     line-height: 1.1;
     margin: 20px 0 0;
-    letter-spacing: -0.4px;
+    letter-spacing: -0.6px;
     text-transform: none;
   }
-  .bio-page[data-header="band"] .bio-subtitle { order: 4; padding: 6px 20px 40px; }
+  .bio-page[data-header="band"] .bio-subtitle { order: 4; padding: 13px 20px 40px; }
 
   /* ── 5. Aurora — PRO ──
      A slow field of colour behind a plain stacked header. Three radial
@@ -518,32 +655,15 @@
      only way to move a background without repainting it every frame.
      What it sells is that the page is not a still: it is the difference
      between a printed card and a lit sign. */
+  /* No overflow clip and no field of its own. Aurora used to run a second
+     sweep scoped to the header, inset -30% on three sides and cut off flat
+     at the hero's bottom edge by this overflow — which drew a hard
+     horizontal line across the card wherever the header ended. Two sweeps
+     were never the design either: the page already carries one, and the
+     layout's job is how the name, picture and tagline sit on it. */
   .bio-page[data-header="aurora"] .bio-hero {
     padding: 56px 20px 0;
     gap: 20px;
-    overflow: hidden;
-  }
-  .bio-page[data-header="aurora"] .bio-hero-fx {
-    display: block;
-    position: absolute;
-    inset: -30% -30% 0;
-    /* The same sweep the arch and the surround carry, sized to the header
-       rather than to the arch. Three separate pools drifting was a second
-       idea in a page that already had one — this is the one idea, closer.
-
-       Forty seconds, which at this size is movement you notice only by
-       looking away and back. */
-    background: conic-gradient(from 210deg,
-      var(--bio-bg), var(--bio-glow), var(--bio-bg-warm),
-      var(--bio-bg), var(--bio-bg-cool), var(--bio-bg));
-    filter: blur(28px);
-    opacity: 0.6;
-    animation: bio-aurora 40s linear infinite;
-    will-change: transform;
-  }
-  @keyframes bio-aurora {
-    from { transform: rotate(0deg) scale(1.6); }
-    to   { transform: rotate(360deg) scale(1.6); }
   }
   .bio-page[data-header="aurora"] .bio-hero-img-wrap {
     order: 1;
@@ -556,20 +676,34 @@
   .bio-page[data-header="aurora"] .bio-hero-title {
     order: 2;
     z-index: 1;
-    font-size: 32px;
+    font-size: 38px;
     line-height: 1.05;
     margin: 0;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.7px;
     text-transform: none;
   }
-  .bio-page[data-header="aurora"] .bio-subtitle { order: 3; z-index: 1; padding: 8px 20px 44px; }
-  /* Glass, because there is something behind them worth seeing through. */
+  .bio-page[data-header="aurora"] .bio-subtitle { order: 3; z-index: 1; margin-top: -5px; padding: 0 20px 44px; }
+  /* Glass, because there is something behind them worth seeing through.
+     Both grounds that carry a field get it: the sweep under aurora and the
+     dot grid under dots. A solid panel over either hides the thing the
+     layout is being paid for.
+
+     No border. The outline was a second, brighter edge sitting on a fill
+     that already said where the button was. */
   .bio-page[data-header="aurora"] .bio-link-btn,
-  .bio-page[data-header="aurora"] .bio-contact-btn {
-    background: color-mix(in srgb, var(--bio-ink) 12%, transparent);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid color-mix(in srgb, var(--bio-ink) 18%, transparent);
+  .bio-page[data-header="aurora"] .bio-contact-btn,
+  .bio-page[data-header="aurora"] .bio-info-map,
+  .bio-page[data-header="aurora"] .bio-rich-btn-info,
+  .bio-page[data-header="aurora"] .bio-rich-btn-cta,
+  .bio-page[data-header="dots"] .bio-link-btn,
+  .bio-page[data-header="dots"] .bio-contact-btn,
+  .bio-page[data-header="dots"] .bio-info-map,
+  .bio-page[data-header="dots"] .bio-rich-btn-info,
+  .bio-page[data-header="dots"] .bio-rich-btn-cta {
+    background: color-mix(in srgb, var(--bio-ink) var(--bio-surface-lift), transparent);
+    /* saturate as well as blur: glass that only blurs is a grey panel. */
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
   }
 
   /* ── 6. Marquee — PRO ──
@@ -632,13 +766,13 @@
   }
   .bio-page[data-header="marquee"] .bio-hero-title {
     order: 3;
-    font-size: 24px;
+    font-size: 30px;
     line-height: 1.1;
     margin: 16px 0 0;
-    letter-spacing: -0.3px;
+    letter-spacing: -0.5px;
     text-transform: none;
   }
-  .bio-page[data-header="marquee"] .bio-subtitle { order: 4; padding: 6px 20px 40px; }
+  .bio-page[data-header="marquee"] .bio-subtitle { order: 4; padding: 10px 20px 40px; }
 
   /* ── 7. Dots — PRO ──
      The other kind of ground: a field of the seller's ink instead of a
@@ -665,13 +799,13 @@
   }
   .bio-page[data-header="dots"] .bio-hero-title {
     order: 2;
-    font-size: 32px;
+    font-size: 38px;
     line-height: 1.05;
     margin: 0;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.7px;
     text-transform: none;
   }
-  .bio-page[data-header="dots"] .bio-subtitle { order: 3; padding: 8px 20px 44px; }
+  .bio-page[data-header="dots"] .bio-subtitle { order: 3; margin-top: -5px; padding: 0 20px 44px; }
 
   /* ── 8. Arch — PRO ──
      The picture in an arch with a slow halo turning behind it. The arch
@@ -719,10 +853,10 @@
   .bio-page[data-header="arch"] .bio-hero-title {
     order: 2;
     z-index: 1;
-    font-size: 28px;
+    font-size: 34px;
     line-height: 1.1;
     margin: 0;
-    letter-spacing: -0.3px;
+    letter-spacing: -0.5px;
     text-transform: none;
   }
   /* A rule either side, which is what turns a line of text into a
@@ -823,8 +957,11 @@
     height: 34px;
     padding: 0 16px;
     border-radius: var(--bio-btn-radius);
-    background: color-mix(in srgb, var(--bio-ink) 10%, transparent);
-    border: 1px solid color-mix(in srgb, var(--bio-ink) 14%, transparent);
+    /* The same surface as everything else that can be pressed, and no
+       outline: a fill already says where the button is, and a border on
+       top of it drew a second, brighter edge that read as the shape
+       rather than as the thing. */
+    background: var(--bio-surface);
     color: var(--bio-ink);
     font-size: 14px;
     font-weight: 500;
@@ -1372,7 +1509,11 @@
     display: flex;
     flex-direction: column;
     border-radius: var(--bio-card-radius);
-    background: color-mix(in srgb, var(--bio-ink) 6%, transparent);
+    /* The same surface the links are. It used to be 6% where they are 15%,
+       which on a black page put a rgb(25,25,25) block directly under
+       rgb(47,47,47) ones — a block that looks like a button, sitting with
+       buttons, in a different colour from them. */
+    background: var(--bio-surface);
     overflow: hidden;
   }
   .bio-info-map-embed {
@@ -1441,7 +1582,7 @@
     gap: 12px;
     padding: 32px 20px 20px;
     margin: 0 12px 16px;
-    font-family: 'Faculty Glyphic', 'Familjen Grotesk', -apple-system, sans-serif;
+    font-family: var(--bio-font-body);
     font-size: 14px;
     line-height: 1.5;
     color: var(--bio-ink);
@@ -1456,7 +1597,7 @@
     padding: 0 20px 32px;
   }
   .bio-withdraw-btn {
-    font-family: 'Faculty Glyphic', 'Familjen Grotesk', -apple-system, sans-serif;
+    font-family: var(--bio-font-body);
     font-size: 14px;
     font-weight: 400;
     line-height: 1.5;
@@ -2216,6 +2357,17 @@
       fx.setAttribute('data-echo-one', full.split(' ')[0] || full);
     }
 
+    /* Aurora's field is this image. CSS cannot read an <img>'s src, so it
+       is published as a custom property and read back as a background. */
+    function syncHeroImage() {
+      var img = document.querySelector('.bio-hero-img');
+      var src = img && !img.hidden && img.currentSrc ? img.currentSrc : (img && img.src);
+      var val = src ? 'url("' + src + '")' : 'none';
+      [document.documentElement, page].forEach(function (el) {
+        el.style.setProperty('--bio-hero-img', val);
+      });
+    }
+
     function applyConfig(d) {
       if (!d || d.type !== 'bio-config') return;
       // `contact` is the current name; `actions` is the old one and still
@@ -2257,29 +2409,28 @@
           if (mlbl) mlbl.textContent = d.address.value;
         }
       }
-      syncEcho();
       if (typeof d.title === 'string') {
         var t = document.getElementById('bio-title');
-        // Break on the last space so a two-word name stacks the way the
-        // authored hero does, instead of wrapping arbitrarily.
-        if (t) {
-          var words = d.title.trim().split(/\s+/);
-          t.innerHTML = '';
-          if (words.length > 1) {
-            t.appendChild(document.createTextNode(words.slice(0, -1).join(' ')));
-            t.appendChild(document.createElement('br'));
-            t.appendChild(document.createTextNode(words[words.length - 1]));
-          } else {
-            t.textContent = words[0] || '';
-          }
-        }
+        // The name gets the column and breaks only where it runs out of it.
+        // This used to force a break before the last word, so "Clara and
+        // Stone" came out on two lines in every layout whose type is small
+        // enough to fit it on one — a cap the layouts had not asked for and
+        // could not override. The static markup carried the same <br> and
+        // had it removed; this path put it back. Width decides, and
+        // text-wrap: balance evens out the names that genuinely need two.
+        if (t) t.textContent = d.title.trim().replace(/\s+/g, ' ');
       }
+      /* After the title, not before it: the marquee and the band read their
+         big word off the heading, and running this first echoed the name
+         the page had a moment ago. */
+      syncEcho();
       if (typeof d.subtitle === 'string') {
         var st = document.getElementById('bio-subtitle');
         if (st) st.textContent = d.subtitle;
       }
       if (d.image) {
         var img = document.querySelector('.bio-hero-img');
+        syncHeroImage();
         var ph = document.getElementById('bio-image-placeholder');
         var wantsPhoto = d.image === 'photo';
         if (img) img.hidden = !wantsPhoto;
@@ -2344,9 +2495,20 @@
              white, whichever is readable. There is no third answer. */
           ink = readable('#0a0a0a', d.bg) >= readable('#ffffff', d.bg) ? '#0a0a0a' : '#ffffff';
         }
+        /* The same test that picked the ink picks the step. If black reads
+           better than white on this ground, the ground is light, and a
+           panel on it lifts by less — see --bio-surface-lift. */
+        var onLight = readable('#0a0a0a', d.bg) >= readable('#ffffff', d.bg);
+        var lift = onLight ? '7%' : '15%';
+        /* Aurora spreads the photograph over the ground. Screen lifts a dark
+           ground towards the picture's colour; multiply pulls a light one
+           down into it. The wrong one of the two washes the page out. */
+        var blend = onLight ? 'multiply' : 'screen';
         [document.documentElement, page].forEach(function (el) {
           el.style.setProperty('--bio-bg', d.bg);
           el.style.setProperty('--bio-ink', ink);
+          el.style.setProperty('--bio-surface-lift', lift);
+          el.style.setProperty('--bio-fx-blend', blend);
         });
         syncMap();
       }
@@ -2690,6 +2852,7 @@
         document.documentElement.setAttribute('data-theme', q.get('theme'));
       }
       syncMap();
+      syncHeroImage();
     })();
 
     /* Sent after the query string has been read, so `current` is what is
