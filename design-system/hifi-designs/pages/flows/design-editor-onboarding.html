@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>design-editor-onboarding</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=ebb6410">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=ebb6410">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=4fbdb07">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=4fbdb07">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=ebb6410">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=4fbdb07">
 <style>
   /* ─── Screen overrides ───
      The frame is the setup split in editor mode, same as the link editor.
@@ -555,19 +555,29 @@
   .layout-card.is-active .lt-pic { fill: var(--jui-color-typography-gray-on-light-default); }
 
   /* The paid four say so. A drawing cannot carry a price. */
-  .layout-card-tag {
-    padding: 0 4px;
-    border-radius: var(--jui-style-radius-4);
-    background: var(--jui-color-background-upgrade-light);
-    color: var(--jui-color-typography-upgrade-on-light);
-    font-size: var(--jui-typography-label-small-size);
-    font-weight: var(--jui-typography-body-small-medium-weight);
-    line-height: 16px;
-    letter-spacing: 0.4px;
+  /* ── What a paid layout costs, as a mark rather than a word ──
+     PRO was our packaging read back to the seller: it names the plan's
+     marketing name and not the thing or the price, and it is a word in a
+     row of pictures. The crown is the one mark this product has already
+     taught — tier 1 in kb/interaction-patterns/upgrade-triggers.md, always
+     decorative-upgrade, always 16px — and it is the same crown over the
+     preview and on Get pro layout, so a seller meets one sign for one idea
+     three times on this screen.
+
+     Top left, opposite the check. The two are the card's two statements —
+     this one costs, and this one is on — and they are about different
+     things, so they do not share a corner. The card is relative; both are
+     absolute 8 in from their own edge. */
+  .layout-card-crown {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 16px;
+    height: 16px;
+    color: var(--jui-color-decorative-upgrade);
   }
-  /* Name and price on one line under the drawing. The tag used to float in
-     the card's top corner, which put it nearer the thumb above it than the
-     thing it was pricing. */
+  /* The name under the drawing. The tag used to sit here beside it, and
+     before that it floated in the card's top corner. */
   .layout-card-foot {
     display: flex;
     align-items: center;
@@ -744,7 +754,7 @@
           <div class="bp-stage">
             <div class="bp-frame">
               <iframe id="bioPreview" title="Bio page preview" tabindex="-1"
-                src="/flows-prototype/design-system/hifi-designs/pages/artifacts/bio-page-v2.html?v=ebb6410"></iframe>
+                src="/flows-prototype/design-system/hifi-designs/pages/artifacts/bio-page-v2.html?v=4fbdb07"></iframe>
             </div>
             <!-- On the stage rather than inside the frame: the frame is
                  scaled to fit, and a mark inside it would shrink with the
@@ -1005,24 +1015,24 @@
                 <span class="layout-card-thumb"><svg viewBox="0 0 64 114" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-band" x="0" y="4" width="64" height="20" rx="0"/><rect class="lt-pic" x="24" y="14" width="16" height="16" rx="8"/><rect class="lt-line" x="16" y="38" width="32" height="5" rx="2.5"/><rect class="lt-line lt-faint" x="24" y="48" width="16" height="3" rx="1.5"/><rect class="lt-bar" x="8" y="80" width="48" height="9" rx="4"/><rect class="lt-bar" x="8" y="93" width="48" height="9" rx="4"/></svg></span>
                 <span class="layout-card-foot"><span class="layout-card-label">Band</span></span>              </button>
               <button type="button" class="layout-card" onclick="selectLayout(this)" data-layout="aurora" data-pro="true" data-inspect-phrase="">
-                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="layout-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="layout-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><svg class="layout-card-crown" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Comes with Jimdo Start" role="img"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg>
                 <span class="layout-card-thumb"><svg viewBox="0 0 64 114" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-field" x="0" y="0" width="64" height="114" rx="0"/><rect class="lt-pic" x="24" y="10" width="16" height="16" rx="8"/><rect class="lt-line" x="16" y="34" width="32" height="5" rx="2.5"/><rect class="lt-line lt-faint" x="24" y="44" width="16" height="3" rx="1.5"/><rect class="lt-bar" x="8" y="80" width="48" height="9" rx="4"/><rect class="lt-bar" x="8" y="93" width="48" height="9" rx="4"/></svg></span>
-                <span class="layout-card-foot"><span class="layout-card-label">Aurora</span><span class="layout-card-tag">PRO</span></span>
+                <span class="layout-card-foot"><span class="layout-card-label">Aurora</span></span>
               </button>
               <button type="button" class="layout-card" onclick="selectLayout(this)" data-layout="marquee" data-pro="true" data-inspect-phrase="">
-                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="layout-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="layout-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><svg class="layout-card-crown" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Comes with Jimdo Start" role="img"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg>
                 <span class="layout-card-thumb"><svg viewBox="0 0 64 114" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-band" x="0" y="10" width="64" height="14" rx="0"/><rect class="lt-pic" x="24" y="14" width="16" height="16" rx="8"/><rect class="lt-line" x="16" y="38" width="32" height="5" rx="2.5"/><rect class="lt-line lt-faint" x="24" y="48" width="16" height="3" rx="1.5"/><rect class="lt-bar" x="8" y="80" width="48" height="9" rx="4"/><rect class="lt-bar" x="8" y="93" width="48" height="9" rx="4"/></svg></span>
-                <span class="layout-card-foot"><span class="layout-card-label">Marquee</span><span class="layout-card-tag">PRO</span></span>
+                <span class="layout-card-foot"><span class="layout-card-label">Marquee</span></span>
               </button>
               <button type="button" class="layout-card" onclick="selectLayout(this)" data-layout="dots" data-pro="true" data-inspect-phrase="">
-                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="layout-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="layout-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><svg class="layout-card-crown" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Comes with Jimdo Start" role="img"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg>
                 <span class="layout-card-thumb"><svg viewBox="0 0 64 114" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-field lt-dotted" x="0" y="0" width="64" height="114" rx="0"/><rect class="lt-pic" x="22" y="10" width="20" height="20" rx="5"/><rect class="lt-line" x="16" y="38" width="32" height="5" rx="2.5"/><rect class="lt-line lt-faint" x="24" y="48" width="16" height="3" rx="1.5"/><rect class="lt-bar" x="8" y="80" width="48" height="9" rx="4"/><rect class="lt-bar" x="8" y="93" width="48" height="9" rx="4"/></svg></span>
-                <span class="layout-card-foot"><span class="layout-card-label">Dots</span><span class="layout-card-tag">PRO</span></span>
+                <span class="layout-card-foot"><span class="layout-card-label">Dots</span></span>
               </button>
               <button type="button" class="layout-card" onclick="selectLayout(this)" data-layout="arch" data-pro="true" data-inspect-phrase="">
-                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="layout-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="layout-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><svg class="layout-card-crown" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Comes with Jimdo Start" role="img"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg>
                 <span class="layout-card-thumb"><svg viewBox="0 0 64 114" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-field" x="0" y="0" width="64" height="114" rx="0"/><path class="lt-pic" d="M24 32 V20 a8 8 0 0 1 16 0 V32 Z"/><rect class="lt-line" x="16" y="38" width="32" height="5" rx="2.5"/><rect class="lt-line lt-faint" x="24" y="48" width="16" height="3" rx="1.5"/><rect class="lt-bar" x="8" y="80" width="48" height="9" rx="4"/><rect class="lt-bar" x="8" y="93" width="48" height="9" rx="4"/></svg></span>
-                <span class="layout-card-foot"><span class="layout-card-label">Arch</span><span class="layout-card-tag">PRO</span></span>
+                <span class="layout-card-foot"><span class="layout-card-label">Arch</span></span>
               </button>
             </div>
           </div>
@@ -1102,8 +1112,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=ebb6410"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=ebb6410"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=4fbdb07"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=4fbdb07"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
 
