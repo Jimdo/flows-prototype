@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>design-editor-onboarding</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=13746c0">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=13746c0">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=9384c1d">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=9384c1d">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=13746c0">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=9384c1d">
 <style>
   /* ─── Screen overrides ───
      The frame is the setup split in editor mode, same as the link editor.
@@ -791,30 +791,42 @@
                       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="var(--jui-color-actions-primary-rest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
                     </div>
                   </button>
-                  <button type="button" class="de-bg-swatch" onclick="selectBgSwatch(this)" aria-label="Light background">
-                    <div class="de-bg-swatch-inner" style="background: #ffffff;">
-                      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="var(--jui-color-actions-primary-rest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
-                    </div>
-                  </button>
-                  <button type="button" class="de-bg-swatch" onclick="selectBgSwatch(this)" aria-label="Tinted background">
-                    <div class="de-bg-swatch-inner" style="background: #ffffff;">
-                      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="var(--jui-color-actions-primary-rest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
-                    </div>
-                  </button>
                   <div class="de-bg-divider"></div>
-                  <button type="button" class="de-bg-swatch" onclick="selectBgSwatch(this)" aria-label="Brand light background">
-                    <div class="de-bg-swatch-inner" style="background: #ffffff;">
+                  <!-- Six grounds: white and black, then the rule, then the
+                       four the seller owns. White and black are the two
+                       production leaves out of an editable palette, so they
+                       are the two that sit outside it here — a page always
+                       has them whatever the brand is.
+
+                       There were four to the left of the rule and two to the
+                       right, and the extra two were both #ffffff: placeholder
+                       swatches for a palette nobody had filled in yet, which
+                       is also why the brand pair looked like white and black.
+                       Four is what a seller can change, so four is what is
+                       drawn, each carrying what the brand editor last saved. -->
+                  <button type="button" class="de-bg-swatch" onclick="selectBgSwatch(this)" data-brand="main" aria-label="Main brand colour as background">
+                    <div class="de-bg-swatch-inner" style="background: #2D81C2;">
                       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="var(--jui-color-actions-primary-rest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
                     </div>
                   </button>
-                  <button type="button" class="de-bg-swatch" onclick="selectBgSwatch(this)" aria-label="Brand dark background">
-                    <div class="de-bg-swatch-inner" style="background: #000000;">
+                  <button type="button" class="de-bg-swatch" onclick="selectBgSwatch(this)" data-brand="secondary" aria-label="Secondary brand colour as background">
+                    <div class="de-bg-swatch-inner" style="background: #554780;">
+                      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="var(--jui-color-actions-primary-rest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                    </div>
+                  </button>
+                  <button type="button" class="de-bg-swatch" onclick="selectBgSwatch(this)" data-brand="shade1" aria-label="First brand shade as background">
+                    <div class="de-bg-swatch-inner" style="background: #F2F5F8;">
+                      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="var(--jui-color-actions-primary-rest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                    </div>
+                  </button>
+                  <button type="button" class="de-bg-swatch" onclick="selectBgSwatch(this)" data-brand="shade2" aria-label="Second brand shade as background">
+                    <div class="de-bg-swatch-inner" style="background: #15202B;">
                       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="var(--jui-color-actions-primary-rest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
                     </div>
                   </button>
                 </div>
               </div>
-              <button type="button" class="de-bg-card-link" aria-label="Edit brand colors">
+              <button type="button" class="de-bg-card-link" id="brandEditOpen" aria-haspopup="dialog" aria-label="Edit brand colors">
                 <span class="de-bg-card-link-label" data-inspect-phrase="flows.designEditor.editBrandColors">Edit brand colors</span>
                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 6L15 12L9 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
               </button>
@@ -993,8 +1005,68 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=13746c0"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=13746c0"></script>
+  <!-- ── Brand colours ──
+       The four production lets a seller change — MainColor, SecondaryColor,
+       Shade1 and Shade2. A row of four, and the picker opens under whichever
+       one is being changed rather than over it, so the swatch stays visible
+       beside the thing changing it.
+
+       Production puts the picker in a popover on a wide screen and inline on
+       a phone; this is always inline, because it opens inside a sheet that is
+       already a phone's width and a popover over a sheet is a surface on a
+       surface. -->
+  <div class="sheet-backdrop" id="brandSheet" data-open="false" role="dialog" aria-modal="true" aria-labelledby="brandSheetTitle">
+    <div class="sheet sheet--compact">
+      <div class="sheet-body">
+        <div class="dialog-copy">
+          <p class="dialog-title" id="brandSheetTitle" data-inspect-phrase="flows.designEditor.brand.title">Your brand colours</p>
+          <p class="sheet-copy" data-inspect-phrase="flows.designEditor.brand.copy">Four colours the whole page is built from. Change one and everything that uses it follows.</p>
+        </div>
+        <div class="brand-swatches" id="brandSwatches" role="group" aria-label="Brand colours">
+          <button type="button" class="brand-swatch" data-brand="main" aria-expanded="false">
+            <span class="brand-swatch-chip"></span>
+            <span class="brand-swatch-label" data-inspect-phrase="flows.designEditor.brand.main">Main</span>
+          </button>
+          <button type="button" class="brand-swatch" data-brand="secondary" aria-expanded="false">
+            <span class="brand-swatch-chip"></span>
+            <span class="brand-swatch-label" data-inspect-phrase="flows.designEditor.brand.secondary">Second</span>
+          </button>
+          <button type="button" class="brand-swatch" data-brand="shade1" aria-expanded="false">
+            <span class="brand-swatch-chip"></span>
+            <span class="brand-swatch-label" data-inspect-phrase="flows.designEditor.brand.shade1">Shade 1</span>
+          </button>
+          <button type="button" class="brand-swatch" data-brand="shade2" aria-expanded="false">
+            <span class="brand-swatch-chip"></span>
+            <span class="brand-swatch-label" data-inspect-phrase="flows.designEditor.brand.shade2">Shade 2</span>
+          </button>
+        </div>
+        <div class="color-picker" id="brandPicker" hidden
+          data-inspect-label="Colour picker — ported from @jimdo/ui Inputs/ColorPicker"
+          data-inspect-tokens='[{"prop":"saturation","figma":"react-colorful","css":"height","value":"164px over a 24px hue bar"},{"prop":"pointer","figma":"@jimdo/ui override","css":"width","value":"20px"},{"prop":"hex field","figma":"@jimdo/ui","css":"height","value":"36px"},{"prop":"presets","figma":"@jimdo/ui","css":"grid-template-columns","value":"repeat(auto-fit, 32px)"}]'>
+          <div class="color-picker-well">
+            <div class="color-picker-area" id="brandArea" role="application" aria-label="Saturation and brightness">
+              <span class="color-picker-pointer" id="brandAreaPointer"></span>
+            </div>
+            <div class="color-picker-hue" id="brandHue" role="application" aria-label="Hue">
+              <span class="color-picker-pointer" id="brandHuePointer"></span>
+            </div>
+          </div>
+          <div class="color-picker-field">
+            <span class="color-picker-preview" id="brandPreview"></span>
+            <input type="text" class="color-picker-hex" id="brandHex" maxlength="7" spellcheck="false"
+              data-no-phrase aria-label="Hex colour">
+          </div>
+          <div class="color-picker-presets" id="brandPresets"></div>
+        </div>
+      </div>
+      <div class="sheet-actions sheet-actions--end">
+        <button type="button" class="btn btn-primary" id="brandDone" data-inspect-phrase="biopage.edit.save">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=9384c1d"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=9384c1d"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
 
@@ -1175,6 +1247,177 @@ function syncProLayout() {
   });
 }
 var PRO_CROWN = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg>';
+
+/* ══ Brand colours ══════════════════════════════════════════════════════
+   Four colours, one picker, and the picker is the @jimdo/ui one rebuilt
+   rather than approximated: a saturation square over a hue bar, a hex field
+   with a preview beside it, and the ten presets the package ships. The
+   geometry is in components.css and every number there came out of the
+   installed package.
+
+   The colours live in one object. Both places that show them — the four
+   chips in this sheet and the four brand swatches on the background row —
+   are painted from it, so a change has one source and the row cannot drift
+   from the editor.
+
+   Defaults are the seller's, not ours: Main and Second are the two the page
+   already used for its brand grounds, and the shades are the light and dark
+   neutrals a page needs to sit on. */
+var BRAND = { main: '#2D81C2', secondary: '#554780', shade1: '#F2F5F8', shade2: '#15202B' };
+/* @jimdo/ui ColorPicker's own defaultColors, in its own order. */
+var BRAND_PRESETS = ['#3D8080', '#554780', '#F7C923', '#9E5A7C', '#72B8ED',
+                     '#9E6E49', '#9E1B5C', '#2D81C2', '#4C9E49', '#FC9003'];
+
+var brandSheet = document.getElementById('brandSheet');
+var brandPicker = document.getElementById('brandPicker');
+var brandArea = document.getElementById('brandArea');
+var brandHue = document.getElementById('brandHue');
+var brandAreaPointer = document.getElementById('brandAreaPointer');
+var brandHuePointer = document.getElementById('brandHuePointer');
+var brandPreview = document.getElementById('brandPreview');
+var brandHexInput = document.getElementById('brandHex');
+var brandEditing = null;          /* which of the four is open */
+var brandHsv = { h: 0, s: 0, v: 0 };
+
+function clamp01(n) { return n < 0 ? 0 : n > 1 ? 1 : n; }
+
+function hexToHsv(hex) {
+  var m = /^#?([0-9a-f]{6})$/i.exec(hex || '');
+  if (!m) return null;
+  var n = parseInt(m[1], 16);
+  var r = ((n >> 16) & 255) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255;
+  var mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
+  var h = 0;
+  if (d) {
+    if (mx === r) h = ((g - b) / d + (g < b ? 6 : 0));
+    else if (mx === g) h = (b - r) / d + 2;
+    else h = (r - g) / d + 4;
+    h *= 60;
+  }
+  return { h: h, s: mx ? d / mx : 0, v: mx };
+}
+
+function hsvToHex(hsv) {
+  var h = ((hsv.h % 360) + 360) % 360 / 60, s = clamp01(hsv.s), v = clamp01(hsv.v);
+  var i = Math.floor(h), f = h - i;
+  var p = v * (1 - s), q = v * (1 - s * f), t = v * (1 - s * (1 - f));
+  var rgb = [[v, t, p], [q, v, p], [p, v, t], [p, q, v], [t, p, v], [v, p, q]][i % 6];
+  return '#' + rgb.map(function (c) {
+    return ('0' + Math.round(c * 255).toString(16)).slice(-2);
+  }).join('').toUpperCase();
+}
+
+/* Every surface that shows a brand colour, repainted from the one object. */
+function paintBrand() {
+  document.querySelectorAll('#brandSwatches .brand-swatch').forEach(function (b) {
+    b.querySelector('.brand-swatch-chip').style.background = BRAND[b.dataset.brand];
+  });
+  document.querySelectorAll('.de-bg-swatch[data-brand]').forEach(function (b) {
+    var inner = b.querySelector('.de-bg-swatch-inner');
+    inner.style.background = BRAND[b.dataset.brand];
+    /* The page follows the swatch it is already standing on: a seller who
+       recolours the ground they picked should see the page recolour, not
+       have to pick it again. */
+    if (b.classList.contains('is-active') && window.__design) {
+      window.__design.bg = BRAND[b.dataset.brand];
+      if (window.__designSync) window.__designSync();
+    }
+  });
+}
+
+/* The picker's two pointers and its field, from the working HSV. */
+function paintPicker() {
+  var hex = hsvToHex(brandHsv);
+  brandArea.style.backgroundColor = hsvToHex({ h: brandHsv.h, s: 1, v: 1 });
+  brandAreaPointer.style.left = (brandHsv.s * 100) + '%';
+  brandAreaPointer.style.top = ((1 - brandHsv.v) * 100) + '%';
+  brandHuePointer.style.left = (brandHsv.h / 360 * 100) + '%';
+  brandHuePointer.style.top = '50%';
+  brandPreview.style.background = hex;
+  if (document.activeElement !== brandHexInput) brandHexInput.value = hex;
+  if (brandEditing) { BRAND[brandEditing] = hex; paintBrand(); }
+}
+
+/* Drag on either strip. Pointer events rather than mouse, so a finger on the
+   phone frame works the same as a cursor; capture, so a drag that leaves the
+   strip keeps going until it is let go. */
+function brandDrag(el, onMove) {
+  el.addEventListener('pointerdown', function (e) {
+    el.setPointerCapture(e.pointerId);
+    onMove(e);
+    var move = function (ev) { onMove(ev); };
+    var up = function () {
+      el.removeEventListener('pointermove', move);
+      el.removeEventListener('pointerup', up);
+    };
+    el.addEventListener('pointermove', move);
+    el.addEventListener('pointerup', up);
+  });
+}
+
+brandDrag(brandArea, function (e) {
+  var r = brandArea.getBoundingClientRect();
+  brandHsv.s = clamp01((e.clientX - r.left) / r.width);
+  brandHsv.v = clamp01(1 - (e.clientY - r.top) / r.height);
+  paintPicker();
+});
+brandDrag(brandHue, function (e) {
+  var r = brandHue.getBoundingClientRect();
+  brandHsv.h = clamp01((e.clientX - r.left) / r.width) * 360;
+  paintPicker();
+});
+
+/* Typed hex. Only a complete one commits — a field that repaints the page on
+   every keystroke flashes three wrong colours on the way to the right one. */
+brandHexInput.addEventListener('input', function () {
+  var hsv = hexToHsv(brandHexInput.value);
+  if (!hsv) return;
+  brandHsv = hsv;
+  paintPicker();
+});
+
+BRAND_PRESETS.forEach(function (hex) {
+  var b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'color-picker-preset';
+  b.style.background = hex;
+  b.setAttribute('aria-label', hex);
+  b.setAttribute('data-no-phrase', '');
+  b.addEventListener('click', function () {
+    brandHsv = hexToHsv(hex);
+    paintPicker();
+  });
+  document.getElementById('brandPresets').appendChild(b);
+});
+
+function openBrandColor(key) {
+  brandEditing = key;
+  document.querySelectorAll('#brandSwatches .brand-swatch').forEach(function (b) {
+    b.setAttribute('aria-expanded', String(b.dataset.brand === key));
+  });
+  brandHsv = hexToHsv(BRAND[key]) || { h: 0, s: 0, v: 0 };
+  brandPicker.hidden = false;
+  paintPicker();
+}
+
+document.querySelectorAll('#brandSwatches .brand-swatch').forEach(function (b) {
+  b.addEventListener('click', function () { openBrandColor(b.dataset.brand); });
+});
+
+document.getElementById('brandEditOpen').addEventListener('click', function () {
+  paintBrand();
+  brandPicker.hidden = true;
+  brandEditing = null;
+  document.querySelectorAll('#brandSwatches .brand-swatch').forEach(function (b) {
+    b.setAttribute('aria-expanded', 'false');
+  });
+  brandSheet.setAttribute('data-open', 'true');
+});
+function closeBrand() { brandSheet.setAttribute('data-open', 'false'); }
+document.getElementById('brandDone').addEventListener('click', closeBrand);
+brandSheet.addEventListener('click', function (e) { if (e.target === brandSheet) closeBrand(); });
+
+paintBrand();
 
 /* The crown over the preview is the other way in. It sits on the thing that
    raises the question, so it answers it. */
