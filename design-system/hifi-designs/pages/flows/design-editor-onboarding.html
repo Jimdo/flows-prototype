@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>design-editor-onboarding</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=98a63a9">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=98a63a9">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=66704dd">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=66704dd">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=98a63a9">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=66704dd">
 <style>
   /* ─── Screen overrides ───
      The frame is the setup split in editor mode, same as the link editor.
@@ -373,6 +373,18 @@
      heading on the screen that looked detached from the thing it named.
      An override further up tried to say this and lost: both rules sat
      outside a media query, and this one is later in the file. */
+  /* The one line of prose in this panel. Body/Small/Regular and subdued, the
+     same as any note under a heading here. */
+  .de-brand-note {
+    margin: 0;
+    font-size: var(--jui-typography-body-small-regular-size);
+    line-height: var(--jui-typography-body-small-regular-lh);
+    color: var(--jui-color-typography-gray-on-light-subdued);
+  }
+  /* The one commit in the view, with the 24 that separates a group from the
+     next thing rather than the 8 that holds a group together. */
+  #panel-view-brand > .btn { margin-top: var(--jui-layout-gap-l); }
+
   .de-shape-row {
     display: flex;
     gap: var(--jui-layout-gap-s);
@@ -885,6 +897,60 @@
             </div>
           </div>
 
+
+          <!-- ── Brand colours, as a view rather than a dialog ──
+               It was a modal, and a modal is the wrong surface for this: it
+               covers the preview, which is the only thing that can answer the
+               question the seller is asking while they drag. Here the rest of
+               the panel steps aside and the preview stays where it is, so the
+               page recolours under the pointer.
+
+               The chrome's own Done goes with the other options. There is one
+               thing to do in this view and one button to do it with. -->
+          <div id="panel-view-brand" class="de-panel-view">
+            <p class="edit-section-title" data-inspect-phrase="flows.designEditor.brand.title">Your brand colours</p>
+            <p class="de-brand-note" data-inspect-phrase="flows.designEditor.brand.copy">Four colours the whole page is built from. Pick one to change it — the preview shows it on your page while you do.</p>
+            <div class="brand-swatches" id="brandSwatches" role="group" aria-label="Brand colours">
+              <button type="button" class="brand-swatch" data-brand="main" aria-expanded="false">
+                <span class="brand-swatch-chip"></span>
+                <span class="brand-swatch-label" data-inspect-phrase="flows.designEditor.brand.main">Main</span>
+              </button>
+              <button type="button" class="brand-swatch" data-brand="secondary" aria-expanded="false">
+                <span class="brand-swatch-chip"></span>
+                <span class="brand-swatch-label" data-inspect-phrase="flows.designEditor.brand.secondary">Second</span>
+              </button>
+              <button type="button" class="brand-swatch" data-brand="shade1" aria-expanded="false">
+                <span class="brand-swatch-chip"></span>
+                <span class="brand-swatch-label" data-inspect-phrase="flows.designEditor.brand.shade1">Shade 1</span>
+              </button>
+              <button type="button" class="brand-swatch" data-brand="shade2" aria-expanded="false">
+                <span class="brand-swatch-chip"></span>
+                <span class="brand-swatch-label" data-inspect-phrase="flows.designEditor.brand.shade2">Shade 2</span>
+              </button>
+            </div>
+            <div class="color-picker" id="brandPicker" hidden
+              data-inspect-label="Colour picker — ported from @jimdo/ui Inputs/ColorPicker"
+              data-inspect-tokens='[{"prop":"saturation","figma":"react-colorful","css":"height","value":"164px over a 24px hue bar"},{"prop":"pointer","figma":"@jimdo/ui override","css":"width","value":"20px"},{"prop":"hex field","figma":"@jimdo/ui","css":"height","value":"36px"},{"prop":"presets","figma":"@jimdo/ui","css":"grid-template-columns","value":"repeat(auto-fit, 32px)"}]'>
+              <div class="color-picker-well">
+                <div class="color-picker-area" id="brandArea" role="application" aria-label="Saturation and brightness">
+                  <span class="color-picker-pointer" id="brandAreaPointer"></span>
+                </div>
+                <div class="color-picker-hue" id="brandHue" role="application" aria-label="Hue">
+                  <span class="color-picker-pointer" id="brandHuePointer"></span>
+                </div>
+              </div>
+              <div class="color-picker-field">
+                <span class="color-picker-preview" id="brandPreview"></span>
+                <input type="text" class="color-picker-hex" id="brandHex" maxlength="7" spellcheck="false"
+                  data-no-phrase aria-label="Hex colour">
+              </div>
+              <div class="color-picker-presets" id="brandPresets"></div>
+            </div>
+            <button type="button" class="btn btn-primary" id="brandDone"
+              data-inspect-label="Primary Button — confirm the palette"
+              data-inspect-phrase="flows.designEditor.brand.confirm">Update brand colours</button>
+          </div>
+
           <!-- The fourth heading, not a second tab. -->
           <div id="panel-view-layout" class="de-panel-view is-active">
             <p class="edit-section-title" data-inspect-phrase="flows.designEditor.layout">Layout</p>
@@ -1011,68 +1077,8 @@
     </div>
   </div>
 
-  <!-- ── Brand colours ──
-       The four production lets a seller change — MainColor, SecondaryColor,
-       Shade1 and Shade2. A row of four, and the picker opens under whichever
-       one is being changed rather than over it, so the swatch stays visible
-       beside the thing changing it.
-
-       Production puts the picker in a popover on a wide screen and inline on
-       a phone; this is always inline, because it opens inside a sheet that is
-       already a phone's width and a popover over a sheet is a surface on a
-       surface. -->
-  <div class="sheet-backdrop" id="brandSheet" data-open="false" role="dialog" aria-modal="true" aria-labelledby="brandSheetTitle">
-    <div class="sheet sheet--compact">
-      <div class="sheet-body">
-        <div class="dialog-copy">
-          <p class="dialog-title" id="brandSheetTitle" data-inspect-phrase="flows.designEditor.brand.title">Your brand colours</p>
-          <p class="sheet-copy" data-inspect-phrase="flows.designEditor.brand.copy">Four colours the whole page is built from. Change one and everything that uses it follows.</p>
-        </div>
-        <div class="brand-swatches" id="brandSwatches" role="group" aria-label="Brand colours">
-          <button type="button" class="brand-swatch" data-brand="main" aria-expanded="false">
-            <span class="brand-swatch-chip"></span>
-            <span class="brand-swatch-label" data-inspect-phrase="flows.designEditor.brand.main">Main</span>
-          </button>
-          <button type="button" class="brand-swatch" data-brand="secondary" aria-expanded="false">
-            <span class="brand-swatch-chip"></span>
-            <span class="brand-swatch-label" data-inspect-phrase="flows.designEditor.brand.secondary">Second</span>
-          </button>
-          <button type="button" class="brand-swatch" data-brand="shade1" aria-expanded="false">
-            <span class="brand-swatch-chip"></span>
-            <span class="brand-swatch-label" data-inspect-phrase="flows.designEditor.brand.shade1">Shade 1</span>
-          </button>
-          <button type="button" class="brand-swatch" data-brand="shade2" aria-expanded="false">
-            <span class="brand-swatch-chip"></span>
-            <span class="brand-swatch-label" data-inspect-phrase="flows.designEditor.brand.shade2">Shade 2</span>
-          </button>
-        </div>
-        <div class="color-picker" id="brandPicker" hidden
-          data-inspect-label="Colour picker — ported from @jimdo/ui Inputs/ColorPicker"
-          data-inspect-tokens='[{"prop":"saturation","figma":"react-colorful","css":"height","value":"164px over a 24px hue bar"},{"prop":"pointer","figma":"@jimdo/ui override","css":"width","value":"20px"},{"prop":"hex field","figma":"@jimdo/ui","css":"height","value":"36px"},{"prop":"presets","figma":"@jimdo/ui","css":"grid-template-columns","value":"repeat(auto-fit, 32px)"}]'>
-          <div class="color-picker-well">
-            <div class="color-picker-area" id="brandArea" role="application" aria-label="Saturation and brightness">
-              <span class="color-picker-pointer" id="brandAreaPointer"></span>
-            </div>
-            <div class="color-picker-hue" id="brandHue" role="application" aria-label="Hue">
-              <span class="color-picker-pointer" id="brandHuePointer"></span>
-            </div>
-          </div>
-          <div class="color-picker-field">
-            <span class="color-picker-preview" id="brandPreview"></span>
-            <input type="text" class="color-picker-hex" id="brandHex" maxlength="7" spellcheck="false"
-              data-no-phrase aria-label="Hex colour">
-          </div>
-          <div class="color-picker-presets" id="brandPresets"></div>
-        </div>
-      </div>
-      <div class="sheet-actions sheet-actions--end">
-        <button type="button" class="btn btn-primary" id="brandDone" data-inspect-phrase="biopage.edit.save">Done</button>
-      </div>
-    </div>
-  </div>
-
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=98a63a9"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=98a63a9"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=66704dd"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=66704dd"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
 
@@ -1278,7 +1284,8 @@ var BRAND = { main: '#000000', secondary: '#FFFFFF', shade1: '#FFFFFF', shade2: 
 var BRAND_PRESETS = ['#3D8080', '#554780', '#F7C923', '#9E5A7C', '#72B8ED',
                      '#9E6E49', '#9E1B5C', '#2D81C2', '#4C9E49', '#FC9003'];
 
-var brandSheet = document.getElementById('brandSheet');
+var brandView = document.getElementById('panel-view-brand');
+var brandReturnBg = null;   /* the ground to put back when the seller is done */
 var brandPicker = document.getElementById('brandPicker');
 var brandArea = document.getElementById('brandArea');
 var brandHue = document.getElementById('brandHue');
@@ -1327,8 +1334,10 @@ function paintBrand() {
     inner.style.background = BRAND[b.dataset.brand];
     /* The page follows the swatch it is already standing on: a seller who
        recolours the ground they picked should see the page recolour, not
-       have to pick it again. */
-    if (b.classList.contains('is-active') && window.__design) {
+       have to pick it again. While the brand view is open the preview is
+       showing the colour being edited instead, and that wins — otherwise
+       the two would take turns setting the ground on every pointer move. */
+    if (!brandEditing && b.classList.contains('is-active') && window.__design) {
       window.__design.bg = BRAND[b.dataset.brand];
       if (window.__designSync) window.__designSync();
     }
@@ -1345,7 +1354,7 @@ function paintPicker() {
   brandHuePointer.style.top = '50%';
   brandPreview.style.background = hex;
   if (document.activeElement !== brandHexInput) brandHexInput.value = hex;
-  if (brandEditing) { BRAND[brandEditing] = hex; paintBrand(); }
+  if (brandEditing) { BRAND[brandEditing] = hex; paintBrand(); previewBrand(); }
 }
 
 /* Drag on either strip. Pointer events rather than mouse, so a finger on the
@@ -1407,25 +1416,68 @@ function openBrandColor(key) {
   });
   brandHsv = hexToHsv(BRAND[key]) || { h: 0, s: 0, v: 0 };
   brandPicker.hidden = false;
+  /* The preview takes the colour being changed, so the drag has somewhere to
+     show. Four brand colours do more than the ground in the real product, but
+     the ground is the only one of their jobs this artifact renders — and a
+     seller dragging a hue wants the page to answer, not a 44px chip. The
+     ground they arrived on is put back on Update unless they changed it. */
+  previewBrand();
   paintPicker();
+}
+
+function previewBrand() {
+  if (!brandEditing || !window.__design) return;
+  window.__design.bg = BRAND[brandEditing];
+  if (window.__designSync) window.__designSync();
 }
 
 document.querySelectorAll('#brandSwatches .brand-swatch').forEach(function (b) {
   b.addEventListener('click', function () { openBrandColor(b.dataset.brand); });
 });
 
+/* The panel steps aside rather than something covering it. Everything else
+   in the column goes, and so does the chrome's own Done — there is one thing
+   to do in this view, and leaving two commits on screen asks the seller which
+   one saves their colours. */
+function showPanelView(id) {
+  ['panel-view-style', 'panel-view-layout', 'panel-view-brand'].forEach(function (v) {
+    var el = document.getElementById(v);
+    if (el) el.classList.toggle('is-active', id === 'panel-view-brand' ? v === id : v !== 'panel-view-brand');
+  });
+  document.querySelectorAll('[data-done]').forEach(function (b) {
+    b.hidden = id === 'panel-view-brand';
+  });
+  var fields = document.querySelector('.setup-split-fields--scroll');
+  if (fields) fields.scrollTop = 0;
+}
+
 document.getElementById('brandEditOpen').addEventListener('click', function () {
-  paintBrand();
+  brandReturnBg = window.__design ? window.__design.bg : null;
   brandPicker.hidden = true;
   brandEditing = null;
   document.querySelectorAll('#brandSwatches .brand-swatch').forEach(function (b) {
     b.setAttribute('aria-expanded', 'false');
   });
-  brandSheet.setAttribute('data-open', 'true');
+  paintBrand();
+  showPanelView('panel-view-brand');
 });
-function closeBrand() { brandSheet.setAttribute('data-open', 'false'); }
-document.getElementById('brandDone').addEventListener('click', closeBrand);
-brandSheet.addEventListener('click', function (e) { if (e.target === brandSheet) closeBrand(); });
+
+document.getElementById('brandDone').addEventListener('click', function () {
+  brandEditing = null;
+  brandPicker.hidden = true;
+  /* Back to the ground the seller was on. If that ground was one of the four,
+     it is now whatever they just made it — paintBrand puts the new value on
+     the page, and the row's tick never moved. */
+  var active = document.querySelector('.de-bg-swatch.is-active[data-brand]');
+  if (active && window.__design) {
+    window.__design.bg = BRAND[active.dataset.brand];
+    if (window.__designSync) window.__designSync();
+  } else if (brandReturnBg && window.__design) {
+    window.__design.bg = brandReturnBg;
+    if (window.__designSync) window.__designSync();
+  }
+  showPanelView('panel-view-style');
+});
 
 paintBrand();
 
