@@ -217,7 +217,7 @@
   .bio-hero-share svg { width: 18px; height: 18px; stroke-width: 1.5; }
 
   /* ── Subtitle (Figma 13503:15598-15599) ──
-     font 11.5 → 18, color #aaa. Bottom padding bumped to 32
+     font 11.5 → 18, dimmed ink. Bottom padding bumped to 32
      to create a clear hero → content section break. */
   .bio-subtitle {
     font-size: 18px;
@@ -742,25 +742,24 @@
   /* ═══════════════════════════════════════════════════════════════
      THEMES — colour and type only, no layout
      ═══════════════════════════════════════════════════════════════ */
-  /* Each theme is one pair out of the six the seller can pick: a ground
-     and an ink. No fonts — the face is chosen once in the design editor and
-     applies to the whole page, so a template changing it would override a
-     decision already made. No accents either: everything else is mixed from
-     these two, which is what makes changing a colour change the page rather
-     than leaving a stock gradient behind on top of it. */
-  .bio-page[data-theme="cream"], html[data-theme="cream"] {
-    --bio-bg: #f1efe9;
-    --bio-ink: #b81414;
+  /* The seller picks from four brand colours plus black and white, and
+     four of those six are theirs — we do not know them and cannot ship a
+     guess at them. The cream, neon and forest palettes here were exactly
+     that guess: three invented pairs standing in for colours that belong to
+     somebody else, which made every layout look like it had been designed
+     around a hue nobody chose.
+
+     So the artifact ships the two we do know. Everything else on the page
+     is mixed from whichever pair is set, so when the real four arrive they
+     drop in as two values and every layout follows. */
+  .bio-page[data-theme="dark"], html[data-theme="dark"] {
+    --bio-bg: #0a0a0a;
+    --bio-ink: #ffffff;
   }
-  .bio-page[data-theme="neon"], html[data-theme="neon"] {
-    --bio-bg: #d6f94e;
-    --bio-ink: #2b2a86;
+  .bio-page[data-theme="light"], html[data-theme="light"] {
+    --bio-bg: #ffffff;
+    --bio-ink: #0a0a0a;
   }
-  .bio-page[data-theme="forest"], html[data-theme="forest"] {
-    --bio-bg: #3d4c42;
-    --bio-ink: #eef5e4;
-  }
-  html[data-theme="dark"] { --bio-bg: #0a0a0a; --bio-ink: #ffffff; }
 
   /* ── Zone B — Contact Buttons ──
      Aligned with buttons and info blocks: px 12, pb 16 (card-zone rhythm). */
@@ -1331,7 +1330,7 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: #4ade80;
+    background: var(--bio-ink);
   }
 
   /* Map card — visual info block (Figma 14169:13147).
@@ -1442,8 +1441,10 @@
   /* ── Jimdo promo pill (Figma 2LVaYKcy / 8156:4998-5001) ──
      Replaces the full-width blue banner with a centered pill CTA.
      Positioned ABOVE the legal links.
-     Wrapper: pt 56, px 16, w-full. Pill: bg #eff0ff, border 1px #b4c4ff,
-     radius 100, px 16 py 6, gap 8, font 14 weight 500 color #001453,
+     Wrapper: pt 56, px 16, w-full. Pill and its border are mixed from the
+     page's own two colours — the Figma values were Jimdo navy on Jimdo
+     lilac, which is our badge wearing our brand on their page.
+     Radius 100, px 16 py 6, gap 8, font 14 weight 500,
      letter-spacing 0.14, J-icon 24×24 radius 2. */
   .bio-jimdo-promo-wrap {
     display: flex;
@@ -1508,14 +1509,14 @@
     width: 24px;
     height: 24px;
     border-radius: 2px;
-    background: #001453;
+    background: color-mix(in srgb, var(--bio-ink) 88%, var(--bio-bg));
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
     color: var(--bio-ink);
   }
-  .bio-jimdo-promo-icon svg { width: 14px; height: 14px; }
+  .bio-jimdo-promo-icon svg { width: 14px; height: 14px; color: var(--bio-bg); }
 
   /* ══════════════════════════════════════════════════════════════════════
      Interaction states
@@ -1593,7 +1594,7 @@
       color: color-mix(in srgb, var(--bio-ink) 95%, transparent);
     }
     .bio-jimdo-promo:hover {
-      background: #f5f7ff;
+      background: color-mix(in srgb, var(--bio-ink) 12%, var(--bio-bg));
     }
     .bio-withdraw-btn:hover {
       border-color: color-mix(in srgb, var(--bio-ink) 60%, transparent);
@@ -2557,16 +2558,16 @@
       variants: [
         { id: 'stacked',  label: 'Stacked',  tag: 'FREE', q: 'header=stacked&theme=dark' },
         { id: 'overlap',  label: 'Overlap',  tag: 'FREE', q: 'header=overlap&theme=dark' },
-        { id: 'fade',     label: 'Fade',     tag: 'FREE', q: 'header=fade&theme=neon' },
-        { id: 'band',     label: 'Band',     tag: 'FREE', q: 'header=band&theme=cream' },
+        { id: 'fade',     label: 'Fade',     tag: 'FREE', q: 'header=fade&theme=light' },
+        { id: 'band',     label: 'Band',     tag: 'FREE', q: 'header=band&theme=light' },
         { id: 'aurora',   label: 'Aurora',   tag: 'PRO',  q: 'header=aurora&theme=dark' },
-        { id: 'marquee',  label: 'Marquee',  tag: 'PRO',  q: 'header=marquee&theme=neon' },
-        { id: 'dots',     label: 'Dots',     tag: 'PRO',  q: 'header=dots&theme=cream' },
-        { id: 'arch',     label: 'Arch',     tag: 'PRO',  q: 'header=arch&theme=forest' },
+        { id: 'marquee',  label: 'Marquee',  tag: 'PRO',  q: 'header=marquee&theme=light' },
+        { id: 'dots',     label: 'Dots',     tag: 'PRO',  q: 'header=dots&theme=light' },
+        { id: 'arch',     label: 'Arch',     tag: 'PRO',  q: 'header=arch&theme=dark' },
       ],
     };
 
-    /* Standalone review: ?header=aurora&theme=neon. The picker drives this
+    /* Standalone review: ?header=aurora&theme=light. The picker drives this
        by postMessage in the product; opening one layout directly is how it
        gets looked at while it is being built. */
     (function () {
