@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <style>
-  html, body { margin: 0; padding: 0; height: 100%; background: #0e1116; }
+  html, body { margin: 0; padding: 0; height: 100%; background: var(--map-bg, #0e1116); }
   #map {
     width: 100%;
     height: 100%;
@@ -18,14 +18,28 @@
   }
   /* Hide Leaflet zoom controls — this is a non-interactive preview card. */
   .leaflet-control-zoom { display: none !important; }
+  /* The tiles belong to CARTO and come in one of two greys whatever colour
+     the page is. A wash of the seller's own ground over them does not make
+     the map theirs, but it stops it reading as a rectangle cut out of
+     somebody else's software and dropped in. Under the pin and the
+     attribution, so neither is dimmed. */
+  #map::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: var(--map-bg, transparent);
+    opacity: 0.42;
+    z-index: 400;
+  }
   /* Compact attribution — required by CARTO/OSM, but minimal footprint. */
   .leaflet-control-attribution {
-    background: rgba(0, 0, 0, 0.4);
-    color: rgba(255, 255, 255, 0.55);
+    background: color-mix(in srgb, var(--map-bg, #000) 70%, transparent);
+    color: color-mix(in srgb, var(--map-ink, #fff) 60%, transparent);
     font-size: 9px;
     padding: 1px 4px;
   }
-  .leaflet-control-attribution a { color: rgba(255, 255, 255, 0.75); }
+  .leaflet-control-attribution a { color: color-mix(in srgb, var(--map-ink, #fff) 80%, transparent); }
 </style>
 </head>
 <body>
@@ -37,6 +51,14 @@
     // Read center + zoom from the URL so the same embed serves multiple
     // artifact screens.  ?lat=53.5618&lng=9.9595&z=15&label=Susannenstraße+14
     var params = new URLSearchParams(window.location.search);
+    /* The seller's two colours, handed in by whatever embeds this. A map is
+       the one block on a bio page that arrives with opinions of its own —
+       a dark basemap and a Jimdo-purple pin — and on a cream page that
+       reads as somebody else's software sitting in the middle of theirs. */
+    var ink = '#' + (params.get('ink') || 'ffffff').replace('#', '');
+    var bg  = '#' + (params.get('bg')  || '0e1116').replace('#', '');
+    document.documentElement.style.setProperty('--map-ink', ink);
+    document.documentElement.style.setProperty('--map-bg', bg);
     var lat   = parseFloat(params.get('lat')) || 53.5618;
     var lng   = parseFloat(params.get('lng')) || 9.9595;
     var zoom  = parseInt(params.get('z'), 10) || 15;
@@ -56,8 +78,11 @@
     });
 
     // CARTO Dark Matter — proper dark-mode tile set, native (no CSS filter).
+    /* Light tiles under a light page, dark under a dark one — a dark
+       basemap on a cream card is a black rectangle in the middle of it. */
+    var scheme = params.get('scheme') === 'light' ? 'light_all' : 'dark_all';
     L.tileLayer(
-      'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+      'https://{s}.basemaps.cartocdn.com/' + scheme + '/{z}/{x}/{y}{r}.png',
       {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
         subdomains: 'abcd',
@@ -65,7 +90,8 @@
       }
     ).addTo(map);
 
-    // Marker — Jimdo brand purple ring + dot.  SVG, no image dep.
+    // Marker in the seller's ink with their ground punched out of it. It
+    // was Jimdo purple, which is a brand mark on a page that is not ours.
     var pinHtml = ''
       + '<svg viewBox="0 0 36 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'
       +   '<defs>'
@@ -73,8 +99,8 @@
       +       '<feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity="0.45"/>'
       +     '</filter>'
       +   '</defs>'
-      +   '<path filter="url(#s)" d="M18 2 C26.8 2 34 9.2 34 18 C34 30 18 46 18 46 C18 46 2 30 2 18 C2 9.2 9.2 2 18 2 Z" fill="#6a3eff"/>'
-      +   '<circle cx="18" cy="18" r="6" fill="#ffffff"/>'
+      +   '<path filter="url(#s)" d="M18 2 C26.8 2 34 9.2 34 18 C34 30 18 46 18 46 C18 46 2 30 2 18 C2 9.2 9.2 2 18 2 Z" fill="' + ink + '"/>'
+      +   '<circle cx="18" cy="18" r="6" fill="' + bg + '"/>'
       + '</svg>';
     var icon = L.divIcon({
       className: 'jimdo-map-pin',
