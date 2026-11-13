@@ -6,12 +6,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=497b956">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=497b956">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=7395c1c">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=7395c1c">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=497b956">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=7395c1c">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -587,10 +587,20 @@
                   <p class="upgrade-banner-subtitle" data-inspect-phrase="">Written for your business, and insured against warning notices.</p>
                 </div>
                 <div class="upgrade-banner-cta">
-                  <button type="button" class="btn btn-primary btn-upgrade"
-                    data-inspect-phrase=""
-                    data-nav-to="flows/paywall-domain.html?from=bio-page-links-edit"
-                    data-nav-screen-id="scr-054"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg>Get legal texts</button>
+                  <!-- Secondary, not primary: .btn-primary.btn-upgrade is the
+                       pricing page's button and the upgrade dialog's, and a
+                       tier-3 panel that shouts as loudly as the place you end
+                       up makes the panel read as the purchase. And the same
+                       words the footer row uses for the same feature — it was
+                       offered here as "Get legal texts" and there as "Get my
+                       legal text written", which is two products as far as a
+                       seller reading both can tell.
+
+                       It opens the account of the feature rather than the
+                       price list; the price list is one press further on,
+                       inside it. -->
+                  <button type="button" class="btn btn-secondary btn-upgrade" id="legalTriggerCta"
+                    data-inspect-phrase="biopage.edit.footer.legal"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg>Get my legal text written</button>
                 </div>
               </div>
             </div>
@@ -808,8 +818,65 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=497b956"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=497b956"></script>
+  <!-- ── The one upgrade dialog on this screen ──
+       Every paid thing here used to send the seller straight to the pricing
+       page the moment they pressed it: five features, five jumps out of the
+       editor, and nothing between the press and three plans. The question a
+       seller asks at that moment is what the thing is and what it costs, and
+       the pricing page answers only the second.
+
+       So the shape onboarding-name.html gives the domain offer is the shape
+       all of them take — tier "minimal pricing" in
+       kb/interaction-patterns/upgrade-triggers.md. A crown, a title naming
+       the outcome and the plan, two sentences of what it actually does, one
+       plan line carrying the price and three things that plan includes with
+       the one they came for first, and Maybe later beside Upgrade.
+
+       One dialog rather than five: the copy is a table, and a table is the
+       only way five of these stay consistent with each other. It is last in
+       the body so it paints over the add sheet or the editor it was opened
+       from — every .sheet-backdrop sits at z-index 40, so order is what
+       decides. -->
+  <div class="sheet-backdrop" id="upgradeSheet" data-open="false" role="dialog" aria-modal="true" aria-labelledby="upgradeSheetTitle">
+    <div class="sheet sheet--compact">
+      <div class="sheet-body">
+        <span class="dialog-mark dialog-mark--upgrade dialog-mark--bare" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg></span>
+        <div class="dialog-copy">
+          <p class="dialog-title" id="upgradeSheetTitle" data-no-phrase></p>
+          <p class="sheet-copy" id="upgradeSheetCopy" data-no-phrase></p>
+        </div>
+        <div class="plan-line"
+          data-inspect-label="Plan line — the one price this trigger is about"
+          data-inspect-tokens='[{"prop":"background","figma":"$jui-color-background-upgrade-light","css":"--jui-color-background-upgrade-light","value":"#fcecff"},{"prop":"border","figma":"$jui-color-stroke-upgrade-on-light","css":"--jui-color-stroke-upgrade-on-light","value":"1px #e4b5ff"},{"prop":"padding","figma":"$jui-layout-padding-s","css":"--jui-layout-padding-s","value":"12px"}]'>
+          <span class="plan-line-head">
+            <span class="plan-line-label" data-inspect-phrase="paywall.plan.includedFrom">Included from</span>
+            <span class="plan-option-save" id="upgradeSheetSave" data-inspect-phrase="paywall.plan.pro.savings" hidden>Save 38%</span>
+          </span>
+          <span class="plan-line-name" id="upgradeSheetPlan" data-no-phrase></span>
+          <span class="plan-line-price">
+            <span class="plan-line-amount" id="upgradeSheetAmount" data-no-phrase></span>
+            <span class="plan-line-period" id="upgradeSheetPeriod" data-inspect-phrase="paywall.plan.period">/month</span>
+            <s class="plan-option-was-amount" id="upgradeSheetWas" data-no-phrase hidden></s>
+          </span>
+          <ul class="plan-feature-list plan-line-features" id="upgradeSheetFeatures"></ul>
+        </div>
+      </div>
+      <div class="sheet-actions sheet-actions--end">
+        <button type="button" class="btn btn-subtle" id="upgradeSheetLater" data-inspect-phrase="suggestion.maybeLater">Maybe later</button>
+        <!-- The destination is rewritten per feature when the dialog opens;
+             the one in the markup is the one four of the five use, and it is
+             what build-journey-graph.js reads to draw the edge from this
+             screen to the pricing page. -->
+        <button type="button" class="btn btn-primary btn-upgrade" id="upgradeSheetGo"
+          data-nav-to="flows/paywall-domain.html?from=bio-page-links-edit"
+          data-nav-screen-id="scr-054"
+          data-inspect-phrase="paywall.pro.cta"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg>Upgrade</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=7395c1c"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=7395c1c"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
@@ -1677,9 +1744,10 @@
          control. .upgrade-trigger is that component — tier 2 in
          kb/interaction-patterns/upgrade-triggers.md — and it carries the
          purple that means this costs money. */
-      const pro = document.createElement('a');
+      const pro = document.createElement('button');
+      pro.type = 'button';
       pro.className = 'upgrade-trigger';
-      pro.href = BOOKINGS_PRO;
+      pro.addEventListener('click', () => openUpgrade('reminders'));
       pro.setAttribute('data-inspect-label', 'Reminders — upgrade trigger, tier 2');
       pro.setAttribute('data-inspect-tokens',
         '[{"prop":"background","figma":"$jui-color-background-upgrade-light",'
@@ -1691,7 +1759,10 @@
       pro.innerHTML =
         '<span class="upgrade-trigger-text" data-inspect-phrase="">'
         + 'Send a reminder before each appointment, so fewer people forget.</span>'
-        + '<span class="upgrade-trigger-cta" data-inspect-phrase="">Get Bookings Pro</span>'
+        /* "Get reminders", not "Get Bookings Pro": the page this opens
+           sells no such thing, and the rule is to name the outcome rather
+           than our packaging of it. */
+        + '<span class="upgrade-trigger-cta" data-inspect-phrase="">Get reminders</span>'
         + '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">'
         + '<path d="M15.0001 17L20 12L15 7"/><path d="M4 12H20"/></svg>';
       frag.appendChild(pro);
@@ -1813,8 +1884,9 @@
           '<span class="layout-pick-label">' + (locked ? CROWN_SVG : '') + text + '</span>';
         item.addEventListener('click', () => {
           /* Pressing the one that costs money asks for it. Refusing the
-             press is how a product pretends the option is not there. */
-          if (locked) { window.location.href = PAYWALL; return; }
+             press is how a product pretends the option is not there — and
+             asking means saying what it is first, which is the dialog. */
+          if (locked) { openUpgrade('featured'); return; }
           if (!b) return;
           /* Off keeps what was written. A seller who switches to the plain
              bar to see it and switches back should not have to type the
@@ -2343,6 +2415,136 @@
     /* Reminders are an add-on, not a plan feature, so the trigger lands on
        the page that sells add-ons rather than on the domain paywall. */
     const BOOKINGS_PRO = '/flows-prototype/design-system/hifi-designs/pages/flows/paywall-addons.html?from=bio-page-links-edit';
+    /* The same two, as prototype-nav.js wants them — it resolves a bare
+       `flows/…` against the pages folder, and that is the form the graph
+       builder scrapes. */
+    const PAYWALL_NAV = 'flows/paywall-domain.html?from=bio-page-links-edit';
+    const BOOKINGS_PRO_NAV = 'flows/paywall-addons.html?from=bio-page-links-edit';
+
+    /* ── What each paid thing says for itself ──
+       One row per feature, not per trigger: the featured link is refused in
+       the Layout picker and the action-page limit is refused in four places,
+       and a seller who meets the same wall twice should not read two
+       different accounts of it. The wording follows the rules in
+       kb/interaction-patterns/upgrade-triggers.md — name the outcome, never
+       the transaction, never our feature name — and the frame is the one the
+       domain offer already uses on onboarding-name.html, so a seller who has
+       met that dialog recognises this one.
+
+       `features` leads with the thing they came for. The other two are that
+       plan's own lines, copied from the pricing page the CTA opens rather
+       than written fresh, so the dialog and the page agree.
+
+       Prices are the pricing page's. Where a line is NOT on that page it is
+       marked below — the dialog is then asserting something the page does
+       not back up, and either the page gains the line or this one goes. */
+    const UPGRADES = {
+      /* Four triggers share this: Create new in the add list, the idea
+         cards, the booking-type cards, and the picker rows that create. */
+      'action-page': {
+        title: 'A page for each thing you offer comes with Jimdo Start',
+        copy: 'Your free plan has one page for taking bookings or enquiries, and it is in use. '
+            + 'With Start you can make one for each thing you do, so people open the one they came for.',
+        plan: 'Jimdo Start', amount: '€11.50', was: '€18.50', save: 'Save 38%',
+        features: [
+          'Get booked for everything you offer',
+          'Get enquiries with the details you need',
+          'Take payments and send invoices',
+        ],
+        navTo: PAYWALL_NAV,
+      },
+      featured: {
+        title: 'The featured link comes with Jimdo Start',
+        copy: 'A featured link is the big one — a picture, a line about it, and its own button. '
+            + 'One comes free and it is already on your page; with Start any link can be one.',
+        plan: 'Jimdo Start', amount: '€11.50', was: '€18.50', save: 'Save 38%',
+        /* NOT on the pricing page. See the note in the audit. */
+        features: [
+          'Make any link a featured one',
+          'Get booked for everything you offer',
+          'Take payments and send invoices',
+        ],
+        navTo: PAYWALL_NAV,
+      },
+      legal: {
+        title: 'Your imprint and privacy policy come with Jimdo Grow',
+        copy: 'Written for your business from what you have already told us, and updated for you '
+            + 'when the rules change. They are insured against warning notices.',
+        plan: 'Jimdo Grow', amount: '€19',
+        features: [
+          'An imprint and a privacy policy, written for your business',
+          'Updated for you when the rules change',
+          'Everything in Jimdo Start',
+        ],
+        navTo: PAYWALL_NAV,
+      },
+      branding: {
+        title: 'A page that ends with your name comes with Jimdo Start',
+        copy: 'The strip at the foot of your page says Made with Jimdo. '
+            + 'On Start it comes off, so the last thing a visitor reads is yours.',
+        plan: 'Jimdo Start', amount: '€11.50', was: '€18.50', save: 'Save 38%',
+        /* First line is NOT on the pricing page. See the note in the audit. */
+        features: [
+          'Your page without the Jimdo banner',
+          'Your own web address',
+          'Get booked for everything you offer',
+        ],
+        navTo: PAYWALL_NAV,
+      },
+      /* The only one that is an add-on rather than a plan, so it is the only
+         one whose CTA opens the add-ons page and the only one whose price is
+         a plus. It used to say "Get Bookings Pro", which is not a thing that
+         page sells. */
+      reminders: {
+        title: 'Reminders before each appointment come with Bookings and online payment',
+        copy: 'Jimdo emails the person the day before they are due. '
+            + 'Fewer people forget, and fewer slots go empty.',
+        plan: 'Bookings and online payment', amount: '+€6.50',
+        /* First line is NOT among that add-on's three benefits. See the audit. */
+        features: [
+          'A reminder before each appointment',
+          'Open your calendar for them to book',
+          'Get paid online when they book',
+        ],
+        navTo: BOOKINGS_PRO_NAV,
+      },
+    };
+
+    const TICK_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>';
+
+    const upgradeSheet = document.getElementById('upgradeSheet');
+
+    /* Explain, then sell. Pressing a paid thing opens this; pressing Upgrade
+       inside it opens the pricing page. Nothing on this screen jumps to a
+       price list without saying first what the price is for. */
+    function openUpgrade(key) {
+      const u = UPGRADES[key];
+      if (!u) { window.location.href = PAYWALL; return; }
+      document.getElementById('upgradeSheetGo').setAttribute('data-nav-to', u.navTo);
+      document.getElementById('upgradeSheetTitle').textContent = u.title;
+      document.getElementById('upgradeSheetCopy').textContent = u.copy;
+      document.getElementById('upgradeSheetPlan').textContent = u.plan;
+      document.getElementById('upgradeSheetAmount').textContent = u.amount;
+      /* A struck price and a saving are the discount on the Start plan. The
+         add-on has neither, and showing an empty tag beside it would read as
+         a missing number rather than as no discount. */
+      const was = document.getElementById('upgradeSheetWas');
+      was.textContent = u.was || '';
+      was.hidden = !u.was;
+      const save = document.getElementById('upgradeSheetSave');
+      save.textContent = u.save || '';
+      save.hidden = !u.save;
+      document.getElementById('upgradeSheetFeatures').innerHTML =
+        u.features.map((f) => '<li class="plan-feature">' + TICK_SVG + '<span>' + f + '</span></li>').join('');
+      upgradeSheet.setAttribute('data-open', 'true');
+    }
+    function closeUpgrade() { upgradeSheet.setAttribute('data-open', 'false'); }
+
+    document.getElementById('upgradeSheetLater').addEventListener('click', closeUpgrade);
+    /* Upgrade itself has no listener: prototype-nav.js reads the data-nav-to
+       the dialog just set, which is also how the rest of the prototype
+       moves between screens. */
+    upgradeSheet.addEventListener('click', (e) => { if (e.target === upgradeSheet) closeUpgrade(); });
     /* The one mark the seller has already learned means "this costs" — she
        named it unprompted in testing, and then met a paywall that had none. */
     const TRASH_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3M6 7l.9 13.1A2 2 0 0 0 8.9 22h6.2a2 2 0 0 0 2-1.9L18 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -2972,7 +3174,7 @@
       btn.addEventListener('click', () => {
         const kind = btn.getAttribute('data-setup');
         if (limitReached()) {
-          window.location.href = PAYWALL;
+          openUpgrade('action-page');
           return;
         }
         if (kind !== 'form') {
@@ -3393,11 +3595,11 @@
           // card and a paid one differ by what they cost, and that is the mark.
           '<span class="add-card-action"><button type="button" class="btn btn-secondary btn-sm' +
           (capped ? ' btn-upgrade' : '') + '" data-add="idea" data-inspect-phrase="">' +
-          (capped ? '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg>' + 'Upgrade and add it' : 'Add it') + '</button></span>';
+          (capped ? '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg>' : '') + 'Add it' + '</button></span>';
         card.querySelector('button').addEventListener('click', () => {
           closeAdd();
           if (capped) {
-            window.location.href = PAYWALL;
+            openUpgrade('action-page');
             return;
           }
           /* A form is written for the seller, so it goes through the sheet
@@ -3585,16 +3787,19 @@
           '</span>';
         const capped = isMake && limitReached();
         if (isMake) el.classList.add('add-option--make');
-        if (capped) {
-          el.classList.add('add-option--upgrade');
-          el.querySelector('.add-option-title').textContent = 'Upgrade and create new';
-        }
+        /* Tinted and crowned, but still called what it does. It said
+           "Upgrade and create new" back when pressing it went straight to
+           the price list; it now opens the account of the feature, so the
+           label would be describing something the press does not do. The
+           purple and the mark are what say it costs — that is the whole job
+           of a tier-4 coat. */
+        if (capped) el.classList.add('add-option--upgrade');
         el.addEventListener('click', () => {
           closeAdd();
           // Making a second one is what the plan stops. Putting one you
           // already have on the page is not.
           if (capped) {
-            window.location.href = PAYWALL;
+            openUpgrade('action-page');
             return;
           }
           /* Create a form used to drop one straight onto the page with
@@ -3821,7 +4026,7 @@
         const kind = row.getAttribute('data-picker');
         const creates = kind !== 'pages' && !PICKER_HAS_ANY[kind]();
         if (!creates) return openPicker(kind);
-        if (limitReached()) { window.location.href = PAYWALL; return; }
+        if (limitReached()) { openUpgrade('action-page'); return; }
         if (kind === 'booking') return openBookingType({ label: 'Booking', seed: '', kind: 'book', editor: 'offer', review: true });
         closeAdd();
         openFormDraft((fields) => addBlock({
@@ -3854,10 +4059,16 @@
       });
     }
 
-    ['rowBranding', 'rowLegal'].forEach((id) => {
+    /* The two footer rows name a feature each, so each opens its own
+       account of it rather than the pair sharing one. */
+    [['rowBranding', 'branding'], ['rowLegal', 'legal']].forEach(([id, key]) => {
       const row = document.getElementById(id);
-      if (row) row.addEventListener('click', () => { window.location.href = PAYWALL; });
+      if (row) row.addEventListener('click', () => openUpgrade(key));
     });
+    /* The tier-3 panel in the add list is the same feature as the footer
+       row, so it opens the same dialog rather than its own account of it. */
+    const legalCta = document.getElementById('legalTriggerCta');
+    if (legalCta) legalCta.addEventListener('click', () => { closeAdd(); openUpgrade('legal'); });
     /* The drawer head closes the list rather than stepping back out of it:
        on a phone the add list is the whole panel, so leaving it is the same
        act as closing the sheet it is on a wide screen. The back arrow left

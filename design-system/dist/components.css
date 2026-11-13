@@ -3195,6 +3195,40 @@ body {
   height: calc(var(--bp-natural-h, 686px) * var(--bp-scale, 1));
 }
 
+/* ── The mark that says the page is wearing something paid ──
+   A pro layout is applied rather than refused, so the preview is showing
+   something the seller has not bought. The crown sits on the picture, at
+   the corner, where it is unmissable and in the way of nothing: the page's
+   own content starts below it.
+
+   On .bp-stage, not inside .bp-frame. The frame is scaled to fit its
+   column, so a mark inside it would shrink with the phone and end up
+   smaller than the 16px a crown is meant to be. The two share a top-left
+   corner, so this lands 12px into the picture whatever the scale.
+
+   upstream: none, because this is a mark on a prototype's device preview.
+   Nothing in @jimdo/ui frames a phone.
+
+   Used by: design-editor-onboarding (scr-479). */
+.preview-pro-mark {
+  position: absolute;
+  top: var(--jui-layout-padding-s);
+  left: var(--jui-layout-padding-s);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--jui-layout-dimension-s);
+  height: var(--jui-layout-dimension-s);
+  border-radius: var(--jui-style-radius-8);
+  background: var(--jui-color-background-upgrade-light);
+  color: var(--jui-color-typography-upgrade-on-light);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16);
+  pointer-events: none;
+}
+.preview-pro-mark[hidden] { display: none; }
+.preview-pro-mark svg { width: 16px; height: 16px; display: block; }
+
 .bp-frame {
   position: absolute;
   top: 0;
@@ -5196,6 +5230,16 @@ body {
 /* Green, not purple: a discount is good news, and on this card purple is
    already saying "this is the plan". The one other green on the screen —
    the domain coming back available — is the same kind of news. */
+/* display:inline-flex outranks the hidden attribute, so a saving a plan does
+   not have drew an empty green pill beside its price. The same trap the
+   select-card list and the row tile hit: a block that sets display needs to
+   say what hidden means for it.
+
+   upstream: none, because this is the pricing surface's own tag, not
+   DataDisplay/Tag — it carries a number and a sign, sits inside .plan-line
+   and takes the positive ground because a discount is good news. */
+.plan-option-save[hidden],
+.plan-option-was-amount[hidden] { display: none; }
 .plan-option-save {
   display: inline-flex;
   align-items: center;
@@ -7691,7 +7735,10 @@ body {
   gap: 2px;
   white-space: nowrap;
 }
-.plan-line-price .plan-option-was-amount { margin-left: var(--jui-layout-gap-xs); }
+/* 8 from the period, measured. The row already carries a 2px flex gap, so
+   adding a flat 8 on top of it rendered 10 — off the scale, and a tenth
+   of the gap nobody asked for. The margin is what is left after the gap. */
+.plan-line-price .plan-option-was-amount { margin-left: calc(var(--jui-layout-gap-xs) - 2px); }
 .plan-line-amount {
   font-size: var(--jui-typography-sub-headline-small-size);
   font-weight: var(--jui-typography-sub-headline-small-weight);

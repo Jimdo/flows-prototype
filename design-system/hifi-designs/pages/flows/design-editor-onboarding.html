@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>design-editor-onboarding</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=497b956">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=497b956">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=7395c1c">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=7395c1c">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=497b956">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=7395c1c">
 <style>
   /* ─── Screen overrides ───
      The frame is the setup split in editor mode, same as the link editor.
@@ -24,8 +24,16 @@
      figures .setup-split-fields and .edit-section use next door. The panel
      had 24 everywhere, so a heading floated the same distance from its own
      control as from the section above it. */
-  .de-panel-view { display: none; flex-direction: column; gap: var(--jui-layout-gap-l); }
-  .de-panel-view > .edit-section-title { margin-bottom: calc(var(--jui-layout-gap-xs) - var(--jui-layout-gap-l)); }
+  /* A label sits 8 from the thing it names and 24 from the group above it
+     — the figures .edit-section and .setup-split-fields use next door. One
+     flat 24 gap put a heading the same distance from its own control as
+     from the section before it, so four parts of one panel read as four
+     unrelated blocks. */
+  .de-panel-view { display: none; flex-direction: column; gap: var(--jui-layout-gap-xs); }
+  .de-panel-view > .edit-section-title,
+  .de-panel-view > .de-panel-heading-row { margin-top: var(--jui-layout-gap-l); }
+  .de-panel-view > .edit-section-title:first-child,
+  .de-panel-view > .de-panel-heading-row:first-child { margin-top: 0; }
   .de-panel-view.is-active { display: flex; }
 
   /* Three .de-panel-* rules are controls, not frame — the section heading,
@@ -124,15 +132,10 @@
      Active: white bg, blue border, 24px radius.
      ───────────────────────────────────────────── */
 
-  .seg-control {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    padding: 2px;
-    height: 36px;
-    background: var(--jui-color-background-gray-canvas);
-    border-radius: var(--jui-style-radius-24);
-  }
+  /* No local .seg-control. This file carried its own — 36 tall at radius
+     24, where the shared one the links editor uses is 40 at radius 12 — so
+     the same switch in the same position was two different controls
+     depending on which side of it you were standing on. */
   .seg-tab {
     display: inline-flex;
     align-items: center;
@@ -363,10 +366,16 @@
      Squared / Rounded / Pill button shapes.
      ───────────────────────────────────────────── */
 
+  /* No padding of its own. The panel already spaces a section title from
+     its controls (8) and one section from the next (8 + a 24 margin on the
+     title), and 16 on top of that put the shape cards 24 below their title
+     where every other section's controls sit 8 below theirs — the one
+     heading on the screen that looked detached from the thing it named.
+     An override further up tried to say this and lost: both rules sat
+     outside a media query, and this one is later in the file. */
   .de-shape-row {
     display: flex;
     gap: var(--jui-layout-gap-s);
-    padding: var(--jui-layout-padding-m) 0;
   }
   .de-shape-card {
     flex: 1 1 0;
@@ -449,15 +458,19 @@
 
   .layout-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
     gap: var(--jui-layout-gap-s);
   }
+  /* The same card the fonts and the shapes use: no padding of its own, the
+     room made by the thumb's top margin and the label's bottom padding, and
+     the label at the same size and tracking. Three pickers in one panel
+     were three different cards. */
   .layout-card {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--jui-layout-gap-xs);
-    padding: var(--jui-layout-padding-m);
+    justify-content: center;
+    padding: 0;
     background: var(--jui-color-background-gray-light);
     border: 1px solid var(--jui-color-stroke-gray-default);
     border-radius: var(--jui-style-radius-m);
@@ -471,17 +484,23 @@
     border-color: var(--jui-color-stroke-primary-on-light);
     background: var(--jui-color-background-primary-light);
   }
-  /* The thumb draws the header it makes. It was an empty grey rectangle
-     under a word, which asks the seller to imagine eight arrangements and
-     then pick one from memory. */
+  /* The thumb draws the header it makes, and it is most of the card. A
+     68px drawing centred in a 250px card was a stamp in a field: the thing
+     being chosen took up a tenth of the thing you press, and two
+     arrangements that differ by where one block sits were indistinguishable
+     at that size. */
+  /* A whole page, not a header. A 3:2 crop showed the arrangement and
+     nothing underneath it, so every layout looked like a different hat on
+     the same invisible body — and what the seller is choosing is what the
+     page looks like, buttons and all. */
   .layout-card-thumb {
     display: block;
-    width: 68px;
-    height: 46px;
+    width: 64px;
+    aspect-ratio: 64 / 114;
+    margin-top: 24px;
     overflow: hidden;
     background: var(--jui-color-background-gray-canvas);
-    border-radius: var(--jui-style-radius-xs);
-    border: 1px solid var(--jui-color-gray-100);
+    border-radius: var(--jui-style-radius-8);
   }
   .layout-card-thumb svg { display: block; width: 100%; height: 100%; }
   /* The picture is the thing being placed, so it reads darkest; the words
@@ -492,15 +511,12 @@
   .layout-card-thumb .lt-line { fill: var(--jui-color-gray-300); }
   .layout-card-thumb .lt-band { fill: var(--jui-color-gray-200); }
   .layout-card-thumb .lt-field { fill: var(--jui-color-gray-50); }
+  .layout-card-thumb .lt-bar { fill: var(--jui-color-gray-200); }
   .layout-card-thumb .lt-faint { opacity: 0.6; }
   .layout-card.is-active .lt-pic { fill: var(--jui-color-actions-primary-rest); }
 
   /* The paid four say so. A drawing cannot carry a price. */
-  .layout-card { position: relative; }
   .layout-card-tag {
-    position: absolute;
-    top: var(--jui-layout-padding-xs);
-    right: var(--jui-layout-padding-xs);
     padding: 0 4px;
     border-radius: var(--jui-style-radius-4);
     background: var(--jui-color-background-upgrade-light);
@@ -510,9 +526,21 @@
     line-height: 16px;
     letter-spacing: 0.4px;
   }
+  /* Name and price on one line under the drawing. The tag used to float in
+     the card's top corner, which put it nearer the thumb above it than the
+     thing it was pricing. */
+  .layout-card-foot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--jui-layout-gap-xxs);
+    padding: var(--jui-layout-padding-s) 0 24px;
+  }
+  /* .de-font-card-name's figures exactly. */
   .layout-card-label {
-    font-size: var(--jui-typography-body-small-medium-size);
-    font-weight: var(--jui-typography-body-small-medium-weight);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.24px;
     color: var(--jui-color-typography-gray-on-light-default);
   }
   /* ═══════════════════════════════════════════════
@@ -652,8 +680,8 @@
       <!-- Secondary, Size=Small — the frame's own button. The finish control
            stays out of the thumb's reach at the top, which is the whole reason
            this screen does not take the step layout's footer. -->
-      <button type="button" class="btn btn-secondary btn-sm" data-done
-        data-inspect-label="Secondary Button — Done, Size=Small"
+      <button type="button" class="btn btn-primary btn-sm" data-done
+        data-inspect-label="Primary Button — Done, Size=Small"
         data-inspect-tokens='[{"prop":"border","figma":"$jui-color-stroke-primary-on-light","css":"--jui-color-stroke-primary-on-light","value":"1px #b4c4ff"},{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px"},{"prop":"border-radius","figma":"button/radius","css":"--jui-component-button-radius","value":"8px"}]'
         data-inspect-phrase="biopage.editor.done"
         data-nav-to="flows/home-dashboard-v2.html" data-nav-screen-id="scr-131">Done</button>
@@ -669,6 +697,15 @@
               <iframe id="bioPreview" title="Bio page preview" tabindex="-1"
                 src="/flows-prototype/design-system/hifi-designs/pages/artifacts/bio-page-v2.html"></iframe>
             </div>
+            <!-- On the stage rather than inside the frame: the frame is
+                 scaled to fit, and a mark inside it would shrink with the
+                 phone. The frame's top-left and the stage's are the same
+                 point, so 12px in from here is 12px inside the picture at
+                 any scale. -->
+            <span class="preview-pro-mark" id="previewProMark" hidden
+              data-inspect-label="Pro layout — mark over the preview"
+              data-inspect-tokens='[{"prop":"background","figma":"$jui-color-background-upgrade-light","css":"--jui-color-background-upgrade-light","value":"#fcecff"},{"prop":"color","figma":"$jui-color-typography-upgrade-on-light","css":"--jui-color-typography-upgrade-on-light","value":"#4e0079"}]'
+              aria-label="This layout comes with Jimdo Start"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg></span>
           </div>
         </div>
       </div>
@@ -808,40 +845,32 @@
                  thing a label has to say that a drawing cannot. -->
             <div class="layout-grid">
               <button type="button" class="layout-card" onclick="selectLayout(this)" data-layout="stacked" data-inspect-phrase="">
-                <span class="layout-card-thumb"><svg viewBox="0 0 68 46" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-pic" x="24" y="6" width="20" height="20" rx="4"/><rect class="lt-line" x="18" y="31" width="32" height="4" rx="2"/><rect class="lt-line lt-faint" x="24" y="39" width="20" height="3" rx="1.5"/></svg></span>
-                <span class="layout-card-label">Stacked</span>
-              </button>
+                <span class="layout-card-thumb"><svg viewBox="0 0 64 114" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-pic" x="22" y="10" width="20" height="20" rx="5"/><rect class="lt-line" x="16" y="38" width="32" height="5" rx="2.5"/><rect class="lt-line lt-faint" x="24" y="48" width="16" height="3" rx="1.5"/><rect class="lt-bar" x="8" y="80" width="48" height="9" rx="4"/><rect class="lt-bar" x="8" y="93" width="48" height="9" rx="4"/></svg></span>
+                <span class="layout-card-foot"><span class="layout-card-label">Stacked</span></span>              </button>
               <button type="button" class="layout-card is-active" onclick="selectLayout(this)" data-layout="overlap" data-inspect-phrase="">
-                <span class="layout-card-thumb"><svg viewBox="0 0 68 46" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-line" x="8" y="7" width="52" height="7" rx="3"/><rect class="lt-pic" x="24" y="12" width="20" height="20" rx="4"/><rect class="lt-line lt-faint" x="24" y="37" width="20" height="3" rx="1.5"/></svg></span>
-                <span class="layout-card-label">Overlap</span>
-              </button>
+                <span class="layout-card-thumb"><svg viewBox="0 0 64 114" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-line" x="6" y="12" width="52" height="8" rx="3"/><rect class="lt-pic" x="22" y="17" width="20" height="20" rx="5"/><rect class="lt-line lt-faint" x="24" y="43" width="16" height="3" rx="1.5"/><rect class="lt-bar" x="8" y="80" width="48" height="9" rx="4"/><rect class="lt-bar" x="8" y="93" width="48" height="9" rx="4"/></svg></span>
+                <span class="layout-card-foot"><span class="layout-card-label">Overlap</span></span>              </button>
               <button type="button" class="layout-card" onclick="selectLayout(this)" data-layout="fade" data-inspect-phrase="">
-                <span class="layout-card-thumb"><svg viewBox="0 0 68 46" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-pic" x="4" y="2" width="60" height="26" rx="3"/><rect class="lt-line" x="14" y="31" width="40" height="5" rx="2.5"/><rect class="lt-line lt-faint" x="22" y="40" width="24" height="3" rx="1.5"/></svg></span>
-                <span class="layout-card-label">Fade</span>
-              </button>
+                <span class="layout-card-thumb"><svg viewBox="0 0 64 114" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-pic" x="0" y="0" width="64" height="32" rx="0"/><rect class="lt-line" x="16" y="38" width="32" height="5" rx="2.5"/><rect class="lt-line lt-faint" x="24" y="48" width="16" height="3" rx="1.5"/><rect class="lt-bar" x="8" y="80" width="48" height="9" rx="4"/><rect class="lt-bar" x="8" y="93" width="48" height="9" rx="4"/></svg></span>
+                <span class="layout-card-foot"><span class="layout-card-label">Fade</span></span>              </button>
               <button type="button" class="layout-card" onclick="selectLayout(this)" data-layout="band" data-inspect-phrase="">
-                <span class="layout-card-thumb"><svg viewBox="0 0 68 46" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-band" x="0" y="2" width="68" height="16" rx="2"/><rect class="lt-pic" x="26" y="10" width="16" height="16" rx="8"/><rect class="lt-line" x="18" y="30" width="32" height="4" rx="2"/><rect class="lt-line lt-faint" x="25" y="38" width="18" height="3" rx="1.5"/></svg></span>
-                <span class="layout-card-label">Band</span>
-              </button>
+                <span class="layout-card-thumb"><svg viewBox="0 0 64 114" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-band" x="0" y="4" width="64" height="20" rx="0"/><rect class="lt-pic" x="24" y="14" width="16" height="16" rx="8"/><rect class="lt-line" x="16" y="38" width="32" height="5" rx="2.5"/><rect class="lt-line lt-faint" x="24" y="48" width="16" height="3" rx="1.5"/><rect class="lt-bar" x="8" y="80" width="48" height="9" rx="4"/><rect class="lt-bar" x="8" y="93" width="48" height="9" rx="4"/></svg></span>
+                <span class="layout-card-foot"><span class="layout-card-label">Band</span></span>              </button>
               <button type="button" class="layout-card" onclick="selectLayout(this)" data-layout="aurora" data-pro="true" data-inspect-phrase="">
-                <span class="layout-card-thumb"><svg viewBox="0 0 68 46" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-field" x="0" y="0" width="68" height="46" rx="3"/><rect class="lt-pic" x="26" y="6" width="16" height="16" rx="8"/><rect class="lt-line" x="18" y="27" width="32" height="4" rx="2"/><rect class="lt-line lt-faint" x="25" y="35" width="18" height="3" rx="1.5"/></svg></span>
-                <span class="layout-card-label">Aurora</span>
-                <span class="layout-card-tag">PRO</span>
+                <span class="layout-card-thumb"><svg viewBox="0 0 64 114" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-field" x="0" y="0" width="64" height="114" rx="0"/><rect class="lt-pic" x="24" y="10" width="16" height="16" rx="8"/><rect class="lt-line" x="16" y="34" width="32" height="5" rx="2.5"/><rect class="lt-line lt-faint" x="24" y="44" width="16" height="3" rx="1.5"/><rect class="lt-bar" x="8" y="80" width="48" height="9" rx="4"/><rect class="lt-bar" x="8" y="93" width="48" height="9" rx="4"/></svg></span>
+                <span class="layout-card-foot"><span class="layout-card-label">Aurora</span><span class="layout-card-tag">PRO</span></span>
               </button>
               <button type="button" class="layout-card" onclick="selectLayout(this)" data-layout="marquee" data-pro="true" data-inspect-phrase="">
-                <span class="layout-card-thumb"><svg viewBox="0 0 68 46" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-band" x="0" y="8" width="68" height="13" rx="2"/><rect class="lt-pic" x="26" y="11" width="16" height="16" rx="8"/><rect class="lt-line" x="18" y="31" width="32" height="4" rx="2"/><rect class="lt-line lt-faint" x="25" y="39" width="18" height="3" rx="1.5"/></svg></span>
-                <span class="layout-card-label">Marquee</span>
-                <span class="layout-card-tag">PRO</span>
+                <span class="layout-card-thumb"><svg viewBox="0 0 64 114" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-band" x="0" y="10" width="64" height="14" rx="0"/><rect class="lt-pic" x="24" y="14" width="16" height="16" rx="8"/><rect class="lt-line" x="16" y="38" width="32" height="5" rx="2.5"/><rect class="lt-line lt-faint" x="24" y="48" width="16" height="3" rx="1.5"/><rect class="lt-bar" x="8" y="80" width="48" height="9" rx="4"/><rect class="lt-bar" x="8" y="93" width="48" height="9" rx="4"/></svg></span>
+                <span class="layout-card-foot"><span class="layout-card-label">Marquee</span><span class="layout-card-tag">PRO</span></span>
               </button>
               <button type="button" class="layout-card" onclick="selectLayout(this)" data-layout="dots" data-pro="true" data-inspect-phrase="">
-                <span class="layout-card-thumb"><svg viewBox="0 0 68 46" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-field lt-dotted" x="0" y="0" width="68" height="46" rx="3"/><rect class="lt-pic" x="24" y="5" width="20" height="20" rx="5"/><rect class="lt-line" x="18" y="30" width="32" height="4" rx="2"/><rect class="lt-line lt-faint" x="25" y="38" width="18" height="3" rx="1.5"/></svg></span>
-                <span class="layout-card-label">Dots</span>
-                <span class="layout-card-tag">PRO</span>
+                <span class="layout-card-thumb"><svg viewBox="0 0 64 114" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-field lt-dotted" x="0" y="0" width="64" height="114" rx="0"/><rect class="lt-pic" x="22" y="10" width="20" height="20" rx="5"/><rect class="lt-line" x="16" y="38" width="32" height="5" rx="2.5"/><rect class="lt-line lt-faint" x="24" y="48" width="16" height="3" rx="1.5"/><rect class="lt-bar" x="8" y="80" width="48" height="9" rx="4"/><rect class="lt-bar" x="8" y="93" width="48" height="9" rx="4"/></svg></span>
+                <span class="layout-card-foot"><span class="layout-card-label">Dots</span><span class="layout-card-tag">PRO</span></span>
               </button>
               <button type="button" class="layout-card" onclick="selectLayout(this)" data-layout="arch" data-pro="true" data-inspect-phrase="">
-                <span class="layout-card-thumb"><svg viewBox="0 0 68 46" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-field" x="0" y="0" width="68" height="46" rx="3"/><path class="lt-pic" d="M26 26 V14 a8 8 0 0 1 16 0 V26 Z"/><rect class="lt-line" x="18" y="30" width="32" height="4" rx="2"/><rect class="lt-line lt-faint" x="25" y="38" width="18" height="3" rx="1.5"/></svg></span>
-                <span class="layout-card-label">Arch</span>
-                <span class="layout-card-tag">PRO</span>
+                <span class="layout-card-thumb"><svg viewBox="0 0 64 114" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect class="lt-field" x="0" y="0" width="64" height="114" rx="0"/><path class="lt-pic" d="M24 32 V20 a8 8 0 0 1 16 0 V32 Z"/><rect class="lt-line" x="16" y="38" width="32" height="5" rx="2.5"/><rect class="lt-line lt-faint" x="24" y="48" width="16" height="3" rx="1.5"/><rect class="lt-bar" x="8" y="80" width="48" height="9" rx="4"/><rect class="lt-bar" x="8" y="93" width="48" height="9" rx="4"/></svg></span>
+                <span class="layout-card-foot"><span class="layout-card-label">Arch</span><span class="layout-card-tag">PRO</span></span>
               </button>
             </div>
           </div>
@@ -863,8 +892,8 @@
             <button type="button" class="float-nav-item" role="tab" aria-selected="true"
               data-inspect-phrase="biopage.editor.design"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"> <path d="M5 14V12.7296C5 11.9754 5.42422 11.2854 6.09717 10.945L8.84085 9.55694C9.5139 9.21645 9.93814 8.52627 9.93802 7.772L9.93726 3.00016C9.93717 2.44781 10.3849 2 10.9373 2H13.9455C14.4978 2 14.9456 2.44781 14.9455 3.00016L14.9447 7.75902C14.9446 8.52006 15.3764 9.21521 16.0587 9.55236L18.886 10.9495C19.5682 11.2866 20 11.9816 20 12.7425L20 14C20 14.5523 19.5523 15 19 15H6C5.44772 15 5 14.5523 5 14Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/> <path d="M6 15C6 16 6 18.8 4 22C9 22 13 22 15.5 18V21C15.5 21.5523 15.9477 22 16.5 22H19C19.5523 22 20.002 21.5518 19.9972 20.9995C19.9803 19.0494 19.8596 17.5789 19 15" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/> </svg><span>Design</span></button>
           </div>
-          <button type="button" class="btn btn-secondary" data-done
-            data-inspect-label="Secondary Button — Done"
+          <button type="button" class="btn btn-primary" data-done
+            data-inspect-label="Primary Button — Done"
             data-inspect-tokens='[{"prop":"border","figma":"$jui-color-stroke-primary-on-light","css":"--jui-color-stroke-primary-on-light","value":"1px #b4c4ff"},{"prop":"height","figma":"$jui-layout-dimension-m","css":"--jui-layout-dimension-m","value":"48px"},{"prop":"border-radius","figma":"button/radius","css":"--jui-component-button-radius","value":"8px"}]'
             data-inspect-phrase="biopage.editor.done"
             data-nav-to="flows/home-dashboard-v2.html" data-nav-screen-id="scr-131">Done</button>
@@ -874,8 +903,55 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=497b956"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=497b956"></script>
+  <!-- ── The upgrade dialog ──
+       The four PRO layouts wore a tag and did nothing: pressing one applied
+       it, so the tag said a price the screen never asked for. They open this
+       instead — the same shape the domain offer uses on onboarding-name.html
+       and the five paid things on Edit links, so a seller meets one dialog
+       for every price in the product rather than one per screen.
+
+       Same copy rules: name the outcome, not the transaction and not our
+       feature name. The CTA goes to the pricing page. -->
+  <div class="sheet-backdrop" id="upgradeSheet" data-open="false" role="dialog" aria-modal="true" aria-labelledby="upgradeSheetTitle">
+    <div class="sheet sheet--compact">
+      <div class="sheet-body">
+        <span class="dialog-mark dialog-mark--upgrade dialog-mark--bare" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg></span>
+        <div class="dialog-copy">
+          <p class="dialog-title" id="upgradeSheetTitle" data-inspect-phrase="flows.designEditor.layout.upgrade.title">Every layout for your page comes with Jimdo Start</p>
+          <p class="sheet-copy" data-inspect-phrase="flows.designEditor.layout.upgrade.copy">Aurora, Marquee, Dots and Arch change how your name and picture sit at the top. Your colours, buttons and font stay exactly as you set them.</p>
+        </div>
+        <div class="plan-line"
+          data-inspect-label="Plan line — the one price this trigger is about"
+          data-inspect-tokens='[{"prop":"background","figma":"$jui-color-background-upgrade-light","css":"--jui-color-background-upgrade-light","value":"#fcecff"},{"prop":"border","figma":"$jui-color-stroke-upgrade-on-light","css":"--jui-color-stroke-upgrade-on-light","value":"1px #e4b5ff"},{"prop":"padding","figma":"$jui-layout-padding-s","css":"--jui-layout-padding-s","value":"12px"}]'>
+          <span class="plan-line-head">
+            <span class="plan-line-label" data-inspect-phrase="paywall.plan.includedFrom">Included from</span>
+            <span class="plan-option-save" data-inspect-phrase="paywall.plan.pro.savings">Save 38%</span>
+          </span>
+          <span class="plan-line-name" data-inspect-phrase="paywall.plan.pro.name">Jimdo Start</span>
+          <span class="plan-line-price">
+            <span class="plan-line-amount" data-no-phrase>€11.50</span>
+            <span class="plan-line-period" data-inspect-phrase="paywall.plan.period">/month</span>
+            <s class="plan-option-was-amount" data-no-phrase>€18.50</s>
+          </span>
+          <ul class="plan-feature-list plan-line-features">
+            <li class="plan-feature"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span data-inspect-phrase="flows.designEditor.layout.upgrade.f1">Every layout for your page</span></li>
+            <li class="plan-feature"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span data-inspect-phrase="paywall.plan.pro.f6">Your own web address</span></li>
+            <li class="plan-feature"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg><span data-inspect-phrase="upgrade.paid.feature1">Get booked for everything you offer</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="sheet-actions sheet-actions--end">
+        <button type="button" class="btn btn-subtle" id="upgradeSheetLater" data-inspect-phrase="suggestion.maybeLater">Maybe later</button>
+        <button type="button" class="btn btn-primary btn-upgrade" id="upgradeSheetGo"
+          data-nav-to="flows/paywall-domain.html?from=design-editor-onboarding"
+          data-nav-screen-id="scr-054"
+          data-inspect-phrase="paywall.pro.cta"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg>Upgrade</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=7395c1c"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=7395c1c"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
 
@@ -1027,11 +1103,62 @@ function selectLayout(el) {
     window.__design.header = id;
     if (window.__designSync) window.__designSync();
   }
+  syncProLayout();
 }
 
-/* Escape key: close whichever drawer is open */
+/* ── A paid layout is shown, not withheld ──
+   The other paid things in this product refuse the press and explain
+   themselves in a dialog. A layout is the exception, because the only
+   question about a layout is what it looks like on your own page, and a
+   dialog describing it is a worse answer than the page itself. So the
+   seller picks it, sees it, and the price is said in two places that are
+   hard to miss and easy to leave: a crown over the preview, and the one
+   button that finishes the screen.
+
+   Done becomes the trigger rather than gaining a neighbour. There is
+   nothing to finish while the page carries something that is not paid
+   for, so a second button beside Done would be offering a choice that
+   does not exist. */
+function syncProLayout() {
+  var pro = !!document.querySelector('.layout-card.is-active[data-pro="true"]');
+  var mark = document.getElementById('previewProMark');
+  if (mark) mark.hidden = !pro;
+  document.querySelectorAll('[data-done]').forEach(function (btn) {
+    btn.innerHTML = pro ? PRO_CROWN + 'Get pro layout' : 'Done';
+    btn.classList.toggle('btn-upgrade', pro);
+    btn.setAttribute('data-inspect-phrase', pro
+      ? 'flows.designEditor.layout.upgrade.cta'
+      : 'biopage.editor.done');
+  });
+}
+var PRO_CROWN = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg>';
+
+/* Capture, so this runs before prototype-nav.js sees the click on document:
+   while the layout is paid for, Done opens the dialog instead of leaving. */
+document.querySelectorAll('[data-done]').forEach(function (btn) {
+  btn.addEventListener('click', function (e) {
+    if (!document.querySelector('.layout-card.is-active[data-pro="true"]')) return;
+    e.preventDefault();
+    e.stopPropagation();
+    document.getElementById('upgradeSheet').setAttribute('data-open', 'true');
+  }, true);
+});
+syncProLayout();
+
+var upgradeSheetEl = document.getElementById('upgradeSheet');
+function closeUpgrade() { upgradeSheetEl.setAttribute('data-open', 'false'); }
+document.getElementById('upgradeSheetLater').addEventListener('click', closeUpgrade);
+upgradeSheetEl.addEventListener('click', function (e) {
+  if (e.target === upgradeSheetEl) closeUpgrade();
+});
+/* Upgrade has no listener: prototype-nav.js reads its data-nav-to, which is
+   also what build-journey-graph.js scrapes to draw the edge. */
+
+/* Escape key: close whichever drawer is open, or the dialog over them */
 document.addEventListener('keydown', function (e) {
-  if (e.key === 'Escape' && activeDrawer) closeDrawer(activeDrawer);
+  if (e.key !== 'Escape') return;
+  if (upgradeSheetEl.getAttribute('data-open') === 'true') { closeUpgrade(); return; }
+  if (activeDrawer) closeDrawer(activeDrawer);
 });
 
   </script>

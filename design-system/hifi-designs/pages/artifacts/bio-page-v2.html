@@ -322,7 +322,7 @@
       var(--bio-bg-deep), var(--bio-bg-warm), var(--bio-bg-deep),
       var(--bio-bg-cool), var(--bio-bg-deep));
     filter: blur(60px);
-    opacity: 0.85;
+    opacity: 0.6;
     animation: bio-surround 90s linear infinite;
     will-change: transform;
   }
@@ -331,7 +331,7 @@
   html[data-header="dots"] body::before {
     background: var(--bio-bg-deep);
     background-image: radial-gradient(circle,
-      color-mix(in srgb, var(--bio-ink) 13%, transparent) 1.2px, transparent 1.4px);
+      color-mix(in srgb, var(--bio-ink) 8%, transparent) 1.2px, transparent 1.4px);
     background-size: 22px 22px;
     filter: none;
     opacity: 1;
@@ -364,6 +364,10 @@
       var(--bio-bg), var(--bio-glow), var(--bio-bg-warm),
       var(--bio-bg), var(--bio-bg-cool), var(--bio-bg));
     filter: blur(50px);
+    /* Decoration reads at the edge of noticing, or it competes with the
+       name. Each of these was painted at full strength on a page whose
+       whole job is three lines of text. */
+    opacity: 0.55;
     animation: bio-field 60s linear infinite;
     will-change: transform;
   }
@@ -383,7 +387,7 @@
     z-index: 0;
     pointer-events: none;
     background-image: radial-gradient(circle,
-      color-mix(in srgb, var(--bio-ink) 16%, transparent) 1.2px, transparent 1.4px);
+      color-mix(in srgb, var(--bio-ink) 9%, transparent) 1.2px, transparent 1.4px);
     background-size: 22px 22px;
     animation: bio-dots 40s linear infinite;
     will-change: transform;
@@ -533,6 +537,7 @@
       var(--bio-bg), var(--bio-glow), var(--bio-bg-warm),
       var(--bio-bg), var(--bio-bg-cool), var(--bio-bg));
     filter: blur(28px);
+    opacity: 0.6;
     animation: bio-aurora 40s linear infinite;
     will-change: transform;
   }
@@ -584,7 +589,11 @@
     left: 0;
     right: 0;
     height: 96px;
-    background: var(--bio-ink);
+    /* A wash, not a block. Solid ink with the name reversed out of it was
+       maximum contrast given to the one element on the page nobody needs to
+       read — it beat the actual name, the tagline and every button, so the
+       eye went there first and stayed. */
+    background: color-mix(in srgb, var(--bio-ink) 9%, var(--bio-bg));
     overflow: hidden;
     display: flex;
     align-items: center;
@@ -598,7 +607,9 @@
     letter-spacing: var(--bio-display-tracking);
     line-height: 1;
     white-space: nowrap;
-    color: var(--bio-bg);
+    /* Present, legible if you look for it, and behind everything that
+       matters. */
+    color: color-mix(in srgb, var(--bio-ink) 26%, var(--bio-bg));
     /* Two copies of the same run, so the loop has no seam. */
     padding-right: 0;
     /* 24s, a quarter slower than it was. A name going past at reading
@@ -688,7 +699,7 @@
       var(--bio-bg-deep), var(--bio-bg-cool), var(--bio-bg-deep),
       var(--bio-glow));
     filter: blur(20px);
-    opacity: 0.95;
+    opacity: 0.6;
     animation: bio-halo 34s linear infinite;
     will-change: transform;
   }
