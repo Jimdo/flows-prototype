@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>design-editor-onboarding</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=6db92b6">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=6db92b6">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=497b956">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=497b956">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=6db92b6">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=497b956">
 <style>
   /* ─── Screen overrides ───
      The frame is the setup split in editor mode, same as the link editor.
@@ -20,19 +20,22 @@
   .app-shell-setup-split { --setup-drawer-rest-h: 380px; }
 
   .de-views { display: contents; }
+  /* 24 between sections and 8 from a label to the thing it names — the
+     figures .setup-split-fields and .edit-section use next door. The panel
+     had 24 everywhere, so a heading floated the same distance from its own
+     control as from the section above it. */
   .de-panel-view { display: none; flex-direction: column; gap: var(--jui-layout-gap-l); }
+  .de-panel-view > .edit-section-title { margin-bottom: calc(var(--jui-layout-gap-xs) - var(--jui-layout-gap-l)); }
   .de-panel-view.is-active { display: flex; }
 
   /* Three .de-panel-* rules are controls, not frame — the section heading,
      its row and the inline link beside it. They went out with the old shell
      and come back here. */
-  .de-panel-heading {
-    font-size: var(--jui-typography-sub-headline-small-size);
-    font-weight: var(--jui-typography-sub-headline-small-weight);
-    line-height: var(--jui-typography-sub-headline-small-lh);
-    color: var(--jui-color-typography-gray-on-light-default);
-    margin: 0;
-  }
+  /* The headings here were subheadline-small, which made four of them read
+     as four pages rather than four parts of one. The links editor settled
+     the convention next door — an uppercase label-small over its group —
+     and this panel sits behind the same switch, so it uses the same one.
+     .edit-section-title carries it; nothing is redefined here. */
   .de-panel-heading-row {
     display: flex;
     align-items: center;
@@ -681,11 +684,10 @@
            two the seller is in; out here it also lands on the top edge of
            the preview panel, so switching tabs does not move the title. -->
 
-        <div class="setup-split-intro">
-          <div class="step-drawer-head">
-            <h1 class="setup-split-title" data-inspect-phrase="">Edit design</h1>
-          </div>
-        </div>
+        <!-- No page title. The segmented control above already says Design,
+             and a heading under it that says the same thing in bigger type
+             is the switch repeating itself — the links editor dropped its
+             own for the same reason. -->
 
         <!-- --scroll, because this panel holds a list: without it the drawer
              clipped everything past its own height on a phone. -->
@@ -703,16 +705,16 @@
                guess. -->
           <div id="panel-view-style" class="de-panel-view is-active">
 
-            <h3 class="de-panel-heading" data-inspect-phrase="flows.designEditor.backgroundColor">Pick Background Color</h3>
+            <p class="edit-section-title" data-inspect-phrase="flows.designEditor.backgroundColor">Background colour</p>
             <div class="de-bg-card">
               <div class="de-bg-card-body">
                 <div class="de-bg-swatches">
-                  <button type="button" class="de-bg-swatch is-active" onclick="selectBgSwatch(this)" aria-label="White background">
+                  <button type="button" class="de-bg-swatch" onclick="selectBgSwatch(this)" aria-label="White background">
                     <div class="de-bg-swatch-inner" style="background: #ffffff;">
                       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="var(--jui-color-actions-primary-rest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
                     </div>
                   </button>
-                  <button type="button" class="de-bg-swatch" onclick="selectBgSwatch(this)" aria-label="Black background">
+                  <button type="button" class="de-bg-swatch is-active" onclick="selectBgSwatch(this)" aria-label="Black background">
                     <div class="de-bg-swatch-inner" style="background: #000000;">
                       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="var(--jui-color-actions-primary-rest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
                     </div>
@@ -746,7 +748,7 @@
               </button>
             </div>
 
-            <h3 class="de-panel-heading" data-inspect-phrase="flows.designEditor.buttonShape">Button Shape</h3>
+            <p class="edit-section-title" data-inspect-phrase="flows.designEditor.buttonShape">Button shape</p>
             <div class="de-shape-row">
               <button type="button" class="de-shape-card is-active" onclick="selectShapeCard(this)" data-inspect-phrase="flows.designEditor.squared">
                 <svg stroke-linejoin="round" stroke-linecap="round" stroke-width="1.5" class="de-shape-card-check" viewBox="0 0 24 24" fill="none"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
@@ -766,7 +768,7 @@
             </div>
 
             <div class="de-panel-heading-row">
-              <h3 class="de-panel-heading" data-inspect-phrase="flows.designEditor.fontPairing">Font pairing</h3>
+              <p class="edit-section-title" data-inspect-phrase="flows.designEditor.fontPairing">Font</p>
               <button type="button" class="de-panel-link" data-inspect-phrase="flows.designEditor.editFontPairings">Edit pairing</button>
             </div>
             <div class="de-font-grid">
@@ -795,7 +797,7 @@
 
           <!-- The fourth heading, not a second tab. -->
           <div id="panel-view-layout" class="de-panel-view is-active">
-            <h3 class="de-panel-heading" data-inspect-phrase="flows.designEditor.layout">Layout</h3>
+            <p class="edit-section-title" data-inspect-phrase="flows.designEditor.layout">Layout</p>
             <!-- The eight the page can actually be, each drawn as the header
                  it makes. The four cards here before were Centered, Left-
                  aligned, Split and Minimal above empty thumbnails: names for
@@ -872,8 +874,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=6db92b6"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=6db92b6"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=497b956"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=497b956"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
 
@@ -881,7 +883,11 @@
        be a literal: every swatch, font and layout card toggled a border and
        the phone beside them never moved, which made the whole editor a
        picture of an editor. */
-    const design = { header: 'overlap', bg: '#0a0a0a', shape: 'rounded' };
+    /* Black, because that is what the page already is. Opening Design is
+         not a decision about colour, and arriving here used to repaint the
+         page white before the seller had touched anything — the first thing
+         the editor did was undo their page. */
+    const design = { header: 'overlap', bg: '#0a0a0a', shape: 'rounded', font: 'Sofia Sans' };
     window.__design = design;
 
     const split = initSetupSplit({
@@ -889,6 +895,7 @@
         header: design.header,
         bg: design.bg,
         shape: design.shape,
+        font: design.font,
         title: 'Clara and Stone',
         subtitle: 'Yoga and mindfulness workshops for women',
         image: 'photo',
@@ -968,6 +975,12 @@ function selectFontCard(el) {
     c.classList.remove('is-active');
   });
   el.classList.add('is-active');
+  /* The card's own name, so the list and the page cannot disagree. */
+  var name = el.querySelector('.de-font-card-name');
+  if (name && window.__design) {
+    window.__design.font = name.textContent.trim();
+    if (window.__designSync) window.__designSync();
+  }
 }
 
 function selectBgSwatch(el) {

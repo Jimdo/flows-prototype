@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=360, initial-scale=1">
 <title>Clara and Stone — Bio Page</title>
+<!-- The four the design editor offers. They were named in its cards and
+     never loaded anywhere, so picking one set a font-family string against
+     a face the browser did not have and fell back to the system sans — the
+     control looked wired and was not. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sofia+Sans:wght@400;500;700&family=Playfair+Display:wght@400;500;700&family=Poppins:wght@400;500;700&family=DM+Sans:wght@400;500;700&display=swap">
 <style>
   /* ═══════════════════════════════════════════════
      ARTIFACT — DARK TEMPLATE "Clara and Stone"
@@ -39,8 +46,11 @@
     --bio-ink-dim: color-mix(in srgb, var(--bio-ink) 82%, var(--bio-bg));
     --bio-surface: color-mix(in srgb, var(--bio-ink) 15%, var(--bio-bg));
     /* Squared, rounded or pill — the design editor's third control, which
-       had nothing to set. */
+         had nothing to set. Two values, because a pill is a button's own
+         height and a block the depth of a map is not a lozenge: cards take
+         the same decision at a size that still reads as a card. */
     --bio-btn-radius: 16px;
+    --bio-card-radius: 16px;
   }
 
   html, body {
@@ -54,7 +64,7 @@
   }
 
   body {
-    font-family: 'Familjen Grotesk', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    font-family: var(--bio-font-body);
     color: var(--bio-ink);
     min-height: 100vh;
     overflow-x: hidden;
@@ -97,14 +107,17 @@
     --bio-ink-dim: color-mix(in srgb, var(--bio-ink) 82%, var(--bio-bg));
     --bio-surface: color-mix(in srgb, var(--bio-ink) 15%, var(--bio-bg));
     /* Squared, rounded or pill — the design editor's third control, which
-       had nothing to set. */
+         had nothing to set. Two values, because a pill is a button's own
+         height and a block the depth of a map is not a lozenge: cards take
+         the same decision at a size that still reads as a card. */
     --bio-btn-radius: 16px;
+    --bio-card-radius: 16px;
 
     /* One family, one weight, every layout. The seller chooses the face in
        the design editor and it applies to the whole page; a template that
        swapped the font as part of its layout would be overriding a choice
        they already made. */
-    --bio-font-display: 'Familjen Grotesk', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    --bio-font-display: 'Sofia Sans', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
     --bio-font-body: var(--bio-font-display);
     --bio-display-weight: 700;
     --bio-display-case: uppercase;
@@ -798,7 +811,7 @@
     gap: 8px;
     height: 34px;
     padding: 0 16px;
-    border-radius: 20px;
+    border-radius: var(--bio-btn-radius);
     background: color-mix(in srgb, var(--bio-ink) 10%, transparent);
     border: 1px solid color-mix(in srgb, var(--bio-ink) 14%, transparent);
     color: var(--bio-ink);
@@ -978,7 +991,7 @@
     display: flex;
     flex-direction: column;
     gap: 1px;
-    border-radius: 16px;
+    border-radius: var(--bio-card-radius);
   }
 
   /* ── Added but not finished ──
@@ -1347,7 +1360,7 @@
   .bio-info-map {
     display: flex;
     flex-direction: column;
-    border-radius: 16px;
+    border-radius: var(--bio-card-radius);
     background: color-mix(in srgb, var(--bio-ink) 6%, transparent);
     overflow: hidden;
   }
@@ -2276,23 +2289,49 @@
          or white, whichever can be read on it. That is a derivation, not a
          decision: there is no third option. */
       if (typeof d.bg === 'string' && d.bg) {
+        /* The swatch is a background. Ink is not a second thing to pick: it
+           is whichever of the brand's own colours can be read on that
+           ground, and black or white when none of them can.
+
+           d.brand is the rest of the seller's palette when the product
+           knows it. Until it does, the fallback is the whole rule — which
+           is why it is written as the general case and not as an
+           afterthought. */
         var ink = typeof d.ink === 'string' && d.ink ? d.ink : null;
-        if (!ink) {
-          var probe = document.createElement('span');
-          probe.style.color = d.bg;
-          document.body.appendChild(probe);
-          var ch = (getComputedStyle(probe).color.match(/[\d.]+/g) || [0, 0, 0])
-            .slice(0, 3).map(function (x) {
-              var f = parseFloat(x);
-              return f <= 1 && String(x).indexOf('.') !== -1 ? f * 255 : f;
+        var readable = function (fg, bgc) {
+          var lum = function (c) {
+            var probe = document.createElement('span');
+            probe.style.color = c;
+            document.body.appendChild(probe);
+            var ch = (getComputedStyle(probe).color.match(/[\d.]+/g) || [0, 0, 0])
+              .slice(0, 3).map(function (x) {
+                var f = parseFloat(x);
+                return f <= 1 && String(x).indexOf('.') !== -1 ? f * 255 : f;
+              });
+            probe.remove();
+            var l = ch.map(function (v) {
+              v /= 255;
+              return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
             });
-          probe.remove();
-          var lin = ch.map(function (v) {
-            v /= 255;
-            return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+            return 0.2126 * l[0] + 0.7152 * l[1] + 0.0722 * l[2];
+          };
+          var a = lum(fg), b = lum(bgc);
+          return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+        };
+        if (!ink && Array.isArray(d.brand)) {
+          /* The brand colour that reads best on the chosen ground, if any
+             of them clears the threshold for body text. */
+          var best = null, bestRatio = 0;
+          d.brand.forEach(function (c) {
+            var r = readable(c, d.bg);
+            if (r > bestRatio) { bestRatio = r; best = c; }
           });
-          var L = 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2];
-          ink = L > 0.42 ? '#0a0a0a' : '#ffffff';
+          if (best && bestRatio >= 4.5) ink = best;
+        }
+        if (!ink) {
+          /* Neither brand colour works, or there are none yet: black or
+             white, whichever is readable. There is no third answer. */
+          ink = readable('#0a0a0a', d.bg) >= readable('#ffffff', d.bg) ? '#0a0a0a' : '#ffffff';
         }
         [document.documentElement, page].forEach(function (el) {
           el.style.setProperty('--bio-bg', d.bg);
@@ -2304,8 +2343,23 @@
       /* One value, three names. A pill is the button's own height, which is
          why it is expressed as a large radius rather than a shape. */
       if (typeof d.shape === 'string') {
-        var R = { squared: '4px', rounded: '16px', pill: '999px' };
-        if (R[d.shape]) page.style.setProperty('--bio-btn-radius', R[d.shape]);
+        var R = { squared: ['4px', '4px'], rounded: ['16px', '16px'], pill: ['999px', '24px'] };
+        if (R[d.shape]) {
+          page.style.setProperty('--bio-btn-radius', R[d.shape][0]);
+          page.style.setProperty('--bio-card-radius', R[d.shape][1]);
+        }
+      }
+
+      /* The face, which the seller picks in the same panel. */
+      if (typeof d.font === 'string') {
+        var F = {
+          'sofia sans': "'Sofia Sans', sans-serif",
+          'playfair': "'Playfair Display', serif",
+          'poppins': "'Poppins', sans-serif",
+          'dm sans': "'DM Sans', sans-serif",
+        };
+        var fam = F[d.font.toLowerCase()];
+        if (fam) page.style.setProperty('--bio-font-display', fam);
       }
 
       if (typeof d.theme === 'string') {
