@@ -425,10 +425,16 @@
       var(--bio-bg), var(--bio-glow), var(--bio-bg-warm),
       var(--bio-bg), var(--bio-bg-cool), var(--bio-bg));
     filter: blur(50px);
-    /* Decoration reads at the edge of noticing, or it competes with the
-       name. Each of these was painted at full strength on a page whose
-       whole job is three lines of text. */
-    opacity: 0.55;
+    /* Measured, this ran the ground from rgb(12) up to rgb(56) — past the
+       rgb(47) the buttons are filled with. At the bright end of the sweep
+       the button was darker than the page behind it and inverted; local
+       contrast fell to 1.19:1 where the other paid layouts hold 1.48:1.
+       A field the controls disappear into is not a decoration.
+
+       At 0.28 the lightest ground stays well under the fill, and the
+       buttons below are glass, so they lift off whatever they happen to
+       be over rather than off one assumed value. */
+    opacity: 0.28;
     animation: bio-field 60s linear infinite;
     will-change: transform;
   }
@@ -438,46 +444,64 @@
   }
 
   /* ── Aurora's colour ──
-     A black page has no hue, so the near-neighbour sweep that the arch uses
-     resolves to grey on it — the one layout whose whole idea is colour had
-     none, and could not be given any without inventing a colour the seller
-     never picked.
+     Not the photograph blurred. The average of a photograph is brown —
+     that is what averaging colour does — and screening that onto black is
+     grey mixed with colour, which is the definition of muddy. Measured, the
+     field was rgb(28,22,19) to rgb(80,65,56): a dark, desaturated brown
+     over every layout that used it.
 
-     Their photograph is the exception. It is already on the page, it is
-     certainly theirs, and blurred to this degree it is no longer a picture
-     of anything — it is the colour that was in their picture, spread over
-     the page. Screened onto a dark ground or multiplied into a light one,
-     so it lifts the ground rather than covering it.
+     What a picture is actually good for is its hues. The palette is
+     sampled from it, every pixel too grey to name a hue is thrown away,
+     and the three strongest hues that remain are redrawn at full chroma —
+     so the page carries the colours that were in the picture rather than
+     the picture's average. Nothing grey is ever mixed in: each pool runs
+     from its own colour to transparent, over the ground the seller picked.
 
-     The sweep stays underneath as the base, which is what a page with no
-     photograph yet still gets. */
+     Then it is given edges. A blur alone is a wash, and the one thing the
+     glass above it needs is something with structure to refract. The field
+     is blurred and then cut by a low-frequency noise mask — filters run
+     before masks, so the blur makes the colour a field and the mask gives
+     it back its teeth. It reads as weather rather than as a gradient. */
   .bio-page[data-header="aurora"] .bio-page-fx {
     display: block;
     position: absolute;
-    inset: -35%;
+    /* Only just off the card. At -20% the three pool centres sat outside
+       it and all that showed was their far edges, which reads as a vignette
+       rather than as colour on the page. */
+    inset: -8%;
     z-index: 0;
     pointer-events: none;
-    background-image: var(--bio-hero-img, none);
-    background-size: cover;
-    background-position: 50% 35%;
-    background-repeat: no-repeat;
-    background-color: var(--bio-bg);
-    filter: blur(60px) saturate(200%);
-    mix-blend-mode: var(--bio-fx-blend, screen);
-    /* A tint, not a wash. At 0.65 the ground stopped being the colour the
-       seller picked and became their photograph — a black page came out
-       solid amber. This is the picture's colour arriving at the edge of
-       the page and in the glass, with black still reading as black. */
-    opacity: 0.26;
+    /* A midpoint in each falloff, so a pool fades out instead of ending.
+       Two stops and a blur still leave a readable edge once the mask has
+       cut it. */
+    background-image:
+      radial-gradient(46% 32% at 24% 18%, var(--bio-aurora-1, var(--bio-bg-warm)) 0%,
+        color-mix(in srgb, var(--bio-aurora-1, var(--bio-bg-warm)) 45%, transparent) 42%, transparent 76%),
+      radial-gradient(50% 36% at 80% 46%, var(--bio-aurora-2, var(--bio-glow)) 0%,
+        color-mix(in srgb, var(--bio-aurora-2, var(--bio-glow)) 45%, transparent) 44%, transparent 78%),
+      radial-gradient(58% 40% at 46% 80%, var(--bio-aurora-3, var(--bio-bg-cool)) 0%,
+        color-mix(in srgb, var(--bio-aurora-3, var(--bio-bg-cool)) 45%, transparent) 44%, transparent 78%);
+    filter: blur(22px);
+    /* One tile stretched over the whole field, not a 300px tile repeating.
+       The repeat put a straight seam down the card — and because the field
+       turns, the seam turned with it and read as a diagonal rule drawn
+       across the page. Nothing organic has straight edges. */
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='900'%3E%3Cfilter id='a'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.004 0.006' numOctaves='5' seed='3'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 .34 .34 .34 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='gamma' amplitude='1.8' exponent='1.3' offset='-0.2'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='600' height='900' filter='url(%23a)'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='900'%3E%3Cfilter id='a'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.004 0.006' numOctaves='5' seed='3'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 .34 .34 .34 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='gamma' amplitude='1.8' exponent='1.3' offset='-0.2'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='600' height='900' filter='url(%23a)'/%3E%3C/svg%3E");
+    -webkit-mask-size: 100%% 100%%;
+    mask-size: 100%% 100%%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    /* A tint. The ground stays the colour the seller picked. */
+    opacity: 0.4;
     animation: bio-field 60s linear infinite;
     will-change: transform;
   }
-  /* Grain, so the glass has something to refract. A backdrop-filter over a
-     flat wash blurs nothing and reads as a flat panel at a different
-     opacity; over a fine texture it reads as frosted. A sibling of the
-     field rather than a child of it, because the field carries a 60px blur
-     that would erase this. */
-  .bio-page[data-header="aurora"]::before {
+  /* Grain on top of the swirl: the coarse mask gives the field shape, this
+     gives it surface. A backdrop-filter over a flat wash blurs nothing and
+     reads as a panel at a different opacity. */
+  .bio-page[data-header="aurora"]::before,
+  .bio-page[data-header="arch"]::before {
     content: '';
     position: absolute;
     inset: 0;
@@ -485,7 +509,7 @@
     pointer-events: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)' opacity='0.5'/%3E%3C/svg%3E");
     mix-blend-mode: overlay;
-    opacity: 0.16;
+    opacity: 0.14;
   }
 
   /* The dotted one. Its ground is a field of the seller's ink rather than a
@@ -699,7 +723,12 @@
   .bio-page[data-header="dots"] .bio-contact-btn,
   .bio-page[data-header="dots"] .bio-info-map,
   .bio-page[data-header="dots"] .bio-rich-btn-info,
-  .bio-page[data-header="dots"] .bio-rich-btn-cta {
+  .bio-page[data-header="dots"] .bio-rich-btn-cta,
+  .bio-page[data-header="arch"] .bio-link-btn,
+  .bio-page[data-header="arch"] .bio-contact-btn,
+  .bio-page[data-header="arch"] .bio-info-map,
+  .bio-page[data-header="arch"] .bio-rich-btn-info,
+  .bio-page[data-header="arch"] .bio-rich-btn-cta {
     background: color-mix(in srgb, var(--bio-ink) var(--bio-surface-lift), transparent);
     /* saturate as well as blur: glass that only blurs is a grey panel. */
     backdrop-filter: blur(16px) saturate(180%);
@@ -2357,15 +2386,65 @@
       fx.setAttribute('data-echo-one', full.split(' ')[0] || full);
     }
 
-    /* Aurora's field is this image. CSS cannot read an <img>'s src, so it
-       is published as a custom property and read back as a background. */
-    function syncHeroImage() {
+    /* Aurora's three colours, read off the seller's photograph.
+       Every pixel too grey to name a hue is discarded, the rest are
+       bucketed by hue and weighted by how colourful they are, and the
+       strongest buckets are redrawn at full chroma. Taking the hues rather
+       than the pixels is the whole point: a blurred photograph averages to
+       brown, and brown over black is the mud this replaced.
+
+       No picture, a cross-origin picture, or a picture with no hue in it:
+       the ground's own near-neighbours, which is what the arch uses. */
+    function syncAuroraPalette() {
+      var set = function (a, b, c) {
+        [document.documentElement, page].forEach(function (el) {
+          el.style.setProperty('--bio-aurora-1', a);
+          el.style.setProperty('--bio-aurora-2', b);
+          el.style.setProperty('--bio-aurora-3', c);
+        });
+      };
+      var fallback = function () {
+        set('var(--bio-bg-warm)', 'var(--bio-glow)', 'var(--bio-bg-cool)');
+      };
       var img = document.querySelector('.bio-hero-img');
-      var src = img && !img.hidden && img.currentSrc ? img.currentSrc : (img && img.src);
-      var val = src ? 'url("' + src + '")' : 'none';
-      [document.documentElement, page].forEach(function (el) {
-        el.style.setProperty('--bio-hero-img', val);
-      });
+      if (!img || img.hidden || !img.complete || !img.naturalWidth) return fallback();
+      var n = 64, cv = document.createElement('canvas');
+      cv.width = n; cv.height = n;
+      var ctx = cv.getContext('2d', { willReadFrequently: true });
+      var data;
+      try {
+        ctx.drawImage(img, 0, 0, n, n);
+        data = ctx.getImageData(0, 0, n, n).data;
+      } catch (e) { return fallback(); }
+      var BUCKETS = 12, hist = [], i;
+      for (i = 0; i < BUCKETS; i++) hist.push(0);
+      for (i = 0; i < data.length; i += 4) {
+        var r = data[i] / 255, g = data[i + 1] / 255, b = data[i + 2] / 255;
+        var mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+        if (mx === mn) continue;                     /* no hue at all */
+        var l = (mx + mn) / 2, dl = mx - mn;
+        var sat = l > 0.5 ? dl / (2 - mx - mn) : dl / (mx + mn);
+        /* Too grey to be a colour, too dark to show one, or blown out. */
+        if (sat < 0.22 || l < 0.2 || l > 0.86) continue;
+        var h;
+        if (mx === r) h = (g - b) / dl + (g < b ? 6 : 0);
+        else if (mx === g) h = (b - r) / dl + 2;
+        else h = (r - g) / dl + 4;
+        hist[Math.floor(h * 60 / (360 / BUCKETS)) % BUCKETS] += sat;
+      }
+      var tops = hist.map(function (v, k) { return [v, k]; })
+                     .filter(function (e) { return e[0] > 0; })
+                     .sort(function (a, b) { return b[0] - a[0]; });
+      if (!tops.length) return fallback();
+      /* Three pools, spread in lightness so the field has somewhere to go
+         instead of being one colour at one value. Hues cycle when the
+         picture only had one or two to give. */
+      var hue = function (k) {
+        return Math.round((tops[k % tops.length][1] + 0.5) * (360 / BUCKETS));
+      };
+      set('hsl(' + hue(0) + ' 70% 58%)',
+          'hsl(' + hue(1) + ' 66% 46%)',
+          'hsl(' + hue(2) + ' 72% 64%)');
     }
 
     function applyConfig(d) {
@@ -2430,7 +2509,7 @@
       }
       if (d.image) {
         var img = document.querySelector('.bio-hero-img');
-        syncHeroImage();
+        syncAuroraPalette();
         var ph = document.getElementById('bio-image-placeholder');
         var wantsPhoto = d.image === 'photo';
         if (img) img.hidden = !wantsPhoto;
@@ -2852,7 +2931,7 @@
         document.documentElement.setAttribute('data-theme', q.get('theme'));
       }
       syncMap();
-      syncHeroImage();
+      syncAuroraPalette();
     })();
 
     /* Sent after the query string has been read, so `current` is what is
