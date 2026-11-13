@@ -2616,11 +2616,19 @@
 
          Anchors are the first hue of each, and the match is on the wheel,
          so a warm picture lands on Ember rather than being made cold. */
+      /* No yellow in any of them. 40° to 75° is the band, and two of these
+         used to sit in it — Ember opened on a 38° amber and Moss carried a
+         lime and a second amber. Yellow is the one hue that will not hold a
+         field: it is the lightest thing on the wheel, so it goes chalky the
+         moment it is screened onto a dark page and muddy the moment it is
+         multiplied into a light one, and next to any of the cooler stops it
+         reads as a stain rather than as weather. Ember is warm through red
+         now instead of through yellow. */
       var PALETTES = [
         [262, 190, 160],  /* Aurora — violet, cyan, emerald */
         [243, 292, 350],  /* Dusk   — indigo, magenta, coral */
-        [38, 350, 262],   /* Ember  — amber, rose, violet */
-        [175, 85, 45],    /* Moss   — teal, lime, amber */
+        [12, 345, 285],   /* Ember  — vermilion, rose, violet */
+        [168, 138, 108],  /* Moss   — teal, spring green, green */
         [221, 199, 174],  /* Tide   — blue, sky, teal */
       ];
       var dominant = Math.round((tops[0][1] + 0.5) * (360 / BUCKETS));
