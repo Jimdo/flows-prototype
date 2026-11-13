@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=360, initial-scale=1">
@@ -15,10 +15,28 @@
 
   *, *::before, *::after { box-sizing: border-box; }
 
+  /* The same two chosen colours and the same four mixes, declared on the
+     document as well as on the card. A custom property resolves against the
+     element that declares it, so derived values sitting only on .bio-page
+     are invisible to <body> — which is why the desktop surround stayed one
+     grey whatever colour the page was. */
+  :root {
+    --bio-bg: #0a0a0a;
+    --bio-ink: #ffffff;
+    --bio-bg-deep: color-mix(in srgb, var(--bio-bg) 80%, #000);
+    --bio-bg-lift: color-mix(in srgb, var(--bio-bg) 88%, var(--bio-ink));
+    --bio-glow: color-mix(in srgb, var(--bio-bg) 70%, var(--bio-ink));
+    --bio-ink-dim: color-mix(in srgb, var(--bio-ink) 82%, var(--bio-bg));
+    --bio-surface: color-mix(in srgb, var(--bio-ink) 15%, var(--bio-bg));
+  }
+
   html, body {
     margin: 0;
     padding: 0;
-    background: #0a0a0a;
+    /* What the page stands on at desktop widths: a darker version of its
+       own colour, not a black of its own. The card was green on near-black
+       and the two had nothing to do with each other. */
+    background: var(--bio-bg-deep, #080808);
     -webkit-font-smoothing: antialiased;
   }
 
@@ -32,27 +50,34 @@
   .bio-page {
     /* One fill for every placeholder. Different alphas per block read as a
        hierarchy among things that do not exist yet — a ghost is a ghost. */
-    --bio-ghost-fill: rgba(255, 255, 255, 0.08);
+    --bio-ghost-fill: color-mix(in srgb, var(--bio-ink) 9%, transparent);
 
-    /* ── Theme ──
-       Colour and type are one axis, the header's shape is another, and the
-       six templates prove they are independent: black minimal and light
-       artistic are the same layout in opposite palettes. Keeping them apart
-       means a new palette is six lines rather than a seventh template.
+    /* ── Palette ──
+       The seller picks from four brand colours plus black and white. That
+       is the whole palette, and anything a layout needs beyond it has to be
+       derived from what they picked — otherwise changing their colour
+       leaves a violet gradient behind, which is how a page stops being
+       theirs.
 
-       Set by data-theme on this element; the values here are the dark
-       default, so a page that names no theme renders exactly as before. */
+       So: two chosen values, and four mixes of them. Change --bio-bg and
+       every surface, band and field below moves with it. No layout
+       introduces a hue. */
     --bio-bg: #0a0a0a;
     --bio-ink: #ffffff;
-    --bio-ink-dim: #aaaaaa;
-    --bio-surface: rgba(255, 255, 255, 0.08);
-    /* Three, because the pro layouts paint fields rather than fills and a
-       field of one colour is a vignette. The dark template's accent was
-       white, which made the aurora a grey smudge — technically present,
-       visibly nothing. */
-    --bio-accent: #7c5cff;
-    --bio-accent-2: #22d3ee;
-    --bio-accent-3: #ff6b9d;
+
+    /* Deeper and lighter versions of the chosen ground. The desktop
+       surround is the deep one — the page sits on a darker version of its
+       own colour rather than on a black nobody chose. */
+    --bio-bg-deep: color-mix(in srgb, var(--bio-bg) 80%, #000);
+    --bio-bg-lift: color-mix(in srgb, var(--bio-bg) 88%, var(--bio-ink));
+    --bio-glow: color-mix(in srgb, var(--bio-bg) 70%, var(--bio-ink));
+    --bio-ink-dim: color-mix(in srgb, var(--bio-ink) 82%, var(--bio-bg));
+    --bio-surface: color-mix(in srgb, var(--bio-ink) 15%, var(--bio-bg));
+
+    /* One family, one weight, every layout. The seller chooses the face in
+       the design editor and it applies to the whole page; a template that
+       swapped the font as part of its layout would be overriding a choice
+       they already made. */
     --bio-font-display: 'Familjen Grotesk', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
     --bio-font-body: var(--bio-font-display);
     --bio-display-weight: 700;
@@ -83,6 +108,11 @@
     gap: 0;
   }
   .bio-hero-title {
+    /* Wrap where the line runs out, and balance the result so a name that
+       does need two lines gets them evenly rather than four words and one.
+       The markup used to carry a <br>, which broke every layout's name in
+       the same place whether or not it had the width for one line. */
+    text-wrap: balance;
     font-size: 58px;
     font-weight: 700;
     line-height: 0.8;
@@ -204,11 +234,10 @@
   .bio-page[data-theme] .bio-rich-btn-info,
   .bio-page[data-theme] .bio-rich-btn-cta { background: var(--bio-surface); }
 
-  /* A theme whose ink is the same hue as its ground needs the surface to
-     carry the separation, which a translucent white cannot do on cream. */
-  .bio-page[data-theme="neon"] .bio-link-btn,
-  .bio-page[data-theme="neon"] .bio-contact-btn { color: var(--bio-bg); }
-  .bio-page[data-theme="neon"] .bio-link-btn .bio-link-arrow { color: var(--bio-bg); }
+  /* No per-theme button override. One existed to force the label to the
+     page colour while the surface was a solid block of ink; with the
+     surface a mix of ink into the ground it put a yellow label on a yellow
+     button at 1.3:1. Every theme reads from the same two rules now. */
 
   /* ═══════════════════════════════════════════════════════════════
      HEADER LAYOUTS
@@ -231,6 +260,42 @@
      transform and opacity so it stays on the compositor, with a static
      frame under prefers-reduced-motion.
      ═══════════════════════════════════════════════════════════════ */
+
+  /* ── The surround ──
+     On a phone the card is the whole screen and this is never seen. On a
+     desktop the page is a 360 column on a very large empty field, and that
+     field was the only part of the design nobody had designed: a flat
+     near-black behind a green card.
+
+     So the paid layouts put the page's own ink over its own deepened
+     ground, as a dot field that drifts. Monochrome by construction — it is
+     the two colours the seller already chose — and it is the one part of a
+     pro layout a visitor on a laptop sees before they see anything else.
+
+     Painted on <body>, which is why data-header is mirrored onto <html>:
+     a variable scoped to the card cannot reach the thing behind it. */
+  html[data-pro="true"] body::before {
+    content: '';
+    position: fixed;
+    inset: -12%;
+    pointer-events: none;
+    z-index: 0;
+    background-image: radial-gradient(circle,
+      color-mix(in srgb, var(--bio-ink) 22%, transparent) 1.2px, transparent 1.3px);
+    background-size: 24px 24px;
+    /* Faded towards the middle so the column is not sitting in a grid —
+       the field belongs to the room, not to the page. */
+    -webkit-mask-image: radial-gradient(60% 55% at 50% 45%, transparent 35%, #000 100%);
+    mask-image: radial-gradient(60% 55% at 50% 45%, transparent 35%, #000 100%);
+    animation: bio-dots 18s linear infinite;
+    will-change: transform;
+  }
+  /* One tile's travel, so the loop is seamless at any size. */
+  @keyframes bio-dots {
+    from { transform: translate3d(0, 0, 0); }
+    to   { transform: translate3d(24px, 24px, 0); }
+  }
+  .bio-page { position: relative; z-index: 1; }
 
   .bio-hero-fx { display: none; }
 
@@ -362,19 +427,24 @@
     display: block;
     position: absolute;
     inset: -30% -30% 0;
+    /* Light, not colour. Pools of the page's own ground lifted and
+       deepened — one hue at three lightnesses, which is something a
+       seller's palette can actually do. The first pass mixed violet, cyan
+       and pink into a green page and read as a stock gradient dropped on
+       top of someone else's brand. */
     background:
-      radial-gradient(38% 38% at 22% 28%, color-mix(in srgb, var(--bio-accent) 75%, transparent), transparent 70%),
-      radial-gradient(34% 34% at 78% 22%, color-mix(in srgb, var(--bio-accent-2, var(--bio-accent)) 65%, transparent), transparent 70%),
-      radial-gradient(44% 44% at 52% 72%, color-mix(in srgb, var(--bio-accent-3, var(--bio-accent)) 55%, transparent), transparent 70%);
-    filter: blur(10px);
-    opacity: 0.85;
-    animation: bio-aurora 22s ease-in-out infinite alternate;
+      radial-gradient(42% 34% at 26% 26%, var(--bio-glow), transparent 72%),
+      radial-gradient(38% 30% at 76% 18%, var(--bio-glow), transparent 70%),
+      radial-gradient(52% 40% at 54% 78%, var(--bio-bg-deep), transparent 74%);
+    filter: blur(6px);
+    animation: bio-aurora 14s ease-in-out infinite alternate;
     will-change: transform;
   }
+  /* Far enough to be seen. 6% over 22 seconds behind a 14px blur is motion
+     only a diff can detect, which is why it read as a still. */
   @keyframes bio-aurora {
-    0%   { transform: translate3d(0, 0, 0) scale(1); }
-    50%  { transform: translate3d(-6%, 3%, 0) scale(1.12); }
-    100% { transform: translate3d(5%, -4%, 0) scale(1.05); }
+    0%   { transform: translate3d(-9%, -4%, 0) scale(1.06); }
+    100% { transform: translate3d(8%, 5%, 0) scale(1.24); }
   }
   .bio-page[data-header="aurora"] .bio-hero-img-wrap {
     order: 1;
@@ -420,7 +490,7 @@
     left: 0;
     right: 0;
     height: 96px;
-    background: var(--bio-accent);
+    background: var(--bio-ink);
     overflow: hidden;
     display: flex;
     align-items: center;
@@ -539,14 +609,14 @@
     height: 300px;
     margin-left: -150px;
     border-radius: 50%;
+    /* One hue swept from lifted to deep and back, so it reads as light
+       moving round the arch rather than as a colour wheel behind it. */
     background: conic-gradient(from 0deg,
-      color-mix(in srgb, var(--bio-accent) 70%, transparent),
-      color-mix(in srgb, var(--bio-accent-2, var(--bio-accent)) 60%, transparent),
-      color-mix(in srgb, var(--bio-accent-3, var(--bio-accent)) 70%, transparent),
-      color-mix(in srgb, var(--bio-accent) 70%, transparent));
-    filter: blur(26px);
-    opacity: 0.5;
-    animation: bio-halo 30s linear infinite;
+      var(--bio-glow), var(--bio-bg-deep),
+      var(--bio-glow), var(--bio-bg-deep), var(--bio-glow));
+    filter: blur(20px);
+    opacity: 0.95;
+    animation: bio-halo 16s linear infinite;
     will-change: transform;
   }
   @keyframes bio-halo {
@@ -581,16 +651,27 @@
     letter-spacing: 2px;
     text-transform: uppercase;
   }
+  /* Rules either side, on a row that lets the words wrap between them.
+     As inline pseudo-elements they travelled with the text: a tagline long
+     enough to wrap put one rule at the end of the first line and the other
+     halfway down the second. A seller writing a sentence rather than two
+     words is not an edge case. */
+  .bio-page[data-header="arch"] .bio-subtitle-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--jui-gap, 12px);
+    max-width: 300px;
+    margin: 0 auto;
+    text-align: center;
+  }
   .bio-page[data-header="arch"] .bio-subtitle-text::before,
   .bio-page[data-header="arch"] .bio-subtitle-text::after {
     content: '';
-    display: inline-block;
-    width: 22px;
+    flex: 0 0 22px;
     height: 1px;
-    vertical-align: middle;
-    margin: 0 10px;
     background: currentColor;
-    opacity: 0.5;
+    opacity: 0.45;
   }
 
   /* Every layout's motion stops, and none of them lose anything but the
@@ -600,46 +681,32 @@
   @media (prefers-reduced-motion: reduce) {
     .bio-hero-fx,
     .bio-hero-fx::before,
+    html[data-pro="true"] body::before,
     .bio-hero-img { animation: none !important; }
   }
 
   /* ═══════════════════════════════════════════════════════════════
      THEMES — colour and type only, no layout
      ═══════════════════════════════════════════════════════════════ */
-  .bio-page[data-theme="cream"] {
+  /* Each theme is one pair out of the six the seller can pick: a ground
+     and an ink. No fonts — the face is chosen once in the design editor and
+     applies to the whole page, so a template changing it would override a
+     decision already made. No accents either: everything else is mixed from
+     these two, which is what makes changing a colour change the page rather
+     than leaving a stock gradient behind on top of it. */
+  .bio-page[data-theme="cream"], html[data-theme="cream"] {
     --bio-bg: #f1efe9;
     --bio-ink: #b81414;
-    --bio-ink-dim: #b81414;
-    --bio-surface: rgba(0, 0, 0, 0.05);
-    --bio-accent: #b81414;
-    --bio-accent-2: #e8a03c;
-    --bio-accent-3: #7a1f5c;
-    --bio-ghost-fill: rgba(0, 0, 0, 0.07);
-    --bio-font-display: 'Times New Roman', Georgia, serif;
-    --bio-font-body: var(--bio-font-display);
   }
-  .bio-page[data-theme="neon"] {
+  .bio-page[data-theme="neon"], html[data-theme="neon"] {
     --bio-bg: #d6f94e;
     --bio-ink: #2b2a86;
-    --bio-ink-dim: #2b2a86;
-    --bio-surface: #2b2a86;
-    --bio-accent: #2b2a86;
-    --bio-accent-2: #6fd3ff;
-    --bio-accent-3: #ff7ab8;
-    --bio-ghost-fill: rgba(43, 42, 134, 0.12);
   }
-  .bio-page[data-theme="forest"] {
+  .bio-page[data-theme="forest"], html[data-theme="forest"] {
     --bio-bg: #3d4c42;
     --bio-ink: #eef5e4;
-    --bio-ink-dim: #cfdcc4;
-    --bio-surface: rgba(255, 255, 255, 0.1);
-    --bio-accent: #8fb48a;
-    --bio-accent-2: #d8c98a;
-    --bio-accent-3: #5a7a63;
-    --bio-ghost-fill: rgba(255, 255, 255, 0.1);
-    --bio-font-display: Georgia, 'Times New Roman', serif;
-    --bio-font-body: var(--bio-font-display);
   }
+  html[data-theme="dark"] { --bio-bg: #0a0a0a; --bio-ink: #ffffff; }
 
   /* ── Zone B — Contact Buttons ──
      Aligned with buttons and info blocks: px 12, pb 16 (card-zone rhythm). */
@@ -1505,12 +1572,19 @@
      ══════════════════════════════════════════════════════════════════════ */
   @media (min-width: 768px) {
     body {
-      background: #1a1a1a;
+      /* A deeper version of the page's own ground. This was #1a1a1a, which
+         is a decision about one template that every other template then
+         sat on: a green card on a grey field, with nothing relating the
+         two. The seller picks a colour and the room it stands in should
+         be that colour with the lights down. */
+      background: var(--bio-bg-deep);
       padding: 40px 0;
     }
     .bio-page {
       min-height: auto;
       border-radius: 20px;
+      /* The aurora and the halo are drawn past the hero's edges and the
+         card is what crops them. */
       overflow: hidden;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
     }
@@ -1601,7 +1675,7 @@
     <div class="bio-hero-share" aria-label="Share">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
     </div>
-    <h1 class="bio-hero-title bio-edit-target" id="bio-title">Clara and<br>Stone</h1>
+    <h1 class="bio-hero-title bio-edit-target" id="bio-title">Clara and Stone</h1>
     <div class="bio-hero-img-wrap bio-edit-target" id="bio-image" role="img" aria-label="Clara and Stone portrait">
       <img class="bio-hero-img"
            alt=""
@@ -1988,6 +2062,17 @@
     var lastHighlight = null;
     var page = document.getElementById('bio-page');
 
+    /* Which of the four are paid. The surround is the one piece of a pro
+       layout that lives outside the card, so it is the page's own element
+       that cannot carry it. */
+    var PRO_HEADERS = ['aurora', 'marquee', 'stroke', 'arch'];
+    function setHeader(id) {
+      page.setAttribute('data-header', id);
+      document.documentElement.setAttribute('data-header', id);
+      document.documentElement.setAttribute('data-pro',
+        PRO_HEADERS.indexOf(id) !== -1 ? 'true' : 'false');
+    }
+
     /* The band and the marquee draw the name as texture. Both read it off
        the title rather than carrying their own copy, so the decoration can
        never say something the name does not — a header whose big word is
@@ -2075,8 +2160,13 @@
       /* Which arrangement of name, picture and tagline, and which
          palette. Two axes because the templates are two axes: the same
          layout appears twice in the picker under opposite colours. */
-      if (typeof d.header === 'string') page.setAttribute('data-header', d.header);
-      if (typeof d.theme === 'string') page.setAttribute('data-theme', d.theme);
+      if (typeof d.header === 'string') setHeader(d.header);
+      /* On the document too: the desktop surround is painted by <body>,
+         which cannot read a variable scoped to the card. */
+      if (typeof d.theme === 'string') {
+        page.setAttribute('data-theme', d.theme);
+        document.documentElement.setAttribute('data-theme', d.theme);
+      }
 
       if (d.offer) {
         var offer = document.getElementById('bio-offer');
@@ -2383,8 +2473,11 @@
        gets looked at while it is being built. */
     (function () {
       var q = new URLSearchParams(location.search);
-      if (q.get('header')) page.setAttribute('data-header', q.get('header'));
-      if (q.get('theme')) page.setAttribute('data-theme', q.get('theme'));
+      if (q.get('header')) setHeader(q.get('header'));
+      if (q.get('theme')) {
+        page.setAttribute('data-theme', q.get('theme'));
+        document.documentElement.setAttribute('data-theme', q.get('theme'));
+      }
     })();
 
     /* Sent after the query string has been read, so `current` is what is
@@ -2392,6 +2485,7 @@
        whatever embeds this — the workbench shows it as a version menu, and
        the screen previews that also embed this artifact ignore it. */
     if (window.parent !== window) {
+      setHeader(page.getAttribute('data-header'));
       var current = page.getAttribute('data-header');
       window.parent.postMessage(Object.assign({}, ARTIFACT_VARIANTS, { current: current }), '*');
     }
