@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>design-editor-onboarding</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=9384c1d">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=9384c1d">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=98a63a9">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=98a63a9">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=9384c1d">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=98a63a9">
 <style>
   /* ─── Screen overrides ───
      The frame is the setup split in editor mode, same as the link editor.
@@ -781,46 +781,52 @@
             <div class="de-bg-card">
               <div class="de-bg-card-body">
                 <div class="de-bg-swatches">
-                  <button type="button" class="de-bg-swatch" onclick="selectBgSwatch(this)" aria-label="White background">
+                  <!-- The seller's four first, then the rule, then the two
+                       every page has whatever the brand is. The brand colours
+                       lead because they are the answer to "what colour is my
+                       page" — white and black are the fallback for when the
+                       answer is none of them, and a fallback reads as one by
+                       sitting after the rule rather than before it.
+
+                       Four is the set production makes editable: MainColor,
+                       SecondaryColor, Shade1, Shade2 — white and black are
+                       the two it leaves out, which is why they are the two
+                       outside the rule here.
+
+                       This template's palette is black and white, so that is
+                       what the four hold. Nothing invented: a page whose
+                       brand we have not read yet does not get a blue. Main is
+                       black and Main is the ground on arrival — the default
+                       background is a brand colour here, it just happens to
+                       be the same black the fallback offers. -->
+                  <button type="button" class="de-bg-swatch is-active" onclick="selectBgSwatch(this)" data-brand="main" aria-label="Main brand colour as background">
+                    <div class="de-bg-swatch-inner" style="background: #000000;">
+                      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="var(--jui-color-actions-primary-rest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                    </div>
+                  </button>
+                  <button type="button" class="de-bg-swatch" onclick="selectBgSwatch(this)" data-brand="secondary" aria-label="Secondary brand colour as background">
                     <div class="de-bg-swatch-inner" style="background: #ffffff;">
                       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="var(--jui-color-actions-primary-rest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
                     </div>
                   </button>
-                  <button type="button" class="de-bg-swatch is-active" onclick="selectBgSwatch(this)" aria-label="Black background">
+                  <button type="button" class="de-bg-swatch" onclick="selectBgSwatch(this)" data-brand="shade1" aria-label="First brand shade as background">
+                    <div class="de-bg-swatch-inner" style="background: #ffffff;">
+                      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="var(--jui-color-actions-primary-rest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+                    </div>
+                  </button>
+                  <button type="button" class="de-bg-swatch" onclick="selectBgSwatch(this)" data-brand="shade2" aria-label="Second brand shade as background">
                     <div class="de-bg-swatch-inner" style="background: #000000;">
                       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="var(--jui-color-actions-primary-rest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
                     </div>
                   </button>
                   <div class="de-bg-divider"></div>
-                  <!-- Six grounds: white and black, then the rule, then the
-                       four the seller owns. White and black are the two
-                       production leaves out of an editable palette, so they
-                       are the two that sit outside it here — a page always
-                       has them whatever the brand is.
-
-                       There were four to the left of the rule and two to the
-                       right, and the extra two were both #ffffff: placeholder
-                       swatches for a palette nobody had filled in yet, which
-                       is also why the brand pair looked like white and black.
-                       Four is what a seller can change, so four is what is
-                       drawn, each carrying what the brand editor last saved. -->
-                  <button type="button" class="de-bg-swatch" onclick="selectBgSwatch(this)" data-brand="main" aria-label="Main brand colour as background">
-                    <div class="de-bg-swatch-inner" style="background: #2D81C2;">
+                  <button type="button" class="de-bg-swatch" onclick="selectBgSwatch(this)" aria-label="White background">
+                    <div class="de-bg-swatch-inner" style="background: #ffffff;">
                       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="var(--jui-color-actions-primary-rest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
                     </div>
                   </button>
-                  <button type="button" class="de-bg-swatch" onclick="selectBgSwatch(this)" data-brand="secondary" aria-label="Secondary brand colour as background">
-                    <div class="de-bg-swatch-inner" style="background: #554780;">
-                      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="var(--jui-color-actions-primary-rest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
-                    </div>
-                  </button>
-                  <button type="button" class="de-bg-swatch" onclick="selectBgSwatch(this)" data-brand="shade1" aria-label="First brand shade as background">
-                    <div class="de-bg-swatch-inner" style="background: #F2F5F8;">
-                      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="var(--jui-color-actions-primary-rest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
-                    </div>
-                  </button>
-                  <button type="button" class="de-bg-swatch" onclick="selectBgSwatch(this)" data-brand="shade2" aria-label="Second brand shade as background">
-                    <div class="de-bg-swatch-inner" style="background: #15202B;">
+                  <button type="button" class="de-bg-swatch" onclick="selectBgSwatch(this)" aria-label="Black background">
+                    <div class="de-bg-swatch-inner" style="background: #000000;">
                       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.25 13.5L8.75 18L19.75 6" stroke="var(--jui-color-actions-primary-rest)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
                     </div>
                   </button>
@@ -1065,8 +1071,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=9384c1d"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=9384c1d"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=98a63a9"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=98a63a9"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
 
@@ -1260,10 +1266,14 @@ var PRO_CROWN = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2
    are painted from it, so a change has one source and the row cannot drift
    from the editor.
 
-   Defaults are the seller's, not ours: Main and Second are the two the page
-   already used for its brand grounds, and the shades are the light and dark
-   neutrals a page needs to sit on. */
-var BRAND = { main: '#2D81C2', secondary: '#554780', shade1: '#F2F5F8', shade2: '#15202B' };
+   Defaults are the seller's, not ours. This template has two colours and
+   they are black and white, so that is what the four slots hold — the same
+   two the fallback offers, which is why the row looks like it repeats. It
+   is not a placeholder standing in for a palette; it is the palette. */
+/* This template's palette is black and white, and nothing here invents a
+   third colour: a page whose brand we have not read yet does not get a
+   blue. Main is the black the page already stands on. */
+var BRAND = { main: '#000000', secondary: '#FFFFFF', shade1: '#FFFFFF', shade2: '#000000' };
 /* @jimdo/ui ColorPicker's own defaultColors, in its own order. */
 var BRAND_PRESETS = ['#3D8080', '#554780', '#F7C923', '#9E5A7C', '#72B8ED',
                      '#9E6E49', '#9E1B5C', '#2D81C2', '#4C9E49', '#FC9003'];
