@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>design-editor-onboarding</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=6012eba">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=6012eba">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=2dc3c2a">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=2dc3c2a">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=6012eba">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=2dc3c2a">
 <style>
   /* ─── Screen overrides ───
      The frame is the setup split in editor mode, same as the link editor.
@@ -728,11 +728,19 @@
                  scaled to fit, and a mark inside it would shrink with the
                  phone. The frame's top-left and the stage's are the same
                  point, so 12px in from here is 12px inside the picture at
-                 any scale. -->
-            <span class="preview-pro-mark" id="previewProMark" hidden
-              data-inspect-label="Pro layout — mark over the preview"
+                 any scale.
+
+                 A button, not a mark. It is sitting on the one thing that
+                 raised the question — the page wearing the paid layout —
+                 and a seller who looks at a crown and wonders what it means
+                 should be able to ask it rather than hunt for the control
+                 that answers. The same words as Done, because it is the same
+                 offer: same feature, same words, every tier. -->
+            <button type="button" class="preview-pro-mark" id="previewProMark" hidden
+              data-inspect-label="Pro layout — trigger over the preview"
               data-inspect-tokens='[{"prop":"background","figma":"$jui-color-background-upgrade-light","css":"--jui-color-background-upgrade-light","value":"#fcecff"},{"prop":"color","figma":"$jui-color-typography-upgrade-on-light","css":"--jui-color-typography-upgrade-on-light","value":"#4e0079"}]'
-              aria-label="This layout comes with Jimdo Start"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg></span>
+              data-inspect-phrase="flows.designEditor.layout.upgrade.cta"
+              aria-label="Get pro layout"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg></button>
           </div>
         </div>
       </div>
@@ -985,8 +993,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=6012eba"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=6012eba"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=2dc3c2a"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=2dc3c2a"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
 
@@ -1167,6 +1175,12 @@ function syncProLayout() {
   });
 }
 var PRO_CROWN = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 15H12.01" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M6 22H18" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/><path d="M2 6L5.5 19H18.5L22 6L16.5 10L12 2L7.5 10L2 6Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg>';
+
+/* The crown over the preview is the other way in. It sits on the thing that
+   raises the question, so it answers it. */
+document.getElementById('previewProMark').addEventListener('click', function () {
+  document.getElementById('upgradeSheet').setAttribute('data-open', 'true');
+});
 
 /* Capture, so this runs before prototype-nav.js sees the click on document:
    while the layout is paid for, Done opens the dialog instead of leaving. */

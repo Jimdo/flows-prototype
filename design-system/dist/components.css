@@ -3220,13 +3220,22 @@ body {
   justify-content: center;
   width: var(--jui-layout-dimension-s);
   height: var(--jui-layout-dimension-s);
+  /* It is a button, so the browser's own fill and border have to go. */
+  padding: 0;
+  border: 0;
   border-radius: var(--jui-style-radius-8);
   background: var(--jui-color-background-upgrade-light);
   color: var(--jui-color-typography-upgrade-on-light);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16);
-  pointer-events: none;
+  cursor: pointer;
+  transition: background-color 120ms ease-out;
 }
 .preview-pro-mark[hidden] { display: none; }
+.preview-pro-mark:hover { background: var(--jui-color-background-upgrade-medium); }
+.preview-pro-mark:focus-visible {
+  outline: var(--jui-style-stroke-width-large) solid var(--jui-color-stroke-primary-actionable);
+  outline-offset: 2px;
+}
 .preview-pro-mark svg { width: 16px; height: 16px; display: block; }
 
 .bp-frame {
