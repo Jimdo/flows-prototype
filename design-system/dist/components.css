@@ -3195,6 +3195,167 @@ body {
   height: calc(var(--bp-natural-h, 686px) * var(--bp-scale, 1));
 }
 
+/* ═══ Colour picker ═══════════════════════════════════════════════════
+   upstream: Inputs/ColorPicker — ported, not imported, because this
+   prototype has no React. Every number below is the installed package's
+   rather than a guess: @jimdo/ui 84.5.1's ColorPicker.module.scss for the
+   hex field (36 tall, 14px text, 8 of indent, a 20px preview), the preset
+   grid (repeat(auto-fit, 32px) at 32×32) and the 20px pointer it overrides
+   react-colorful with; react-colorful's own stylesheet for the rest — a
+   200-tall column, a 24px hue bar at the foot, a 12px black border between
+   the two, 8px radius on the outer corners, and the pair of gradients that
+   make a saturation square.
+
+   Production puts this in a popover on a wide screen and inline on a
+   phone. Here it is always inline: it opens inside a sheet that is already
+   the width of a phone, and a popover inside a sheet is a second surface
+   over a surface.
+   ═══════════════════════════════════════════════════════════════ */
+.color-picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jui-layout-gap-s);
+}
+.color-picker-well {
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  touch-action: none;
+}
+/* Black up, white across — the two gradients a saturation square is, in
+   the order react-colorful lays them. The 12px bottom border is its own:
+   it is what separates the square from the hue bar without a gap, so the
+   two read as one control. */
+.color-picker-area {
+  position: relative;
+  height: 164px;
+  border-bottom: 12px solid var(--jui-color-gray-black);
+  border-radius: var(--jui-style-radius-8) var(--jui-style-radius-8) 0 0;
+  background-image:
+    linear-gradient(0deg, #000, transparent),
+    linear-gradient(90deg, #fff, rgba(255, 255, 255, 0));
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+  cursor: crosshair;
+}
+.color-picker-hue {
+  position: relative;
+  height: 24px;
+  border-radius: 0 0 var(--jui-style-radius-8) var(--jui-style-radius-8);
+  background: linear-gradient(90deg, red 0, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, red);
+  cursor: ew-resize;
+}
+.color-picker-pointer {
+  position: absolute;
+  z-index: 1;
+  box-sizing: border-box;
+  width: 20px;
+  height: 20px;
+  transform: translate(-50%, -50%);
+  background-color: var(--jui-color-gray-white);
+  border: 2px solid var(--jui-color-gray-white);
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+}
+.color-picker-field {
+  display: flex;
+  align-items: center;
+  gap: var(--jui-layout-gap-xs);
+}
+.color-picker-preview {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--jui-style-radius-4);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+.color-picker-hex {
+  flex: 1;
+  min-width: 0;
+  height: 36px;
+  padding: 0 var(--jui-layout-padding-xs);
+  border: 1px solid var(--jui-color-stroke-gray-default);
+  border-radius: var(--jui-style-radius-8);
+  background: var(--jui-color-gray-white);
+  font-family: inherit;
+  font-size: var(--jui-typography-body-small-regular-size);
+  color: var(--jui-color-typography-gray-on-light-default);
+  text-transform: uppercase;
+}
+.color-picker-hex:focus-visible {
+  outline: var(--jui-style-stroke-width-large) solid var(--jui-color-stroke-primary-actionable);
+  outline-offset: 2px;
+}
+.color-picker-presets {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 32px);
+  justify-content: space-between;
+  gap: var(--jui-layout-gap-xs);
+}
+.color-picker-preset {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--jui-style-radius-8);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+.color-picker-preset:focus-visible {
+  outline: var(--jui-style-stroke-width-large) solid var(--jui-color-stroke-primary-actionable);
+  outline-offset: 2px;
+}
+
+/* ── The four a seller can change ──
+   MainColor, SecondaryColor, Shade1, Shade2, which is the set production
+   makes editable (White and Black are excluded there and here). A row of
+   four, each one a button that opens the picker under it.
+
+   upstream: none, because this is the list of a palette's own members, not
+   a component — the thing inside each cell is the ColorPicker above. */
+.brand-swatches {
+  display: flex;
+  gap: var(--jui-layout-gap-s);
+}
+.brand-swatch {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--jui-layout-gap-xxs);
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+.brand-swatch-chip {
+  width: 100%;
+  height: 44px;
+  border-radius: var(--jui-style-radius-8);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 120ms ease-out;
+}
+.brand-swatch[aria-expanded="true"] .brand-swatch-chip {
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1),
+              0 0 0 2px var(--jui-color-actions-primary-rest);
+}
+.brand-swatch:focus-visible .brand-swatch-chip {
+  outline: var(--jui-style-stroke-width-large) solid var(--jui-color-stroke-primary-actionable);
+  outline-offset: 2px;
+}
+.brand-swatch-label {
+  font-size: var(--jui-typography-label-small-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  line-height: var(--jui-typography-label-small-lh);
+  letter-spacing: 0.02em;
+  color: var(--jui-color-typography-gray-on-light-subdued);
+}
+.brand-swatch[aria-expanded="true"] .brand-swatch-label {
+  color: var(--jui-color-typography-gray-on-light-default);
+}
+
 /* ── The mark that says the page is wearing something paid ──
    A pro layout is applied rather than refused, so the preview is showing
    something the seller has not bought. The crown sits on the picture, at

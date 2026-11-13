@@ -559,10 +559,10 @@
      all of them point the same way.
 
                    near          middle          far
-       apart       48px          26px            14px
-       dot         2.4px         1.4px           0.9px
-       ink         22%           11%             6%
-       blur        none          0.5px           1.2px
+       apart       32px          20px            12px
+       dot         1.7px         1.1px           0.7px
+       ink         14%           9%              6%
+       blur        none          0.4px           1px
        scroll      0.46          0.20            0.06
        drift       34s           56s             90s
 
@@ -593,17 +593,17 @@
   }
   .bio-page[data-header="dots"] .bio-dots-plane[data-depth="near"] {
     background-image: radial-gradient(circle,
-      color-mix(in srgb, var(--bio-ink) 22%, transparent) 2.4px, transparent 2.7px);
-    background-size: 48px 48px;
+      color-mix(in srgb, var(--bio-ink) 14%, transparent) 1.7px, transparent 1.9px);
+    background-size: 32px 32px;
     background-position: 0 calc(var(--bio-dots-scroll, 0px) * 0.46);
     animation: bio-dots-near 34s linear infinite;
   }
   .bio-page[data-header="dots"] .bio-dots-plane[data-depth="mid"] {
     background-image: radial-gradient(circle,
-      color-mix(in srgb, var(--bio-ink) 11%, transparent) 1.4px, transparent 1.6px);
-    background-size: 26px 26px;
+      color-mix(in srgb, var(--bio-ink) 9%, transparent) 1.1px, transparent 1.3px);
+    background-size: 20px 20px;
     background-position: 0 calc(var(--bio-dots-scroll, 0px) * 0.20);
-    filter: blur(0.5px);
+    filter: blur(0.4px);
     animation: bio-dots-mid 56s linear infinite;
   }
   /* The haze. Blurred hardest, palest, slowest — and masked so it thins
@@ -611,10 +611,10 @@
      room if this space had one. */
   .bio-page[data-header="dots"] .bio-dots-plane[data-depth="far"] {
     background-image: radial-gradient(circle,
-      color-mix(in srgb, var(--bio-ink) 6%, transparent) 0.9px, transparent 1.1px);
-    background-size: 14px 14px;
+      color-mix(in srgb, var(--bio-ink) 6%, transparent) 0.7px, transparent 0.9px);
+    background-size: 12px 12px;
     background-position: 0 calc(var(--bio-dots-scroll, 0px) * 0.06);
-    filter: blur(1.2px);
+    filter: blur(1px);
     -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 52%, rgba(0, 0, 0, 0.35) 100%);
     mask-image: linear-gradient(to bottom, #000 0%, #000 52%, rgba(0, 0, 0, 0.35) 100%);
     animation: bio-dots-far 90s linear infinite;
@@ -626,29 +626,29 @@
   .bio-page[data-theme="light"][data-header="dots"] .bio-dots-plane[data-depth="near"],
   html[data-theme="light"] .bio-page[data-header="dots"] .bio-dots-plane[data-depth="near"] {
     background-image: radial-gradient(circle,
-      color-mix(in srgb, var(--bio-ink) 14%, transparent) 2.4px, transparent 2.7px);
+      color-mix(in srgb, var(--bio-ink) 10%, transparent) 1.7px, transparent 1.9px);
   }
   .bio-page[data-theme="light"][data-header="dots"] .bio-dots-plane[data-depth="mid"],
   html[data-theme="light"] .bio-page[data-header="dots"] .bio-dots-plane[data-depth="mid"] {
     background-image: radial-gradient(circle,
-      color-mix(in srgb, var(--bio-ink) 8%, transparent) 1.4px, transparent 1.6px);
+      color-mix(in srgb, var(--bio-ink) 6.5%, transparent) 1.1px, transparent 1.3px);
   }
   .bio-page[data-theme="light"][data-header="dots"] .bio-dots-plane[data-depth="far"],
   html[data-theme="light"] .bio-page[data-header="dots"] .bio-dots-plane[data-depth="far"] {
     background-image: radial-gradient(circle,
-      color-mix(in srgb, var(--bio-ink) 5%, transparent) 0.9px, transparent 1.1px);
+      color-mix(in srgb, var(--bio-ink) 4.5%, transparent) 0.7px, transparent 0.9px);
   }
   @keyframes bio-dots-near {
     from { transform: translate3d(0, 0, 0); }
-    to   { transform: translate3d(48px, 48px, 0); }
+    to   { transform: translate3d(32px, 32px, 0); }
   }
   @keyframes bio-dots-mid {
     from { transform: translate3d(0, 0, 0); }
-    to   { transform: translate3d(26px, 26px, 0); }
+    to   { transform: translate3d(20px, 20px, 0); }
   }
   @keyframes bio-dots-far {
     from { transform: translate3d(0, 0, 0); }
-    to   { transform: translate3d(14px, 14px, 0); }
+    to   { transform: translate3d(12px, 12px, 0); }
   }
   /* Someone who has asked for less movement keeps the three planes and
      everything that makes them read as depth, and loses the two things
