@@ -2343,6 +2343,36 @@
     }
     syncEcho();
 
+    /* ── Variants, declared by the artifact ──
+       A screen's versions come from layout-registry, keyed by its scr id.
+       An artifact has no scr id, so the workbench has nothing to look up
+       and hid the version pill entirely — which is why eight headers
+       existed and none of them could be reached from the workbench.
+
+       So the artifact says what its own variants are and hands the list
+       up. Adding a ninth header is one edit here rather than an edit here
+       and a second one in a registry that would have to learn about a kind
+       of thing it does not have.
+
+       Any artifact can do this; nothing below is specific to this one. */
+    var ARTIFACT_VARIANTS = {
+      type: 'artifact-variants',
+      label: 'Header',
+      /* free and pro are the two tags, because that is the decision this
+         set exists to support: four arrangements anyone gets, four that
+         are worth charging for. */
+      variants: [
+        { id: 'stacked',  label: 'Stacked',  tag: 'FREE', q: 'header=stacked&theme=dark' },
+        { id: 'overlap',  label: 'Overlap',  tag: 'FREE', q: 'header=overlap&theme=dark' },
+        { id: 'fade',     label: 'Fade',     tag: 'FREE', q: 'header=fade&theme=neon' },
+        { id: 'band',     label: 'Band',     tag: 'FREE', q: 'header=band&theme=cream' },
+        { id: 'aurora',   label: 'Aurora',   tag: 'PRO',  q: 'header=aurora&theme=dark' },
+        { id: 'marquee',  label: 'Marquee',  tag: 'PRO',  q: 'header=marquee&theme=neon' },
+        { id: 'stroke',   label: 'Stroke',   tag: 'PRO',  q: 'header=stroke&theme=dark' },
+        { id: 'arch',     label: 'Arch',     tag: 'PRO',  q: 'header=arch&theme=forest' },
+      ],
+    };
+
     /* Standalone review: ?header=aurora&theme=neon. The picker drives this
        by postMessage in the product; opening one layout directly is how it
        gets looked at while it is being built. */
@@ -2351,6 +2381,15 @@
       if (q.get('header')) page.setAttribute('data-header', q.get('header'));
       if (q.get('theme')) page.setAttribute('data-theme', q.get('theme'));
     })();
+
+    /* Sent after the query string has been read, so `current` is what is
+       actually on screen rather than what the file defaults to. Posted to
+       whatever embeds this — the workbench shows it as a version menu, and
+       the screen previews that also embed this artifact ignore it. */
+    if (window.parent !== window) {
+      var current = page.getAttribute('data-header');
+      window.parent.postMessage(Object.assign({}, ARTIFACT_VARIANTS, { current: current }), '*');
+    }
 
     window.addEventListener('message', function (e) { applyConfig(e.data); });
     // Announce readiness so the host can push the initial config.

@@ -6,12 +6,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bio-page-links-edit-v2</title>
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=02e5d67">
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=02e5d67">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=1fac974">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=1fac974">
 <!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
      every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
      for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
-<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=02e5d67">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=1fac974">
 <style>
   /* ─── Screen overrides ───
      The drawer rests taller here than on an onboarding step: this panel
@@ -63,12 +63,17 @@
            chrome — next to Done, above everything. It belongs to the list it
            adds to, so it is at the foot of that list now. -->
 
-      <!-- Secondary, Size=Small — the frame's own button. The finish control
-           stays out of the thumb's reach at the top, which is the whole reason
-           this screen does not take the step layout's footer. -->
-      <button type="button" class="btn btn-secondary btn-sm" data-done
-        data-inspect-label="Secondary Button — Done, Size=Small"
-        data-inspect-tokens='[{"prop":"border","figma":"$jui-color-stroke-primary-on-light","css":"--jui-color-stroke-primary-on-light","value":"1px #b4c4ff"},{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px"},{"prop":"border-radius","figma":"button/radius","css":"--jui-component-button-radius","value":"8px"}]'
+      <!-- Primary, Size=Small — the frame's own button. Done is the one thing
+           this screen is finished by, and nothing else on it is filled: Add
+           opens a list, the switch changes what you are looking at, and every
+           row is a thing to change rather than a thing to agree to. A screen
+           whose only commit is drawn as an outline reads as a screen with
+           nothing to commit. The finish control stays out of the thumb's
+           reach at the top, which is the whole reason this screen does not
+           take the step layout's footer. -->
+      <button type="button" class="btn btn-primary btn-sm" data-done
+        data-inspect-label="Primary Button — Done, Size=Small"
+        data-inspect-tokens='[{"prop":"background","figma":"$jui-color-actions-primary-rest","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px"},{"prop":"border-radius","figma":"button/radius","css":"--jui-component-button-radius","value":"8px"}]'
         data-inspect-phrase="biopage.editor.done"
         data-nav-to="flows/home-dashboard-v2.html" data-nav-screen-id="scr-131">Done</button>
     </div>
@@ -343,9 +348,9 @@
               data-nav-to="flows/design-editor-onboarding.html" data-nav-screen-id="scr-479"
               data-inspect-phrase="biopage.editor.design"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"> <path d="M5 14V12.7296C5 11.9754 5.42422 11.2854 6.09717 10.945L8.84085 9.55694C9.5139 9.21645 9.93814 8.52627 9.93802 7.772L9.93726 3.00016C9.93717 2.44781 10.3849 2 10.9373 2H13.9455C14.4978 2 14.9456 2.44781 14.9455 3.00016L14.9447 7.75902C14.9446 8.52006 15.3764 9.21521 16.0587 9.55236L18.886 10.9495C19.5682 11.2866 20 11.9816 20 12.7425L20 14C20 14.5523 19.5523 15 19 15H6C5.44772 15 5 14.5523 5 14Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/> <path d="M6 15C6 16 6 18.8 4 22C9 22 13 22 15.5 18V21C15.5 21.5523 15.9477 22 16.5 22H19C19.5523 22 20.002 21.5518 19.9972 20.9995C19.9803 19.0494 19.8596 17.5789 19 15" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/> </svg><span>Design</span></button>
           </div>
-          <button type="button" class="btn btn-secondary" data-done
-            data-inspect-label="Secondary Button — Done"
-            data-inspect-tokens='[{"prop":"border","figma":"$jui-color-stroke-primary-on-light","css":"--jui-color-stroke-primary-on-light","value":"1px #b4c4ff"},{"prop":"height","figma":"$jui-layout-dimension-m","css":"--jui-layout-dimension-m","value":"48px"},{"prop":"border-radius","figma":"button/radius","css":"--jui-component-button-radius","value":"8px"}]'
+          <button type="button" class="btn btn-primary" data-done
+            data-inspect-label="Primary Button — Done"
+            data-inspect-tokens='[{"prop":"background","figma":"$jui-color-actions-primary-rest","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"height","figma":"$jui-layout-dimension-m","css":"--jui-layout-dimension-m","value":"48px"},{"prop":"border-radius","figma":"button/radius","css":"--jui-component-button-radius","value":"8px"}]'
             data-inspect-phrase="biopage.editor.done"
             data-nav-to="flows/home-dashboard-v2.html" data-nav-screen-id="scr-131">Done</button>
         </div>
@@ -803,8 +808,8 @@
     </div>
   </div>
 
-  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=02e5d67"></script>
-  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=02e5d67"></script>
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=1fac974"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=1fac974"></script>
   <script type="module">
     import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
     import { initDragList } from '/flows-prototype/design-system/hifi-designs/shared/drag-list.js';
