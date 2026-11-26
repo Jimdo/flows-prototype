@@ -89,9 +89,17 @@ export function initSetupSplit(options) {
   function expanded() {
     return shell.getAttribute('data-preview-expanded') === 'true';
   }
+  /* Opening hides the question rather than covering it, so the scroll
+     surface loses its height and clamps to the top. Put it back. */
+  let restScroll = 0;
   function setExpanded(on) {
+    if (on && main) restScroll = main.scrollTop;
     shell.setAttribute('data-preview-expanded', on ? 'true' : 'false');
-    if (on && previewClose) previewClose.focus();
+    if (on) {
+      if (previewClose) previewClose.focus();
+    } else if (main) {
+      main.scrollTop = restScroll;
+    }
   }
 
   const main = shell.querySelector('.setup-split-main');

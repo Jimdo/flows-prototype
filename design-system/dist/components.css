@@ -3171,43 +3171,31 @@ body {
   }
 }
 
-/* ── Closing the opened preview ──
-   Only ever visible while the preview is open over the step — the resting
-   band has nothing to close. Top right, over the page's own corner, on the
-   ground rather than on the artifact so it never reads as part of what is
-   being previewed.
+/* ── The header, while the preview is open ──
+   The step's own header row becomes the preview's: the label on the left
+   saying what you are looking at, the close on the right. Both are hidden
+   the rest of the time, and the back button and progress bar they replace
+   are hidden while they are shown.
 
-   upstream: none, because this closes a prototype's device preview.
-   Nothing in @jimdo/ui frames a phone. See .preview-pro-mark above.
+   The close is a .setup-back-btn — the same icon button this header already
+   uses for back, and the one paywall-domain uses for its close. It was a
+   hand-rolled white circle floating over the artifact, which is a component
+   @jimdo/ui already ships as IconButton and this design system already
+   ports. Nothing about a close button here is special enough to redraw.
+
+   upstream: IconButton — via .setup-back-btn, which is the port.
 
    Used by: the mirrored onboarding steps (scr-485, scr-486, scr-487). */
+.setup-preview-title,
 .setup-preview-close {
   display: none;
-  position: absolute;
-  top: var(--jui-layout-padding-s);
-  right: var(--jui-layout-padding-s);
-  z-index: 4;
-  align-items: center;
-  justify-content: center;
-  width: var(--jui-layout-dimension-m);
-  height: var(--jui-layout-dimension-m);
-  padding: 0;
-  border: 0;
-  border-radius: 999px;
-  background: var(--jui-color-background-gray-light);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
+}
+
+.setup-preview-title {
+  font-size: var(--jui-typography-body-small-medium-size);
+  font-weight: var(--jui-typography-body-small-medium-weight);
+  line-height: var(--jui-typography-body-small-medium-lh);
   color: var(--jui-color-typography-gray-on-light-default);
-  cursor: pointer;
-}
-
-.setup-preview-close svg {
-  width: var(--jui-layout-padding-l);
-  height: var(--jui-layout-padding-l);
-}
-
-.setup-preview-close:focus-visible {
-  outline: 2px solid var(--jui-color-actions-primary-rest);
-  outline-offset: 2px;
 }
 
 /* ── Artifact stage ──

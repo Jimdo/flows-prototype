@@ -828,35 +828,68 @@
   .app-shell-setup-split--mirrored .bp-stage { cursor: pointer; }
 
   /* ── Opened ──
-     Over the step rather than beside it, because at this size there is no
-     beside. Fixed to the viewport, so the question carries on existing
-     underneath at whatever scroll position it was left at. */
+     The step's header stays and becomes the preview's header — the label
+     on the left, the close on the right, where the back button and the
+     progress bar were. Below it the preview takes the rest of the screen
+     and there is nothing under it: the previous version left a 72px drawer
+     peek down there, and this layout has no drawer to peek.
+
+     No fixed positioning and no overlay. The main row already holds the
+     two blocks; opening the preview is the other block standing down. */
+  .app-shell-setup-split--mirrored[data-preview-expanded="true"] .setup-split-form {
+    display: none;
+  }
+
   .app-shell-setup-split--mirrored[data-preview-expanded="true"] .setup-split-main {
     overflow: hidden;
   }
 
   .app-shell-setup-split--mirrored[data-preview-expanded="true"] .setup-split-preview {
-    position: fixed;
-    inset: 0;
-    z-index: 60;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    flex: 1;
+    min-height: 0;
   }
 
   .app-shell-setup-split--mirrored[data-preview-expanded="true"] .setup-preview-panel {
     height: 100%;
-    padding: 0;
+    padding: var(--jui-layout-padding-m) 0;
     justify-content: center;
   }
 
-  /* 0.95 rather than 1: a hair of the ground shows either side, which is
-     what says this is the page being looked at rather than the page. */
+  /* 0.95 — the figure the previous version opened to, so the two read as
+     the same screen at the same size. */
   .app-shell-setup-split--mirrored[data-preview-expanded="true"] { --bp-scale: 0.95; }
+
+  /* The header swaps what it carries. 16 at the sides so the label starts
+     where the question's text does. */
+  .app-shell-setup-split--mirrored[data-preview-expanded="true"] .setup-split-header {
+    padding: 0 var(--layout-spacing-md);
+    justify-content: space-between;
+  }
+
+  .app-shell-setup-split--mirrored[data-preview-expanded="true"] .setup-split-header > .setup-back-btn:not(.setup-preview-close),
+  .app-shell-setup-split--mirrored[data-preview-expanded="true"] .setup-split-header > .progress-pill,
+  .app-shell-setup-split--mirrored[data-preview-expanded="true"] .setup-split-header > .header-spacer {
+    display: none;
+  }
+
+  /* The 48px button carries 12 of its own either side of a 24px icon, so
+     it is pulled back by that much to land on the same 16 the label does. */
+  .app-shell-setup-split--mirrored[data-preview-expanded="true"] .setup-preview-title {
+    display: inline-flex;
+    align-items: center;
+  }
 
   .app-shell-setup-split--mirrored[data-preview-expanded="true"] .setup-preview-close {
     display: inline-flex;
+    margin-right: calc(var(--jui-layout-padding-s) * -1);
+  }
+
+  /* The resting band's own label would be a second one saying the same
+     thing in the same row. [data-preview-ready] as well, only to outweigh
+     the rule that shows it: that one lives in components.css, which loads
+     after this file, so matching its specificity is not enough. */
+  .app-shell-setup-split--mirrored[data-preview-ready][data-preview-expanded="true"] .setup-preview-tag {
+    display: none;
   }
 }
 
