@@ -70,6 +70,17 @@ export function initSetupSplit(options) {
   const shell = document.querySelector('.app-shell-setup-split');
   if (!shell) return { sync: function () {} };
 
+  /* Whether this step has a mobile drawer at all. The mirrored layout lays
+     the preview and the question out in document order on a phone instead,
+     so every behaviour below that exists to move a drawer — the grip drag,
+     the tap-to-collapse, the tap-to-restore, the focus nudge — has nothing
+     to act on and is not wired up. The preview's touch relay goes with
+     them: with the page itself scrolling, a finger on the preview has to
+     scroll the page or the question underneath cannot be reached.
+     Everything else — the state bridge to the artifact, the region
+     highlight, wheel over the preview — is the same in both. */
+  const useDrawer = opts.drawer !== false;
+
   const main = shell.querySelector('.setup-split-main');
   const preview = shell.querySelector('.setup-split-preview');
   const form = shell.querySelector('.setup-split-form');
@@ -265,7 +276,7 @@ export function initSetupSplit(options) {
       : nearestStop(height, stopsNow));
   }
 
-  if (grip) {
+  if (grip && useDrawer) {
     grip.addEventListener('pointerdown', onPointerDown);
     grip.addEventListener('pointermove', onPointerMove);
     grip.addEventListener('pointerup', onPointerUp);
@@ -275,7 +286,7 @@ export function initSetupSplit(options) {
   /* At the peek the whole bar is the target, not just the grip — there is
      nothing else in it to hit, and aiming for a 44px handle to undo a tap on
      the page is a worse deal than the tap that got you there. */
-  if (form) {
+  if (form && useDrawer) {
     form.addEventListener('click', function (e) {
       if (!window.matchMedia(MOBILE).matches) return;
       // The grip is inside this bar, and a press on it produces a click here
@@ -314,12 +325,12 @@ export function initSetupSplit(options) {
       e.preventDefault();
     }, { passive: false });
 
-    preview.addEventListener('touchstart', function (e) {
+    if (useDrawer) preview.addEventListener('touchstart', function (e) {
       touchY = e.touches[0].clientY;
       touchMoved = false;
     }, { passive: true });
 
-    preview.addEventListener('touchmove', function (e) {
+    if (useDrawer) preview.addEventListener('touchmove', function (e) {
       if (touchY === null) return;
       const y = e.touches[0].clientY;
       if (Math.abs(y - touchY) > 3) touchMoved = true;
@@ -328,11 +339,11 @@ export function initSetupSplit(options) {
       e.preventDefault();
     }, { passive: false });
 
-    preview.addEventListener('touchend', function () { touchY = null; }, { passive: true });
+    if (useDrawer) preview.addEventListener('touchend', function () { touchY = null; }, { passive: true });
 
     /* Tapping the page sends the drawer down — the quickest way to see the
        whole thing you are making. A drag was a scroll, not a tap. */
-    preview.addEventListener('click', function () {
+    if (useDrawer) preview.addEventListener('click', function () {
       if (!window.matchMedia(MOBILE).matches) return;
       if (touchMoved) { touchMoved = false; return; }
       if (shell.getAttribute('data-drawer') === 'collapsed') return;
@@ -350,6 +361,7 @@ export function initSetupSplit(options) {
   shell.addEventListener('focusin', function (e) {
     recomputeRegion();
     /* A control that has just been focused needs its own room. */
+    if (!useDrawer) return;
     if (!window.matchMedia(MOBILE).matches) return;
     if (!form.contains(e.target)) return;
     if (shell.getAttribute('data-drawer') === 'collapsed') setState('default');
@@ -361,7 +373,9 @@ export function initSetupSplit(options) {
     window.setTimeout(recomputeRegion, 0);
   });
 
-  setState(shell.getAttribute('data-drawer') || 'default');
+  /* Left unset when there is no drawer, so none of the [data-drawer]
+     rules — heights, hidden actions, the two preview scales — can match. */
+  if (useDrawer) setState(shell.getAttribute('data-drawer') || 'default');
 
   return { sync, setState, shell, frame };
 }

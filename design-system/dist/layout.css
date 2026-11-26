@@ -730,3 +730,128 @@
   }
 }
 
+
+/* ═══════════════════════════════════════════════════
+   SETUP SPLIT — MIRRORED
+   Figma: pending. Built from the measured original, flipped.
+
+   Two changes to the two-column setup step, and they are the same change
+   seen at two widths.
+
+   Desktop: the question is on the left and the page it changes is on the
+   right. Reading order and edit order now agree — you read the question,
+   then look right at what answering it did. The original had you answering
+   on the right and watching on the left, which is the only arrangement that
+   puts the cause after the effect.
+
+   Mobile: no drawer. The preview is a band at the top and the question
+   flows underneath it in document order, which is the order the markup is
+   already in — so this variant does not reorder anything on a phone, it
+   stops overriding it. A drawer is a second scroll surface stacked on the
+   first, and the thing it covered was the page the step is about.
+
+   Applied by the screen, not by the framework: the unflipped version is
+   still live on its own screens and is unchanged by any of this.
+   ═══════════════════════════════════════════════════ */
+
+/* ── Mobile: the natural flow, not a drawer ── */
+@media (max-width: 767px) {
+  /* The panel is the page's own white. The band above it is the grey, and
+     the change between them is the only thing separating the two — there is
+     no card, no radius and no shadow to do it. */
+  .app-shell-setup-split--mirrored {
+    background: var(--jui-color-gray-white);
+  }
+
+  /* One scrolling surface, holding both blocks. The original clipped here
+     so the scaled page could run past the viewport behind the drawer. */
+  .app-shell-setup-split--mirrored .setup-split-main {
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Its own height rather than the leftover: the band is sized by the page
+     inside it, and what is left over belongs to the question. */
+  .app-shell-setup-split--mirrored .setup-split-preview {
+    flex: 0 0 auto;
+    padding: 0;
+    overflow: visible;
+    cursor: auto;
+  }
+
+  /* Edge to edge. An inset block with a radius reads as a card — one more
+     thing on the screen — where a full-width change of ground reads as the
+     two halves of the step. */
+  .app-shell-setup-split--mirrored .setup-preview-panel {
+    background: var(--jui-color-background-gray-canvas);
+    border-radius: 0;
+    padding: var(--jui-layout-padding-m) 0;
+    justify-content: center;
+  }
+
+  /* Static, its own height, and nothing drawn around it. */
+  .app-shell-setup-split--mirrored .setup-split-form {
+    position: static;
+    flex: 0 0 auto;
+    height: auto;
+    background: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+    overflow: visible;
+    cursor: auto;
+    transition: none;
+  }
+
+  .app-shell-setup-split--mirrored .setup-drawer-grip { display: none; }
+
+  /* 16 at the sides, which is where the original's list sat once the
+     drawer's own 4 was added to its 12. 24 under the band, so the question
+     starts clear of the ground it sits on rather than against it. */
+  .app-shell-setup-split--mirrored .setup-split-fields {
+    padding: var(--layout-spacing-lg) var(--layout-spacing-md) 0;
+    overflow: visible;
+  }
+
+  .app-shell-setup-split--mirrored .setup-split-actions {
+    padding: var(--layout-spacing-lg) var(--layout-spacing-md);
+  }
+
+  /* The page at a size worth looking at. The drawer-open scale was 0.4111
+     because the drawer was over most of it; with the band holding its own
+     room there is no reason to draw it that small. */
+  .app-shell-setup-split--mirrored { --bp-scale: 0.55; }
+}
+
+/* ── Desktop: question left, page right ── */
+@media (min-width: 768px) {
+  /* order, not row-reverse: the column still reads left to right, so
+     scrollbars, overflow and justify-content all keep meaning what they
+     say. Markup order is untouched, which is what lets mobile stack it
+     without a second set of rules. */
+  .app-shell-setup-split--mirrored .setup-split-form { order: 1; }
+  .app-shell-setup-split--mirrored .setup-split-preview { order: 2; }
+
+  /* 24 on the outside, matching the header above it, so the question's
+     first character sits under the back button rather than 8px inside it.
+     24 on the inside as well — the body text stops short of the preview
+     and only the button reaches it. */
+  .app-shell-setup-split--mirrored .setup-split-fields {
+    padding: var(--layout-spacing-lg);
+  }
+
+  /* No padding on the closing side, so the button's right edge is the
+     panel's right edge and it lands against the preview block. It is the
+     one thing in the column that reaches that far: the text stops 24 short
+     of it, which is what makes the button read as pushed up against the
+     page rather than as the column being wider than it is. */
+  .app-shell-setup-split--mirrored .setup-split-actions {
+    padding: 0 0 0 var(--layout-spacing-lg);
+  }
+
+  /* The mirror of what the preview used to carry on its left. */
+  .app-shell-setup-split--mirrored .setup-split-preview {
+    padding: var(--layout-gutter-sm) var(--layout-spacing-lg) 0 0;
+  }
+}

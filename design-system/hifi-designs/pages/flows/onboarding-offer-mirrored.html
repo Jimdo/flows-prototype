@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Onboarding (mirrored) — Tagline</title>
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/layout.css?v=6c5a172">
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/components.css?v=6c5a172">
+<!-- Baseline tokens (synced from @jimdo/ui) load LAST so upstream wins for
+     every redeclared --jui-*. See kb/design-analysis/2026-05-11_jui-token-divergence-decisions.md
+     for the 5 truly-divergent tokens we deliberately accepted from upstream. -->
+<link rel="stylesheet" href="/flows-prototype/design-system/dist/baseline/jui-tokens.css?v=6c5a172">
+<style>
+  /* ─── Mirrored split ───
+     The question on the left and the page it changes on the right, and on a
+     phone the page on top with the question flowing under it in document
+     order. Both come from .app-shell-setup-split--mirrored in layout.css;
+     nothing about the arrangement is set here.
+
+     scr-013 is the unflipped version of this step and is still live and
+     unchanged, so the two can be opened side by side. */
+  /* ─── Screen overrides ───
+     Everything here comes from the design system. Only the resting drawer
+     height is local: a question, a two-line field and the note under it. */
+  .app-shell-setup-split { }
+</style>
+</head>
+<body>
+
+  <div class="app-shell app-shell-setup-split app-shell-setup-split--mirrored" id="shell">
+
+    <div class="setup-split-header">
+      <button class="setup-back-btn" aria-label="Back" data-no-phrase
+        data-nav-to="flows/onboarding-name-mirrored.html" data-nav-screen-id="scr-485">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8.99996 16.9998L4 11.9997L9 6.99976" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M4 12H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+      </button>
+
+      <div class="progress-pill" role="progressbar" aria-valuemin="1" aria-valuemax="5" aria-valuenow="4" aria-label="Step 4 of 5">
+        <span class="progress-pill-step is-done"></span>
+        <span class="progress-pill-step is-done"></span>
+        <span class="progress-pill-step is-done"></span>
+        <span class="progress-pill-step is-current"></span>
+        <span class="progress-pill-step"></span>
+      </div>
+
+      <div class="header-spacer"></div>
+    </div>
+
+    <div class="setup-split-main">
+
+      <div class="setup-split-preview">
+        <div class="setup-preview-panel">
+          <span class="setup-preview-tag" data-no-phrase>Preview</span>
+          <div class="bp-stage">
+            <div class="bp-frame">
+              <iframe id="bioPreview" title="Bio page preview" tabindex="-1"
+                src="/flows-prototype/design-system/hifi-designs/pages/artifacts/bio-page-v2.html?v=6c5a172"></iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-split-form">
+
+        <button class="setup-drawer-grip" id="grip" aria-label="Resize the question panel" data-no-phrase>
+          <span class="setup-drawer-grip-shape"></span>
+        </button>
+
+        <div class="setup-split-fields">
+          <div class="setup-split-intro">
+            <h1 class="setup-split-title" data-inspect-phrase="businessInfo.offerDescription.title">Your tagline</h1>
+            <p class="setup-split-subtitle" data-inspect-phrase="businessInfo.offerDescription.description">Tell people what you offer</p>
+          </div>
+
+          <textarea class="form-textarea" id="taglineInput" rows="2"
+            data-edits="subtitle"
+            placeholder="Yoga and mindfulness workshops for women"
+            data-inspect-label="Textarea — Resting"
+            data-inspect-tokens='[{"prop":"border","figma":"component/input/color/field/stroke/rest","css":"--jui-component-input-color-field-stroke-rest","value":"#b1b1b1"},{"prop":"border-radius","figma":"input/style/radius","css":"--jui-style-radius-m","value":"8px"},{"prop":"padding","figma":"$jui-layout-padding-s","css":"--jui-layout-padding-s","value":"12px"},{"prop":"min-height","figma":"2 lines + padding","css":"—","value":"72px"}]'
+            data-inspect-phrase="businessInfo.offerDescription.placeholder"></textarea>
+
+          <!-- Shows a beat after typing stops, and takes the note's place
+               while it is up so the field above does not move. -->
+          <div class="ai-suggest" id="suggest" data-state="loading" hidden
+            data-inspect-label="Copy suggestion"
+            data-inspect-tokens='[{"prop":"background","figma":"$jui-color-background-primary-light","css":"--jui-color-background-primary-light","value":"#eff0ff"},{"prop":"border-radius","figma":"$jui-style-radius-l","css":"--jui-style-radius-16","value":"16px"}]'>
+            <span class="ai-suggest-loading">
+              <span class="ai-suggest-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span data-inspect-phrase="businessInfo.offerDescription.suggestLoading">Reading your tagline…</span>
+            </span>
+            <div class="ai-suggest-body">
+              <!-- One line, always. What it says is the whole of the review
+                   in the two states that have nothing to apply. -->
+              <p class="ai-suggest-text" data-inspect-phrase="businessInfo.offerDescription.suggestBody"><span class="ai-suggest-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 12L11 15L16 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span id="suggestText">Add the main service or product you offer.</span></p>
+
+              <!-- The suggestion drawn as the line it would become, not as a
+                   sentence about it. Only in the suggest state. -->
+              <p class="ai-suggest-line" id="suggestLine" data-no-phrase hidden></p>
+
+              <!-- One answer. Needs-information and good-enough have none —
+                   there is nothing to apply in either. -->
+              <div class="ai-suggest-actions" id="suggestActions" hidden>
+                <button type="button" class="ai-suggest-apply" id="applySuggestion"
+                  data-inspect-label="Smart Secondary Button — Apply"
+                  data-inspect-tokens='[{"prop":"border","figma":"@jimdo/ui smartSecondaryButton","css":"--jui-gradient-smart","value":"1px gradient 111deg blue-500 → red-300 → yellow-300"},{"prop":"background","figma":"$jui-color-background-gray-light","css":"--jui-color-gray-white","value":"#ffffff"},{"prop":"height","figma":"$jui-layout-dimension-s","css":"--jui-layout-dimension-s","value":"32px"}]'
+                  data-inspect-phrase="businessInfo.offerDescription.suggestApplyCta"><span class="btn-smart-label">Apply</span></button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="setup-split-actions">
+          <button class="btn btn-primary"
+            data-inspect-label="Primary Button — Continue"
+            data-inspect-tokens='[{"prop":"background","figma":"color/actions/primary/rest","css":"--jui-color-actions-primary-rest","value":"#004ced"},{"prop":"height","figma":"$jui-layout-dimension-m","css":"--jui-layout-dimension-m","value":"48px"}]'
+            data-inspect-phrase="questionaire.cta"
+            data-trigger="primary-cta"
+            data-nav-to="flows/onboarding-main-link-mirrored.html"
+            data-nav-screen-id="scr-487">Continue</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/flows-prototype/design-system/hifi-designs/shared/business-entity.js?v=6c5a172"></script>
+  <script src="/flows-prototype/design-system/hifi-designs/prototype-nav.js?v=6c5a172"></script>
+  <script type="module">
+    import { initSetupSplit } from '/flows-prototype/design-system/hifi-designs/shared/setup-split.js';
+
+    const input = document.getElementById('taglineInput');
+
+    const split = initSetupSplit({
+      drawer: false,
+      state: () => ({
+        title: 'Clara and Stone',
+        subtitle: input.value || input.placeholder,
+        image: 'photo',
+        // The page is still only a name, a photo and a tagline at this point;
+        // everything below stands in as a shape until a later step fills it.
+        contact: [],
+        ghost: ['contact', 'mainlink', 'map', 'socials'],
+      }),
+    });
+
+    const suggest = document.getElementById('suggest');
+    const suggestText = document.getElementById('suggestText');
+    const suggestLine = document.getElementById('suggestLine');
+    const suggestActions = document.getElementById('suggestActions');
+    const applyBtn = document.getElementById('applySuggestion');
+
+    /* ══ The reviewer ══════════════════════════════════════════════════
+       A tagline's job is to tell a visitor what they can buy, book or
+       get, with enough detail to recognise whether it is for them. Three
+       criteria, checked in that order:
+
+         1. Clear offer         required
+         2. Useful specificity  required only when the offer is too broad
+         3. Clear wording       required
+
+       and the order is also the order of repair: establish the offer,
+       clarify it, then improve how it reads. Nothing is ever flagged for
+       length alone — 6 to 14 words is a writing target, not a rule.
+
+       Two outcomes once there is something to read:
+
+         suggest  a line about what would help, a complete replacement,
+                  and one Apply
+         good     it reads and the wording is clear — a positive line, and
+                  nothing to press
+
+       Nothing at all before that: a panel that opens on an empty field is
+       telling someone off for not having started.
+
+       THE SUGGESTIONS ARE HARDCODED. Every replacement below is written
+       out rather than generated — the matched examples by hand, the
+       derived ones by stripping what is in the way of the offer already
+       there, and FALLBACK for the case where neither applies. A real
+       reviewer would write these from the facts gathered earlier in
+       onboarding and would refuse to write one at all when the offer is
+       missing, because inventing a format or an audience is the one thing
+       it must not do. Standing in for that here means a line like "Yoga"
+       gets an example to edit rather than a question — which is the
+       interaction asked for, and a promise the model behind it will have
+       to be able to keep.
+
+       One property holds the whole thing together, and the probe asserts
+       it: every suggestion must itself review as good. A reviewer that
+       will not accept its own answer is one the seller can never finish
+       with.
+       ══════════════════════════════════════════════════════════════════ */
+
+    const norm = (t) => t.toLowerCase()
+      .replace(/[‘’]/g, "'")
+      .replace(/[^\p{L}\p{N}'\s]/gu, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    /* Written out, input by input. The first four are the cases a real
+       model could not answer without facts it has not been given. */
+    const CASES = [
+      { in: 'helping you thrive', state: 'suggest',
+        line: 'Tell visitors what service or product you offer.',
+        suggestion: 'Yoga classes and workshops for beginners' },
+      { in: 'yoga', state: 'suggest',
+        line: 'Say what people can book — classes, private sessions or workshops.',
+        suggestion: 'Yoga classes for beginners' },
+      { in: 'dog breeding', state: 'suggest',
+        line: 'Name the breed you specialise in.',
+        suggestion: 'Golden Retriever breeder' },
+      { in: 'photography', state: 'suggest',
+        line: 'Say what you photograph and for whom.',
+        suggestion: 'Wedding photographer in Hamburg' },
+
+      { in: 'i teach yin yoga and offer classes and workshops for people who are beginners',
+        state: 'suggest', line: 'Make your offer easier to spot with shorter wording.',
+        suggestion: 'Yin yoga classes and workshops for beginners' },
+      { in: 'find your flow private yoga sessions online for beginners',
+        state: 'suggest', line: 'Lead with what visitors can book.',
+        suggestion: 'Private online yoga sessions for beginners' },
+      { in: 'yoga classes for beginners beginner yoga classes start yoga with me',
+        state: 'suggest', line: 'Remove repetition so visitors can understand your offer at a glance.',
+        suggestion: 'Yoga classes for beginners' },
+      { in: 'contemporary yoga classes workshops retreats and teacher training no dogma just yoga',
+        state: 'suggest', line: 'Bring your offers together in one clear line.',
+        suggestion: 'Contemporary yoga classes, workshops, retreats and teacher training' },
+
+      { in: 'yoga classes', state: 'good',
+        line: 'Your tagline clearly tells visitors what you offer.' },
+      { in: 'golden retriever breeder', state: 'good',
+        line: 'Your tagline makes your specialism clear.' },
+      { in: 'physiotherapist specialising in back pain', state: 'good',
+        line: 'Your tagline clearly explains your service and focus.' },
+      { in: 'wedding photographer in hamburg', state: 'good',
+        line: 'Your tagline clearly explains what you offer and where.' },
+      { in: 'handmade ceramic tableware', state: 'good',
+        line: 'Your tagline clearly describes what you sell.' },
+      { in: 'yin yoga classes and private sessions for beginners', state: 'good',
+        line: "Your tagline makes your offer and who it's for clear." },
+    ];
+
+    /* The one line to fall back on when nothing in what was typed can be
+       turned into an offer. Hardcoded, like the rest. */
+    const FALLBACK = 'Yoga classes and workshops for beginners';
+
+    /* What a visitor can book or buy: a format, or the name of someone who
+       does the thing. Both answer "what do I get". */
+    const FORMATS = /\b(class|classes|session|sessions|workshop|workshops|course|courses|lesson|lessons|retreat|retreats|training|consultation|consultations|treatment|treatments|appointment|appointments|package|packages|tableware|ceramics|jewellery|prints|cakes|catering|repairs|haircuts|massage|massages)\b/;
+    const AGENTS  = /\b(\w*(?:photographer|breeder|therapist|physiotherapist|coach|trainer|designer|illustrator|baker|florist|tutor|cleaner|plumber|electrician|stylist|nutritionist|celebrant|groomer))\b/;
+    /* A field of work rather than something to book. On its own this is the
+       "too broad" case the second criterion exists for. */
+    const FIELDS  = /\b(yoga|pilates|photography|coaching|breeding|design|illustration|catering|baking|therapy|fitness|tutoring|cleaning|music|art|wellness|mindfulness)\b/;
+
+    const SLOGAN  = /\b(helping|thrive|flow|dream|journey|believe|passion|inspire|empower|unleash|transform your)\b/;
+    const FILLER  = /\b(i teach|i offer|we offer|i do|we do|for people who are|for those who|that are|here to)\b/;
+    const STOP    = new Set('and or the a an for with in to of my your our is are you we i'.split(' '));
+
+    function repeated(words) {
+      const seen = {};
+      for (const w of words) {
+        if (w.length < 4 || STOP.has(w)) continue;
+        seen[w] = (seen[w] || 0) + 1;
+        if (seen[w] >= 3) return w;
+      }
+      return null;
+    }
+
+    const sentence = (t) => t.trim().replace(/\s+/g, ' ').replace(/[.,;:\s]+$/, '');
+    const upperFirst = (t) => t.charAt(0).toUpperCase() + t.slice(1);
+
+    function review(raw) {
+      const text = sentence(raw);
+      const n = norm(text);
+      if (!n) return null;                       // nothing typed, nothing said
+
+      const hit = CASES.find((c) => c.in === n);
+      if (hit) return hit;
+
+      /* ── 1. Is there an offer at all? ── */
+      const hasOffer = FORMATS.test(n) || AGENTS.test(n);
+      if (!hasOffer) {
+        /* A field of work with no format is the broad case: there is a
+           subject, but nothing anyone can book. Either way there is now a
+           line to show, because a suggestion always comes with one. */
+        return {
+          state: 'suggest',
+          line: FIELDS.test(n)
+            ? 'Say what people can book — classes, private sessions or workshops.'
+            : 'Tell visitors what service or product you offer.',
+          suggestion: FALLBACK,
+        };
+      }
+
+      /* ── 2. Is the wording in the way of it? ──
+         In the order the brief sets: repetition first, because it is the
+         hardest to read past; then a slogan standing in front of the
+         offer; then filler; then a second sentence that adds nothing. */
+      const words = n.split(' ');
+
+      const again = repeated(words);
+      if (again) {
+        const first = sentence(text.split(/[.!?]/)[0]);
+        return { state: 'suggest',
+          line: 'Remove repetition so visitors can understand your offer at a glance.',
+          suggestion: upperFirst(first) };
+      }
+
+      /* Where the offer actually starts. Everything before it is preamble. */
+      const at = words.findIndex((w) => FORMATS.test(w) || AGENTS.test(w));
+      const lead = words.slice(0, at).join(' ');
+      if (at > 0 && (SLOGAN.test(lead) || /[✨☀-➿\ud83c-\udbff]/u.test(text))) {
+        /* Keep the modifier sitting immediately before the offer — it is
+           part of it, not part of the slogan. */
+        const keep = Math.max(0, at - 1);
+        return { state: 'suggest', line: 'Lead with what visitors can book.',
+          suggestion: upperFirst(sentence(words.slice(keep).join(' '))) };
+      }
+
+      if (FILLER.test(n)) {
+        const trimmed = n
+          .replace(/\b(i teach|i offer|we offer|i do|we do|here to)\b/g, '')
+          .replace(/\bfor people who are\b/g, 'for')
+          .replace(/\bfor those who are\b/g, 'for')
+          .replace(/\band offer\b/g, 'and')
+          .replace(/\s+/g, ' ').trim();
+        return { state: 'suggest',
+          line: 'Make your offer easier to spot with shorter wording.',
+          suggestion: upperFirst(sentence(trimmed)) };
+      }
+
+      const parts = text.split(/[.!?]+/).map(sentence).filter(Boolean);
+      if (parts.length > 1 && !FORMATS.test(norm(parts[1])) && !AGENTS.test(norm(parts[1]))) {
+        return { state: 'suggest', line: 'Bring your offers together in one clear line.',
+          suggestion: upperFirst(parts[0]) };
+      }
+
+      /* ── 3. Good enough. The line names what is already working, so the
+         seller knows which part to keep, and there is nothing to apply. ── */
+      const where = /\bin [a-z]/.test(n);
+      const who = /\bfor [a-z]/.test(n);
+      if (where && who) return { state: 'good', line: "Your tagline says what you offer, who it's for and where." };
+      if (where) return { state: 'good', line: 'Your tagline clearly explains what you offer and where.' };
+      if (who) return { state: 'good', line: "Your tagline makes your offer and who it's for clear." };
+      return { state: 'good', line: 'Your tagline clearly tells visitors what you offer.' };
+    }
+    // Reachable from the probe, which checks the reviewer accepts its own work.
+    window.__review = review;
+
+    /* ── Timing ──
+       The loader turns up on the first few characters rather than after a
+       pause, so the person can see something is reading along while they
+       write. The pause does the other half: the review lands when they
+       stop, which is the only moment it is not an interruption. Nothing
+       appears before there is something to read. */
+    const SETTLE_MS = 1000;
+    const MIN_CHARS = 3;
+    let settleTimer = null;
+
+    function paint() {
+      const r = review(input.value);
+      if (!r) { suggest.hidden = true; return; }
+      suggest.setAttribute('data-state', r.state);
+      suggestText.textContent = r.line;
+      const has = !!r.suggestion;
+      suggestLine.hidden = !has;
+      suggestActions.hidden = !has;
+      if (has) suggestLine.textContent = r.suggestion;
+      applyBtn.dataset.line = has ? r.suggestion : '';
+    }
+
+    function schedule() {
+      window.clearTimeout(settleTimer);
+      if (input.value.trim().length < MIN_CHARS) { suggest.hidden = true; return; }
+      suggest.setAttribute('data-state', 'loading');
+      suggest.hidden = false;
+      settleTimer = window.setTimeout(paint, SETTLE_MS);
+    }
+
+    input.addEventListener('input', () => { split.sync(); schedule(); });
+
+    /* Apply puts the whole line in, not a suffix on the end of it — the
+       suggestion is a complete replacement, ready to use.
+
+       The panel then holds still. What it said and what it offered stay on
+       screen, because the seller has just handed their own line over and
+       the two are worth seeing side by side for a moment — the note that
+       explains the change, and the change itself, against the field that
+       now holds it. Re-reviewing on the spot would replace both with a
+       verdict on work they had no part in yet.
+
+       The next keystroke starts a fresh review. Setting .value from here
+       fires no input event, so nothing re-reads the field until the
+       seller touches it. */
+    applyBtn.addEventListener('click', () => {
+      const line = applyBtn.dataset.line;
+      if (!line) return;
+      window.clearTimeout(settleTimer);
+      input.value = line;
+      split.sync();
+      input.focus();
+    });
+  </script>
+
+</body>
+</html>
