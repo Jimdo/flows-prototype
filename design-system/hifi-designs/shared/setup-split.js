@@ -81,10 +81,32 @@ export function initSetupSplit(options) {
      highlight, wheel over the preview — is the same in both. */
   const useDrawer = opts.drawer !== false;
 
+  /* Without a drawer the phone rests small, so the question beside it is
+     the prominent thing. Tapping it opens it over the step at close to
+     full width, with an X to put it back — the one gesture the small state
+     has to support, and the state where scrolling the artifact is what you
+     actually meant. */
+  function expanded() {
+    return shell.getAttribute('data-preview-expanded') === 'true';
+  }
+  function setExpanded(on) {
+    shell.setAttribute('data-preview-expanded', on ? 'true' : 'false');
+    if (on && previewClose) previewClose.focus();
+  }
+
   const main = shell.querySelector('.setup-split-main');
   const preview = shell.querySelector('.setup-split-preview');
   const form = shell.querySelector('.setup-split-form');
   const grip = shell.querySelector('.setup-drawer-grip');
+  /* The phone, not the room around it. The relay used to sit on
+     .setup-split-preview — the whole grey block — so a wheel or a finger
+     anywhere in it scrolled the artifact and preventDefault'd the page.
+     On the drawer layout that block is the screen and there is nothing
+     else to scroll, so it was invisible; once the question flows
+     underneath it, the grey margin either side of the phone was eating
+     every attempt to scroll down to it. */
+  const stage = shell.querySelector('.bp-stage');
+  const previewClose = shell.querySelector('.setup-preview-close');
   const frame = shell.querySelector('.bp-frame iframe');
 
   /* ── Preview bridge ───────────────────────────────────────────────── */
@@ -318,19 +340,31 @@ export function initSetupSplit(options) {
   let touchY = null;
   let touchMoved = false;
 
-  if (preview) {
-    preview.addEventListener('wheel', function (e) {
-      if (!frame || !frame.contentWindow) return;
+  /* Scrolling the artifact is only ever the intent when the artifact is
+     what you are pointing at, and on a phone only once it has been opened.
+     Otherwise the gesture belongs to the page. */
+  function relayWants() {
+    if (!frame || !frame.contentWindow) return false;
+    if (!window.matchMedia(MOBILE).matches) return true;   // desktop: the column is fixed
+    return useDrawer || expanded();
+  }
+
+  const scroller = useDrawer ? preview : stage;
+
+  if (scroller) {
+    scroller.addEventListener('wheel', function (e) {
+      if (!relayWants()) return;
       scrollPreview(e.deltaY);
       e.preventDefault();
     }, { passive: false });
 
-    if (useDrawer) preview.addEventListener('touchstart', function (e) {
+    scroller.addEventListener('touchstart', function (e) {
       touchY = e.touches[0].clientY;
       touchMoved = false;
     }, { passive: true });
 
-    if (useDrawer) preview.addEventListener('touchmove', function (e) {
+    scroller.addEventListener('touchmove', function (e) {
+      if (!relayWants()) { touchY = null; return; }
       if (touchY === null) return;
       const y = e.touches[0].clientY;
       if (Math.abs(y - touchY) > 3) touchMoved = true;
@@ -339,15 +373,21 @@ export function initSetupSplit(options) {
       e.preventDefault();
     }, { passive: false });
 
-    if (useDrawer) preview.addEventListener('touchend', function () { touchY = null; }, { passive: true });
+    scroller.addEventListener('touchend', function () { touchY = null; }, { passive: true });
 
     /* Tapping the page sends the drawer down — the quickest way to see the
        whole thing you are making. A drag was a scroll, not a tap. */
-    if (useDrawer) preview.addEventListener('click', function () {
+    preview.addEventListener('click', function () {
       if (!window.matchMedia(MOBILE).matches) return;
       if (touchMoved) { touchMoved = false; return; }
-      if (shell.getAttribute('data-drawer') === 'collapsed') return;
-      setState('collapsed');
+      if (useDrawer) {
+        if (shell.getAttribute('data-drawer') === 'collapsed') return;
+        setState('collapsed');
+        return;
+      }
+      /* Opening is the whole of the tap. Closing is the X, so a stray tap
+         inside a page you are reading does not shut it. */
+      if (!expanded()) setExpanded(true);
     });
   }
 
@@ -366,6 +406,19 @@ export function initSetupSplit(options) {
     if (!form.contains(e.target)) return;
     if (shell.getAttribute('data-drawer') === 'collapsed') setState('default');
   });
+
+  if (previewClose) {
+    previewClose.addEventListener('click', function (e) {
+      e.stopPropagation();
+      setExpanded(false);
+    });
+  }
+
+  if (!useDrawer) {
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && expanded()) setExpanded(false);
+    });
+  }
 
   /* Deferred: on focusout document.activeElement is still the old node, and
      focus moving between two controls should not blink the highlight off. */

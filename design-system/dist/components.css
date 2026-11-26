@@ -3171,6 +3171,45 @@ body {
   }
 }
 
+/* ── Closing the opened preview ──
+   Only ever visible while the preview is open over the step — the resting
+   band has nothing to close. Top right, over the page's own corner, on the
+   ground rather than on the artifact so it never reads as part of what is
+   being previewed.
+
+   upstream: none, because this closes a prototype's device preview.
+   Nothing in @jimdo/ui frames a phone. See .preview-pro-mark above.
+
+   Used by: the mirrored onboarding steps (scr-485, scr-486, scr-487). */
+.setup-preview-close {
+  display: none;
+  position: absolute;
+  top: var(--jui-layout-padding-s);
+  right: var(--jui-layout-padding-s);
+  z-index: 4;
+  align-items: center;
+  justify-content: center;
+  width: var(--jui-layout-dimension-m);
+  height: var(--jui-layout-dimension-m);
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--jui-color-background-gray-light);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
+  color: var(--jui-color-typography-gray-on-light-default);
+  cursor: pointer;
+}
+
+.setup-preview-close svg {
+  width: var(--jui-layout-padding-l);
+  height: var(--jui-layout-padding-l);
+}
+
+.setup-preview-close:focus-visible {
+  outline: 2px solid var(--jui-color-actions-primary-rest);
+  outline-offset: 2px;
+}
+
 /* ── Artifact stage ──
    The bio page renders at its native 360px and is scaled down by
    --bp-scale, so radius, border and shadow all shrink with it

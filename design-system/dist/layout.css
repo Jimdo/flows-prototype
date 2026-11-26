@@ -818,10 +818,46 @@
     padding: var(--layout-spacing-lg) var(--layout-spacing-md);
   }
 
-  /* The page at a size worth looking at. The drawer-open scale was 0.4111
-     because the drawer was over most of it; with the band holding its own
-     room there is no reason to draw it that small. */
-  .app-shell-setup-split--mirrored { --bp-scale: 0.55; }
+  /* Small at rest, so the thing you can actually edit is the prominent
+     one. The page is still legible as a page — you can see the layout
+     change as you type — and when you want to read it you open it. */
+  .app-shell-setup-split--mirrored { --bp-scale: 0.45; }
+
+  /* The phone is the tap target, so it says so. The grey around it is not:
+     it is the ground the band is drawn on. */
+  .app-shell-setup-split--mirrored .bp-stage { cursor: pointer; }
+
+  /* ── Opened ──
+     Over the step rather than beside it, because at this size there is no
+     beside. Fixed to the viewport, so the question carries on existing
+     underneath at whatever scroll position it was left at. */
+  .app-shell-setup-split--mirrored[data-preview-expanded="true"] .setup-split-main {
+    overflow: hidden;
+  }
+
+  .app-shell-setup-split--mirrored[data-preview-expanded="true"] .setup-split-preview {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .app-shell-setup-split--mirrored[data-preview-expanded="true"] .setup-preview-panel {
+    height: 100%;
+    padding: 0;
+    justify-content: center;
+  }
+
+  /* 0.95 rather than 1: a hair of the ground shows either side, which is
+     what says this is the page being looked at rather than the page. */
+  .app-shell-setup-split--mirrored[data-preview-expanded="true"] { --bp-scale: 0.95; }
+
+  .app-shell-setup-split--mirrored[data-preview-expanded="true"] .setup-preview-close {
+    display: inline-flex;
+  }
 }
 
 /* ── Desktop: question left, page right ── */
