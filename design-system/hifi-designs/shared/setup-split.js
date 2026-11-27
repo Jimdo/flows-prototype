@@ -415,6 +415,55 @@ export function initSetupSplit(options) {
     if (shell.getAttribute('data-drawer') === 'collapsed') setState('default');
   });
 
+  /* ── Keeping Continue above the keyboard ──
+     position: fixed pins to the layout viewport, and iOS lifts the layout
+     viewport to get the focused field clear of the keyboard — so a fixed bar
+     goes up with the page and lands behind the keyboard with everything
+     else. visualViewport is the part still actually on screen. The gap
+     between the two is how much the keyboard is covering, and the bar is
+     moved up by exactly that.
+
+     The same number pads the bottom of the column, so the response under the
+     field stays scroll-reachable instead of being stranded.
+
+     Only for the layout without a drawer. The drawer version moves its own
+     bar by changing the drawer's height and does not want a second opinion. */
+  function syncKeyboardInset() {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    /* What the keyboard covers = the layout viewport, less the part still
+       visible, less however far the page has already been lifted. Clamped at
+       zero because on a desktop browser the two viewports agree. */
+    const covered = window.innerHeight - vv.height - vv.offsetTop;
+    shell.style.setProperty('--setup-kb-inset', Math.max(0, Math.round(covered)) + 'px');
+  }
+
+  /* The bar's own height, so the column knows how much to give back. Read
+     rather than hardcoded: the main-link step carries two buttons and the
+     others one, and a translated string can wrap either of them. */
+  function syncActionsHeight() {
+    const bar = shell.querySelector('.setup-split-actions');
+    if (!bar) return;
+    const h = Math.round(bar.getBoundingClientRect().height);
+    if (h > 0) shell.style.setProperty('--setup-actions-h', h + 'px');
+  }
+
+  if (!useDrawer) {
+    syncActionsHeight();
+    syncKeyboardInset();
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', syncKeyboardInset);
+      window.visualViewport.addEventListener('scroll', syncKeyboardInset);
+    }
+    window.addEventListener('resize', function () {
+      syncActionsHeight();
+      syncKeyboardInset();
+    });
+    /* Exposed so the measurement probes can drive it — visualViewport cannot
+       be faked, and the workbench's keyboard is drawn outside this page. */
+    shell.__syncKeyboardInset = syncKeyboardInset;
+  }
+
   if (previewClose) {
     previewClose.addEventListener('click', function (e) {
       e.stopPropagation();

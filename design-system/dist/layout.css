@@ -814,8 +814,44 @@
     overflow: visible;
   }
 
+  /* ── Continue stays put ──
+     Fixed to the bottom of the screen rather than flowing at the end of the
+     column, so it is reachable at any scroll position.
+
+     The translate is what keeps it above the keyboard. position: fixed is
+     fixed to the *layout* viewport, and iOS lifts the layout viewport to get
+     the focused field clear of the keyboard — so a fixed bar rides up with
+     the page and ends up behind the keyboard exactly like everything else.
+     --setup-kb-inset is how much of the layout viewport the keyboard is
+     covering, read off visualViewport in setup-split.js, and moving the bar
+     by that much puts it back on the edge of what can actually be seen. */
   .app-shell-setup-split--mirrored .setup-split-actions {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 20;
     padding: var(--layout-spacing-lg) var(--layout-spacing-md);
+    background: var(--jui-color-gray-white);
+    border-top: 1px solid var(--jui-color-stroke-gray-default);
+    transform: translateY(calc(var(--setup-kb-inset, 0px) * -1));
+  }
+
+  /* The column gives back the room the bar covers, and the room the keyboard
+     covers on top of it. Without the second part there is nothing to scroll:
+     the content fits the viewport exactly, so the browser pans instead, and
+     whatever sits below the focused field cannot be reached at all. With it,
+     the web address and the tagline suggestion are a scroll away rather than
+     only reachable by dismissing the keyboard. */
+  .app-shell-setup-split--mirrored .setup-split-form {
+    padding-bottom: calc(var(--setup-actions-h, 96px) + var(--setup-kb-inset, 0px));
+  }
+
+  /* Nothing is being edited behind an opened preview, so no bar and no
+     reserved room. The form is display:none in that state, and the bar is
+     inside it. */
+  .app-shell-setup-split--mirrored[data-preview-expanded="true"] .setup-split-form {
+    padding-bottom: 0;
   }
 
   /* Small at rest, so the thing you can actually edit is the prominent
