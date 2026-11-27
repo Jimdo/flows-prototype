@@ -452,7 +452,11 @@ export function initSetupSplit(options) {
     syncActionsHeight();
     syncKeyboardInset();
     if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', syncKeyboardInset);
+      window.visualViewport.addEventListener('resize', function () {
+        syncKeyboardInset();
+        /* The bar has just moved, so what it covers has changed. */
+        window.setTimeout(keepFieldClear, 0);
+      });
       window.visualViewport.addEventListener('scroll', syncKeyboardInset);
     }
     window.addEventListener('resize', function () {
@@ -462,6 +466,45 @@ export function initSetupSplit(options) {
     /* Exposed so the measurement probes can drive it — visualViewport cannot
        be faked, and the workbench's keyboard is drawn outside this page. */
     shell.__syncKeyboardInset = syncKeyboardInset;
+  }
+
+  /* ── Keeping the focused field clear of the Continue bar ──
+     The browser scrolls a focused field to sit just above the keyboard. It
+     knows nothing about a bar we fixed on top of the keyboard, so the field
+     it just made visible ends up behind it — measured at 85px of overlap on
+     both steps once Continue was pinned. This puts it back.
+
+     The same routine absorbs the other jump. The web address and the tagline
+     suggestion now sit above the field, so when one appears the field is
+     pushed down by its height, mid-typing. Scrolling by the same amount
+     leaves the field exactly where it was and reveals the response above it,
+     which is the whole point of putting it there. */
+  function keepFieldClear() {
+    if (!main) return;
+    const el = document.activeElement;
+    if (!el || !shell.contains(el)) return;
+    const tag = el.tagName;
+    if (tag !== 'INPUT' && tag !== 'TEXTAREA' && !el.isContentEditable) return;
+    const bar = shell.querySelector('.setup-split-actions');
+    if (!bar) return;
+    const barTop = bar.getBoundingClientRect().top;
+    const over = el.getBoundingClientRect().bottom + FIELD_GAP - barTop;
+    if (over > 0.5) main.scrollTop += over;
+  }
+  const FIELD_GAP = 12;
+
+  if (!useDrawer) {
+    shell.addEventListener('focusin', function () {
+      /* After the browser has done its own scrolling, not instead of it. */
+      window.setTimeout(keepFieldClear, 0);
+      window.setTimeout(keepFieldClear, 300);
+    });
+    /* The response appearing above the field changes the column's height. */
+    if (window.ResizeObserver) {
+      const fields = shell.querySelector('.setup-split-fields');
+      if (fields) new ResizeObserver(keepFieldClear).observe(fields);
+    }
+    shell.__keepFieldClear = keepFieldClear;
   }
 
   if (previewClose) {

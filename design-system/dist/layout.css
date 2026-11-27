@@ -844,7 +844,15 @@
      the web address and the tagline suggestion are a scroll away rather than
      only reachable by dismissing the keyboard. */
   .app-shell-setup-split--mirrored .setup-split-form {
-    padding-bottom: calc(var(--setup-actions-h, 96px) + var(--setup-kb-inset, 0px));
+    /* The bar, the keyboard, and 12 on top of both. The last item in the
+       column is usually the field being edited — the web address and the
+       tagline suggestion sit above it now — and it has to be able to scroll
+       clear of the bar, not just up to it. Without the 12 the column runs
+       out of room exactly 85px short, which is the height of the bar less
+       the gap already there. */
+    padding-bottom: calc(
+      var(--setup-actions-h, 96px) + var(--setup-kb-inset, 0px) + var(--jui-layout-padding-s)
+    );
   }
 
   /* Nothing is being edited behind an opened preview, so no bar and no
